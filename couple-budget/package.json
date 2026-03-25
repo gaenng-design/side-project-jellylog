@@ -1,0 +1,80 @@
+{
+  "name": "couple-budget",
+  "version": "0.1.0",
+  "description": "부부 월 정산 가계부",
+  "main": "./out/main/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "dev:web": "vite --config vite.web.config.ts",
+    "build": "electron-vite build",
+    "build:web": "vite build --config vite.web.config.ts",
+    "preview:web": "vite preview --config vite.web.config.ts",
+    "preview": "electron-vite preview",
+    "dist": "electron-vite build && electron-builder",
+    "test": "vitest"
+  },
+  "build": {
+    "appId": "com.couplebudget",
+    "productName": "부부 가계부",
+    "directories": {
+      "buildResources": "resources",
+      "output": "dist"
+    },
+    "files": [
+      "out/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/icon.icns",
+        "to": "icon.icns"
+      },
+      {
+        "from": "resources/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "mac": {
+      "icon": "resources/icon.icns",
+      "category": "public.app-category.finance",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ]
+    },
+    "dmg": {
+      "title": "부부 가계부 ${version}"
+    }
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@electron-toolkit/tsconfig": "^2.0.0",
+    "@supabase/supabase-js": "^2.98.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-router-dom": "^6",
+    "zustand": "^5"
+  },
+  "devDependencies": {
+    "@electron-toolkit/preload": "^3.0.2",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^4",
+    "autoprefixer": "^10",
+    "electron": "^33",
+    "electron-vite": "^2",
+    "postcss": "^8",
+    "tailwindcss": "^3",
+    "typescript": "^5",
+    "vite": "^5",
+    "vitest": "^2"
+  }
+}

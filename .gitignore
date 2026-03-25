@@ -1,0 +1,16 @@
+.DS_Store
+*.zip
+
+# couple-budget — secrets & build
+couple-budget/node_modules/
+couple-budget/dist/
+couple-budget/dist-web/
+couple-budget/out/
+couple-budget/.env
+couple-budget/.env.local
+couple-budget/.env.*.local
+couple-budget/.vite/
+couple-budget/coverage/
+couple-budget/*.log
+couple-budget/release/
+couple-budget/*.tsbuildinfo
