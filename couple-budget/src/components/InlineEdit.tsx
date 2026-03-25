@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { PRIMARY, PRIMARY_LIGHT } from '@/styles/formControls'
+import { PRIMARY_LIGHT } from '@/styles/formControls'
+import { JELLY } from '@/styles/jellyGlass'
 
 interface InlineEditProps {
   value: string
@@ -41,7 +42,7 @@ export function InlineEdit({
 
   if (disabled) {
     return (
-      <span style={{ fontSize: 13, color: '#232d3c', textAlign: align, display: 'block' }}>
+      <span style={{ fontSize: 13, color: JELLY.text, textAlign: align, display: 'block' }}>
         {formatter ? formatter(value) : value || placeholder}
       </span>
     )
@@ -65,14 +66,17 @@ export function InlineEdit({
         style={{
           width: inputWidth ?? '100%',
           fontSize: 13,
-          border: `1px solid ${PRIMARY}`,
-          borderRadius: 6,
-          padding: '2px 6px',
+          border: `1px solid rgba(255,255,255,0.55)`,
+          borderRadius: JELLY.radiusMd,
+          padding: '4px 10px',
           outline: 'none',
           textAlign: align,
-          color: '#111827',
+          color: JELLY.text,
           background: PRIMARY_LIGHT,
+          backdropFilter: JELLY.blur,
+          WebkitBackdropFilter: JELLY.blur,
           fontFamily: 'inherit',
+          boxShadow: 'inset 0 1px 6px rgba(255,255,255,0.35)',
         }}
       />
     )
@@ -84,16 +88,16 @@ export function InlineEdit({
       title="더블클릭하여 수정"
       style={{
         fontSize: 13,
-        color: '#232d3c',
+        color: JELLY.text,
         cursor: 'text',
         textAlign: align,
         display: 'block',
-        borderRadius: 4,
+        borderRadius: JELLY.radiusMd,
         padding: '2px 4px',
         minWidth: 20,
       }}
     >
-      {formatter ? formatter(value) : value || <span style={{ color: '#b0bac8' }}>{placeholder}</span>}
+      {formatter ? formatter(value) : value || <span style={{ color: JELLY.textMuted }}>{placeholder}</span>}
     </span>
   )
 }

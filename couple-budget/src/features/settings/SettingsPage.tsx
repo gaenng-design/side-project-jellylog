@@ -14,7 +14,8 @@ import { CustomSelect } from '@/components/CustomSelect'
 import { FixedExpenseRow } from '@/components/FixedExpenseRow'
 import { InvestRow } from '@/components/InvestRow'
 import { GroupHeaderChip } from '@/components/GroupHeaderChip'
-import { inputBaseStyle, PRIMARY } from '@/styles/formControls'
+import { inputBaseStyle, PRIMARY, settingsSectionCardStyle } from '@/styles/formControls'
+import { jellyGhostButton, jellyPrimaryButton, jellyPrimaryButtonDisabled } from '@/styles/jellyGlass'
 import { isSupabaseConfigured } from '@/data/supabase'
 import { saveAllToSupabase } from '@/data/saveAllToSupabase'
 import type { Person } from '@/types'
@@ -176,7 +177,7 @@ function UserSettings() {
 
   return (
     <>
-    <div style={{ padding: 16, background: '#fff', borderRadius: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+    <div style={settingsSectionCardStyle}>
       <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 14 }}>유저 설정</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
         {/* 유저 1 */}
@@ -288,7 +289,7 @@ function SharedLivingCostSettings() {
   const updateSettings = useAppStore((s) => s.updateSettings)
 
   return (
-    <div style={{ padding: 16, background: '#fff', borderRadius: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+    <div style={settingsSectionCardStyle}>
       <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 14 }}>공동 생활비</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div>
@@ -405,7 +406,7 @@ function FixedTemplateSettings() {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
   return (
-    <div style={{ padding: 16, background: '#fff', borderRadius: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+    <div style={settingsSectionCardStyle}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>고정지출 템플릿</div>
       </div>
@@ -606,7 +607,7 @@ function InvestTemplateSettings() {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
   return (
-    <div style={{ padding: 16, background: '#fff', borderRadius: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+    <div style={settingsSectionCardStyle}>
       <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 14 }}>투자·저축 템플릿</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
         {INVEST_PERSON_ORDER.filter((p) => (grouped[p]?.length ?? 0) > 0).map((personKey) => (
@@ -696,13 +697,9 @@ function InvestTemplateSettings() {
             }}
             title="만기일 선택"
             style={{
-              padding: 8,
-              border: '1px solid #e5e7eb',
-              borderRadius: 8,
-              background: '#fff',
-              cursor: 'pointer',
+              ...jellyGhostButton,
+              padding: 10,
               fontSize: 14,
-              color: '#6b7280',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -720,14 +717,9 @@ function InvestTemplateSettings() {
           onClick={handleAdd}
           disabled={!desc}
           style={{
+            ...(desc ? jellyPrimaryButton : jellyPrimaryButtonDisabled),
             fontSize: 12,
-            padding: '8px 14px',
-            borderRadius: 10,
-            border: 'none',
-            background: !desc ? '#e5e7eb' : PRIMARY,
-            color: !desc ? '#9ca3af' : '#fff',
-            cursor: !desc ? 'not-allowed' : 'pointer',
-            fontWeight: 500,
+            padding: '10px 16px',
           }}
         >
           + 템플릿 추가
@@ -769,7 +761,7 @@ function SupabaseStatus() {
   }
 
   return (
-    <div style={{ padding: 16, background: '#fff', borderRadius: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+    <div style={settingsSectionCardStyle}>
       <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Supabase</div>
       <div style={{ fontSize: 13, color: isSupabaseConfigured ? '#374151' : '#6b7280', lineHeight: 1.55, marginBottom: 12 }}>
         {isSupabaseConfigured ? (

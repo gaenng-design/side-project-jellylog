@@ -3,6 +3,9 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
+/** Auth 전용 — 앱 데이터 초기화 시 이 키는 제외해야 세션 오류(400 등) 방지 */
+export const COUPLE_BUDGET_SUPABASE_AUTH_KEY = 'couple-budget-supabase-auth'
+
 /** 환경변수가 있고 placeholder가 아니면 Supabase 사용 */
 export const isSupabaseConfigured =
   !!url &&
@@ -27,7 +30,7 @@ if (isSupabaseConfigured && url && key) {
         autoRefreshToken: true,
         detectSessionInUrl: true,
         storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-        storageKey: 'couple-budget-supabase-auth',
+        storageKey: COUPLE_BUDGET_SUPABASE_AUTH_KEY,
       },
     })
     console.log('[Supabase] init OK | URL:', maskUrl(url), '| configured: true')

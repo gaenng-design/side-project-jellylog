@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { syncIncomeRepoSalaryDescriptions } from '@/data/syncIncomeRepoSalaryDescriptions'
+import { SUB_HUES, subOklch } from '@/styles/oklchSubColors'
 
 const now = new Date()
 const defaultYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -76,9 +77,9 @@ export const useAppStore = create<AppState>()(
         sharedLivingCost: 0,
         sharedLivingCostRatioMode: '50:50',
         sharedLivingCostRatio: [50, 50],
-        user1Color: '#FFADAD',
-        user2Color: '#9BF6FF',
-        sharedColor: '#065f46',
+        user1Color: subOklch(SUB_HUES[0]),
+        user2Color: subOklch(SUB_HUES[1]),
+        sharedColor: subOklch(SUB_HUES[2]),
       },
       startedMonths: [defaultYM],
       settledMonths: [],

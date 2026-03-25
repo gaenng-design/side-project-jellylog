@@ -5,7 +5,9 @@
  */
 import { supabase, isSupabaseConfigured } from '@/data/supabase'
 import { getSyncHouseholdId } from '@/services/authHousehold'
+import { rehydrateAllPersistedStores } from '@/store/rehydratePersistedStores'
 import { useAppStore } from '@/store/useAppStore'
+import { SUB_HUES, subOklch } from '@/styles/oklchSubColors'
 import type { Income } from '@/types'
 import type { MonthlySettlement } from '@/store/useSettlementStore'
 
@@ -122,8 +124,9 @@ async function fetchAppSnapshotBody(householdId: string): Promise<Record<string,
 
 async function hasAnyNormalizedSignal(householdId: string): Promise<boolean> {
   if (!supabase) return false
+  /** plan_snapshots PK는 (household_id, year_month) — id 컬럼 없음 → select id 시 PostgREST 400 */
   const q = (t: string) =>
-    supabase.from(t).select('id', { count: 'exact', head: true }).eq('household_id', householdId)
+    supabase.from(t).select('household_id', { count: 'exact', head: true }).eq('household_id', householdId)
   const tables = ['fixed_templates', 'invest_templates', 'incomes', 'plan_snapshots'] as const
   const results = await Promise.all(tables.map((t) => q(t)))
   return results.some((r) => (r.count ?? 0) > 0)
@@ -252,6 +255,7 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
             console.warn('[supabase-sync] snapshot key write', k, e)
           }
         }
+        await rehydrateAllPersistedStores()
         return
       }
       /* 정규화 행도 app_snapshot 도 없음(가계 초기화 직후 등) → 아래 select 로 빈 서버 기준으로 로컬 덮어쓰기 */
@@ -520,15 +524,17 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
           sharedLivingCost: 0,
           sharedLivingCostRatioMode: '50:50',
           sharedLivingCostRatio: [50, 50],
-          user1Color: '#FFADAD',
-          user2Color: '#9BF6FF',
-          sharedColor: '#065f46',
+          user1Color: subOklch(SUB_HUES[0]),
+          user2Color: subOklch(SUB_HUES[1]),
+          sharedColor: subOklch(SUB_HUES[2]),
         },
         startedMonths: mergedStarted.length ? mergedStarted : [defaultYm],
         settledMonths: mergedSettled,
         lastSavedByMonth: {},
       })
     }
+
+    await rehydrateAllPersistedStores()
   } catch (e) {
     console.warn('[supabase-sync] hydrate failed, keeping local storage', e)
   }

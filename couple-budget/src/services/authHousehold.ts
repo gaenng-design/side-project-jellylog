@@ -1,16 +1,18 @@
-import { supabase, isSupabaseConfigured } from '@/data/supabase'
+import { supabase, isSupabaseConfigured, COUPLE_BUDGET_SUPABASE_AUTH_KEY } from '@/data/supabase'
 
 const SYNC_HOUSEHOLD_KEY = 'couple-budget:sync-household-id'
 /** 이 기기에만 저장. 앱 재실행·익명 세션 갱신 후 같은 가계에 다시 붙을 때 사용 */
 const ACCESS_CODE_KEY = 'couple-budget:household-access-code'
-const APP_STORAGE_PREFIX = 'couple-budget'
 
-function clearAllCoupleBudgetLocalStorage(): void {
+/** 가계 미연결: 로컬의 월별·템플릿·설정 저장만 제거. Supabase 세션 키는 유지(직접 지우지 않음). */
+export function clearCoupleBudgetLocalDataKeepAuth(): void {
+  if (typeof localStorage === 'undefined') return
   try {
     const keys: string[] = []
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i)
-      if (k?.startsWith(APP_STORAGE_PREFIX)) keys.push(k)
+      if (!k || k === COUPLE_BUDGET_SUPABASE_AUTH_KEY) continue
+      if (k.startsWith('couple-budget')) keys.push(k)
     }
     for (const k of keys) localStorage.removeItem(k)
   } catch {
@@ -55,6 +57,35 @@ export async function ensureSupabaseSessionForSync(): Promise<EnsureSessionResul
     }
   }
   return { ok: true, hadSession: false }
+}
+
+/** RPC 전에 호출. getSession()만 쓰면 auth.users 에 없는 고아 JWT로 household_members 삽입 시 FK 위반 가능 */
+async function ensureFreshAuthUserForRpc(): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!supabase) return { ok: false, error: 'Supabase 클라이언트가 없습니다.' }
+  let {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+  if (!error && user?.id) return { ok: true }
+  await supabase.auth.signOut()
+  const ensured = await ensureSupabaseSessionForSync()
+  if (!ensured.ok) return { ok: false, error: ensured.reason }
+  ;({
+    data: { user },
+    error,
+  } = await supabase.auth.getUser())
+  if (error || !user?.id) {
+    return {
+      ok: false,
+      error:
+        '인증 사용자를 확인하지 못했습니다. DB를 초기화했다면 브라우저 개발자 도구 → Application → Local Storage 에서 이 사이트의 `couple-budget-supabase-auth` 항목을 지운 뒤 새로고침해 주세요.',
+    }
+  }
+  return { ok: true }
+}
+
+function isHouseholdMembersUserFkError(message: string): boolean {
+  return message.includes('household_members_user_id_fkey')
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -149,13 +180,25 @@ async function joinHouseholdWithAccessCodeRpc(
   if (normalized.length < 16) {
     return { ok: false, error: '접속 코드는 16자(0-9, A-F)입니다.' }
   }
-  const { data, error } = await supabase.rpc('join_household_by_access_code', {
-    p_code: normalized,
-  })
-  if (error) return { ok: false, error: error.message }
-  const hid = data as string | null
-  if (!hid) return { ok: false, error: '접속 코드 응답이 비었습니다.' }
-  return { ok: true, householdId: hid }
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const prep = await ensureFreshAuthUserForRpc()
+    if (!prep.ok) return { ok: false, error: prep.error }
+    const { data, error } = await supabase.rpc('join_household_by_access_code', {
+      p_code: normalized,
+    })
+    if (!error) {
+      const hid = data as string | null
+      if (!hid) return { ok: false, error: '접속 코드 응답이 비었습니다.' }
+      return { ok: true, householdId: hid }
+    }
+    if (attempt === 0 && isHouseholdMembersUserFkError(error.message)) {
+      await supabase.auth.signOut()
+      await ensureSupabaseSessionForSync()
+      continue
+    }
+    return { ok: false, error: error.message }
+  }
+  return { ok: false, error: '가계 참여에 실패했습니다.' }
 }
 
 /** 세션 복원 후 household_members 조회; 없으면 저장된 16자 코드로 자동 재참여 시도 */
@@ -213,20 +256,34 @@ export async function createHouseholdRpc(): Promise<
   { ok: true; householdId: string; accessCode: string } | { ok: false; error: string }
 > {
   if (!supabase) return { ok: false, error: 'Supabase 클라이언트가 없습니다.' }
-  const { data, error } = await supabase.rpc('create_household_with_access_code')
-  if (error) return { ok: false, error: error.message }
-  const row = (Array.isArray(data) ? data[0] : data) as
-    | { household_id?: string; access_code?: string }
-    | undefined
-  if (!row?.household_id || !row?.access_code) return { ok: false, error: '가계 생성 응답이 비었습니다.' }
-  setSavedAccessCode(row.access_code)
-  try {
-    localStorage.setItem(SYNC_HOUSEHOLD_KEY, row.household_id)
-  } catch {
-    /* ignore */
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const prep = await ensureFreshAuthUserForRpc()
+    if (!prep.ok) return { ok: false, error: prep.error }
+    const { data, error } = await supabase.rpc('create_household_with_access_code')
+    if (error) {
+      if (attempt === 0 && isHouseholdMembersUserFkError(error.message)) {
+        await supabase.auth.signOut()
+        await ensureSupabaseSessionForSync()
+        continue
+      }
+      return { ok: false, error: error.message }
+    }
+    const row = (Array.isArray(data) ? data[0] : data) as
+      | { household_id?: string; access_code?: string }
+      | undefined
+    if (!row?.household_id || !row?.access_code) return { ok: false, error: '가계 생성 응답이 비었습니다.' }
+    setSavedAccessCode(row.access_code)
+    try {
+      localStorage.setItem(SYNC_HOUSEHOLD_KEY, row.household_id)
+    } catch {
+      /* ignore */
+    }
+    await syncAuthUserMetadataHouseholdAccessCode(row.access_code)
+    const { hydrateFromSupabaseBeforeApp } = await import('@/services/supabase-sync')
+    await hydrateFromSupabaseBeforeApp()
+    return { ok: true, householdId: row.household_id, accessCode: row.access_code }
   }
-  await syncAuthUserMetadataHouseholdAccessCode(row.access_code)
-  return { ok: true, householdId: row.household_id, accessCode: row.access_code }
+  return { ok: false, error: '가계 생성에 실패했습니다.' }
 }
 
 export async function joinHouseholdRpc(
@@ -258,9 +315,9 @@ export async function signOutAndClearHousehold(): Promise<void> {
 }
 
 /**
- * 서버: 같은 가계 UUID·접속 코드는 유지하고, 멤버십·동기화 테이블 데이터만 삭제(가계 단위 초기화).
- * 이후 동일 16자 코드로 참여하면 join → hydrate 로 서버(빈) 기준으로 다시 맞춤.
- * 이 기기: couple-budget:* localStorage 전부 제거 후 새 익명 세션.
+ * 서버: household_members 만 제거(가계 데이터는 서버에 유지).
+ * 이 기기: 로컬 예산·설정·동기화 키 전부 제거 후 signOut → 새 익명 세션.
+ * (Supabase 세션 스토리지 키만 제외 — 제거 시 400 등)
  */
 export async function deleteHouseholdOnServerAndClearLocal(): Promise<
   { ok: true } | { ok: false; error: string }
@@ -268,7 +325,7 @@ export async function deleteHouseholdOnServerAndClearLocal(): Promise<
   if (!supabase) return { ok: false, error: 'Supabase 클라이언트가 없습니다.' }
   const { error } = await supabase.rpc('delete_my_household')
   if (error) return { ok: false, error: error.message }
-  clearAllCoupleBudgetLocalStorage()
+  clearCoupleBudgetLocalDataKeepAuth()
   await signOutAndClearHousehold()
   return { ok: true }
 }

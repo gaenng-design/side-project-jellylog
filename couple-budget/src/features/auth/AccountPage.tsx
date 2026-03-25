@@ -9,7 +9,18 @@ import {
   getSyncHouseholdId,
   getSavedAccessCode,
 } from '@/services/authHousehold'
-import { PRIMARY } from '@/styles/formControls'
+import {
+  JELLY,
+  jellyCardStyle,
+  jellyPrimaryButton,
+  jellyPrimaryButtonDisabled,
+  jellyDangerButton,
+  jellyInputSurface,
+  jellyErrorBanner,
+  jellySuccessBanner,
+  jellyGhostButton,
+} from '@/styles/jellyGlass'
+import { PRIMARY_DARK } from '@/styles/formControls'
 
 export function AccountPage() {
   const [accessCodeInput, setAccessCodeInput] = useState('')
@@ -102,7 +113,7 @@ export function AccountPage() {
       }
       setMsg({
         tone: 'ok',
-        text: '이 가계의 서버·기기 데이터가 초기화되었습니다. 같은 접속 코드로 다시 참여하면 서버에서 비어 있는 상태로 불러옵니다. 잠시 후 새로고침합니다.',
+        text: '가계 연결이 끊겼습니다. 이 기기의 월별·템플릿·설정 저장은 비웁니다. 같은 접속 코드로 다시 참여하면 서버 데이터를 불러옵니다. 잠시 후 새로고침합니다.',
       })
       window.setTimeout(() => window.location.reload(), 500)
     } finally {
@@ -113,8 +124,8 @@ export function AccountPage() {
   if (!isSupabaseConfigured) {
     return (
       <div style={{ maxWidth: 520 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>동기화 · 가계</h1>
-        <p style={{ color: '#6b7280', fontSize: 14, lineHeight: 1.6 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12, color: JELLY.text }}>동기화 · 가계</h1>
+        <p style={{ color: JELLY.textMuted, fontSize: 14, lineHeight: 1.6 }}>
           Supabase가 설정되지 않았습니다. 프로젝트 루트 <code>.env</code>에 <code>VITE_SUPABASE_URL</code>,{' '}
           <code>VITE_SUPABASE_ANON_KEY</code>를 넣은 뒤 앱을 다시 실행해 주세요.
         </p>
@@ -124,8 +135,8 @@ export function AccountPage() {
 
   return (
     <div style={{ maxWidth: 520, paddingBottom: 40 }}>
-      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8 }}>동기화 · 가계</h1>
-      <p style={{ color: '#6b7280', fontSize: 13, lineHeight: 1.55, marginBottom: 20 }}>
+      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8, color: JELLY.text }}>동기화 · 가계</h1>
+      <p style={{ color: JELLY.textMuted, fontSize: 13, lineHeight: 1.55, marginBottom: 20 }}>
         {householdId ? (
           <>
             가계에 연결된 상태입니다. 아래 <strong>접속 코드</strong>를 상대에게 알려 주면 같은 가계에 참여할 수 있습니다.
@@ -133,25 +144,17 @@ export function AccountPage() {
           </>
         ) : (
           <>
-            <strong style={{ color: '#374151' }}>새 가계 만들기</strong>를 누르면 이 가계만의{' '}
+            <strong style={{ color: JELLY.text }}>새 가계 만들기</strong>를 누르면 이 가계만의{' '}
             <strong>아이디(16자, 0–9·A–F)</strong>가 발급됩니다. 그 아이디가 곧 <strong>접속 코드</strong>이며, 상대
             기기에서 같은 아이디를 입력하면 같은 가계에 붙습니다. 이 기기에 저장되며 이 페이지에서 계속 확인할 수 있습니다.
-            (MVP: 사용자 2명까지) 개발자 설정: Supabase 대시보드에서 <strong style={{ color: '#374151' }}>Anonymous</strong>{' '}
+            (MVP: 사용자 2명까지) 개발자 설정: Supabase 대시보드에서 <strong style={{ color: JELLY.text }}>Anonymous</strong>{' '}
             로그인을 켜 두어야 합니다.
           </>
         )}
       </p>
 
       {sessionError ? (
-        <div
-          style={{
-            marginBottom: 20,
-            padding: 14,
-            background: '#fef2f2',
-            borderRadius: 12,
-            border: '1px solid #fecaca',
-          }}
-        >
+        <div style={{ marginBottom: 20, padding: 16, ...jellyErrorBanner }}>
           <div style={{ fontWeight: 700, color: '#991b1b', marginBottom: 8 }}>연결 오류</div>
           <p style={{ margin: '0 0 12px', fontSize: 13, color: '#7f1d1d', lineHeight: 1.55 }}>{sessionError}</p>
           <p style={{ margin: '0 0 12px', fontSize: 12, color: '#991b1b', lineHeight: 1.5 }}>
@@ -161,22 +164,13 @@ export function AccountPage() {
             type="button"
             disabled={busy}
             onClick={() => void refreshLocal()}
-            style={{
-              padding: '8px 14px',
-              borderRadius: 8,
-              border: 'none',
-              background: busy ? '#e5e7eb' : PRIMARY,
-              color: '#fff',
-              fontWeight: 600,
-              fontSize: 13,
-              cursor: busy ? 'not-allowed' : 'pointer',
-            }}
+            style={busy ? jellyPrimaryButtonDisabled : jellyPrimaryButton}
           >
             다시 연결 시도
           </button>
         </div>
       ) : (
-        <div style={{ marginBottom: 20, fontSize: 14, color: '#374151' }}>
+        <div style={{ marginBottom: 20, fontSize: 14, color: JELLY.text }}>
           연결 상태:{' '}
           {!sessionReady ? (
             <span style={{ color: '#b45309' }}>준비 중…</span>
@@ -184,7 +178,7 @@ export function AccountPage() {
             <span style={{ color: '#059669' }}>서버 연결됨 · 가계 아이디로 들어오면 동기화할 수 있습니다</span>
           )}
           {getSavedAccessCode() && !householdId && sessionReady ? (
-            <span style={{ display: 'block', marginTop: 6, fontSize: 12, color: '#0369a1' }}>
+            <span style={{ display: 'block', marginTop: 6, fontSize: 12, color: PRIMARY_DARK }}>
               이 기기에 가계 아이디가 저장되어 있습니다. 아래에서 참여하기를 누르면 같은 아이디로 다시 붙을 수 있습니다.
             </span>
           ) : null}
@@ -205,9 +199,7 @@ export function AccountPage() {
           style={{
             marginBottom: 20,
             padding: 16,
-            background: '#f0fdf4',
-            borderRadius: 14,
-            border: '1px solid #bbf7d0',
+            ...jellySuccessBanner,
             fontSize: 14,
             color: '#166534',
           }}
@@ -224,14 +216,12 @@ export function AccountPage() {
               type="button"
               onClick={() => void navigator.clipboard.writeText(persistedAccessCode)}
               style={{
-                padding: '6px 12px',
-                borderRadius: 8,
-                border: '1px solid #86efac',
-                background: '#fff',
-                color: '#166534',
-                fontWeight: 600,
+                ...jellyGhostButton,
+                padding: '8px 16px',
                 fontSize: 12,
-                cursor: 'pointer',
+                color: '#166534',
+                border: '1px solid rgba(167, 243, 208, 0.75)',
+                background: 'rgba(255,255,255,0.45)',
               }}
             >
               복사
@@ -246,13 +236,11 @@ export function AccountPage() {
             style={{
               marginBottom: 20,
               padding: 16,
-              background: '#fff',
-              borderRadius: 14,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              ...jellyCardStyle,
             }}
           >
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>1. 새 가계 만들기</div>
-            <p style={{ margin: '0 0 10px', fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, color: JELLY.text }}>1. 새 가계 만들기</div>
+            <p style={{ margin: '0 0 10px', fontSize: 12, color: JELLY.textMuted, lineHeight: 1.5 }}>
               가계가 생기면 <strong>아이디(접속 코드)</strong>가 발급되며, 이 페이지와 이 기기에 저장되어 계속 확인할 수
               있습니다. 상대에게 전달해 주세요.
             </p>
@@ -260,15 +248,7 @@ export function AccountPage() {
               type="button"
               disabled={busy || !sessionReady}
               onClick={() => void handleCreateHousehold()}
-              style={{
-                padding: '10px 16px',
-                borderRadius: 10,
-                border: 'none',
-                background: !sessionReady ? '#e5e7eb' : PRIMARY,
-                color: '#fff',
-                fontWeight: 600,
-                cursor: !sessionReady ? 'not-allowed' : 'pointer',
-              }}
+              style={busy || !sessionReady ? jellyPrimaryButtonDisabled : jellyPrimaryButton}
             >
               새 가계 만들기
             </button>
@@ -278,31 +258,32 @@ export function AccountPage() {
             style={{
               marginBottom: 20,
               padding: 16,
-              background: '#fff',
-              borderRadius: 14,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              ...jellyCardStyle,
             }}
           >
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>2. 가계 아이디로 참여</div>
-            <p style={{ margin: '0 0 10px', fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, color: JELLY.text }}>2. 가계 아이디로 참여</div>
+            <p style={{ margin: '0 0 10px', fontSize: 12, color: JELLY.textMuted, lineHeight: 1.5 }}>
               상대가 알려준 16자 아이디를 입력합니다. 새 기기에서도 같은 아이디로 들어오면 됩니다.
             </p>
             <input
               type="text"
+              inputMode="text"
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck={false}
               value={accessCodeInput}
               onChange={(e) =>
                 setAccessCodeInput(e.target.value.toUpperCase().replace(/[^0-9A-F]/g, ''))
               }
               placeholder="16자 (0-9, A-F)"
-              disabled={!sessionReady}
+              aria-label="가계 접속 코드 16자"
               style={{
-                padding: '10px 12px',
-                borderRadius: 10,
-                border: '1px solid #e5e7eb',
+                ...jellyInputSurface,
+                padding: '10px 14px',
                 fontSize: 14,
                 width: '100%',
                 maxWidth: 320,
-                marginBottom: 10,
+                marginBottom: 18,
                 fontFamily: 'ui-monospace, monospace',
               }}
             />
@@ -310,15 +291,11 @@ export function AccountPage() {
               type="button"
               disabled={busy || !sessionReady || accessCodeInput.length < 16}
               onClick={() => void handleJoin()}
-              style={{
-                padding: '10px 16px',
-                borderRadius: 10,
-                border: 'none',
-                background: !sessionReady ? '#e5e7eb' : PRIMARY,
-                color: '#fff',
-                fontWeight: 600,
-                cursor: !sessionReady ? 'not-allowed' : 'pointer',
-              }}
+              style={
+                busy || !sessionReady || accessCodeInput.length < 16
+                  ? jellyPrimaryButtonDisabled
+                  : jellyPrimaryButton
+              }
             >
               참여하기
             </button>
@@ -332,21 +309,14 @@ export function AccountPage() {
             type="button"
             disabled={busy}
             onClick={() => void handleResetDevice()}
-            style={{
-              padding: '10px 16px',
-              borderRadius: 10,
-              border: '1px solid #fecaca',
-              background: '#fef2f2',
-              color: '#991b1b',
-              fontWeight: 600,
-              cursor: busy ? 'not-allowed' : 'pointer',
-            }}
+            style={busy ? { ...jellyDangerButton, opacity: 0.55, cursor: 'not-allowed' } : jellyDangerButton}
           >
-            가계 삭제
+            가계 연결 해제
           </button>
-          <p style={{ margin: '8px 0 0', fontSize: 11, color: '#9ca3af', lineHeight: 1.45 }}>
-            이 가계에 묶인 예산·동기화 데이터만 서버에서 지워지며, <strong>접속 코드(16자)는 그대로</strong>라 같은 코드로 다시
-            들어올 수 있습니다. 다시 참여하면 항상 서버 데이터를 불러옵니다. 상대 기기도 앱을 한 번 다시 열어 동기화해 주세요.
+          <p style={{ margin: '8px 0 0', fontSize: 11, color: JELLY.textMuted, lineHeight: 1.45 }}>
+            <strong>서버의 가계 데이터는 그대로 두고</strong> 멤버 연결만 끊습니다. 이 기기에서는 월별·기본값 저장이 모두 지워져 빈
+            상태가 됩니다. 같은 접속 코드로 다시 참여하면 서버에 있는 데이터를 불러옵니다. 상대 기기도 연결이 끊기므로 같은 코드로
+            다시 참여해야 합니다.
           </p>
         </div>
       ) : null}

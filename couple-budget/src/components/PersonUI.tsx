@@ -1,29 +1,38 @@
 import { useAppStore } from '@/store/useAppStore'
+import { JELLY } from '@/styles/jellyGlass'
+import { SUB_HUES, subOklch } from '@/styles/oklchSubColors'
 import type { Person } from '@/types'
 
-const SHARED_COLOR = '#111827'
+/** 공금 칩: 낮은 채도의 은은한 서피스 */
+const SHARED_CHIP_BG = 'oklch(0.9 0.018 250 / 1)'
 
-/** 6가지 유저 칩 프리셋: 파스텔 배경 + 명도·채도 높은 텍스트/아웃라인 */
-export const CHIP_COLOR_PRESETS = [
-  { pastel: '#FFADAD', vibrant: '#D80000' },
-  { pastel: '#FFD6A5', vibrant: '#E85D04' },
-  { pastel: '#FDFFB6', vibrant: '#CA6702' },
-  { pastel: '#CAFFBF', vibrant: '#2D6A4F' },
-  { pastel: '#9BF6FF', vibrant: '#0077B6' },
-  { pastel: '#A0C4FF', vibrant: '#5C4D7D' },
-] as const
+/**
+ * 유저 칩 프리셋 — 배경만 OKLCH(L 0.7044, C 0.1047), 텍스트는 네이비로 통일해 가독성 유지
+ */
+export const CHIP_COLOR_PRESETS = SUB_HUES.map((hue) => ({
+  pastel: subOklch(hue),
+  vibrant: JELLY.text,
+})) as readonly { pastel: string; vibrant: string }[]
 
-function getVibrantFromPastel(pastel: string): string {
-  const found = CHIP_COLOR_PRESETS.find((p) => p.pastel.toLowerCase() === pastel.toLowerCase())
-  return found?.vibrant ?? pastel
+export function isChipPresetPastel(color: string | undefined): boolean {
+  if (!color) return false
+  return CHIP_COLOR_PRESETS.some(
+    (p) => p.pastel === color || p.pastel.toLowerCase() === color.trim().toLowerCase(),
+  )
 }
 
-/** 유저별 칩 색 - 파스텔 배경 + 비비드 텍스트/아웃라인 */
+function getVibrantFromPastel(pastel: string): string {
+  const found = CHIP_COLOR_PRESETS.find(
+    (p) => p.pastel.toLowerCase() === pastel.trim().toLowerCase(),
+  )
+  return found?.vibrant ?? JELLY.text
+}
+
 const DEFAULT_PASTEL_A = CHIP_COLOR_PRESETS[0].pastel
-const DEFAULT_PASTEL_B = CHIP_COLOR_PRESETS[4].pastel
+const DEFAULT_PASTEL_B = CHIP_COLOR_PRESETS[1].pastel
 
 export function getPersonStyle(person: Person, settings?: { user1Color?: string; user2Color?: string }) {
-  if (person === '공금') return { bg: '#e5e7eb', color: SHARED_COLOR }
+  if (person === '공금') return { bg: SHARED_CHIP_BG, color: JELLY.text }
   const pastel =
     person === 'A'
       ? (settings?.user1Color ?? DEFAULT_PASTEL_A)
@@ -50,11 +59,12 @@ export function PersonBadge({ person }: { person: Person }) {
         alignItems: 'center',
         justifyContent: 'center',
         height: 22,
-        padding: '0 8px',
+        padding: '0 10px',
         borderRadius: 999,
         background: bg,
         color,
-        border: `1.5px solid ${color}`,
+        border: `1px solid rgba(255,255,255,0.55)`,
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.65)',
         fontSize: 11,
         fontWeight: 700,
         whiteSpace: 'nowrap',
@@ -94,20 +104,22 @@ export function PersonToggle({
             type="button"
             onClick={() => onChange(p)}
             style={{
-              padding: compact ? '4px 10px' : '6px 16px',
+              padding: compact ? '5px 12px' : '7px 16px',
               borderRadius: 999,
-              border: '1.5px solid',
-              borderColor: active ? color : '#e5e7eb',
-              background: active ? bg : '#fff',
-              color: active ? color : '#6b7280',
+              border: active ? `1px solid rgba(255,255,255,0.65)` : JELLY.innerBorderSoft,
+              background: active ? bg : 'rgba(255,255,255,0.32)',
+              backdropFilter: active ? JELLY.blur : JELLY.blur,
+              WebkitBackdropFilter: JELLY.blur,
+              color: active ? color : JELLY.textMuted,
               fontSize: compact ? 11 : 13,
               fontWeight: 600,
               cursor: 'pointer',
-              transition: 'all 0.15s',
+              transition: 'all 0.18s ease',
               maxWidth: compact ? 72 : 130,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              boxShadow: active ? '0 4px 16px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.5)' : 'none',
             }}
             title={labels[p]}
           >

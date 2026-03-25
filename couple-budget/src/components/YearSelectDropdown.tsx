@@ -1,52 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useAppStore, YEAR_PICKER_MIN, getYearPickerYearOptions } from '@/store/useAppStore'
-import { usePlanExtraStore } from '@/store/usePlanExtraStore'
+import { useEffect, useRef, useState } from 'react'
+import { useAppStore, getYearPickerYearOptions } from '@/store/useAppStore'
 import { PRIMARY, PRIMARY_DARK, PRIMARY_LIGHT } from '@/styles/formControls'
-
-function yearHasPlanData(
-  year: number,
-  startedMonths: string[],
-  settledMonths: string[],
-  lastSavedKeys: string[],
-  extraMonthKeys: string[],
-  snapMonthKeys: string[],
-): boolean {
-  const prefix = `${year}-`
-  const anyPrefix = (keys: string[]) => keys.some((k) => k.startsWith(prefix))
-  return (
-    anyPrefix(startedMonths) ||
-    anyPrefix(settledMonths) ||
-    anyPrefix(lastSavedKeys) ||
-    anyPrefix(extraMonthKeys) ||
-    anyPrefix(snapMonthKeys)
-  )
-}
+import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 
 type YearSelectDropdownProps = {
   value: number
   onChange: (year: number) => void
-  /** dark: 월 선택기(파란 알약), light: 모달·폼용 테두리 스타일 */
+  /** dark: 월 선택기(젤리 알약), light: 모달·폼용 글래스 스타일 */
   variant?: 'dark' | 'light'
 }
 
 export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearSelectDropdownProps) {
   const yearPickerMaxYear = useAppStore((s) => s.yearPickerMaxYear)
   const extendYearPickerMax = useAppStore((s) => s.extendYearPickerMax)
-  const removeExtendedYearFromPicker = useAppStore((s) => s.removeExtendedYearFromPicker)
-  const startedMonths = useAppStore((s) => s.startedMonths)
-  const settledMonths = useAppStore((s) => s.settledMonths)
-  const lastSavedByMonth = useAppStore((s) => s.lastSavedByMonth)
-  const extraRowsByMonth = usePlanExtraStore((s) => s.extraRowsByMonth)
-  const templateSnapshotsByMonth = usePlanExtraStore((s) => s.templateSnapshotsByMonth)
-
   const years = getYearPickerYearOptions(yearPickerMaxYear, value)
-  const calendarY = new Date().getFullYear()
-  const removableYearFloor = Math.max(YEAR_PICKER_MIN, calendarY)
-  const topYear = years.length > 0 ? years[years.length - 1] : null
-
-  const extraKeys = useMemo(() => Object.keys(extraRowsByMonth), [extraRowsByMonth])
-  const snapKeys = useMemo(() => Object.keys(templateSnapshotsByMonth), [templateSnapshotsByMonth])
-  const savedKeys = useMemo(() => Object.keys(lastSavedByMonth), [lastSavedByMonth])
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
 
@@ -63,11 +30,12 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
     variant === 'dark'
       ? {
           appearance: 'none' as const,
-          background: PRIMARY_DARK,
-          color: '#fff',
-          border: 'none',
-          borderRadius: 999,
-          padding: '6px 20px',
+          background:
+            'linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, rgba(224, 242, 254, 0.88) 40%, rgba(186, 230, 253, 0.65) 100%)',
+          color: JELLY.text,
+          border: JELLY.innerBorder,
+          borderRadius: JELLY.radiusFull,
+          padding: '8px 20px',
           fontSize: 13,
           fontWeight: 700,
           cursor: 'pointer',
@@ -77,14 +45,19 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
           justifyContent: 'center' as const,
           gap: 8,
           minWidth: 120,
+          backdropFilter: JELLY.blur,
+          WebkitBackdropFilter: JELLY.blur,
+          boxShadow: '0 6px 22px rgba(14, 165, 233, 0.18), inset 0 1px 0 rgba(255,255,255,0.85)',
         }
       : {
-          padding: '6px 16px',
-          borderRadius: 8,
-          border: '1px solid #e5e7eb',
+          padding: '8px 18px',
+          borderRadius: JELLY.radiusFull,
+          border: JELLY.innerBorder,
           fontSize: 13,
-          background: '#fff',
-          color: '#111827',
+          background: JELLY.surface,
+          backdropFilter: JELLY.blur,
+          WebkitBackdropFilter: JELLY.blur,
+          color: JELLY.text,
           cursor: 'pointer',
           outline: 'none',
           display: 'inline-flex',
@@ -92,9 +65,10 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
           justifyContent: 'center' as const,
           gap: 8,
           minWidth: 120,
+          boxShadow: JELLY.shadowFloat,
         }
 
-  const caretColor = variant === 'dark' ? '#fff' : '#6b7280'
+  const caretColor = variant === 'dark' ? JELLY.textMuted : JELLY.textMuted
 
   return (
     <div ref={wrapRef} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
@@ -111,113 +85,76 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
             top: '100%',
             left: '50%',
             transform: 'translateX(-50%)',
-            marginTop: 6,
+            marginTop: 8,
             minWidth: Math.max(120, wrapRef.current?.offsetWidth ?? 0),
             boxSizing: 'border-box',
-            background: '#fff',
-            borderRadius: 12,
-            boxShadow: '0px 4px 24px rgba(15, 23, 42, 0.12)',
-            border: '1px solid #e5e7eb',
+            ...jellyCardStyle,
+            borderRadius: JELLY.radiusMd,
             zIndex: 200,
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
+            background: 'rgba(255, 255, 255, 0.42)',
           }}
         >
-          <div style={{ maxHeight: 240, overflowY: 'auto', padding: 4 }}>
+          <div style={{ maxHeight: 240, overflowY: 'auto', padding: 6 }}>
             {years.map((y) => {
               const active = y === value
-              const hasData = yearHasPlanData(y, startedMonths, settledMonths, savedKeys, extraKeys, snapKeys)
-              const showRemove =
-                topYear != null &&
-                y === topYear &&
-                y > removableYearFloor &&
-                !hasData
               return (
-                <div
+                <button
                   key={y}
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => {
+                    onChange(y)
+                    setOpen(false)
+                  }}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    borderRadius: 8,
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '10px 14px',
+                    border: 'none',
                     background: active ? PRIMARY_LIGHT : 'transparent',
+                    color: active ? PRIMARY_DARK : JELLY.text,
+                    fontSize: 13,
+                    fontWeight: active ? 700 : 500,
+                    cursor: 'pointer',
+                    borderRadius: JELLY.radiusMd,
                   }}
                 >
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={active}
-                    onClick={() => {
-                      onChange(y)
-                      setOpen(false)
-                    }}
-                    style={{
-                      flex: 1,
-                      minWidth: 0,
-                      textAlign: 'left',
-                      padding: '8px 12px',
-                      border: 'none',
-                      background: 'transparent',
-                      color: active ? PRIMARY : '#111827',
-                      fontSize: 13,
-                      fontWeight: active ? 700 : 500,
-                      cursor: 'pointer',
-                      borderRadius: 8,
-                    }}
-                  >
-                    {y}년
-                  </button>
-                  {showRemove && (
-                    <button
-                      type="button"
-                      title={`${y}년 드롭다운에서 제거`}
-                      aria-label={`${y}년 제거`}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        removeExtendedYearFromPicker(y)
-                      }}
-                      style={{
-                        flexShrink: 0,
-                        width: 28,
-                        height: 28,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginRight: 4,
-                        border: 'none',
-                        borderRadius: 6,
-                        background: 'transparent',
-                        color: '#9ca3af',
-                        fontSize: 14,
-                        lineHeight: 1,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
+                  {y}년
+                </button>
               )
             })}
           </div>
-          <div style={{ borderTop: '1px solid #e5e7eb', padding: 8, background: '#fafafa' }}>
+          <div
+            style={{
+              borderTop: JELLY.innerBorderSoft,
+              padding: 10,
+              background: 'rgba(255,255,255,0.25)',
+              backdropFilter: JELLY.blur,
+              WebkitBackdropFilter: JELLY.blur,
+            }}
+          >
             <button
               type="button"
               onClick={() => extendYearPickerMax()}
               style={{
                 width: '100%',
                 fontSize: 12,
-                padding: '8px 10px',
-                borderRadius: 8,
-                border: `1px solid ${variant === 'dark' ? PRIMARY_DARK : PRIMARY}`,
-                background: '#fff',
+                padding: '10px 14px',
+                borderRadius: JELLY.radiusFull,
+                border: `1px solid ${variant === 'dark' ? 'rgba(2, 132, 199, 0.45)' : 'rgba(14, 165, 233, 0.4)'}`,
+                background: 'rgba(255,255,255,0.4)',
+                backdropFilter: JELLY.blur,
+                WebkitBackdropFilter: JELLY.blur,
                 color: variant === 'dark' ? PRIMARY_DARK : PRIMARY,
                 fontWeight: 600,
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 textAlign: 'center',
+                boxShadow: '0 4px 14px rgba(14, 165, 233, 0.12)',
               }}
             >
               신년 추가하기

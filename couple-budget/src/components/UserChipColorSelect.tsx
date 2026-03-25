@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { CHIP_COLOR_PRESETS } from '@/components/PersonUI'
-import { INPUT_BORDER_RADIUS, INPUT_BORDER } from '@/styles/formControls'
+import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 
 interface UserChipColorSelectProps {
   value: string
@@ -9,11 +9,10 @@ interface UserChipColorSelectProps {
 }
 
 const dropdownStyle = {
-  background: '#fff',
-  border: INPUT_BORDER,
-  borderRadius: INPUT_BORDER_RADIUS,
-  boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
+  ...jellyCardStyle,
+  padding: 12,
   zIndex: 10000,
+  minWidth: 200,
 } as const
 
 export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProps) {
@@ -39,7 +38,10 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
     setRect(ref.current.getBoundingClientRect())
   }, [open])
 
-  const current = CHIP_COLOR_PRESETS.find((p) => p.pastel.toLowerCase() === value?.toLowerCase()) ?? CHIP_COLOR_PRESETS[0]
+  const matched = CHIP_COLOR_PRESETS.find(
+    (p) => p.pastel.toLowerCase() === value?.trim().toLowerCase(),
+  )
+  const displayBg = (matched?.pastel ?? value?.trim()) || CHIP_COLOR_PRESETS[0].pastel
 
   return (
     <>
@@ -51,14 +53,15 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
           display: 'inline-flex',
           alignItems: 'center',
           gap: 8,
-          padding: '4px 10px',
+          padding: '5px 12px',
           borderRadius: 999,
-          border: `1.5px solid ${current.vibrant}`,
-          background: current.pastel,
-          color: current.vibrant,
+          border: `1px solid rgba(255,255,255,0.55)`,
+          background: displayBg,
+          color: JELLY.text,
           fontSize: 12,
           fontWeight: 700,
           cursor: 'pointer',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.55)',
         }}
       >
         <span style={{ fontSize: 10 }}>▾</span>
@@ -72,9 +75,8 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
             }}
             style={{
               position: 'fixed',
-              top: rect.bottom + 4,
+              top: rect.bottom + 6,
               left: rect.left,
-              padding: 10,
               display: 'flex',
               flexWrap: 'wrap',
               gap: 8,
@@ -90,16 +92,19 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
                   setOpen(false)
                 }}
                 style={{
-                  padding: '6px 12px',
+                  padding: '8px 14px',
                   borderRadius: 999,
-                  border: `1.5px solid ${vibrant}`,
+                  border: `1px solid rgba(255,255,255,0.55)`,
                   background: pastel,
                   color: vibrant,
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: 'pointer',
-                  opacity: value === pastel ? 1 : 0.85,
-                  boxShadow: value === pastel ? '0 0 0 2px rgba(0,0,0,0.1)' : 'none',
+                  opacity: value === pastel ? 1 : 0.88,
+                  boxShadow:
+                    value === pastel
+                      ? '0 0 0 2px rgba(14, 165, 233, 0.35), inset 0 1px 0 rgba(255,255,255,0.6)'
+                      : 'inset 0 1px 0 rgba(255,255,255,0.5)',
                 }}
               >
                 색상

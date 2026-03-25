@@ -1,18 +1,20 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
-import { PRIMARY, allowanceValueColor } from '@/styles/formControls'
+import { PRIMARY, allowanceValueColor, settingsSectionCardStyle } from '@/styles/formControls'
+import { JELLY } from '@/styles/jellyGlass'
+import { SUB_CHART_COLORS, SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
 
-const CHART_COLORS = ['#0ea5e9', '#6366f1', '#8b5cf6', '#ec4899']
+const CHART_COLORS = SUB_CHART_COLORS
 
-/** 지출 계획 상단 요약 카드와 동일 (ExpensePlanPage 수입/고정/투자·저축/용돈; 용돈은 금액 부호에 따라 틸/붉은색) */
-const FIXED_EXPENSE_SUMMARY_COLOR = '#0ea5e9'
-const INVEST_SUMMARY_COLOR = '#6366f1'
+/** 고정/투자는 서브 OKLCH, 공동생활비는 포인트(버튼) 컬러 */
+const FIXED_EXPENSE_SUMMARY_COLOR = SUB_FIXED_ACCENT
+const INVEST_SUMMARY_COLOR = SUB_INVEST_ACCENT
 
 function compositionSegmentColor(c: { label: string; amount: number }): string {
-  if (c.label === '고정지출') return FIXED_EXPENSE_SUMMARY_COLOR
+  if (c.label === '고정지출') return SUB_FIXED_ACCENT
   if (c.label === '공동생활비') return PRIMARY
-  if (c.label === '투자·저축') return INVEST_SUMMARY_COLOR
+  if (c.label === '투자·저축') return SUB_INVEST_ACCENT
   if (c.label === '용돈') return allowanceValueColor(c.amount)
-  return '#9ca3af'
+  return 'oklch(0.75 0.04 250 / 1)'
 }
 
 const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
@@ -28,16 +30,16 @@ const userPayTableStyle: CSSProperties = {
 
 const tdLabelBase: CSSProperties = {
   padding: '10px 8px 10px 0',
-  color: '#374151',
+  color: JELLY.text,
   verticalAlign: 'top',
-  borderBottom: '1px solid #f3f4f6',
+  borderBottom: '1px solid rgba(255,255,255,0.35)',
 }
 
 const tdAmountBase: CSSProperties = {
   padding: '10px 0',
   textAlign: 'right',
   fontWeight: 500,
-  color: '#111827',
+  color: JELLY.text,
   verticalAlign: 'top',
   borderBottom: '1px solid #f3f4f6',
   whiteSpace: 'nowrap',
@@ -48,7 +50,7 @@ const tdFixedGroupHeader: CSSProperties = {
   fontSize: 12,
   fontWeight: 700,
   color: FIXED_EXPENSE_SUMMARY_COLOR,
-  borderBottom: '1px solid #e5e7eb',
+  borderBottom: '1px solid rgba(148, 163, 184, 0.25)',
   verticalAlign: 'bottom',
 }
 
@@ -57,7 +59,7 @@ const tdInvestGroupHeader: CSSProperties = {
   fontSize: 12,
   fontWeight: 700,
   color: INVEST_SUMMARY_COLOR,
-  borderBottom: '1px solid #e5e7eb',
+  borderBottom: '1px solid rgba(148, 163, 184, 0.25)',
   verticalAlign: 'bottom',
 }
 
@@ -208,7 +210,7 @@ function IncomeStackedBar(props: { chartData: { label: string; amount: number; p
   const { chartData, totalIncome } = props
   if (totalIncome <= 0 || chartData.length === 0) {
     return (
-      <div style={{ fontSize: 13, color: '#9ca3af', padding: '12px 0' }}>수입이 없어 그래프를 표시할 수 없습니다.</div>
+      <div style={{ fontSize: 13, color: JELLY.textMuted, padding: '12px 0' }}>수입이 없어 그래프를 표시할 수 없습니다.</div>
     )
   }
 
@@ -217,10 +219,10 @@ function IncomeStackedBar(props: { chartData: { label: string; amount: number; p
       style={{
         display: 'flex',
         width: '100%',
-        height: 36,
-        borderRadius: 10,
+        height: 40,
+        borderRadius: 9999,
         overflow: 'hidden',
-        boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.06)',
+        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.5)',
       }}
     >
       {chartData.map((c) => {
@@ -245,13 +247,14 @@ function IncomeStackedBar(props: { chartData: { label: string; amount: number; p
             {showPct ? (
               <span
                 style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: '#fff',
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: JELLY.text,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  padding: '0 4px',
+                  padding: '0 6px',
+                  textShadow: '0 1px 0 rgba(255,255,255,0.9)',
                 }}
               >
                 {Math.round(c.pct)}%
@@ -304,20 +307,12 @@ export function SettlementResultView({
 
   return (
     <div style={{ paddingBottom: 40 }}>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: '#111827', margin: '0 0 20px' }}>정산 결과</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 700, color: JELLY.text, margin: '0 0 20px' }}>정산 결과</h2>
 
-      <div
-        style={{
-          marginBottom: 20,
-          padding: 16,
-          background: '#fff',
-          borderRadius: 14,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-        }}
-      >
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginBottom: 8 }}>이번 달 수입 구성</div>
+      <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 8 }}>이번 달 수입 구성</div>
         <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 14 }}>
-          수입 <span style={{ fontWeight: 700, color: '#111827' }}>{fmt(totalIncome)}</span>
+          수입 <span style={{ fontWeight: 700, color: JELLY.text }}>{fmt(totalIncome)}</span>
         </div>
         <IncomeStackedBar chartData={chartData} totalIncome={totalIncome} />
         <div
@@ -327,7 +322,7 @@ export function SettlementResultView({
             gap: '10px 16px',
             marginTop: 14,
             fontSize: 12,
-            color: '#374151',
+            color: JELLY.textMuted,
           }}
         >
           {chartData.map((c) => (
@@ -336,12 +331,13 @@ export function SettlementResultView({
                 style={{
                   width: 10,
                   height: 10,
-                  borderRadius: 2,
+                  borderRadius: 999,
                   background: compositionSegmentColor(c),
                   flexShrink: 0,
+                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.45)',
                 }}
               />
-              <span style={{ color: c.label === '용돈' ? allowanceValueColor(c.amount) : '#374151' }}>
+              <span style={{ color: c.label === '용돈' ? allowanceValueColor(c.amount) : JELLY.text }}>
                 {c.label} {c.pct.toFixed(1)}% · {fmt(c.amount)}
               </span>
             </div>
@@ -349,15 +345,7 @@ export function SettlementResultView({
         </div>
       </div>
 
-      <div
-        style={{
-          marginBottom: 20,
-          padding: 16,
-          background: '#fff',
-          borderRadius: 14,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-        }}
-      >
+      <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
         <div
           style={{
             display: 'flex',
@@ -368,17 +356,19 @@ export function SettlementResultView({
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>고정 지출 통장에 입금할 돈</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text }}>고정 지출 통장에 입금할 돈</div>
           <button
             type="button"
             onClick={() => setFixedDepositMoreOpen((o) => !o)}
             style={{
               fontSize: 12,
-              padding: '6px 12px',
-              borderRadius: 8,
-              border: '1px solid #e5e7eb',
-              background: '#f9fafb',
-              color: '#374151',
+              padding: '8px 16px',
+              borderRadius: 9999,
+              border: JELLY.innerBorderSoft,
+              background: 'rgba(255,255,255,0.35)',
+              backdropFilter: JELLY.blur,
+              WebkitBackdropFilter: JELLY.blur,
+              color: JELLY.text,
               cursor: 'pointer',
               flexShrink: 0,
             }}
@@ -388,13 +378,13 @@ export function SettlementResultView({
         </div>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 140 }}>
-            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>{personAName}</div>
+            <div style={{ fontSize: 12, color: JELLY.textMuted, marginBottom: 4 }}>{personAName}</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>
               {fmt(fixedDepositByUser.A)}
             </div>
           </div>
           <div style={{ flex: 1, minWidth: 140 }}>
-            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>{personBName}</div>
+            <div style={{ fontSize: 12, color: JELLY.textMuted, marginBottom: 4 }}>{personBName}</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>
               {fmt(fixedDepositByUser.B)}
             </div>
@@ -405,9 +395,9 @@ export function SettlementResultView({
             style={{
               marginTop: 14,
               paddingTop: 14,
-              borderTop: '1px solid #e5e7eb',
+              borderTop: '1px solid rgba(148, 163, 184, 0.22)',
               fontSize: 12,
-              color: '#6b7280',
+              color: JELLY.textMuted,
               lineHeight: 1.65,
               display: 'flex',
               flexDirection: 'column',
@@ -440,7 +430,7 @@ export function SettlementResultView({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>유저별 각자 낼 돈</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text }}>유저별 각자 낼 돈</div>
         <div
           style={{
             display: 'grid',
@@ -458,14 +448,11 @@ export function SettlementResultView({
               key={p}
               style={{
                 minWidth: 0,
-                padding: 16,
-                background: '#fff',
-                borderRadius: 14,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                ...settingsSectionCardStyle,
                 borderLeft: `4px solid ${CHART_COLORS[idx % CHART_COLORS.length]}`,
               }}
             >
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 12 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text, marginBottom: 12 }}>
                 {name} 최종 낼 돈
               </div>
               <table style={userPayTableStyle}>
@@ -551,7 +538,7 @@ export function SettlementResultView({
                       }))
                     }
                   />
-                  <tr style={{ borderTop: '2px solid #e5e7eb', background: '#f9fafb' }}>
+                  <tr style={{ borderTop: '2px solid rgba(148, 163, 184, 0.2)', background: 'rgba(255,255,255,0.35)' }}>
                     <td
                       style={{
                         ...tdLabelBase,
@@ -560,7 +547,7 @@ export function SettlementResultView({
                         paddingBottom: 12,
                         fontWeight: 700,
                         fontSize: 15,
-                        color: '#111827',
+                        color: JELLY.text,
                       }}
                     >
                       총 납부/배분 결과
@@ -579,7 +566,7 @@ export function SettlementResultView({
                       {fmt(u.total)}
                     </td>
                   </tr>
-                  <tr style={{ borderTop: '1px solid #e5e7eb' }}>
+                  <tr style={{ borderTop: '1px solid rgba(148, 163, 184, 0.2)' }}>
                     <td
                       style={{
                         ...tdLabelBase,

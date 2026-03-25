@@ -19,6 +19,8 @@ import {
   settingsTemplateDeleteButtonStyle,
   allowanceValueColor,
 } from '@/styles/formControls'
+import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
+import { SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
 import { Modal } from '@/components/Modal'
 import { PersonBadge, PersonToggle } from '@/components/PersonUI'
 import { InlineEdit } from '@/components/InlineEdit'
@@ -37,9 +39,9 @@ const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
 const FIXED_CATEGORIES = ['주거', '통신', '보험', '구독', '교통', '식비', '의료', '교육', '문화', '관리비', '기타']
 const INVEST_CATEGORIES = ['투자', '저축']
 /** 고정지출 그룹 합계·보기 토글 강조색 */
-const FIXED_EXPENSE_SUMMARY_COLOR = '#0ea5e9'
-/** 투자·저축 보기 토글 강조색 (설정 템플릿은 유저 칩색만 쓰므로 토글만 구분) */
-const INVEST_GROUP_TOGGLE_COLOR = '#6366f1'
+const FIXED_EXPENSE_SUMMARY_COLOR = SUB_FIXED_ACCENT
+/** 투자·저축 보기 토글 강조색 (서브 OKLCH; 포인트는 주요 버튼에만) */
+const INVEST_GROUP_TOGGLE_COLOR = SUB_INVEST_ACCENT
 
 /** Zustand 셀렉터에서 `?? {}` 쓰면 매번 새 참조 → getSnapshot 무한 루프 방지 */
 const EMPTY_DEFAULT_SALARY_EXCLUDED: Partial<Record<'A' | 'B', boolean>> = {}
@@ -115,10 +117,18 @@ function SectionCard(props: {
 }) {
   const { emoji, title, total, children, right, totalColor } = props
   return (
-    <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0px 1px 3px rgba(15,23,42,0.15)', overflow: 'hidden' }}>
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ ...jellyCardStyle, borderRadius: JELLY.radiusLg, overflow: 'hidden' }}>
+      <div
+        style={{
+          padding: '16px 20px',
+          borderBottom: JELLY.innerBorderSoft,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
         <span style={{ fontSize: 18 }}>{emoji}</span>
-        <span style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>{title}</span>
+        <span style={{ fontWeight: 700, fontSize: 15, color: JELLY.text }}>{title}</span>
         <span style={{ marginLeft: 6, fontWeight: 700, color: totalColor ?? PRIMARY }}>{fmt(total)}</span>
         <div style={{ marginLeft: 'auto' }}>{right}</div>
       </div>
@@ -1236,10 +1246,18 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown }) {
   const { total, rows, halfFixedRegular, halfFixedSeparate } = breakdown
 
   return (
-    <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0px 1px 3px rgba(15,23,42,0.15)', overflow: 'hidden' }}>
-      <div style={{ display: 'flex', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f3f4f6', gap: 8 }}>
+    <div style={{ ...jellyCardStyle, borderRadius: JELLY.radiusLg, overflow: 'hidden' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '16px 20px',
+          borderBottom: JELLY.innerBorderSoft,
+          gap: 8,
+        }}
+      >
         <span style={{ fontSize: 18 }}>💰</span>
-        <span style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>용돈</span>
+        <span style={{ fontWeight: 700, fontSize: 15, color: JELLY.text }}>용돈</span>
         <span style={{ marginLeft: 6, fontWeight: 700, color: allowanceValueColor(total) }}>{fmt(total)}</span>
         <span style={{ marginLeft: 6, fontSize: 11, color: '#6b7280' }}>자동 계산</span>
       </div>
@@ -1975,8 +1993,8 @@ export function ExpensePlanPage() {
           <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
             {[
               { label: '수입 합계', value: totalIncome, color: PRIMARY },
-              { label: '고정·별도 지출 합계', value: totalFixed, color: '#0ea5e9' },
-              { label: '투자·저축 합계', value: totalInvest, color: '#6366f1' },
+              { label: '고정·별도 지출 합계', value: totalFixed, color: SUB_FIXED_ACCENT },
+              { label: '투자·저축 합계', value: totalInvest, color: SUB_INVEST_ACCENT },
             ].map((c) => (
               <div
                 key={c.label}

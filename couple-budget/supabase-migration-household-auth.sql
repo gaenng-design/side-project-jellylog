@@ -156,7 +156,8 @@ grant execute on function public.create_household_with_access_code() to authenti
 grant execute on function public.join_household_by_access_code(text) to authenticated;
 grant execute on function public.join_household_by_invite(text) to authenticated;
 
--- 가계(households 행·접속 코드 해시)는 유지하고, 멤버·동기화 데이터만 제거 → 같은 16자 코드로 다시 참여 가능(빈 상태에서 서버 기준 hydrate)
+-- 가계·접속 코드·서버의 예산/설정 데이터는 유지. 멤버십만 제거 → 같은 코드로 재참여 시 hydrate 로 그대로 복구.
+-- (서버 데이터까지 지우려면 대시보드에서 테이블 정리 또는 별도 관리 도구가 필요함.)
 create or replace function public.delete_my_household()
 returns void
 language plpgsql
@@ -176,19 +177,7 @@ begin
   if hid is null then
     raise exception '가계에 속해 있지 않습니다.';
   end if;
-  delete from public.fixed_template_overrides where household_id = hid;
-  delete from public.invest_template_overrides where household_id = hid;
-  delete from public.plan_snapshots where household_id = hid;
-  delete from public.settlement_data where household_id = hid;
-  delete from public.fixed_expenses where household_id = hid;
-  delete from public.investments where household_id = hid;
-  delete from public.incomes where household_id = hid;
-  delete from public.separate_items where household_id = hid;
-  delete from public.fixed_templates where household_id = hid;
-  delete from public.invest_templates where household_id = hid;
-  delete from public.app_snapshot where household_id = hid;
   delete from public.household_members where household_id = hid;
-  -- households.id, invite_code, access_code_hash 유지
 end;
 $fn$;
 

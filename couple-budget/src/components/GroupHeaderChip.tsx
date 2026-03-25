@@ -1,4 +1,5 @@
-import { CHIP_COLOR_PRESETS } from '@/components/PersonUI'
+import { CHIP_COLOR_PRESETS, isChipPresetPastel } from '@/components/PersonUI'
+import { JELLY } from '@/styles/jellyGlass'
 
 function hexToRgba(hex: string, alpha: number): string {
   const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i)
@@ -7,15 +8,15 @@ function hexToRgba(hex: string, alpha: number): string {
 }
 
 function getVibrantFromPastel(pastel: string): string {
-  const found = CHIP_COLOR_PRESETS.find((p) => p.pastel.toLowerCase() === pastel?.toLowerCase())
-  return found?.vibrant ?? pastel
+  const found = CHIP_COLOR_PRESETS.find((p) => p.pastel.toLowerCase() === pastel?.trim().toLowerCase())
+  return found?.vibrant ?? JELLY.text
 }
 
 interface GroupHeaderChipProps {
   label: string
   total?: number
   color?: string
-  /** 유저 칩 스타일: 파스텔 배경 + 비비드 텍스트/아웃라인 */
+  /** 유저 칩 스타일: 서브 OKLCH 배경 + 네이비 텍스트 */
   useUserChipStyle?: boolean
   /** 그룹 합계 금액 색 (기본: 녹색) */
   totalColor?: string
@@ -23,16 +24,18 @@ interface GroupHeaderChipProps {
 
 export function GroupHeaderChip({ label, total, color, useUserChipStyle, totalColor }: GroupHeaderChipProps) {
   const fmt = (n: number) => n.toLocaleString('ko-KR')
-  const isPastel = color && CHIP_COLOR_PRESETS.some((p) => p.pastel.toLowerCase() === color.toLowerCase())
+  const isPastel = color && isChipPresetPastel(color)
   const chipBg =
     useUserChipStyle && isPastel
       ? color!
       : color
         ? color === '#111827'
-          ? '#e5e7eb'
-          : hexToRgba(color.startsWith('#') ? color : `#${color}`, 0.2)
-        : '#e5e7eb'
-  const chipColor = useUserChipStyle && isPastel ? getVibrantFromPastel(color!) : color ?? '#374151'
+          ? 'oklch(0.9 0.018 250 / 1)'
+          : color.startsWith('oklch(')
+            ? color
+            : hexToRgba(color.startsWith('#') ? color : `#${color.replace(/^#/, '')}`, 0.22)
+        : 'oklch(0.9 0.018 250 / 1)'
+  const chipColor = useUserChipStyle && isPastel ? getVibrantFromPastel(color!) : color ?? JELLY.text
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -40,13 +43,14 @@ export function GroupHeaderChip({ label, total, color, useUserChipStyle, totalCo
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          padding: '4px 10px',
+          padding: '5px 12px',
           borderRadius: 999,
           fontSize: 12,
           fontWeight: 600,
           background: chipBg,
           color: chipColor,
-          border: useUserChipStyle && isPastel ? `1.5px solid ${chipColor}` : undefined,
+          border: useUserChipStyle && isPastel ? `1px solid rgba(255,255,255,0.55)` : undefined,
+          boxShadow: useUserChipStyle && isPastel ? 'inset 0 1px 0 rgba(255,255,255,0.55)' : undefined,
         }}
       >
         {label}

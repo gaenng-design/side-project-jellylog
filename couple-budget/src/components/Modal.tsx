@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { JELLY, jellyModalOverlay, jellyModalPanel } from '@/styles/jellyGlass'
 
 interface ModalProps {
   open: boolean
@@ -25,8 +26,7 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
         position: 'fixed',
         inset: 0,
         zIndex: 1000,
-        background: 'rgba(35,45,60,0.35)',
-        backdropFilter: 'blur(2px)',
+        ...jellyModalOverlay,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -35,27 +35,29 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: '#ffffff',
-          borderRadius: 20,
+          ...jellyModalPanel,
           padding: '28px 28px 24px',
           minWidth: 360,
           maxWidth: 440,
           width: '90%',
-          boxShadow: '0 20px 60px rgba(35,45,60,0.22)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#111827' }}>{title}</h2>
+          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: JELLY.text }}>{title}</h2>
           <button
+            type="button"
             onClick={onClose}
             style={{
-              background: 'none',
-              border: 'none',
+              background: 'rgba(255,255,255,0.35)',
+              border: JELLY.innerBorderSoft,
+              borderRadius: JELLY.radiusFull,
               cursor: 'pointer',
-              color: '#8a99ae',
+              color: JELLY.textMuted,
               fontSize: 20,
               lineHeight: 1,
-              padding: 4,
+              padding: '6px 12px',
+              backdropFilter: JELLY.blur,
+              WebkitBackdropFilter: JELLY.blur,
             }}
           >
             ×
