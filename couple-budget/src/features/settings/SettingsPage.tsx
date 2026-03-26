@@ -469,20 +469,21 @@ function FixedTemplateSettings() {
         <PersonToggle value={person} onChange={(p) => setPerson(p)} compact />
         {person === '공금' && (() => {
           const { bg: chipBg, color: chipColor } = getPersonStyle(defaultSeparatePerson, settings)
-          return (
-            <>
-              <span
-                onClick={() => setDefaultSeparate((s) => !s)}
-                title={defaultSeparate ? '별도 정산 해제' : '별도 정산'}
+          const nameLabel = defaultSeparatePerson === 'A' ? personAName : personBName
+          if (!defaultSeparate) {
+            return (
+              <button
+                type="button"
+                onClick={() => setDefaultSeparate(true)}
+                title="별도 정산"
                 style={{
-                  width: 26,
                   height: 26,
-                  minWidth: 26,
                   minHeight: 26,
+                  padding: '0 12px',
                   borderRadius: 999,
-                  border: defaultSeparate ? `1.5px solid ${chipColor}` : '1px solid #e5e7eb',
-                  background: defaultSeparate ? chipBg : '#f9fafb',
-                  color: defaultSeparate ? chipColor : '#9ca3af',
+                  border: '1px solid #e5e7eb',
+                  background: '#f9fafb',
+                  color: '#9ca3af',
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -490,24 +491,30 @@ function FixedTemplateSettings() {
                   fontSize: 12,
                   fontWeight: 700,
                   flexShrink: 0,
+                  boxSizing: 'border-box',
+                  fontFamily: 'inherit',
                 }}
               >
                 ↗
-              </span>
-              {defaultSeparate && (
-                <CustomSelect
-                  compact
-                  compactAutoWidth
-                  compactHeight={26}
-                  options={[personAName, personBName]}
-                  value={defaultSeparatePerson === 'A' ? personAName : personBName}
-                  onChange={(v) => setDefaultSeparatePerson(v === personAName ? 'A' : 'B')}
-                  placeholder="선택"
-                  customBgColor={chipColor}
-                  customChipBg={chipBg}
-                />
-              )}
-            </>
+              </button>
+            )
+          }
+          return (
+            <CustomSelect
+              compact
+              compactAutoWidth
+              compactHeight={26}
+              options={[personAName, personBName]}
+              value={nameLabel}
+              onChange={(v) => setDefaultSeparatePerson(v === personAName ? 'A' : 'B')}
+              placeholder="선택"
+              customBgColor={chipColor}
+              customChipBg={chipBg}
+              title="별도 정산 담당 선택 · ↗ 누르면 해제"
+              compactLeading={<span style={{ color: '#fff', fontSize: 12, lineHeight: 1 }}>↗</span>}
+              onCompactLeadingClick={() => setDefaultSeparate(false)}
+              compactCaretColor="#fff"
+            />
           )
         })()}
         <CustomSelect
@@ -722,7 +729,7 @@ function InvestTemplateSettings() {
             padding: '10px 16px',
           }}
         >
-          + 템플릿 추가
+          + 항목 추가
         </button>
       </div>
       <div style={{ marginTop: 10, fontSize: 11, color: '#6b7280' }}>

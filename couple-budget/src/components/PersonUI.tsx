@@ -7,11 +7,11 @@ import type { Person } from '@/types'
 const SHARED_CHIP_BG = 'oklch(0.9 0.018 250 / 1)'
 
 /**
- * 유저 칩 프리셋 — 배경만 OKLCH(L 0.7044, C 0.1047), 텍스트는 네이비로 통일해 가독성 유지
+ * 유저 칩 프리셋 — 배경 OKLCH(L 0.7044, C 0.1047), 라벨은 흰색(+그림자로 대비)
  */
 export const CHIP_COLOR_PRESETS = SUB_HUES.map((hue) => ({
   pastel: subOklch(hue),
-  vibrant: JELLY.text,
+  vibrant: '#ffffff',
 })) as readonly { pastel: string; vibrant: string }[]
 
 export function isChipPresetPastel(color: string | undefined): boolean {
@@ -25,7 +25,7 @@ function getVibrantFromPastel(pastel: string): string {
   const found = CHIP_COLOR_PRESETS.find(
     (p) => p.pastel.toLowerCase() === pastel.trim().toLowerCase(),
   )
-  return found?.vibrant ?? JELLY.text
+  return found?.vibrant ?? '#ffffff'
 }
 
 const DEFAULT_PASTEL_A = CHIP_COLOR_PRESETS[0].pastel
@@ -52,6 +52,7 @@ export function PersonBadge({ person }: { person: Person }) {
   const label = usePersonLabel(person)
   const settings = useAppStore((s) => s.settings)
   const { bg, color } = getPersonStyle(person, settings)
+  const userTinted = person !== '공금'
   return (
     <span
       style={{
@@ -65,6 +66,7 @@ export function PersonBadge({ person }: { person: Person }) {
         color,
         border: `1px solid rgba(255,255,255,0.55)`,
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.65)',
+        textShadow: userTinted ? '0 1px 2px rgba(15, 23, 42, 0.45)' : undefined,
         fontSize: 11,
         fontWeight: 700,
         whiteSpace: 'nowrap',
@@ -98,6 +100,7 @@ export function PersonToggle({
       {options.map((p) => {
         const { bg, color } = getPersonStyle(p, colorSettings)
         const active = value === p
+        const userTinted = p !== '공금'
         return (
           <button
             key={p}
@@ -111,6 +114,7 @@ export function PersonToggle({
               backdropFilter: active ? JELLY.blur : JELLY.blur,
               WebkitBackdropFilter: JELLY.blur,
               color: active ? color : JELLY.textMuted,
+              textShadow: active && userTinted ? '0 1px 2px rgba(15, 23, 42, 0.4)' : undefined,
               fontSize: compact ? 11 : 13,
               fontWeight: 600,
               cursor: 'pointer',

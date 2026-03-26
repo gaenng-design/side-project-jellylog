@@ -19,7 +19,7 @@ import {
   settingsTemplateDeleteButtonStyle,
   allowanceValueColor,
 } from '@/styles/formControls'
-import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
+import { JELLY, jellyCardStyle, jellyPrimaryButton } from '@/styles/jellyGlass'
 import { SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
 import { Modal } from '@/components/Modal'
 import { PersonBadge, PersonToggle } from '@/components/PersonUI'
@@ -403,6 +403,14 @@ type FixedCardProps = {
   sectionTitle?: string
   emptyMessage?: string
   addModalTitle?: string
+  /** 별도 지출 등: 행에서 입금일 숨김 */
+  showPayDayOnRows?: boolean
+  /** 추가 모달에서 입금일 블록 숨김 */
+  hidePayDayInModal?: boolean
+  /** 별도 지출: 이미 납부 체크 */
+  showRowPaidCheckbox?: boolean
+  /** false면 납부 체크 후에도 행 필드 편집 가능 */
+  lockRowFieldsWhenExcluded?: boolean
 }
 
 function FixedExpenseCard(props: FixedCardProps) {
@@ -421,6 +429,10 @@ function FixedExpenseCard(props: FixedCardProps) {
     sectionTitle = '고정지출',
     emptyMessage = '고정지출 항목을 추가해주세요.',
     addModalTitle = '고정지출 항목 추가',
+    showPayDayOnRows = true,
+    hidePayDayInModal = false,
+    showRowPaidCheckbox = false,
+    lockRowFieldsWhenExcluded = true,
   } = props
   const [groupByPerson, setGroupByPerson] = useState(false)
   const settings = useAppStore((s) => s.settings)
@@ -473,7 +485,7 @@ function FixedExpenseCard(props: FixedCardProps) {
       amount: Number(form.amount.replace(/,/g, '')) || 0,
       isSeparate: form.isSeparate,
       separatePerson: form.isSeparate ? separatePerson : undefined,
-      payDay: form.payDay,
+      payDay: hidePayDayInModal ? undefined : form.payDay,
     })
     setForm({ person: '공금', category: '관리비', description: '', amount: '', isSeparate: false, separatePerson: 'A' })
     setOpen(false)
@@ -616,6 +628,7 @@ function FixedExpenseCard(props: FixedCardProps) {
                   isSeparate: row.isSeparate,
                   separatePerson: row.separatePerson ?? 'A',
                   payDay: row.payDay,
+                  isExcluded: row.isExcluded,
                 }
                 const actionSlot = (
                   <button
@@ -635,6 +648,7 @@ function FixedExpenseCard(props: FixedCardProps) {
                     <FixedExpenseRow
                       row={rowData}
                       onUpdate={(patch) => {
+                        if ('isExcluded' in patch) updateRow(row.id, { isExcluded: patch.isExcluded })
                         if (!excluded) {
                           if ('category' in patch) updateRow(row.id, { category: patch.category })
                           if ('description' in patch) updateRow(row.id, { description: patch.description! })
@@ -645,12 +659,15 @@ function FixedExpenseCard(props: FixedCardProps) {
                         }
                       }}
                       actionSlot={actionSlot}
-                      disabled={excluded}
+                      disabled={lockRowFieldsWhenExcluded && excluded}
                       personAName={personAName}
                       personBName={personBName}
                       useTextFields={useTextFields}
                       showSeparatePersonSelect={row.person === '공금'}
-                      showPayDay={true}
+                      showPayDay={showPayDayOnRows}
+                      showPaidCheckbox={showRowPaidCheckbox}
+                      planPerson={row.person}
+                      categoryViewLeadUserFirst={!groupByPerson}
                     />
                   </div>
                 )
@@ -690,10 +707,12 @@ function FixedExpenseCard(props: FixedCardProps) {
               <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
-            <DaySelect value={form.payDay} onChange={(v) => setForm((f) => ({ ...f, payDay: v }))} />
-          </div>
+          {!hidePayDayInModal && (
+            <div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
+              <DaySelect value={form.payDay} onChange={(v) => setForm((f) => ({ ...f, payDay: v }))} />
+            </div>
+          )}
           <div
             onClick={() => setForm((f) => ({ ...f, isSeparate: !f.isSeparate }))}
             style={{
@@ -1400,7 +1419,7 @@ export function ExpensePlanPage() {
   const investExtraRows: InvestRow[] = (extraRowsByMonth[currentYearMonth]?.invest ?? []).map((r) => ({ ...r, isExcluded: false }))
   const separateExpenseExtraRows: FixedRow[] = (separateExpenseRowsByMonth[currentYearMonth] ?? []).map((r) => ({
     ...r,
-    isExcluded: false,
+    isExcluded: !!r.paid,
   }))
 
   const setFixedExtraRows = (updater: (prev: FixedRow[]) => FixedRow[]) =>
@@ -1408,9 +1427,17 @@ export function ExpensePlanPage() {
   const setInvestExtraRows = (updater: (prev: InvestRow[]) => InvestRow[]) =>
     setInvestForMonth(currentYearMonth, (prev) => updater(prev.map((r) => ({ ...r, isExcluded: false }))).map(({ isExcluded, ...r }) => r))
   const setSeparateExpenseExtraRows = (updater: (prev: FixedRow[]) => FixedRow[]) =>
-    setSeparateExpenseForMonth(currentYearMonth, (prev) =>
-      updater(prev.map((r) => ({ ...r, isExcluded: false }))).map(({ isExcluded, ...r }) => r),
-    )
+    setSeparateExpenseForMonth(currentYearMonth, (prev) => {
+      const lifted: FixedRow[] = prev.map((r) => ({
+        ...r,
+        isExcluded: !!r.paid,
+      }))
+      const next = updater(lifted)
+      return next.map((row) => {
+        const { isExcluded, ...rest } = row
+        return { ...rest, paid: !!isExcluded }
+      })
+    })
 
   const planState = useMemo(() => {
     const started = startedMonths.includes(currentYearMonth)
@@ -1755,16 +1782,7 @@ export function ExpensePlanPage() {
                 startMonth(currentYearMonth)
                 setTemplateSnapshot(currentYearMonth, { fixed: [...fixedTemplates], invest: [...investTemplates] })
               }}
-              style={{
-                padding: '10px 20px',
-                borderRadius: 10,
-                border: 'none',
-                background: PRIMARY,
-                color: '#fff',
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              style={{ ...jellyPrimaryButton, fontSize: 14 }}
             >
               작성하기
             </button>
@@ -1780,16 +1798,7 @@ export function ExpensePlanPage() {
                 <button
                   type="button"
                   onClick={() => void handleSettle()}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: 8,
-                    border: 'none',
-                    background: PRIMARY,
-                    color: '#fff',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
+                  style={{ ...jellyPrimaryButton, fontSize: 13 }}
                 >
                   이달 정산하기
                 </button>
@@ -1821,16 +1830,7 @@ export function ExpensePlanPage() {
                 <button
                   type="button"
                   onClick={handleEditSettlementComplete}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: 8,
-                    border: 'none',
-                    background: PRIMARY,
-                    color: '#fff',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
+                  style={{ ...jellyPrimaryButton, fontSize: 13 }}
                 >
                   수정 완료
                 </button>
@@ -1969,7 +1969,7 @@ export function ExpensePlanPage() {
                 setTemplateSnapshot(otherMonthSelected, { fixed: [...fixedTemplates], invest: [...investTemplates] })
                 setOtherMonthModalOpen(false)
               }}
-              style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: PRIMARY, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ ...jellyPrimaryButton, fontSize: 13 }}
             >
               작성하기
             </button>
@@ -2156,7 +2156,9 @@ export function ExpensePlanPage() {
         />
         <FixedExpenseCard
           rows={separateExpenseExtraRows}
-          onAdd={(row) => setSeparateExpenseExtraRows((prev) => [...prev, { ...row, id: newId() }])}
+          onAdd={(row) =>
+            setSeparateExpenseExtraRows((prev) => [...prev, { ...row, id: newId(), paid: false, payDay: undefined }])
+          }
           onUpdate={(id, patch) => setSeparateExpenseExtraRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)))}
           onRemove={(id) => setSeparateExpenseExtraRows((prev) => prev.filter((r) => r.id !== id))}
           onExcludeThisMonth={() => {}}
@@ -2169,6 +2171,10 @@ export function ExpensePlanPage() {
           sectionTitle="별도 지출"
           emptyMessage="별도 지출 항목을 추가해주세요."
           addModalTitle="별도지출 추가"
+          showPayDayOnRows={false}
+          hidePayDayInModal
+          showRowPaidCheckbox
+          lockRowFieldsWhenExcluded={false}
         />
         <InvestCard
           rows={investRows}

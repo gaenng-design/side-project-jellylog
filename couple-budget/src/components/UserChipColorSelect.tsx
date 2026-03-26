@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { CHIP_COLOR_PRESETS } from '@/components/PersonUI'
 import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
@@ -15,9 +15,12 @@ const dropdownStyle = {
   minWidth: 200,
 } as const
 
+const VIEWPORT_PAD = 8
+
 export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProps) {
   const [open, setOpen] = useState(false)
   const [rect, setRect] = useState<DOMRect | null>(null)
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null)
   const ref = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
@@ -33,10 +36,53 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
   useEffect(() => {
     if (!open || !ref.current) {
       setRect(null)
+      setMenuPos(null)
       return
     }
     setRect(ref.current.getBoundingClientRect())
   }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const syncTriggerRect = () => {
+      if (ref.current) setRect(ref.current.getBoundingClientRect())
+    }
+    syncTriggerRect()
+    window.addEventListener('scroll', syncTriggerRect, true)
+    window.addEventListener('resize', syncTriggerRect)
+    const vv = window.visualViewport
+    vv?.addEventListener('resize', syncTriggerRect)
+    vv?.addEventListener('scroll', syncTriggerRect)
+    const id = requestAnimationFrame(syncTriggerRect)
+    return () => {
+      window.removeEventListener('scroll', syncTriggerRect, true)
+      window.removeEventListener('resize', syncTriggerRect)
+      vv?.removeEventListener('resize', syncTriggerRect)
+      vv?.removeEventListener('scroll', syncTriggerRect)
+      cancelAnimationFrame(id)
+    }
+  }, [open])
+
+  useLayoutEffect(() => {
+    if (!open || !rect) {
+      setMenuPos(null)
+      return
+    }
+    const el = dropdownRef.current
+    if (!el) return
+    const d = el.getBoundingClientRect()
+    let left = rect.left
+    let top = rect.bottom + 6
+    if (left + d.width > window.innerWidth - VIEWPORT_PAD) {
+      left = window.innerWidth - VIEWPORT_PAD - d.width
+    }
+    if (left < VIEWPORT_PAD) left = VIEWPORT_PAD
+    if (top + d.height > window.innerHeight - VIEWPORT_PAD) {
+      top = rect.top - 6 - d.height
+    }
+    if (top < VIEWPORT_PAD) top = VIEWPORT_PAD
+    setMenuPos({ top, left })
+  }, [open, rect])
 
   const matched = CHIP_COLOR_PRESETS.find(
     (p) => p.pastel.toLowerCase() === value?.trim().toLowerCase(),
@@ -57,7 +103,8 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
           borderRadius: 999,
           border: `1px solid rgba(255,255,255,0.55)`,
           background: displayBg,
-          color: JELLY.text,
+          color: '#fff',
+          textShadow: '0 1px 2px rgba(15, 23, 42, 0.45)',
           fontSize: 12,
           fontWeight: 700,
           cursor: 'pointer',
@@ -75,15 +122,17 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
             }}
             style={{
               position: 'fixed',
-              top: rect.bottom + 6,
-              left: rect.left,
+              top: menuPos?.top ?? rect.bottom + 6,
+              left: menuPos?.left ?? rect.left,
               display: 'flex',
               flexWrap: 'wrap',
               gap: 8,
+              maxWidth: `calc(100vw - ${VIEWPORT_PAD * 2}px)`,
+              boxSizing: 'border-box',
               ...dropdownStyle,
             }}
           >
-            {CHIP_COLOR_PRESETS.map(({ pastel, vibrant }) => (
+            {CHIP_COLOR_PRESETS.map(({ pastel }) => (
               <button
                 key={pastel}
                 type="button"
@@ -96,7 +145,8 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
                   borderRadius: 999,
                   border: `1px solid rgba(255,255,255,0.55)`,
                   background: pastel,
-                  color: vibrant,
+                  color: '#fff',
+                  textShadow: '0 1px 2px rgba(15, 23, 42, 0.45)',
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: 'pointer',

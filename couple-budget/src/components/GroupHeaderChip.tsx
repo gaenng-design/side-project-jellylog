@@ -9,14 +9,14 @@ function hexToRgba(hex: string, alpha: number): string {
 
 function getVibrantFromPastel(pastel: string): string {
   const found = CHIP_COLOR_PRESETS.find((p) => p.pastel.toLowerCase() === pastel?.trim().toLowerCase())
-  return found?.vibrant ?? JELLY.text
+  return found?.vibrant ?? '#ffffff'
 }
 
 interface GroupHeaderChipProps {
   label: string
   total?: number
   color?: string
-  /** 유저 칩 스타일: 서브 OKLCH 배경 + 네이비 텍스트 */
+  /** 유저 칩 스타일: 서브 OKLCH 배경 + 흰색 텍스트 */
   useUserChipStyle?: boolean
   /** 그룹 합계 금액 색 (기본: 녹색) */
   totalColor?: string
@@ -51,6 +51,7 @@ export function GroupHeaderChip({ label, total, color, useUserChipStyle, totalCo
           color: chipColor,
           border: useUserChipStyle && isPastel ? `1px solid rgba(255,255,255,0.55)` : undefined,
           boxShadow: useUserChipStyle && isPastel ? 'inset 0 1px 0 rgba(255,255,255,0.55)' : undefined,
+          textShadow: useUserChipStyle && isPastel ? '0 1px 2px rgba(15, 23, 42, 0.45)' : undefined,
         }}
       >
         {label}

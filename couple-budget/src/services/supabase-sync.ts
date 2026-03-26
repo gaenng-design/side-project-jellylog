@@ -18,6 +18,32 @@ import type { MonthlySettlement } from '@/store/useSettlementStore'
  */
 const REPO_COLUMNS = (import.meta.env.VITE_SUPABASE_REPO_COLUMNS as string) || 'camelCase'
 
+/**
+ * incomes upsert의 ON CONFLICT 대상 = DB의 UNIQUE 인덱스와 정확히 일치해야 함.
+ * Dashboard 등에서 흔한 이름 `incomes_yearmonth_person_category_unique`는 (year_month, person, category)만 쓰는 경우가 많음.
+ * 가계별 유니크가 (household_id, year_month, person, category)면 .env에 VITE_SUPABASE_INCOMES_ON_CONFLICT 로 지정.
+ */
+function incomesOnConflictColumns(): string {
+  const o = (import.meta.env.VITE_SUPABASE_INCOMES_ON_CONFLICT as string)?.trim()
+  if (o) return o
+  return REPO_COLUMNS === 'snake_case'
+    ? 'year_month,person,category'
+    : 'yearMonth,person,category'
+}
+
+/**
+ * 로컬에 동일 (yearMonth, person, category) 행이 여러 개면 DB 유니크(incomes_yearmonth_person_category_unique 등)와 충돌함.
+ * 한 슬롯당 하나만 남김(나중 항목 우선).
+ */
+function dedupeIncomesByMonthPersonCategory(incomes: Income[]): Income[] {
+  const byKey = new Map<string, Income>()
+  for (const inc of incomes) {
+    const k = `${inc.yearMonth}\0${inc.person}\0${inc.category}`
+    byKey.set(k, inc)
+  }
+  return [...byKey.values()]
+}
+
 function toSnakeCaseKeys(obj: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(obj)) {
@@ -749,8 +775,10 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
     }
     await upsertChunk('investments', investExtraRows, 'id')
 
-    const incomes = readRepoIncomes().map((i) => incomePushRow(i, householdId))
-    await upsertChunk('incomes', incomes, 'id')
+    const incomes = dedupeIncomesByMonthPersonCategory(readRepoIncomes()).map((i) =>
+      incomePushRow(i, householdId),
+    )
+    await upsertChunk('incomes', incomes, incomesOnConflictColumns())
 
     const separateOnly: Record<string, unknown>[] = []
     for (const [ym, rows] of Object.entries(planS.separateExpenseRowsByMonth ?? {})) {

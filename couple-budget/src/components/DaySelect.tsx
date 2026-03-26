@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   INPUT_HEIGHT,
@@ -53,18 +53,38 @@ export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  useEffect(() => {
-    if (!open || !ref.current) {
-      setDropdownRect(null)
-      return
-    }
-    const rect = ref.current.getBoundingClientRect()
+  const syncDropdownToTrigger = useCallback(() => {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
     setDropdownRect({
       top: rect.bottom + 4,
       left: rect.left,
       width: compact ? Math.max(rect.width, 100) : rect.width,
     })
-  }, [open, compact])
+  }, [compact])
+
+  useEffect(() => {
+    if (!open) {
+      setDropdownRect(null)
+      return
+    }
+    syncDropdownToTrigger()
+    const onMove = () => syncDropdownToTrigger()
+    window.addEventListener('scroll', onMove, true)
+    window.addEventListener('resize', onMove)
+    const vv = window.visualViewport
+    vv?.addEventListener('resize', onMove)
+    vv?.addEventListener('scroll', onMove)
+    const id = window.requestAnimationFrame(syncDropdownToTrigger)
+    return () => {
+      window.removeEventListener('scroll', onMove, true)
+      window.removeEventListener('resize', onMove)
+      vv?.removeEventListener('resize', onMove)
+      vv?.removeEventListener('scroll', onMove)
+      window.cancelAnimationFrame(id)
+    }
+  }, [open, syncDropdownToTrigger])
 
   const displayValue = formatPayDay(value ?? null)
   const close = () => setOpen(false)

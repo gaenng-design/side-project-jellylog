@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, type ReactNode, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT } from '@/styles/formControls'
 
@@ -17,14 +17,21 @@ interface CustomSelectProps {
   compactHeight?: number
   /** compact 모드에서 넓이를 텍스트에 맞춤 */
   compactAutoWidth?: boolean
+  /** compact: 트리거 버튼 앞쪽 (예: 별도 정산 ↗). 클릭 시 드롭다운 대신 onCompactLeadingClick */
+  compactLeading?: ReactNode
+  onCompactLeadingClick?: (e: MouseEvent) => void
+  /** compact 모드 ▾ 색 ( tinted 칩에서 흰색 등) */
+  compactCaretColor?: string
+  title?: string
 }
 
+/** Modal 오버레이(12000) 위에 포털 드롭다운이 보이도록 */
 const dropdownStyle = {
   background: '#fff',
   border: INPUT_BORDER,
   borderRadius: INPUT_BORDER_RADIUS,
   boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
-  zIndex: 10000,
+  zIndex: 13000,
 } as const
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -33,7 +40,22 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)}, ${alpha})`
 }
 
-export function CustomSelect({ options, value, onChange, placeholder = '선택', compact, compactMinWidth = 64, customBgColor, customChipBg, compactHeight, compactAutoWidth }: CustomSelectProps) {
+export function CustomSelect({
+  options,
+  value,
+  onChange,
+  placeholder = '선택',
+  compact,
+  compactMinWidth = 64,
+  customBgColor,
+  customChipBg,
+  compactHeight,
+  compactAutoWidth,
+  compactLeading,
+  onCompactLeadingClick,
+  compactCaretColor,
+  title,
+}: CustomSelectProps) {
   const [open, setOpen] = useState(false)
   const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
@@ -50,20 +72,48 @@ export function CustomSelect({ options, value, onChange, placeholder = '선택',
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  useEffect(() => {
-    if (!open || !ref.current) {
-      setDropdownRect(null)
-      return
-    }
-    const rect = ref.current.getBoundingClientRect()
+  const syncDropdownToTrigger = useCallback(() => {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
     setDropdownRect({
       top: rect.bottom + 4,
       left: rect.left,
       width: compact ? Math.max(rect.width, 100) : rect.width,
     })
-  }, [open, compact])
+  }, [compact])
+
+  useEffect(() => {
+    if (!open) {
+      setDropdownRect(null)
+      return
+    }
+    syncDropdownToTrigger()
+    const onMove = () => {
+      syncDropdownToTrigger()
+    }
+    window.addEventListener('scroll', onMove, true)
+    window.addEventListener('resize', onMove)
+    const vv = window.visualViewport
+    vv?.addEventListener('resize', onMove)
+    vv?.addEventListener('scroll', onMove)
+    const id = window.requestAnimationFrame(syncDropdownToTrigger)
+    return () => {
+      window.removeEventListener('scroll', onMove, true)
+      window.removeEventListener('resize', onMove)
+      vv?.removeEventListener('resize', onMove)
+      vv?.removeEventListener('scroll', onMove)
+      window.cancelAnimationFrame(id)
+    }
+  }, [open, syncDropdownToTrigger])
 
   const close = () => setOpen(false)
+
+  const caretColor = compactCaretColor ?? '#6b7280'
+  const leadingDividerBg =
+    caretColor === '#fff' || caretColor.toLowerCase() === '#ffffff'
+      ? 'rgba(255,255,255,0.35)'
+      : 'rgba(15, 23, 42, 0.1)'
 
   if (compact) {
     return (
@@ -71,16 +121,17 @@ export function CustomSelect({ options, value, onChange, placeholder = '선택',
         <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
           <button
             type="button"
+            title={title}
             onClick={() => setOpen((o) => !o)}
             style={{
               height: compactHeight ?? INPUT_HEIGHT,
               minHeight: compactHeight ?? INPUT_HEIGHT,
               ...(compactAutoWidth ? {} : { minWidth: compactMinWidth, maxWidth: compactMinWidth }),
-              padding: '0 10px',
+              padding: compactLeading != null ? '0 10px 0 8px' : '0 10px',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: 8,
+              gap: compactLeading != null ? 6 : 8,
               fontSize: 12,
               borderRadius: compactAutoWidth && customChipBg ? 999 : INPUT_BORDER_RADIUS,
               border: `1.5px solid ${open || (value && (customChipBg || customBgColor)) ? (customBgColor ?? PRIMARY) : '#e5e7eb'}`,
@@ -94,8 +145,43 @@ export function CustomSelect({ options, value, onChange, placeholder = '선택',
               boxSizing: 'border-box',
             }}
           >
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{value || placeholder}</span>
-            <span style={{ flexShrink: 0, color: '#6b7280', fontSize: 10 }}>▾</span>
+            {compactLeading != null && (
+              <>
+                <span
+                  role="presentation"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    onCompactLeadingClick?.(e)
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    cursor: onCompactLeadingClick ? 'pointer' : 'default',
+                  }}
+                >
+                  {compactLeading}
+                </span>
+                {(value || placeholder) && (
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 1,
+                      alignSelf: 'stretch',
+                      minHeight: 14,
+                      background: leadingDividerBg,
+                      margin: '0 2px 0 0',
+                      flexShrink: 0,
+                      borderRadius: 1,
+                    }}
+                  />
+                )}
+              </>
+            )}
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{value || placeholder}</span>
+            <span style={{ flexShrink: 0, color: caretColor, fontSize: 10 }}>▾</span>
           </button>
         </div>
         {open && dropdownRect && createPortal(

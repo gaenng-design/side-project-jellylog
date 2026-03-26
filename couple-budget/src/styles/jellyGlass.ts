@@ -46,23 +46,22 @@ export const jellyCardStyle: CSSProperties = {
   boxShadow: JELLY.shadowFloat,
 }
 
+/** Primary CTA — 포인트 스카이 블루 단색(그라데이션 없음), 흰 텍스트 */
 export const jellyPrimaryButton: CSSProperties = {
   borderRadius: JELLY.radiusFull,
-  padding: '10px 20px',
-  border: JELLY.innerBorder,
-  background:
-    'linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, rgba(224, 242, 254, 0.88) 35%, rgba(186, 230, 253, 0.72) 65%, rgba(125, 211, 252, 0.55) 100%)',
-  backdropFilter: JELLY.blur,
-  WebkitBackdropFilter: JELLY.blur,
-  boxShadow: '0 6px 24px rgba(14, 165, 233, 0.2), inset 0 2px 0 rgba(255,255,255,0.85)',
-  color: JELLY.text,
+  padding: '11px 22px',
+  border: '1px solid rgba(255, 255, 255, 0.45)',
+  background: '#0ea5e9',
+  color: '#ffffff',
+  textShadow: '0 1px 2px rgba(15, 23, 42, 0.2)',
   fontWeight: 600,
   cursor: 'pointer',
+  boxShadow: '0 4px 20px rgba(14, 165, 233, 0.35)',
 }
 
 export const jellyPrimaryButtonDisabled: CSSProperties = {
   ...jellyPrimaryButton,
-  opacity: 0.55,
+  opacity: 0.52,
   cursor: 'not-allowed',
   boxShadow: 'none',
 }
@@ -112,7 +111,7 @@ export const jellyModalPanel: CSSProperties = {
   ...jellyCardStyle,
   borderRadius: JELLY.radiusLg,
   boxShadow: JELLY.shadowModal,
-  background: 'rgba(255, 255, 255, 0.42)',
+  background: 'rgba(255, 255, 255, 0.9)',
 }
 
 export const jellyErrorBanner: CSSProperties = {
