@@ -21,12 +21,13 @@ function formatPayDay(v: number | null | undefined): string {
   return `매월 ${v}일`
 }
 
+/** Modal 오버레이(12000) 위에 보이도록 — CustomSelect 포털과 동일 계열 */
 const dropdownStyle = {
   background: '#fff',
   border: INPUT_BORDER,
   borderRadius: INPUT_BORDER_RADIUS,
   boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
-  zIndex: 10000,
+  zIndex: 13000,
 } as const
 
 interface DaySelectProps {

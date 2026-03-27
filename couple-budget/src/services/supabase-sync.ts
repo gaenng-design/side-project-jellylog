@@ -433,26 +433,34 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       extraMapped[ym].invest.push(mapInvestRow(r))
     }
 
-    const separateExpenseRowsByMonth: Record<string, ReturnType<typeof mapFixedRow>[]> = {}
+    /** 같은 id가 fixed_expenses(is_separate)와 separate_items 둘 다에 있으면 중복 행이 생겨 편집이 되돌아가는 것처럼 보임 → id당 하나만 유지, 나중(separate_items)이 우선 */
+    const separateByMonthId = new Map<string, Map<string, ReturnType<typeof mapFixedRow>>>()
+    const putSeparate = (ym: string, row: ReturnType<typeof mapFixedRow>) => {
+      if (!separateByMonthId.has(ym)) separateByMonthId.set(ym, new Map())
+      separateByMonthId.get(ym)!.set(row.id, row)
+    }
     for (const r of fixedExp) {
       if (!(r.is_separate ?? r.isSeparate)) continue
-      const ym = yearMonthOf(r)
-      if (!separateExpenseRowsByMonth[ym]) separateExpenseRowsByMonth[ym] = []
-      separateExpenseRowsByMonth[ym].push(mapFixedRow(r))
+      putSeparate(yearMonthOf(r), mapFixedRow(r))
     }
     for (const r of sepRows) {
       const ym = yearMonthOf(r)
-      if (!separateExpenseRowsByMonth[ym]) separateExpenseRowsByMonth[ym] = []
-      separateExpenseRowsByMonth[ym].push({
+      const sp = r.separate_person ?? r.separatePerson
+      putSeparate(ym, {
         id: String(r.id),
         person: str(r, 'person', 'person'),
         category: str(r, 'category', 'category'),
         description: str(r, 'description', 'description', ''),
         amount: num(r, 'amount', 'amount'),
         isSeparate: true,
-        separatePerson: undefined,
+        separatePerson:
+          sp === 'A' || sp === 'B' ? sp : undefined,
         payDay: undefined,
       })
+    }
+    const separateExpenseRowsByMonth: Record<string, ReturnType<typeof mapFixedRow>[]> = {}
+    for (const [ym, idMap] of separateByMonthId) {
+      separateExpenseRowsByMonth[ym] = [...idMap.values()]
     }
 
     let defaultSalaryExcludedByMonth: Record<string, Partial<Record<'A' | 'B', boolean>>> = {}
@@ -791,6 +799,7 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
             category: r.category,
             description: r.description ?? null,
             amount: r.amount,
+            separatePerson: r.separatePerson ?? null,
           }),
           household_id: householdId,
         })

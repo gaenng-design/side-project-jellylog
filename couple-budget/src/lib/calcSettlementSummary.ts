@@ -26,6 +26,16 @@ export interface SettlementInputs {
   fixedRegularTotal?: number
   /** 용돈 차감: 별도 지출 카드 합(÷2). 미주입 시 0 */
   fixedSeparateTotal?: number
+  /** 별도 지출 카드 50:50 송금 안내(미주입 시 null) */
+  separateExpenseCard5090?: {
+    total: number
+    paidA: number
+    paidB: number
+    fairShareEach: number
+    transferAmount: number
+    transferFrom: 'A' | 'B' | null
+    transferTo: 'A' | 'B' | null
+  } | null
 }
 
 export function getSharedLivingByPerson(
@@ -77,6 +87,8 @@ export interface SettlementSummary {
     halfEach: number
     separateByUser: { A: number; B: number }
   }
+  /** 별도 지출 카드 50:50 송금 안내 */
+  separateExpenseCard5090: NonNullable<SettlementInputs['separateExpenseCard5090']> | null
   userSummary: {
     A: {
       fixedDeposit: number
@@ -181,6 +193,7 @@ export function calcSettlementSummary(
       halfEach,
       separateByUser: { A: separateByUser.A, B: separateByUser.B },
     },
+    separateExpenseCard5090: inputs.separateExpenseCard5090 ?? null,
     userSummary,
     chartData,
   }

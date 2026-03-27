@@ -17,6 +17,37 @@ function compositionSegmentColor(c: { label: string; amount: number }): string {
   return 'oklch(0.75 0.04 250 / 1)'
 }
 
+/** 세그먼트 위 광택·아래 음영 (베이스 컬러는 backgroundColor) */
+const segmentGlossLayers =
+  'linear-gradient(180deg, rgba(255,255,255,0.52) 0%, rgba(255,255,255,0.18) 18%, rgba(255,255,255,0.04) 38%, transparent 52%), linear-gradient(180deg, transparent 58%, rgba(15,23,42,0.1) 100%)'
+
+const incomeBarOuterStyle: CSSProperties = {
+  width: '100%',
+  padding: 3,
+  borderRadius: JELLY.radiusLg,
+  background: 'linear-gradient(145deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.12) 45%, rgba(186,230,253,0.25) 100%)',
+  boxShadow: `
+    0 4px 16px rgba(14, 165, 233, 0.12),
+    0 12px 40px rgba(99, 102, 241, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.75),
+    inset 0 -1px 0 rgba(255,255,255,0.2)
+  `,
+  border: JELLY.innerBorderSoft,
+  backdropFilter: JELLY.blur,
+  WebkitBackdropFilter: JELLY.blur,
+  boxSizing: 'border-box',
+}
+
+const incomeBarTrackStyle: CSSProperties = {
+  display: 'flex',
+  width: '100%',
+  height: 46,
+  borderRadius: JELLY.radiusLg - 3,
+  overflow: 'hidden',
+  boxShadow: 'inset 0 2px 6px rgba(15, 23, 42, 0.08), inset 0 0 0 1px rgba(255,255,255,0.35)',
+  background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 100%)',
+}
+
 const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
 
 type InvestLineItem = { label: string; amount: number }
@@ -54,6 +85,13 @@ const tdFixedGroupHeader: CSSProperties = {
   verticalAlign: 'bottom',
 }
 
+const tdFixedGroupHeaderAmount: CSSProperties = {
+  ...tdFixedGroupHeader,
+  textAlign: 'right',
+  padding: '10px 0 6px 0',
+  whiteSpace: 'nowrap',
+}
+
 const tdInvestGroupHeader: CSSProperties = {
   padding: '10px 8px 6px 0',
   fontSize: 12,
@@ -71,6 +109,38 @@ const tdTreeChildLabel: CSSProperties = {
 
 const tdTreeChildAmount: CSSProperties = {
   ...tdAmountBase,
+}
+
+/** 별도 지출 카드(50:50) 정산 보조 행 */
+const tdSepCardLabel: CSSProperties = {
+  ...tdTreeChildLabel,
+  paddingLeft: 20,
+  fontSize: 12,
+  color: JELLY.textMuted,
+  fontWeight: 500,
+}
+
+const tdSepCardAmount: CSSProperties = {
+  ...tdTreeChildAmount,
+  fontSize: 12,
+}
+
+/** 고카테고리 소계 행 (고정·별도 / 투자·저축) */
+const tdCategorySubtotalLabel: CSSProperties = {
+  ...tdLabelBase,
+  paddingLeft: 12,
+  paddingTop: 10,
+  fontWeight: 700,
+  fontSize: 12,
+  color: JELLY.text,
+}
+
+const tdCategorySubtotalAmount: CSSProperties = {
+  ...tdAmountBase,
+  paddingTop: 10,
+  fontWeight: 700,
+  fontSize: 13,
+  color: JELLY.text,
 }
 
 const labelWithCheckboxStyle: CSSProperties = {
@@ -150,6 +220,10 @@ function UserInvestTreeRows(props: {
         </td>
       </tr>
       {body}
+      <tr style={{ borderTop: '1px solid rgba(148, 163, 184, 0.2)' }}>
+        <td style={{ ...tdCategorySubtotalLabel, color: INVEST_SUMMARY_COLOR }}>투자/저축 소계</td>
+        <td style={{ ...tdCategorySubtotalAmount, color: INVEST_SUMMARY_COLOR }}>{fmt(totalInvest)}</td>
+      </tr>
     </>
   )
 }
@@ -201,6 +275,15 @@ interface SettlementResultViewProps {
       halfEach: number
       separateByUser: { A: number; B: number }
     }
+    separateExpenseCard5090?: {
+      total: number
+      paidA: number
+      paidB: number
+      fairShareEach: number
+      transferAmount: number
+      transferFrom: 'A' | 'B' | null
+      transferTo: 'A' | 'B' | null
+    } | null
   }
   personAName: string
   personBName: string
@@ -214,55 +297,66 @@ function IncomeStackedBar(props: { chartData: { label: string; amount: number; p
     )
   }
 
+  let lastPositiveIdx = -1
+  for (let i = chartData.length - 1; i >= 0; i--) {
+    if (chartData[i].amount > 0) {
+      lastPositiveIdx = i
+      break
+    }
+  }
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        width: '100%',
-        height: 40,
-        borderRadius: 9999,
-        overflow: 'hidden',
-        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.5)',
-      }}
-    >
-      {chartData.map((c) => {
-        const w = Math.max(0, Math.min(100, (c.amount / totalIncome) * 100))
-        const showPct = w >= 6
-        const bg = compositionSegmentColor(c)
-        return (
-          <div
-            key={c.label}
-            title={`${c.label} · ${fmt(c.amount)} (${c.pct.toFixed(1)}%)`}
-            style={{
-              width: `${w}%`,
-              minWidth: w > 0 && w < 0.5 ? 2 : 0,
-              flexShrink: 0,
-              background: bg,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxSizing: 'border-box',
-            }}
-          >
-            {showPct ? (
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: JELLY.text,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  padding: '0 6px',
-                  textShadow: '0 1px 0 rgba(255,255,255,0.9)',
-                }}
-              >
-                {Math.round(c.pct)}%
-              </span>
-            ) : null}
-          </div>
-        )
-      })}
+    <div style={incomeBarOuterStyle}>
+      <div style={incomeBarTrackStyle}>
+        {chartData.map((c, idx) => {
+          const w = Math.max(0, Math.min(100, (c.amount / totalIncome) * 100))
+          const showPct = w >= 6
+          const base = compositionSegmentColor(c)
+          const isLastVisible = idx === lastPositiveIdx
+          return (
+            <div
+              key={c.label}
+              title={`${c.label} · ${fmt(c.amount)} (${c.pct.toFixed(1)}%)`}
+              style={{
+                width: `${w}%`,
+                minWidth: w > 0 && w < 0.5 ? 2 : 0,
+                flexShrink: 0,
+                backgroundColor: base,
+                backgroundImage: segmentGlossLayers,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxSizing: 'border-box',
+                position: 'relative',
+                boxShadow: isLastVisible
+                  ? 'none'
+                  : 'inset -1px 0 0 rgba(255,255,255,0.55), 2px 0 8px rgba(255,255,255,0.12)',
+              }}
+            >
+              {showPct ? (
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    letterSpacing: '0.02em',
+                    color: 'rgba(30, 41, 59, 0.92)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    padding: '0 6px',
+                    position: 'relative',
+                    zIndex: 1,
+                    textShadow:
+                      '0 1px 0 rgba(255,255,255,0.95), 0 0 10px rgba(255,255,255,0.65), 0 1px 2px rgba(255,255,255,0.4)',
+                  }}
+                >
+                  {Math.round(c.pct)}%
+                </span>
+              ) : null}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -274,33 +368,36 @@ export function SettlementResultView({
 }: SettlementResultViewProps) {
   const { userSummary, chartData, fixedDepositByUser, totalIncome } = summary
   const fixedDepositBreakdown = summary.fixedDepositBreakdown ?? deriveFixedDepositBreakdown(summary)
+  const sep5090 = summary.separateExpenseCard5090
+  const sepCardActive = sep5090 != null && sep5090.total > 0
   const [fixedDepositMoreOpen, setFixedDepositMoreOpen] = useState(false)
   /** 정산 화면에서만 쓰는 납부 확인용 체크(저장·계산 미반영) */
   const [userPayChecked, setUserPayChecked] = useState<{
     A: {
       deposit: boolean
-      separate: boolean
       sharedLiving: boolean
+      /** 별도 지출 카드 50:50 송금액 — 보내는 쪽만 체크 UI 표시 */
+      transfer5090Send: boolean
       /** 투자/저축 트리: inv-0, sav-0 | cat-inv, cat-sav | combined */
       investChecks: Record<string, boolean>
     }
     B: {
       deposit: boolean
-      separate: boolean
       sharedLiving: boolean
+      transfer5090Send: boolean
       investChecks: Record<string, boolean>
     }
   }>({
     A: {
       deposit: false,
-      separate: false,
       sharedLiving: false,
+      transfer5090Send: false,
       investChecks: {},
     },
     B: {
       deposit: false,
-      separate: false,
       sharedLiving: false,
+      transfer5090Send: false,
       investChecks: {},
     },
   })
@@ -329,12 +426,15 @@ export function SettlementResultView({
             <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span
                 style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 999,
-                  background: compositionSegmentColor(c),
+                  width: 11,
+                  height: 11,
+                  borderRadius: '50%',
+                  backgroundColor: compositionSegmentColor(c),
+                  backgroundImage:
+                    'linear-gradient(145deg, rgba(255,255,255,0.65) 0%, transparent 52%), linear-gradient(210deg, transparent 40%, rgba(15,23,42,0.08) 100%)',
                   flexShrink: 0,
-                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.45)',
+                  boxShadow:
+                    'inset 0 1px 2px rgba(255,255,255,0.75), 0 1px 3px rgba(15, 23, 42, 0.1), inset 0 -1px 1px rgba(15,23,42,0.06)',
                 }}
               />
               <span style={{ color: c.label === '용돈' ? allowanceValueColor(c.amount) : JELLY.text }}>
@@ -363,7 +463,7 @@ export function SettlementResultView({
             style={{
               fontSize: 12,
               padding: '8px 16px',
-              borderRadius: 9999,
+              borderRadius: JELLY.radiusControl,
               border: JELLY.innerBorderSoft,
               background: 'rgba(255,255,255,0.35)',
               backdropFilter: JELLY.blur,
@@ -429,6 +529,73 @@ export function SettlementResultView({
         ) : null}
       </div>
 
+      {summary.separateExpenseCard5090 && summary.separateExpenseCard5090.total > 0 ? (
+        <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 10 }}>별도 지출 (50:50 정산)</div>
+          <div style={{ fontSize: 12, color: JELLY.textMuted, lineHeight: 1.65, marginBottom: 8 }}>
+            별도 지출 카드 합계 <strong style={{ color: '#374151' }}>{fmt(summary.separateExpenseCard5090.total)}</strong>
+            은 두 사람이 동일하게{' '}
+            <strong style={{ color: '#374151' }}>{fmt(summary.separateExpenseCard5090.fairShareEach)}</strong>씩 부담합니다.
+            실제 낸 금액은 <strong style={{ color: '#374151' }}>{personAName}</strong>{' '}
+            {fmt(summary.separateExpenseCard5090.paidA)} · <strong style={{ color: '#374151' }}>{personBName}</strong>{' '}
+            {fmt(summary.separateExpenseCard5090.paidB)}입니다.
+          </div>
+          {summary.separateExpenseCard5090.transferAmount > 0 &&
+          summary.separateExpenseCard5090.transferFrom &&
+          summary.separateExpenseCard5090.transferTo ? (
+            <div
+              style={{
+                padding: '12px 14px',
+                borderRadius: JELLY.radiusControl,
+                background: 'rgba(14, 165, 233, 0.1)',
+                border: '1px solid rgba(14, 165, 233, 0.28)',
+                fontSize: 13,
+                fontWeight: 700,
+                color: JELLY.text,
+                lineHeight: 1.5,
+              }}
+            >
+              {summary.separateExpenseCard5090.transferFrom === 'A' ? personAName : personBName} →{' '}
+              {summary.separateExpenseCard5090.transferTo === 'A' ? personAName : personBName} 송금{' '}
+              <span style={{ color: PRIMARY }}>{fmt(summary.separateExpenseCard5090.transferAmount)}</span>
+              <span style={{ display: 'block', marginTop: 6, fontSize: 11, fontWeight: 500, color: JELLY.textMuted }}>
+                적게 지출한 쪽이 차액의 절반을 내면 실부담이 같아집니다.
+              </span>
+              {summary.separateExpenseCard5090.transferFrom ? (
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    marginTop: 12,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: JELLY.text,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={userPayChecked[summary.separateExpenseCard5090.transferFrom].transfer5090Send}
+                    onChange={(e) => {
+                      const from = summary.separateExpenseCard5090!.transferFrom!
+                      setUserPayChecked((prev) => ({
+                        ...prev,
+                        [from]: { ...prev[from], transfer5090Send: e.target.checked },
+                      }))
+                    }}
+                    style={{ ...checkboxStyle, marginTop: 0, width: 17, height: 17 }}
+                  />
+                  <span>송금 완료(납부 확인)</span>
+                </label>
+              ) : null}
+            </div>
+          ) : (
+            <div style={{ fontSize: 12, color: JELLY.textMuted }}>실지출이 같아 추가 송금이 없습니다.</div>
+          )}
+        </div>
+      ) : null}
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text }}>유저별 각자 낼 돈</div>
         <div
@@ -443,6 +610,10 @@ export function SettlementResultView({
           const u = userSummary[p]
           const name = p === 'A' ? personAName : personBName
           const payChk = userPayChecked[p as PersonKey]
+          const fairEach = sepCardActive ? sep5090!.fairShareEach : 0
+          const paidOnSeparateCard = sepCardActive ? (p === 'A' ? sep5090!.paidA : sep5090!.paidB) : 0
+          const sendSeparate = sepCardActive && sep5090!.transferFrom === p ? sep5090!.transferAmount : 0
+          const recvSeparate = sepCardActive && sep5090!.transferTo === p ? sep5090!.transferAmount : 0
           return (
             <div
               key={p}
@@ -462,8 +633,9 @@ export function SettlementResultView({
                 </colgroup>
                 <tbody>
                   <tr>
-                    <td colSpan={2} style={tdFixedGroupHeader}>
-                      고정지출 + 별도 지출
+                    <td style={tdFixedGroupHeader}>고정지출 + 별도 지출</td>
+                    <td style={tdFixedGroupHeaderAmount}>
+                      {fmt(u.fixedDeposit + fixedDepositBreakdown.separateByUser[p])}
                     </td>
                   </tr>
                   <tr>
@@ -487,22 +659,50 @@ export function SettlementResultView({
                   </tr>
                   <tr>
                     <td style={tdTreeChildLabel}>
-                      <label style={labelWithCheckboxStyle}>
-                        <input
-                          type="checkbox"
-                          checked={payChk.separate}
-                          onChange={(e) =>
-                            setUserPayChecked((prev) => ({
-                              ...prev,
-                              [p]: { ...prev[p as PersonKey], separate: e.target.checked },
-                            }))
-                          }
-                          style={checkboxStyle}
-                        />
-                        <span style={{ minWidth: 0, lineHeight: 1.4 }}>별도/개별 부담</span>
-                      </label>
+                      <span style={{ display: 'block', minWidth: 0, lineHeight: 1.4 }}>별도/개별 부담</span>
                     </td>
                     <td style={tdTreeChildAmount}>{fmt(fixedDepositBreakdown.separateByUser[p])}</td>
+                  </tr>
+                  <tr>
+                    <td style={tdSepCardLabel}>
+                      <span style={{ lineHeight: 1.45 }}>별도 지출 카드 · 1인 부담(50%)</span>
+                    </td>
+                    <td style={tdSepCardAmount}>{fmt(fairEach)}</td>
+                  </tr>
+                  <tr>
+                    <td style={tdSepCardLabel}>
+                      <span style={{ lineHeight: 1.45 }}>별도 지출 카드 · 실제 낸 금액</span>
+                    </td>
+                    <td style={tdSepCardAmount}>{fmt(paidOnSeparateCard)}</td>
+                  </tr>
+                  <tr>
+                    <td style={tdSepCardLabel}>
+                      {sendSeparate > 0 ? (
+                        <label style={labelWithCheckboxStyle}>
+                          <input
+                            type="checkbox"
+                            checked={payChk.transfer5090Send}
+                            onChange={(e) =>
+                              setUserPayChecked((prev) => ({
+                                ...prev,
+                                [p]: { ...prev[p as PersonKey], transfer5090Send: e.target.checked },
+                              }))
+                            }
+                            style={{ ...checkboxStyle, marginTop: 1 }}
+                          />
+                          <span style={{ lineHeight: 1.45 }}>별도 지출 · 송금할 돈</span>
+                        </label>
+                      ) : (
+                        <span style={{ lineHeight: 1.45 }}>별도 지출 · 송금할 돈</span>
+                      )}
+                    </td>
+                    <td style={tdSepCardAmount}>{fmt(sendSeparate)}</td>
+                  </tr>
+                  <tr>
+                    <td style={tdSepCardLabel}>
+                      <span style={{ lineHeight: 1.45 }}>별도 지출 · 받을 돈</span>
+                    </td>
+                    <td style={tdSepCardAmount}>{fmt(recvSeparate)}</td>
                   </tr>
                   <tr style={{ borderTop: '1px solid #f3f4f6' }}>
                     <td style={{ ...tdLabelBase, paddingLeft: 4 }}>

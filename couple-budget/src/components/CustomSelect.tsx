@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, type ReactNode, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT } from '@/styles/formControls'
+import { JELLY } from '@/styles/jellyGlass'
 
 interface CustomSelectProps {
   options: string[]
@@ -13,7 +14,9 @@ interface CustomSelectProps {
   customBgColor?: string
   /** 칩 스타일: 파스텔 배경 (customBgColor는 테두리/텍스트용) */
   customChipBg?: string
-  /** compact 모드 높이 (삭제 버튼 등과 통일용) */
+  /** 트리거 버튼 높이(비 compact). 미지정 시 INPUT_HEIGHT */
+  height?: number
+  /** compact 모드 높이 (삭제 버튼 등과 통일용). `height`가 있으면 그것이 우선 */
   compactHeight?: number
   /** compact 모드에서 넓이를 텍스트에 맞춤 */
   compactAutoWidth?: boolean
@@ -49,6 +52,7 @@ export function CustomSelect({
   compactMinWidth = 64,
   customBgColor,
   customChipBg,
+  height: heightProp,
   compactHeight,
   compactAutoWidth,
   compactLeading,
@@ -109,6 +113,8 @@ export function CustomSelect({
 
   const close = () => setOpen(false)
 
+  const triggerHeight = compact ? (heightProp ?? compactHeight ?? INPUT_HEIGHT) : (heightProp ?? INPUT_HEIGHT)
+
   const caretColor = compactCaretColor ?? '#6b7280'
   const leadingDividerBg =
     caretColor === '#fff' || caretColor.toLowerCase() === '#ffffff'
@@ -124,8 +130,8 @@ export function CustomSelect({
             title={title}
             onClick={() => setOpen((o) => !o)}
             style={{
-              height: compactHeight ?? INPUT_HEIGHT,
-              minHeight: compactHeight ?? INPUT_HEIGHT,
+              height: triggerHeight,
+              minHeight: triggerHeight,
               ...(compactAutoWidth ? {} : { minWidth: compactMinWidth, maxWidth: compactMinWidth }),
               padding: compactLeading != null ? '0 10px 0 8px' : '0 10px',
               display: 'inline-flex',
@@ -133,7 +139,7 @@ export function CustomSelect({
               justifyContent: 'space-between',
               gap: compactLeading != null ? 6 : 8,
               fontSize: 12,
-              borderRadius: compactAutoWidth && customChipBg ? 999 : INPUT_BORDER_RADIUS,
+              borderRadius: compactAutoWidth && customChipBg ? JELLY.radiusUserChip : INPUT_BORDER_RADIUS,
               border: `1.5px solid ${open || (value && (customChipBg || customBgColor)) ? (customBgColor ?? PRIMARY) : '#e5e7eb'}`,
               background: value && customChipBg ? customChipBg : value && customBgColor ? hexToRgba(customBgColor, 0.2) : '#fff',
               color: value && customChipBg ? (customBgColor ?? PRIMARY) : value && customBgColor ? customBgColor : (value ? '#111827' : '#6b7280'),
@@ -240,7 +246,7 @@ export function CustomSelect({
           onClick={() => setOpen((o) => !o)}
           style={{
             width: '100%',
-            height: INPUT_HEIGHT,
+            height: triggerHeight,
             padding: '0 12px',
             border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
             borderRadius: INPUT_BORDER_RADIUS,

@@ -100,7 +100,7 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
           alignItems: 'center',
           gap: 8,
           padding: '5px 12px',
-          borderRadius: 999,
+          borderRadius: JELLY.radiusUserChip,
           border: `1px solid rgba(255,255,255,0.55)`,
           background: displayBg,
           color: '#fff',
@@ -142,7 +142,7 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
                 }}
                 style={{
                   padding: '8px 14px',
-                  borderRadius: 999,
+                  borderRadius: JELLY.radiusUserChip,
                   border: `1px solid rgba(255,255,255,0.55)`,
                   background: pastel,
                   color: '#fff',

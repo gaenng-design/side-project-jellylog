@@ -61,7 +61,7 @@ export function PersonBadge({ person }: { person: Person }) {
         justifyContent: 'center',
         height: 22,
         padding: '0 10px',
-        borderRadius: 999,
+        borderRadius: JELLY.radiusUserChip,
         background: bg,
         color,
         border: `1px solid rgba(255,255,255,0.55)`,
@@ -108,7 +108,7 @@ export function PersonToggle({
             onClick={() => onChange(p)}
             style={{
               padding: compact ? '5px 12px' : '7px 16px',
-              borderRadius: 999,
+              borderRadius: JELLY.radiusUserChip,
               border: active ? `1px solid rgba(255,255,255,0.65)` : JELLY.innerBorderSoft,
               background: active ? bg : 'rgba(255,255,255,0.32)',
               backdropFilter: active ? JELLY.blur : JELLY.blur,

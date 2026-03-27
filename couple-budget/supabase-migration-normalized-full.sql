@@ -44,7 +44,8 @@ create table if not exists public.separate_items (
   person text not null,
   category text not null,
   description text default '',
-  amount numeric not null default 0
+  amount numeric not null default 0,
+  separate_person text
 );
 
 alter table public.separate_items enable row level security;

@@ -67,7 +67,7 @@ export function InlineEdit({
           width: inputWidth ?? '100%',
           fontSize: 13,
           border: `1px solid rgba(255,255,255,0.55)`,
-          borderRadius: JELLY.radiusMd,
+          borderRadius: JELLY.radiusControl,
           padding: '4px 10px',
           outline: 'none',
           textAlign: align,
@@ -92,7 +92,7 @@ export function InlineEdit({
         cursor: 'text',
         textAlign: align,
         display: 'block',
-        borderRadius: JELLY.radiusMd,
+        borderRadius: JELLY.radiusControl,
         padding: '2px 4px',
         minWidth: 20,
       }}

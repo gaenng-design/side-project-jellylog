@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useAppStore, YEAR_PICKER_MIN } from '@/store/useAppStore'
 import { PRIMARY } from '@/styles/formControls'
+import { JELLY } from '@/styles/jellyGlass'
 import { YearSelectDropdown } from '@/components/YearSelectDropdown'
 
 const MONTHS = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
@@ -44,7 +45,7 @@ export function MonthPicker({ onBeforeChange }: MonthPickerProps) {
           display: 'flex',
           gap: 4,
           background: '#fff',
-          borderRadius: 999,
+          borderRadius: JELLY.radiusControl,
           padding: '4px',
           border: '1px solid #e8ecf1',
         }}
@@ -58,7 +59,7 @@ export function MonthPicker({ onBeforeChange }: MonthPickerProps) {
               onClick={() => setMonth(m)}
               style={{
                 padding: '4px 10px',
-                borderRadius: 999,
+                borderRadius: JELLY.radiusControl,
                 border: 'none',
                 background: active ? PRIMARY : 'transparent',
                 color: active ? '#fff' : '#8a99ae',

@@ -12,8 +12,6 @@ interface FixedExtraRow {
   isSeparate?: boolean
   separatePerson?: 'A' | 'B'
   payDay?: number
-  /** 별도 지출 전용: 체크 시 합계·용돈 계산에서 제외(이미 납부) */
-  paid?: boolean
 }
 
 interface InvestExtraRow {

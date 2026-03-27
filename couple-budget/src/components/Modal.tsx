@@ -96,7 +96,7 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
             style={{
               background: 'rgba(255,255,255,0.35)',
               border: JELLY.innerBorderSoft,
-              borderRadius: JELLY.radiusFull,
+              borderRadius: JELLY.radiusControl,
               cursor: 'pointer',
               color: JELLY.textMuted,
               fontSize: 20,

@@ -44,7 +44,7 @@ export function GroupHeaderChip({ label, total, color, useUserChipStyle, totalCo
           display: 'inline-flex',
           alignItems: 'center',
           padding: '5px 12px',
-          borderRadius: 999,
+          borderRadius: JELLY.radiusUserChip,
           fontSize: 12,
           fontWeight: 600,
           background: chipBg,

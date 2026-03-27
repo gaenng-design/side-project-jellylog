@@ -14,8 +14,15 @@ import { CustomSelect } from '@/components/CustomSelect'
 import { FixedExpenseRow } from '@/components/FixedExpenseRow'
 import { InvestRow } from '@/components/InvestRow'
 import { GroupHeaderChip } from '@/components/GroupHeaderChip'
-import { inputBaseStyle, PRIMARY, settingsSectionCardStyle } from '@/styles/formControls'
-import { jellyGhostButton, jellyPrimaryButton, jellyPrimaryButtonDisabled } from '@/styles/jellyGlass'
+import {
+  inputBaseStyle,
+  PRIMARY,
+  settingsSectionCardStyle,
+  SETTINGS_TEMPLATE_ROW_HEIGHT,
+  settingsTemplateAddRowInputStyle,
+  settingsTemplateAddItemButtonBase,
+} from '@/styles/formControls'
+import { JELLY } from '@/styles/jellyGlass'
 import { isSupabaseConfigured } from '@/data/supabase'
 import { saveAllToSupabase } from '@/data/saveAllToSupabase'
 import type { Person } from '@/types'
@@ -72,7 +79,7 @@ function SortableTemplateRow(props: {
             style={{
               fontSize: 11,
               padding: '6px 10px',
-              borderRadius: 8,
+              borderRadius: JELLY.radiusControl,
               border: '1px solid #fecaca',
               background: '#fef2f2',
               color: '#b91c1c',
@@ -123,7 +130,7 @@ function SortableInvestRow(props: {
             style={{
               fontSize: 11,
               padding: '6px 10px',
-              borderRadius: 8,
+              borderRadius: JELLY.radiusControl,
               border: '1px solid #fecaca',
               background: '#fef2f2',
               color: '#b91c1c',
@@ -241,7 +248,7 @@ function UserSettings() {
           onClick={handleSave}
           style={{
             padding: '10px 24px',
-            borderRadius: 10,
+            borderRadius: JELLY.radiusControl,
             border: 'none',
             background: PRIMARY,
             color: '#fff',
@@ -264,7 +271,7 @@ function UserSettings() {
           padding: '12px 20px',
           background: '#111827',
           color: '#fff',
-          borderRadius: 10,
+          borderRadius: JELLY.radiusControl,
           fontSize: 14,
           fontWeight: 500,
           zIndex: 2000,
@@ -287,44 +294,126 @@ const RATIO_OPTIONS = [
 function SharedLivingCostSettings() {
   const settings = useAppStore((s) => s.settings)
   const updateSettings = useAppStore((s) => s.updateSettings)
+  const [ratioFocus, setRatioFocus] = useState<string | null>(null)
 
   return (
     <div style={settingsSectionCardStyle}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 14 }}>공동 생활비</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text, marginBottom: 14 }}>공동 생활비</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4 }}>월 공동 생활비 (원)</div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: JELLY.textMuted }}>월 공동 생활비 (원)</div>
           <AmountInput
             value={String(settings.sharedLivingCost ?? 0)}
             onChange={(v) => updateSettings({ sharedLivingCost: Number(v.replace(/,/g, '')) || 0 })}
           />
         </div>
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4 }}>분담 비율</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {RATIO_OPTIONS.map((opt) => (
-              <label
-                key={opt.value}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                }}
-              >
-                <input
-                  type="radio"
-                  name="sharedRatio"
-                  checked={(settings.sharedLivingCostRatioMode ?? '50:50') === opt.value}
-                  onChange={() => updateSettings({ sharedLivingCostRatioMode: opt.value })}
-                />
-                {opt.label}
-              </label>
-            ))}
+          <div style={{ fontSize: 12, marginBottom: 8, color: JELLY.textMuted }}>분담 비율</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {RATIO_OPTIONS.map((opt) => {
+              const checked = (settings.sharedLivingCostRatioMode ?? '50:50') === opt.value
+              const focused = ratioFocus === opt.value
+              return (
+                <label
+                  key={opt.value}
+                  style={{
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '10px 14px',
+                    borderRadius: JELLY.radiusControl,
+                    border: checked ? `1.5px solid ${PRIMARY}` : JELLY.innerBorderSoft,
+                    background: checked
+                      ? 'linear-gradient(180deg, rgba(224, 242, 254, 0.5) 0%, rgba(186, 230, 253, 0.28) 100%)'
+                      : 'rgba(255, 255, 255, 0.22)',
+                    backdropFilter: JELLY.blur,
+                    WebkitBackdropFilter: JELLY.blur,
+                    cursor: 'pointer',
+                    boxSizing: 'border-box',
+                    boxShadow: focused
+                      ? '0 0 0 2px rgba(14, 165, 233, 0.45), 0 4px 14px rgba(14, 165, 233, 0.1)'
+                      : checked
+                        ? 'inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 12px rgba(14, 165, 233, 0.08)'
+                        : 'inset 0 1px 0 rgba(255,255,255,0.35)',
+                    transition: 'border 0.15s ease, background 0.15s ease, box-shadow 0.15s ease',
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="sharedRatio"
+                    checked={checked}
+                    onChange={() => updateSettings({ sharedLivingCostRatioMode: opt.value })}
+                    onFocus={() => setRatioFocus(opt.value)}
+                    onBlur={() => setRatioFocus(null)}
+                    style={{
+                      position: 'absolute',
+                      width: 1,
+                      height: 1,
+                      margin: -1,
+                      padding: 0,
+                      overflow: 'hidden',
+                      clip: 'rect(0, 0, 0, 0)',
+                      whiteSpace: 'nowrap',
+                      border: 0,
+                    }}
+                  />
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: '50%',
+                      flexShrink: 0,
+                      border: `2px solid ${checked ? PRIMARY : 'rgba(148, 163, 184, 0.55)'}`,
+                      background: checked ? PRIMARY : 'rgba(255, 255, 255, 0.45)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: checked ? 'inset 0 1px 0 rgba(255,255,255,0.5)' : 'none',
+                    }}
+                  >
+                    {checked ? (
+                      <span
+                        style={{
+                          width: 7,
+                          height: 7,
+                          borderRadius: '50%',
+                          background: '#fff',
+                          boxShadow: '0 1px 2px rgba(15, 23, 42, 0.2)',
+                        }}
+                      />
+                    ) : null}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: checked ? 600 : 500,
+                      color: JELLY.text,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    {opt.label}
+                  </span>
+                </label>
+              )
+            })}
           </div>
           {(settings.sharedLivingCostRatioMode ?? '50:50') === 'custom' && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginTop: 10,
+                padding: '10px 12px',
+                borderRadius: JELLY.radiusControl,
+                border: JELLY.innerBorderSoft,
+                background: 'rgba(255, 255, 255, 0.18)',
+                backdropFilter: JELLY.blur,
+                WebkitBackdropFilter: JELLY.blur,
+              }}
+            >
               <input
                 type="number"
                 min={0}
@@ -337,7 +426,7 @@ function SharedLivingCostSettings() {
                 }}
                 style={{ width: 60, ...inputBaseStyle }}
               />
-              <span style={{ fontSize: 12 }}>:</span>
+              <span style={{ fontSize: 13, color: JELLY.textMuted, fontWeight: 600 }}>:</span>
               <input
                 type="number"
                 min={0}
@@ -477,10 +566,10 @@ function FixedTemplateSettings() {
                 onClick={() => setDefaultSeparate(true)}
                 title="별도 정산"
                 style={{
-                  height: 26,
-                  minHeight: 26,
+                  height: SETTINGS_TEMPLATE_ROW_HEIGHT,
+                  minHeight: SETTINGS_TEMPLATE_ROW_HEIGHT,
                   padding: '0 12px',
-                  borderRadius: 999,
+                  borderRadius: JELLY.radiusControl,
                   border: '1px solid #e5e7eb',
                   background: '#f9fafb',
                   color: '#9ca3af',
@@ -503,7 +592,7 @@ function FixedTemplateSettings() {
             <CustomSelect
               compact
               compactAutoWidth
-              compactHeight={26}
+              compactHeight={SETTINGS_TEMPLATE_ROW_HEIGHT}
               options={[personAName, personBName]}
               value={nameLabel}
               onChange={(v) => setDefaultSeparatePerson(v === personAName ? 'A' : 'B')}
@@ -518,6 +607,7 @@ function FixedTemplateSettings() {
           )
         })()}
         <CustomSelect
+          height={SETTINGS_TEMPLATE_ROW_HEIGHT}
           options={FIXED_CATEGORIES}
           value={category}
           onChange={(v) => setCategory(v)}
@@ -527,23 +617,20 @@ function FixedTemplateSettings() {
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
           placeholder="항목명"
-          style={{ width: 120, minWidth: 0, flex: 1, ...inputBaseStyle }}
+          style={{ width: 120, minWidth: 0, flex: 1, ...settingsTemplateAddRowInputStyle }}
         />
         <div style={{ width: 150, minWidth: 150, flexShrink: 0 }}>
-          <AmountInput value={amount} onChange={(v) => setAmount(v)} />
+          <AmountInput value={amount} onChange={(v) => setAmount(v)} height={SETTINGS_TEMPLATE_ROW_HEIGHT} />
         </div>
         <button
+          type="button"
           onClick={handleAdd}
           disabled={!desc}
           style={{
-            fontSize: 12,
-            padding: '8px 14px',
-            borderRadius: 10,
-            border: 'none',
+            ...settingsTemplateAddItemButtonBase,
             background: !desc ? '#e5e7eb' : PRIMARY,
             color: !desc ? '#9ca3af' : '#fff',
             cursor: !desc ? 'not-allowed' : 'pointer',
-            fontWeight: 500,
           }}
         >
           + 항목 추가
@@ -670,6 +757,7 @@ function InvestTemplateSettings() {
       >
         <PersonToggle value={person} onChange={(p) => setPerson(p)} options={['A', 'B']} compact />
         <CustomSelect
+          height={SETTINGS_TEMPLATE_ROW_HEIGHT}
           options={INVEST_CATEGORIES}
           value={category}
           onChange={(v) => setCategory(v)}
@@ -679,10 +767,10 @@ function InvestTemplateSettings() {
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
           placeholder="항목명"
-          style={{ width: 120, minWidth: 0, flex: 1, ...inputBaseStyle }}
+          style={{ width: 120, minWidth: 0, flex: 1, ...settingsTemplateAddRowInputStyle }}
         />
         <div style={{ width: 150, minWidth: 150, flexShrink: 0 }}>
-          <AmountInput value={amount} onChange={(v) => setAmount(v)} />
+          <AmountInput value={amount} onChange={(v) => setAmount(v)} height={SETTINGS_TEMPLATE_ROW_HEIGHT} />
         </div>
         <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, position: 'relative' }}>
           <input
@@ -704,12 +792,23 @@ function InvestTemplateSettings() {
             }}
             title="만기일 선택"
             style={{
-              ...jellyGhostButton,
-              padding: 10,
+              height: SETTINGS_TEMPLATE_ROW_HEIGHT,
+              minHeight: SETTINGS_TEMPLATE_ROW_HEIGHT,
+              minWidth: SETTINGS_TEMPLATE_ROW_HEIGHT,
+              padding: 0,
+              border: JELLY.innerBorderSoft,
+              borderRadius: JELLY.radiusControl,
+              background: 'rgba(255,255,255,0.25)',
+              backdropFilter: JELLY.blur,
+              WebkitBackdropFilter: JELLY.blur,
+              color: JELLY.textMuted,
               fontSize: 14,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              cursor: 'pointer',
+              boxSizing: 'border-box',
+              flexShrink: 0,
             }}
           >
             📅
@@ -721,12 +820,14 @@ function InvestTemplateSettings() {
           )}
         </div>
         <button
+          type="button"
           onClick={handleAdd}
-          disabled={!desc}
+          disabled={!desc || !amount}
           style={{
-            ...(desc ? jellyPrimaryButton : jellyPrimaryButtonDisabled),
-            fontSize: 12,
-            padding: '10px 16px',
+            ...settingsTemplateAddItemButtonBase,
+            background: !desc || !amount ? '#e5e7eb' : PRIMARY,
+            color: !desc || !amount ? '#9ca3af' : '#fff',
+            cursor: !desc || !amount ? 'not-allowed' : 'pointer',
           }}
         >
           + 항목 추가
@@ -791,7 +892,7 @@ function SupabaseStatus() {
         onClick={handleSaveAll}
         style={{
           padding: '10px 18px',
-          borderRadius: 10,
+          borderRadius: JELLY.radiusControl,
           border: 'none',
           background: !isSupabaseConfigured || saving ? '#e5e7eb' : PRIMARY,
           color: !isSupabaseConfigured || saving ? '#9ca3af' : '#fff',

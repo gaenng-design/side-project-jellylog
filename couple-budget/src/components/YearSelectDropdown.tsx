@@ -6,7 +6,7 @@ import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 type YearSelectDropdownProps = {
   value: number
   onChange: (year: number) => void
-  /** dark: 월 선택기(젤리 알약), light: 모달·폼용 글래스 스타일 */
+  /** dark: 월 선택기 상단 트리거, light: 모달·폼용 글래스 스타일 */
   variant?: 'dark' | 'light'
 }
 
@@ -34,7 +34,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
             'linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, rgba(224, 242, 254, 0.88) 40%, rgba(186, 230, 253, 0.65) 100%)',
           color: JELLY.text,
           border: JELLY.innerBorder,
-          borderRadius: JELLY.radiusFull,
+          borderRadius: JELLY.radiusControl,
           padding: '8px 20px',
           fontSize: 13,
           fontWeight: 700,
@@ -51,7 +51,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
         }
       : {
           padding: '8px 18px',
-          borderRadius: JELLY.radiusFull,
+          borderRadius: JELLY.radiusControl,
           border: JELLY.innerBorder,
           fontSize: 13,
           background: JELLY.surface,
@@ -89,7 +89,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
             minWidth: Math.max(120, wrapRef.current?.offsetWidth ?? 0),
             boxSizing: 'border-box',
             ...jellyCardStyle,
-            borderRadius: JELLY.radiusMd,
+            borderRadius: JELLY.radiusControl,
             zIndex: 200,
             overflow: 'hidden',
             display: 'flex',
@@ -120,7 +120,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
                     fontSize: 13,
                     fontWeight: active ? 700 : 500,
                     cursor: 'pointer',
-                    borderRadius: JELLY.radiusMd,
+                    borderRadius: JELLY.radiusControl,
                   }}
                 >
                   {y}년
@@ -144,7 +144,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
                 width: '100%',
                 fontSize: 12,
                 padding: '10px 14px',
-                borderRadius: JELLY.radiusFull,
+                borderRadius: JELLY.radiusControl,
                 border: `1px solid ${variant === 'dark' ? 'rgba(2, 132, 199, 0.45)' : 'rgba(14, 165, 233, 0.4)'}`,
                 background: 'rgba(255,255,255,0.4)',
                 backdropFilter: JELLY.blur,

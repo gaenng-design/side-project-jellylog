@@ -1,9 +1,10 @@
 import { useAppStore } from '@/store/useAppStore'
-import { getPersonStyle, PersonBadge } from '@/components/PersonUI'
+import { getPersonStyle, PersonBadge, PersonToggle } from '@/components/PersonUI'
 import { CustomSelect } from '@/components/CustomSelect'
 import { DaySelect } from '@/components/DaySelect'
 import { AmountInput } from '@/components/AmountInput'
 import { inputBaseStyle } from '@/styles/formControls'
+import { JELLY } from '@/styles/jellyGlass'
 import type { Person } from '@/types'
 
 /** 삭제 버튼과 동일한 높이 (padding 6*2 + font 11 ≈ 26) */
@@ -17,13 +18,15 @@ const FIXED_CATEGORIES = ['주거', '통신', '보험', '구독', '교통', '식
 
 export interface FixedExpenseRowData {
   id: string
+  /** 지출 계획 구분(공금 / A / B) — 별도 지출 카드에서 편집 시 필요 */
+  person?: Person
   category: string
   description: string
   amount: number
   isSeparate?: boolean
   separatePerson?: 'A' | 'B'
   payDay?: number
-  /** 별도 지출「이미 납부」등 — 합계 제외 표시 */
+  /** 고정지출 템플릿 행: 이번 달만 제외 시 합계에서 빠짐 */
   isExcluded?: boolean
 }
 
@@ -38,12 +41,12 @@ interface FixedExpenseRowProps {
   useTextFields?: boolean
   showSeparatePersonSelect?: boolean
   showPayDay?: boolean
-  /** 별도 지출: 이미 납부 체크(합계 제외) */
-  showPaidCheckbox?: boolean
   /** 지출 계획 행의 구분(공금/A/B) — 카테고리별 보기 맨 앞 칩용 */
   planPerson?: Person
   /** true면 카테고리보다 앞에 유저(또는 별도정산 담당) 칩 */
   categoryViewLeadUserFirst?: boolean
+  /** 별도 지출 카드: 앞줄에서 구분(공금/A/B) 편집 */
+  leadPlanPersonEditable?: boolean
 }
 
 export function FixedExpenseRow({
@@ -56,9 +59,9 @@ export function FixedExpenseRow({
   personBName = '유저2',
   showSeparatePersonSelect = true,
   showPayDay = true,
-  showPaidCheckbox = false,
   planPerson = '공금',
   categoryViewLeadUserFirst = false,
+  leadPlanPersonEditable = false,
 }: FixedExpenseRowProps) {
   const settings = useAppStore((s) => s.settings)
   const separatePerson = row.separatePerson ?? 'A'
@@ -75,7 +78,7 @@ export function FixedExpenseRow({
         height: ROW_CHIP_HEIGHT,
         minHeight: ROW_CHIP_HEIGHT,
         padding: '0 12px',
-        borderRadius: 999,
+        borderRadius: JELLY.radiusControl,
         border: '1px solid #e5e7eb',
         background: '#f9fafb',
         color: '#9ca3af',
@@ -120,7 +123,7 @@ export function FixedExpenseRow({
         maxWidth: USER_CHIP_MAX_WIDTH + 52,
         display: 'inline-flex',
         alignItems: 'center',
-        borderRadius: 999,
+        borderRadius: JELLY.radiusUserChip,
         border: `1.5px solid ${chipColor}`,
         background: chipBg,
         padding: '0 10px 0 8px',
@@ -183,7 +186,7 @@ export function FixedExpenseRow({
         alignItems: 'center',
         gap: 8,
         padding: '10px 12px',
-        borderRadius: 10,
+        borderRadius: JELLY.radiusControl,
         background: '#f9fafb',
         minWidth: 0,
         opacity: disabled ? 0.6 : 1,
@@ -193,14 +196,42 @@ export function FixedExpenseRow({
         <div style={{ flexShrink: 0, cursor: disabled ? 'default' : 'grab' }}>{dragHandle}</div>
       )}
       {categoryViewLeadUserFirst && (
-        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', minHeight: ROW_CHIP_HEIGHT }}>
-          {row.isSeparate ? (
+        <div
+          style={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 6,
+            minHeight: ROW_CHIP_HEIGHT,
+          }}
+        >
+          {leadPlanPersonEditable ? (
+            <PersonToggle
+              compact
+              value={row.person ?? planPerson}
+              onChange={(p) => {
+                if (disabled) return
+                if (p === '공금') {
+                  onUpdate({ person: p, separatePerson: row.separatePerson ?? 'A' })
+                } else {
+                  onUpdate({ person: p, separatePerson: p })
+                }
+              }}
+            />
+          ) : row.isSeparate ? (
             <>
               {separatePersonSelectChip}
               {separateReadonlyChip}
             </>
           ) : (
             <PersonBadge person={planPerson} />
+          )}
+          {leadPlanPersonEditable && row.isSeparate && (
+            <>
+              {separatePersonSelectChip}
+              {separateReadonlyChip}
+            </>
           )}
         </div>
       )}
@@ -225,31 +256,6 @@ export function FixedExpenseRow({
           {separatePersonSelectChip}
           {separateReadonlyChip}
         </>
-      )}
-      {showPaidCheckbox && (
-        <label
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 5,
-            flexShrink: 0,
-            cursor: disabled ? 'default' : 'pointer',
-            fontSize: 11,
-            fontWeight: 600,
-            color: '#4b5563',
-            userSelect: 'none',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={!!row.isExcluded}
-            onChange={(e) => !disabled && onUpdate({ isExcluded: e.target.checked })}
-            disabled={disabled}
-            style={{ width: 15, height: 15, accentColor: '#0ea5e9', cursor: disabled ? 'default' : 'pointer' }}
-          />
-          이미 납부
-        </label>
       )}
       {showPayDay && (
         <DaySelect

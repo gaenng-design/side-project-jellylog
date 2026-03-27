@@ -6,9 +6,12 @@ interface AmountInputProps {
   onChange: (v: string) => void
   placeholder?: string
   disabled?: boolean
+  /** 미지정 시 `INPUT_HEIGHT` */
+  height?: number
 }
 
-export function AmountInput({ value, onChange, placeholder = '0', disabled }: AmountInputProps) {
+export function AmountInput({ value, onChange, placeholder = '0', disabled, height: heightProp }: AmountInputProps) {
+  const height = heightProp ?? INPUT_HEIGHT
   const inputRef = useRef<HTMLInputElement>(null)
   const raw = value.replace(/,/g, '')
   const displayValue = raw ? Number(raw).toLocaleString('ko-KR') : ''
@@ -31,7 +34,7 @@ export function AmountInput({ value, onChange, placeholder = '0', disabled }: Am
         display: 'flex',
         alignItems: 'center',
         width: '100%',
-        minHeight: INPUT_HEIGHT,
+        minHeight: height,
         opacity: disabled ? 0.6 : 1,
       }}
     >
@@ -44,7 +47,7 @@ export function AmountInput({ value, onChange, placeholder = '0', disabled }: Am
         disabled={disabled}
         style={{
           width: '100%',
-          height: INPUT_HEIGHT,
+          height,
           padding: '0 38px 0 12px',
           border: INPUT_BORDER,
           borderRadius: INPUT_BORDER_RADIUS,

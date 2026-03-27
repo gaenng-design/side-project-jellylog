@@ -16,8 +16,14 @@ export const JELLY = {
   blur: 'blur(12px)',
   shadowFloat: '0 12px 48px rgba(15, 23, 42, 0.06), 0 4px 24px rgba(99, 102, 241, 0.06)',
   shadowModal: '0 24px 64px rgba(15, 23, 42, 0.12), 0 8px 24px rgba(14, 165, 233, 0.15)',
+  /** 인풋·버튼·드롭다운 등 조작 요소 */
+  radiusControl: 6,
+  /** 유저 구분 칩(완전 알약, CSS 100% pill) */
+  radiusUserChip: 9999,
+  /** 카드·모달 패널 등 큰 서피스 */
   radiusFull: 9999,
   radiusLg: 28,
+  /** @deprecated prefer radiusControl */
   radiusMd: 24,
 } as const
 
@@ -48,7 +54,7 @@ export const jellyCardStyle: CSSProperties = {
 
 /** Primary CTA — 포인트 스카이 블루 단색(그라데이션 없음), 흰 텍스트 */
 export const jellyPrimaryButton: CSSProperties = {
-  borderRadius: JELLY.radiusFull,
+  borderRadius: JELLY.radiusControl,
   padding: '11px 22px',
   border: '1px solid rgba(255, 255, 255, 0.45)',
   background: '#0ea5e9',
@@ -67,7 +73,7 @@ export const jellyPrimaryButtonDisabled: CSSProperties = {
 }
 
 export const jellyGhostButton: CSSProperties = {
-  borderRadius: JELLY.radiusFull,
+  borderRadius: JELLY.radiusControl,
   padding: '8px 16px',
   border: JELLY.innerBorderSoft,
   background: 'rgba(255,255,255,0.25)',
@@ -79,7 +85,7 @@ export const jellyGhostButton: CSSProperties = {
 }
 
 export const jellyDangerButton: CSSProperties = {
-  borderRadius: JELLY.radiusFull,
+  borderRadius: JELLY.radiusControl,
   padding: '10px 18px',
   border: '1px solid rgba(252, 165, 165, 0.65)',
   background: 'linear-gradient(180deg, rgba(254, 242, 242, 0.9) 0%, rgba(254, 226, 226, 0.55) 100%)',
@@ -92,7 +98,7 @@ export const jellyDangerButton: CSSProperties = {
 }
 
 export const jellyInputSurface: CSSProperties = {
-  borderRadius: JELLY.radiusMd,
+  borderRadius: JELLY.radiusControl,
   border: '1px solid rgba(255, 255, 255, 0.55)',
   background: JELLY.surfaceInput,
   backdropFilter: JELLY.blur,

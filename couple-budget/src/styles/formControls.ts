@@ -14,7 +14,9 @@ export function allowanceValueColor(value: number): string {
   return value >= 0 ? ALLOWANCE_POSITIVE_COLOR : ALLOWANCE_NEGATIVE_COLOR
 }
 export const INPUT_HEIGHT = 40
-export const INPUT_BORDER_RADIUS = 24
+/** 설정 > 고정·투자 템플릿 하단 행: 항목 추가 버튼·인풋·드롭다운 동일 높이 */
+export const SETTINGS_TEMPLATE_ROW_HEIGHT = 34
+export const INPUT_BORDER_RADIUS = JELLY.radiusControl
 export const INPUT_FONT_SIZE = 14
 export const INPUT_BORDER = '1px solid rgba(255, 255, 255, 0.55)'
 export const AMOUNT_INPUT_MIN_WIDTH = 100
@@ -37,7 +39,7 @@ export const planRowActionButtonLayout: Pick<
 /** 지출 계획 · 작성 삭제 (전체 삭제) 버튼 */
 export const buttonWriteDeleteStyle: CSSProperties = {
   padding: '8px 16px',
-  borderRadius: JELLY.radiusFull,
+  borderRadius: JELLY.radiusControl,
   border: '1px solid rgba(252, 165, 165, 0.65)',
   background: 'linear-gradient(180deg, rgba(254, 242, 242, 0.9) 0%, rgba(254, 226, 226, 0.5) 100%)',
   backdropFilter: JELLY.blur,
@@ -59,7 +61,7 @@ export const settingsSectionCardStyle: CSSProperties = {
 export const settingsTemplateDeleteButtonStyle: CSSProperties = {
   fontSize: 11,
   padding: '8px 14px',
-  borderRadius: JELLY.radiusFull,
+  borderRadius: JELLY.radiusControl,
   border: '1px solid rgba(252, 165, 165, 0.5)',
   background: 'rgba(254, 242, 242, 0.55)',
   backdropFilter: JELLY.blur,
@@ -80,3 +82,34 @@ export const inputBaseStyle = {
   boxSizing: 'border-box' as const,
   maxWidth: '100%',
 } as const
+
+/** 설정 템플릿 하단 행 전용 인풋(금액 제외 시각 스타일은 `AmountInput`의 height prop과 함께 사용) */
+export const settingsTemplateAddRowInputStyle: CSSProperties = {
+  ...jellyInputSurface,
+  height: SETTINGS_TEMPLATE_ROW_HEIGHT,
+  minHeight: SETTINGS_TEMPLATE_ROW_HEIGHT,
+  padding: '0 12px',
+  borderRadius: INPUT_BORDER_RADIUS,
+  fontSize: INPUT_FONT_SIZE,
+  outline: 'none',
+  boxSizing: 'border-box',
+  maxWidth: '100%',
+}
+
+/** 설정 템플릿 「+ 항목 추가」 공통 버튼 골격(enabled 시 배경·색만 덮어씀) */
+export const settingsTemplateAddItemButtonBase: CSSProperties = {
+  fontSize: 12,
+  height: SETTINGS_TEMPLATE_ROW_HEIGHT,
+  minHeight: SETTINGS_TEMPLATE_ROW_HEIGHT,
+  padding: '0 14px',
+  borderRadius: JELLY.radiusControl,
+  border: 'none',
+  fontWeight: 500,
+  fontFamily: 'inherit',
+  boxSizing: 'border-box',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+  cursor: 'pointer',
+}

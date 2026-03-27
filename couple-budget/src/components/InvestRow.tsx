@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { CustomSelect } from '@/components/CustomSelect'
 import { AmountInput } from '@/components/AmountInput'
 import { inputBaseStyle } from '@/styles/formControls'
+import { JELLY } from '@/styles/jellyGlass'
 
 const INVEST_CATEGORIES = ['저축', '투자']
 
@@ -37,7 +38,7 @@ export function InvestRow({ row, onUpdate, actionSlot, disabled, dragHandle, com
         alignItems: 'center',
         gap: 8,
         padding: '10px 12px',
-        borderRadius: 10,
+        borderRadius: JELLY.radiusControl,
         background: '#f9fafb',
         minWidth: 0,
         opacity: disabled ? 0.6 : 1,
@@ -92,7 +93,7 @@ export function InvestRow({ row, onUpdate, actionSlot, disabled, dragHandle, com
             style={{
               padding: 8,
               border: '1px solid #e5e7eb',
-              borderRadius: 8,
+              borderRadius: JELLY.radiusControl,
               background: '#fff',
               cursor: disabled ? 'default' : 'pointer',
               fontSize: 14,
