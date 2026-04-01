@@ -20,7 +20,7 @@ import {
   jellySuccessBanner,
   jellyGhostButton,
 } from '@/styles/jellyGlass'
-import { PRIMARY_DARK } from '@/styles/formControls'
+import { PRIMARY_DARK, pageTitleH1Style } from '@/styles/formControls'
 
 export function AccountPage() {
   const [accessCodeInput, setAccessCodeInput] = useState('')
@@ -124,7 +124,7 @@ export function AccountPage() {
   if (!isSupabaseConfigured) {
     return (
       <div style={{ maxWidth: 520 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12, color: JELLY.text }}>계정</h1>
+        <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>계정</h1>
         <p style={{ color: JELLY.textMuted, fontSize: 14, lineHeight: 1.6 }}>
           Supabase가 설정되지 않았습니다. 프로젝트 루트 <code>.env</code>에 <code>VITE_SUPABASE_URL</code>,{' '}
           <code>VITE_SUPABASE_ANON_KEY</code>를 넣은 뒤 앱을 다시 실행해 주세요.
@@ -135,7 +135,7 @@ export function AccountPage() {
 
   return (
     <div style={{ maxWidth: 520, paddingBottom: 40 }}>
-      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8, color: JELLY.text }}>계정</h1>
+      <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>계정</h1>
       <p style={{ color: JELLY.textMuted, fontSize: 13, lineHeight: 1.55, marginBottom: 20 }}>
         {householdId ? (
           <>

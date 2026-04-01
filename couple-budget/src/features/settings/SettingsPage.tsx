@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { Link } from 'react-router-dom'
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -15,18 +14,18 @@ import { FixedExpenseRow } from '@/components/FixedExpenseRow'
 import { InvestRow } from '@/components/InvestRow'
 import { GroupHeaderChip } from '@/components/GroupHeaderChip'
 import { Modal } from '@/components/Modal'
+import { MobileSnackbar } from '@/components/MobileSnackbar'
 import {
   inputBaseStyle,
   CATEGORY_SELECT_TRIGGER_WIDTH,
   PRIMARY,
-  settingsSectionCardStyle,
-  stickySettingsSectionTitleWrapStyle,
-  stickySettingsTemplateGroupHeaderStyle,
+  settingsSectionCardWithBleedTitleStyle,
+  settingsSectionTitleWrapForViewport,
+  settingsTemplateGroupHeaderForViewport,
+  pageTitleH1Style,
 } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
-import { isSupabaseConfigured } from '@/data/supabase'
-import { saveAllToSupabase } from '@/data/saveAllToSupabase'
 import { downloadYearBudgetExcel } from '@/lib/yearExcelExport'
 import type { Person } from '@/types'
 import type { FixedTemplate, InvestTemplate } from '@/types'
@@ -34,6 +33,15 @@ import type { FixedTemplate, InvestTemplate } from '@/types'
 const FIXED_CATEGORIES = ['주거', '통신', '보험', '구독', '교통', '식비', '의료', '교육', '문화', '관리비', '기타']
 const INVEST_CATEGORIES = ['저축', '투자']
 const PERSON_ORDER = ['공금', 'A', 'B'] as const
+
+/** 지출 계획 고정지출 추가 모달과 동일 높이(별도 정산 행) */
+const MODAL_SEPARATE_CHIP_H = 26
+
+function formatInvestMaturityLabel(ymd: string) {
+  if (!ymd) return ''
+  const [y, m, d] = ymd.split('-')
+  return `${y}.${m}.${d}`
+}
 
 type TemplateUpdatePatch = Partial<{ category: string; description: string; defaultAmount: number; payDay?: number; defaultSeparate?: boolean; defaultSeparatePerson?: 'A' | 'B' }>
 
@@ -167,10 +175,10 @@ function UserSettings() {
   }, [settings.personAName, settings.personBName, settings.personAIncome, settings.personBIncome, settings.personAIncomeDay, settings.personBIncomeDay, settings.user1Color, settings.user2Color])
 
   useEffect(() => {
-    if (!toastMsg) return
+    if (!toastMsg || narrow) return
     const t = setTimeout(() => setToastMsg(null), 2000)
     return () => clearTimeout(t)
-  }, [toastMsg])
+  }, [toastMsg, narrow])
 
   const handleSave = () => {
     updateSettings({
@@ -188,8 +196,8 @@ function UserSettings() {
 
   return (
     <>
-    <div style={settingsSectionCardStyle}>
-      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 14 }}>
+    <div style={settingsSectionCardWithBleedTitleStyle}>
+      <div style={settingsSectionTitleWrapForViewport(narrow)}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>유저 설정</div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr', gap: 24 }}>
@@ -267,7 +275,9 @@ function UserSettings() {
         </button>
       </div>
     </div>
-    {toastMsg && (
+    {narrow && toastMsg ? (
+      <MobileSnackbar open tone="ok" text={toastMsg} durationMs={2400} onClose={() => setToastMsg(null)} />
+    ) : !narrow && toastMsg ? (
       <div
         style={{
           position: 'fixed',
@@ -286,7 +296,7 @@ function UserSettings() {
       >
         {toastMsg}
       </div>
-    )}
+    ) : null}
     </>
   )
 }
@@ -298,13 +308,14 @@ const RATIO_OPTIONS = [
 ]
 
 function SharedLivingCostSettings() {
+  const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const [ratioFocus, setRatioFocus] = useState<string | null>(null)
 
   return (
-    <div style={settingsSectionCardStyle}>
-      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 14 }}>
+    <div style={settingsSectionCardWithBleedTitleStyle}>
+      <div style={settingsSectionTitleWrapForViewport(narrow)}>
         <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text }}>공동 생활비</div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -456,6 +467,7 @@ function SharedLivingCostSettings() {
 }
 
 function FixedTemplateSettings() {
+  const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
   const templatesRaw = useFixedTemplateStore((s) => s.templates)
   const addTemplate = useFixedTemplateStore((s) => s.addTemplate)
@@ -466,38 +478,57 @@ function FixedTemplateSettings() {
   const personBName = settings.personBName || '유저2'
   const PERSON_LABELS: Record<string, string> = { 공금: '공금', A: personAName, B: personBName }
 
-  const [person, setPerson] = useState<Person>('공금')
-  const [category, setCategory] = useState('관리비')
-  const [desc, setDesc] = useState('')
-  const [amount, setAmount] = useState('')
-  const [defaultSeparate, setDefaultSeparate] = useState(false)
-  const [defaultSeparatePerson, setDefaultSeparatePerson] = useState<'A' | 'B'>('A')
+  const [fixedAddForm, setFixedAddForm] = useState<{
+    person: Person
+    category: string
+    description: string
+    amount: string
+    isSeparate: boolean
+    separatePerson: 'A' | 'B'
+    payDay?: number
+  }>({
+    person: '공금',
+    category: '관리비',
+    description: '',
+    amount: '',
+    isSeparate: false,
+    separatePerson: 'A',
+  })
   const [addFixedOpen, setAddFixedOpen] = useState(false)
 
   const resetFixedAddForm = () => {
-    setPerson('공금')
-    setCategory('관리비')
-    setDesc('')
-    setAmount('')
-    setDefaultSeparate(false)
-    setDefaultSeparatePerson('A')
+    setFixedAddForm({
+      person: '공금',
+      category: '관리비',
+      description: '',
+      amount: '',
+      isSeparate: false,
+      separatePerson: 'A',
+      payDay: undefined,
+    })
   }
 
   const handleFixedAdd = () => {
-    if (!desc) return
+    const { person: planPerson, description, amount, category, isSeparate, separatePerson, payDay } = fixedAddForm
+    if (!description || !amount) return
+    const sepPersonResolved =
+      isSeparate && planPerson === '공금'
+        ? separatePerson
+        : planPerson === 'A' || planPerson === 'B'
+          ? planPerson
+          : 'A'
     addTemplate({
-      person,
-      category,
-      description: desc,
+      person: planPerson,
+      category: category || '기타',
+      description,
       defaultAmount: Number(amount.replace(/,/g, '')) || 0,
-      defaultSeparate: person === '공금' ? defaultSeparate : undefined,
-      defaultSeparatePerson: person === '공금' && defaultSeparate ? defaultSeparatePerson : undefined,
+      defaultSeparate: isSeparate,
+      defaultSeparatePerson: isSeparate ? sepPersonResolved : undefined,
+      payDay,
     })
     resetFixedAddForm()
     setAddFixedOpen(false)
   }
-
-  const modalSepH = 34
 
   const grouped = useMemo(() => {
     const acc = templatesRaw.reduce((a, t) => {
@@ -515,8 +546,8 @@ function FixedTemplateSettings() {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
   return (
-    <div style={settingsSectionCardStyle}>
-      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 14 }}>
+    <div style={settingsSectionCardWithBleedTitleStyle}>
+      <div style={settingsSectionTitleWrapForViewport(narrow)}>
         <div
           style={{
             display: 'flex',
@@ -560,7 +591,7 @@ function FixedTemplateSettings() {
               }}
             >
               <div>
-                <div style={stickySettingsTemplateGroupHeaderStyle}>
+                <div style={settingsTemplateGroupHeaderForViewport(narrow)}>
                   <GroupHeaderChip
                     label={PERSON_LABELS[personKey]}
                     total={grouped[personKey]?.reduce((s, t) => s + t.defaultAmount, 0)}
@@ -609,73 +640,16 @@ function FixedTemplateSettings() {
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
             <PersonToggle
-              value={person}
-              onChange={(p) => {
-                setPerson(p)
-                if (p !== '공금') setDefaultSeparate(false)
-              }}
-              compact
+              value={fixedAddForm.person}
+              onChange={(p) => setFixedAddForm((f) => ({ ...f, person: p }))}
             />
           </div>
-          {person === '공금' && (() => {
-            const { bg: chipBg, color: chipColor } = getPersonStyle(defaultSeparatePerson, settings)
-            const nameLabel = defaultSeparatePerson === 'A' ? personAName : personBName
-            if (!defaultSeparate) {
-              return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => setDefaultSeparate(true)}
-                    title="별도 정산"
-                    style={{
-                      height: modalSepH,
-                      minHeight: modalSepH,
-                      padding: '0 12px',
-                      borderRadius: JELLY.radiusControl,
-                      border: '1px solid #e5e7eb',
-                      background: '#f9fafb',
-                      color: '#9ca3af',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      flexShrink: 0,
-                      boxSizing: 'border-box',
-                      fontFamily: 'inherit',
-                    }}
-                  >
-                    ↗
-                  </button>
-                  <span style={{ fontSize: 12, color: '#6b7280' }}>별도 정산(공금 항목)</span>
-                </div>
-              )
-            }
-            return (
-              <CustomSelect
-                compact
-                compactAutoWidth
-                compactHeight={modalSepH}
-                options={[personAName, personBName]}
-                value={nameLabel}
-                onChange={(v) => setDefaultSeparatePerson(v === personAName ? 'A' : 'B')}
-                placeholder="선택"
-                customBgColor={chipColor}
-                customChipBg={chipBg}
-                title="별도 정산 담당 선택 · ↗ 누르면 해제"
-                compactLeading={<span style={{ color: '#fff', fontSize: 12, lineHeight: 1 }}>↗</span>}
-                onCompactLeadingClick={() => setDefaultSeparate(false)}
-                compactCaretColor="#fff"
-              />
-            )
-          })()}
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
             <CustomSelect
               options={FIXED_CATEGORIES}
-              value={category}
-              onChange={(v) => setCategory(v)}
+              value={fixedAddForm.category}
+              onChange={(v) => setFixedAddForm((f) => ({ ...f, category: v }))}
               placeholder="카테고리 선택"
               triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
             />
@@ -683,18 +657,167 @@ function FixedTemplateSettings() {
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
             <input
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
+              value={fixedAddForm.description}
+              onChange={(e) => setFixedAddForm((f) => ({ ...f, description: e.target.value }))}
               placeholder="예: 관리비"
               style={{ width: '100%', ...inputBaseStyle }}
             />
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
-            <div style={{ width: 150, minWidth: 150 }}>
-              <AmountInput variant="filled" value={amount} onChange={(v) => setAmount(v)} />
-            </div>
+            <AmountInput
+              value={fixedAddForm.amount}
+              onChange={(v) => setFixedAddForm((f) => ({ ...f, amount: v }))}
+            />
           </div>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
+            <DaySelect
+              value={fixedAddForm.payDay}
+              onChange={(v) => setFixedAddForm((f) => ({ ...f, payDay: v }))}
+            />
+          </div>
+          {(() => {
+            const sepSlot = fixedAddForm.separatePerson ?? 'A'
+            const { bg: sepChipBg, color: sepChipColor } = getPersonStyle(sepSlot, settings)
+            const sepNameLabel = sepSlot === 'A' ? personAName : personBName
+            const inactiveSeparateBtnStyle = {
+              height: MODAL_SEPARATE_CHIP_H,
+              minHeight: MODAL_SEPARATE_CHIP_H,
+              padding: '0 12px',
+              borderRadius: JELLY.radiusControl,
+              border: '1px solid #e5e7eb',
+              background: '#f9fafb',
+              color: '#9ca3af',
+              cursor: 'pointer' as const,
+              display: 'inline-flex' as const,
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 12,
+              fontWeight: 700 as const,
+              flexShrink: 0,
+              boxSizing: 'border-box' as const,
+              fontFamily: 'inherit',
+            }
+            const separateCaption = (
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: JELLY.text }}>별도 정산으로 등록</div>
+                <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>최종 정산에서만 반영됩니다.</div>
+              </div>
+            )
+            return (
+              <div
+                style={{
+                  marginTop: 4,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '10px 12px',
+                  borderRadius: JELLY.radiusControl,
+                  background: '#f9fafb',
+                  minWidth: 0,
+                }}
+              >
+                {!fixedAddForm.isSeparate ? (
+                  <>
+                    <button
+                      type="button"
+                      title="별도 정산"
+                      onClick={() => setFixedAddForm((f) => ({ ...f, isSeparate: true }))}
+                      style={inactiveSeparateBtnStyle}
+                    >
+                      ↗
+                    </button>
+                    {separateCaption}
+                  </>
+                ) : fixedAddForm.person === '공금' ? (
+                  <>
+                    <CustomSelect
+                      compact
+                      compactAutoWidth
+                      options={[personAName, personBName]}
+                      value={fixedAddForm.separatePerson === 'A' ? personAName : personBName}
+                      onChange={(v) =>
+                        setFixedAddForm((f) => ({ ...f, separatePerson: v === personAName ? 'A' : 'B' }))
+                      }
+                      placeholder="선택"
+                      customBgColor={sepChipColor}
+                      customChipBg={sepChipBg}
+                      compactHeight={MODAL_SEPARATE_CHIP_H}
+                      title="별도 정산 담당 선택 · ↗ 누르면 해제"
+                      compactLeading={<span style={{ color: '#fff', fontSize: 12, lineHeight: 1 }}>↗</span>}
+                      onCompactLeadingClick={() => setFixedAddForm((f) => ({ ...f, isSeparate: false }))}
+                      compactCaretColor="#fff"
+                    />
+                    {separateCaption}
+                  </>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        height: MODAL_SEPARATE_CHIP_H,
+                        minHeight: MODAL_SEPARATE_CHIP_H,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        borderRadius: JELLY.radiusUserChip,
+                        border: `1.5px solid ${sepChipColor}`,
+                        background: sepChipBg,
+                        padding: '0 10px 0 8px',
+                        gap: 6,
+                        flexShrink: 0,
+                        boxSizing: 'border-box',
+                      }}
+                      title="별도 정산 · ↗ 누르면 해제"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setFixedAddForm((f) => ({ ...f, isSeparate: false }))}
+                        style={{
+                          padding: 0,
+                          border: 'none',
+                          background: 'none',
+                          cursor: 'pointer',
+                          color: '#fff',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          lineHeight: 1,
+                          fontFamily: 'inherit',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        ↗
+                      </button>
+                      <span
+                        aria-hidden
+                        style={{
+                          width: 1,
+                          alignSelf: 'stretch',
+                          minHeight: 14,
+                          background: 'rgba(255,255,255,0.35)',
+                          borderRadius: 1,
+                        }}
+                      />
+                      <span
+                        style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          minWidth: 0,
+                          color: sepChipColor,
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {sepNameLabel}
+                      </span>
+                    </div>
+                    {separateCaption}
+                  </>
+                )}
+              </div>
+            )
+          })()}
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
           <button
@@ -717,16 +840,16 @@ function FixedTemplateSettings() {
           <button
             type="button"
             onClick={handleFixedAdd}
-            disabled={!desc}
+            disabled={!fixedAddForm.description || !fixedAddForm.amount}
             style={{
               padding: '8px 16px',
               borderRadius: JELLY.radiusControl,
               border: 'none',
               fontSize: 13,
               fontWeight: 600,
-              cursor: !desc ? 'not-allowed' : 'pointer',
-              background: !desc ? '#e5e7eb' : '#111827',
-              color: !desc ? '#9ca3af' : '#fff',
+              cursor: !fixedAddForm.description || !fixedAddForm.amount ? 'not-allowed' : 'pointer',
+              background: !fixedAddForm.description || !fixedAddForm.amount ? '#e5e7eb' : '#111827',
+              color: !fixedAddForm.description || !fixedAddForm.amount ? '#9ca3af' : '#fff',
             }}
           >
             추가
@@ -741,13 +864,8 @@ const INVEST_CAT_ORDER: Record<string, number> = { 저축: 0, 투자: 1 }
 
 const INVEST_PERSON_ORDER = ['A', 'B'] as const
 
-function formatMaturityDate(ymd: string) {
-  if (!ymd) return ''
-  const [y, m, d] = ymd.split('-')
-  return `${y}.${m}.${d}`
-}
-
 function InvestTemplateSettings() {
+  const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
   const templatesRaw = useInvestTemplateStore((s) => s.templates)
   const addTemplate = useInvestTemplateStore((s) => s.addTemplate)
@@ -775,9 +893,10 @@ function InvestTemplateSettings() {
 
   const handleInvestAdd = () => {
     if (!desc || !amount) return
+    const cat = INVEST_CATEGORIES.includes(category) ? category : '투자'
     addTemplate({
       person,
-      category,
+      category: cat,
       description: desc,
       defaultAmount: Number(amount.replace(/,/g, '')) || 0,
       maturityDate: maturityDate || undefined,
@@ -803,8 +922,8 @@ function InvestTemplateSettings() {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
   return (
-    <div style={settingsSectionCardStyle}>
-      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 14 }}>
+    <div style={settingsSectionCardWithBleedTitleStyle}>
+      <div style={settingsSectionTitleWrapForViewport(narrow)}>
         <div
           style={{
             display: 'flex',
@@ -848,7 +967,7 @@ function InvestTemplateSettings() {
             }}
           >
             <div>
-              <div style={stickySettingsTemplateGroupHeaderStyle}>
+              <div style={settingsTemplateGroupHeaderForViewport(narrow)}>
                 <GroupHeaderChip
                   label={PERSON_LABELS[personKey]}
                   total={grouped[personKey]?.reduce((s, t) => s + t.defaultAmount, 0)}
@@ -883,7 +1002,7 @@ function InvestTemplateSettings() {
 
       <Modal
         open={addInvestOpen}
-        title="투자·저축 항목 추가"
+        title="투자·저축 추가"
         onClose={() => {
           setAddInvestOpen(false)
           resetInvestAddForm()
@@ -892,7 +1011,11 @@ function InvestTemplateSettings() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
-            <PersonToggle value={person} onChange={(p) => setPerson(p)} options={['A', 'B']} compact />
+            <PersonToggle
+              value={person}
+              onChange={(p) => setPerson(p)}
+              options={['A', 'B']}
+            />
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
@@ -915,9 +1038,7 @@ function InvestTemplateSettings() {
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
-            <div style={{ width: 150, minWidth: 150 }}>
-              <AmountInput variant="filled" value={amount} onChange={(v) => setAmount(v)} />
-            </div>
+            <AmountInput value={amount} onChange={(v) => setAmount(v)} />
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
@@ -941,28 +1062,37 @@ function InvestTemplateSettings() {
                 }}
                 title="만기일 선택"
                 style={{
-                  width: 40,
-                  height: 40,
-                  minHeight: 40,
-                  padding: 0,
-                  border: JELLY.innerBorderSoft,
+                  padding: '8px 12px',
+                  border: '1px solid #e5e7eb',
                   borderRadius: JELLY.radiusControl,
-                  background: JELLY.surfaceInput,
-                  color: JELLY.textMuted,
-                  fontSize: 14,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  background: '#fff',
                   cursor: 'pointer',
-                  boxSizing: 'border-box',
-                  flexShrink: 0,
+                  fontSize: 13,
+                  color: '#6b7280',
                 }}
               >
-                📅
+                📅 날짜 선택
               </button>
-              {maturityDate ? (
-                <span style={{ fontSize: 13, color: '#111827', minWidth: 72 }}>{formatMaturityDate(maturityDate)}</span>
-              ) : null}
+              {maturityDate && (
+                <span style={{ fontSize: 13, color: '#111827' }}>{formatInvestMaturityLabel(maturityDate)}</span>
+              )}
+              {maturityDate && (
+                <button
+                  type="button"
+                  onClick={() => setMaturityDate('')}
+                  style={{
+                    fontSize: 12,
+                    padding: '4px 8px',
+                    borderRadius: JELLY.radiusControl,
+                    border: '1px solid #e5e7eb',
+                    background: '#f9fafb',
+                    cursor: 'pointer',
+                    color: '#6b7280',
+                  }}
+                >
+                  지우기
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -995,7 +1125,7 @@ function InvestTemplateSettings() {
               fontSize: 13,
               fontWeight: 600,
               cursor: !desc || !amount ? 'not-allowed' : 'pointer',
-              background: !desc || !amount ? '#e5e7eb' : '#111827',
+              background: !desc || !amount ? '#e5e7eb' : PRIMARY,
               color: !desc || !amount ? '#9ca3af' : '#fff',
             }}
           >
@@ -1008,6 +1138,7 @@ function InvestTemplateSettings() {
 }
 
 function YearExcelExportSection() {
+  const narrow = useNarrowLayout()
   const currentYearMonth = useAppStore((s) => s.currentYearMonth)
   const yearPickerMaxYear = useAppStore((s) => s.yearPickerMaxYear)
   const defaultYear = Number(String(currentYearMonth).split('-')[0]) || YEAR_PICKER_MIN
@@ -1021,8 +1152,8 @@ function YearExcelExportSection() {
   )
 
   return (
-    <div style={settingsSectionCardStyle}>
-      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 8 }}>
+    <div style={settingsSectionCardWithBleedTitleStyle}>
+      <div style={settingsSectionTitleWrapForViewport(narrow)}>
         <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text }}>엑셀보내기</div>
       </div>
       <p style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.55, margin: '12px 0 12px' }}>
@@ -1075,100 +1206,16 @@ function YearExcelExportSection() {
   )
 }
 
-function SupabaseStatus() {
-  const [saving, setSaving] = useState(false)
-  const [saveMessage, setSaveMessage] = useState<{ tone: 'ok' | 'err' | 'hint'; text: string } | null>(null)
-
-  const handleSaveAll = async () => {
-    setSaveMessage(null)
-    setSaving(true)
-    try {
-      const res = await saveAllToSupabase()
-      if (!res.ok) {
-        setSaveMessage({ tone: 'err', text: res.message })
-        return
-      }
-      if (res.snapshotOk) {
-        setSaveMessage({ tone: 'ok', text: 'Supabase에 반영했습니다. (DB 테이블 + 앱 로컬 스냅샷)' })
-      } else {
-        setSaveMessage({
-          tone: 'hint',
-          text:
-            res.snapshotHint ??
-            'DB 테이블(incomes 등)은 반영되었습니다. 앱 전체 스냅샷은 supabase-migration-app-snapshot.sql 적용 후 다시 시도해 주세요.',
-        })
-      }
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <div style={settingsSectionCardStyle}>
-      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 8 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Supabase</div>
-      </div>
-      <div style={{ fontSize: 13, color: isSupabaseConfigured ? '#374151' : '#6b7280', lineHeight: 1.55, marginTop: 12, marginBottom: 12 }}>
-        {isSupabaseConfigured ? (
-          <>
-            연결됨. 일상적인 입력은 이 기기(로컬)에만 저장되며,{' '}
-            <strong style={{ color: '#111827' }}>전체 저장하기</strong>를 눌렀을 때만 Supabase에 업로드됩니다. 클라우드 동기화는{' '}
-            <Link to="/account" style={{ color: PRIMARY, fontWeight: 600 }}>
-              계정
-            </Link>
-            에서 <strong style={{ color: '#111827' }}>가계 아이디(16자)로 맞춘 뒤</strong> 가능합니다. (Supabase Anonymous
-            필요) 가계에 안 들어가 있으면 로컬 전용과 같습니다.
-          </>
-        ) : (
-          '.env에 VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY를 설정한 뒤 전체 저장하기로 클라우드에 반영할 수 있습니다.'
-        )}
-      </div>
-      <button
-        type="button"
-        disabled={!isSupabaseConfigured || saving}
-        onClick={handleSaveAll}
-        style={{
-          padding: '10px 18px',
-          borderRadius: JELLY.radiusControl,
-          border: 'none',
-          background: !isSupabaseConfigured || saving ? '#e5e7eb' : PRIMARY,
-          color: !isSupabaseConfigured || saving ? '#9ca3af' : '#fff',
-          fontSize: 14,
-          fontWeight: 600,
-          cursor: !isSupabaseConfigured || saving ? 'not-allowed' : 'pointer',
-        }}
-      >
-        {saving ? '저장 중…' : '전체 저장하기'}
-      </button>
-      {saveMessage ? (
-        <div
-          style={{
-            marginTop: 10,
-            fontSize: 13,
-            color: saveMessage.tone === 'err' ? '#b91c1c' : saveMessage.tone === 'ok' ? '#059669' : '#92400e',
-            lineHeight: 1.5,
-          }}
-        >
-          {saveMessage.text}
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
 export function SettingsPage() {
   return (
     <div style={{ paddingBottom: 40 }}>
-      <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#111827', marginBottom: 18, letterSpacing: '-0.02em' }}>
-        설정
-      </h1>
+      <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>설정</h1>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <UserSettings />
         <SharedLivingCostSettings />
         <FixedTemplateSettings />
         <InvestTemplateSettings />
         <YearExcelExportSection />
-        <SupabaseStatus />
       </div>
     </div>
   )

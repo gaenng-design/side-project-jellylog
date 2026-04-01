@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
+  DAY_SELECT_TRIGGER_WIDTH,
   INPUT_HEIGHT,
   INPUT_BORDER_RADIUS,
   INPUT_FONT_SIZE,
@@ -35,11 +36,9 @@ interface DaySelectProps {
   onChange: (v: number | undefined) => void
   disabled?: boolean
   compact?: boolean
-  /** compact: 부모 너비에 맞춤(모바일 플렉스 셀) */
-  fillWidth?: boolean
 }
 
-export function DaySelect({ value, onChange, disabled, compact, fillWidth }: DaySelectProps) {
+export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps) {
   const [open, setOpen] = useState(false)
   const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
@@ -92,16 +91,23 @@ export function DaySelect({ value, onChange, disabled, compact, fillWidth }: Day
   const displayValue = formatPayDay(value ?? null)
   const close = () => setOpen(false)
 
+  const triggerFixedW = {
+    width: DAY_SELECT_TRIGGER_WIDTH,
+    minWidth: DAY_SELECT_TRIGGER_WIDTH,
+    maxWidth: DAY_SELECT_TRIGGER_WIDTH,
+    boxSizing: 'border-box' as const,
+  }
+
   const triggerStyle = compact
     ? {
         height: INPUT_HEIGHT,
         minHeight: INPUT_HEIGHT,
-        ...(fillWidth ? { width: '100%', minWidth: 0, boxSizing: 'border-box' as const } : { minWidth: 90 }),
-        padding: '0 10px',
+        ...triggerFixedW,
+        padding: '0 8px',
         display: 'inline-flex' as const,
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 8,
+        gap: 4,
         fontSize: 12,
         borderRadius: INPUT_BORDER_RADIUS,
         border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
@@ -112,12 +118,11 @@ export function DaySelect({ value, onChange, disabled, compact, fillWidth }: Day
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         fontWeight: 500,
-        boxSizing: 'border-box' as const,
       }
     : {
-        width: '100%',
         height: INPUT_HEIGHT,
-        padding: '0 12px',
+        ...triggerFixedW,
+        padding: '0 8px',
         border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
         borderRadius: INPUT_BORDER_RADIUS,
         fontSize: INPUT_FONT_SIZE,
@@ -128,9 +133,8 @@ export function DaySelect({ value, onChange, disabled, compact, fillWidth }: Day
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 10,
+        gap: 6,
         fontFamily: 'inherit',
-        boxSizing: 'border-box' as const,
       }
 
   return (
@@ -139,9 +143,11 @@ export function DaySelect({ value, onChange, disabled, compact, fillWidth }: Day
         ref={ref}
         style={{
           position: 'relative',
-          display: compact && !fillWidth ? 'inline-block' : 'block',
-          width: compact && fillWidth ? '100%' : undefined,
-          minWidth: compact && fillWidth ? 0 : undefined,
+          display: 'inline-block',
+          width: DAY_SELECT_TRIGGER_WIDTH,
+          minWidth: DAY_SELECT_TRIGGER_WIDTH,
+          maxWidth: DAY_SELECT_TRIGGER_WIDTH,
+          boxSizing: 'border-box',
         }}
       >
         <button

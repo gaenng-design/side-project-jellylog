@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAppStore, getYearPickerYearOptions } from '@/store/useAppStore'
-import { PRIMARY, PRIMARY_DARK, PRIMARY_LIGHT } from '@/styles/formControls'
+import {
+  CATEGORY_SELECT_TRIGGER_WIDTH,
+  INPUT_BORDER_RADIUS,
+  INPUT_HEIGHT,
+  PRIMARY,
+  PRIMARY_DARK,
+  PRIMARY_LIGHT,
+} from '@/styles/formControls'
 import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 
@@ -29,47 +36,36 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
     return () => document.removeEventListener('mousedown', onDocMouseDown)
   }, [open])
 
-  const triggerStyle =
-    variant === 'dark'
-      ? {
-          appearance: 'none' as const,
-          background: '#ffffff',
-          color: JELLY.text,
-          border: '1px solid rgba(15, 23, 42, 0.06)',
-          borderRadius: 9999,
-          padding: '8px 16px',
-          fontSize: 13,
-          fontWeight: 600,
-          cursor: 'pointer',
-          outline: 'none',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center' as const,
-          gap: 6,
-          minWidth: 108,
-          boxShadow: '0 2px 12px rgba(15, 23, 42, 0.07)',
-          boxSizing: 'border-box' as const,
-        }
-      : {
-          padding: '8px 18px',
-          borderRadius: JELLY.radiusControl,
-          border: JELLY.innerBorder,
-          fontSize: 13,
-          background: JELLY.surface,
-          backdropFilter: JELLY.blur,
-          WebkitBackdropFilter: JELLY.blur,
-          color: JELLY.text,
-          cursor: 'pointer',
-          outline: 'none',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center' as const,
-          gap: 8,
-          minWidth: 120,
-          boxShadow: JELLY.shadowFloat,
-        }
+  /** 고정지출·투자 행의 카테고리 `CustomSelect`(compact, triggerWidth)와 동일 계열 */
+  const triggerStyle = {
+    appearance: 'none' as const,
+    width: CATEGORY_SELECT_TRIGGER_WIDTH,
+    minWidth: CATEGORY_SELECT_TRIGGER_WIDTH,
+    maxWidth: CATEGORY_SELECT_TRIGGER_WIDTH,
+    height: INPUT_HEIGHT,
+    minHeight: INPUT_HEIGHT,
+    padding: '0 8px',
+    borderRadius: INPUT_BORDER_RADIUS,
+    border: `1.5px solid ${open ? PRIMARY : '#e5e7eb'}`,
+    background: '#fff',
+    color: '#111827',
+    fontSize: 12,
+    fontWeight: 500,
+    lineHeight: 1,
+    cursor: 'pointer',
+    outline: 'none',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'space-between' as const,
+    gap: 4,
+    boxSizing: 'border-box' as const,
+    whiteSpace: 'nowrap' as const,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+  }
 
-  const caretColor = JELLY.textMuted
+  const caretColor = '#6b7280'
 
   const panelStyle =
     variant === 'dark'
@@ -83,7 +79,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
           background: 'rgba(255, 255, 255, 0.42)',
         }
 
-  const triggerW = triggerRef.current?.offsetWidth ?? (variant === 'dark' ? 108 : 120)
+  const triggerW = triggerRef.current?.offsetWidth ?? CATEGORY_SELECT_TRIGGER_WIDTH
 
   return (
     <div
@@ -92,9 +88,12 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
         position: 'relative',
         display: 'inline-flex',
         alignItems: 'center',
-        width: 'fit-content',
-        maxWidth: '100%',
-        alignSelf: 'flex-start',
+        width: CATEGORY_SELECT_TRIGGER_WIDTH,
+        minWidth: CATEGORY_SELECT_TRIGGER_WIDTH,
+        maxWidth: CATEGORY_SELECT_TRIGGER_WIDTH,
+        flexShrink: 0,
+        boxSizing: 'border-box',
+        alignSelf: variant === 'dark' ? 'center' : 'flex-start',
       }}
     >
       <button
@@ -105,8 +104,8 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
         aria-expanded={open}
         aria-haspopup="listbox"
       >
-        <span>{value}년</span>
-        <span style={{ fontSize: 10, color: caretColor, pointerEvents: 'none' }}>▾</span>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{value}년</span>
+        <span style={{ fontSize: 10, color: caretColor, pointerEvents: 'none', flexShrink: 0 }}>▾</span>
       </button>
 
       {open && (

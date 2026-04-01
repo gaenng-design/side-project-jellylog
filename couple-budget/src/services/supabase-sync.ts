@@ -363,6 +363,75 @@ async function upsertChunk<T extends Record<string, unknown>>(
   if (error) throw new Error(`${table}: ${error.message}`)
 }
 
+/** delete().in() 한 번에 넣을 id 개수 상한 */
+const DELETE_ID_CHUNK = 80
+
+/**
+ * 로컬 스토어에서 제거된 템플릿은 upsert만으로는 DB에 남음 → 다음 hydrate 시 부활함.
+ * 고정/투자 각각: 월별 override 먼저 지운 뒤 템플릿 행 삭제.
+ */
+async function deleteOrphanFixedTemplates(householdId: string, keepIds: Set<string>): Promise<void> {
+  if (!supabase) return
+  const { data: rows, error: selErr } = await supabase
+    .from('fixed_templates')
+    .select('id')
+    .eq('household_id', householdId)
+  if (selErr) throw new Error(`fixed_templates(select id): ${selErr.message}`)
+  const toRemove = (rows ?? [])
+    .map((r) => String((r as { id: unknown }).id))
+    .filter((id) => id && !keepIds.has(id))
+  if (toRemove.length === 0) return
+  for (let i = 0; i < toRemove.length; i += DELETE_ID_CHUNK) {
+    const slice = toRemove.slice(i, i + DELETE_ID_CHUNK)
+    const { error: oErr } = await supabase
+      .from('fixed_template_overrides')
+      .delete()
+      .eq('household_id', householdId)
+      .in('template_id', slice)
+    if (oErr) throw new Error(`fixed_template_overrides(delete): ${oErr.message}`)
+  }
+  for (let i = 0; i < toRemove.length; i += DELETE_ID_CHUNK) {
+    const slice = toRemove.slice(i, i + DELETE_ID_CHUNK)
+    const { error: tErr } = await supabase
+      .from('fixed_templates')
+      .delete()
+      .eq('household_id', householdId)
+      .in('id', slice)
+    if (tErr) throw new Error(`fixed_templates(delete): ${tErr.message}`)
+  }
+}
+
+async function deleteOrphanInvestTemplates(householdId: string, keepIds: Set<string>): Promise<void> {
+  if (!supabase) return
+  const { data: rows, error: selErr } = await supabase
+    .from('invest_templates')
+    .select('id')
+    .eq('household_id', householdId)
+  if (selErr) throw new Error(`invest_templates(select id): ${selErr.message}`)
+  const toRemove = (rows ?? [])
+    .map((r) => String((r as { id: unknown }).id))
+    .filter((id) => id && !keepIds.has(id))
+  if (toRemove.length === 0) return
+  for (let i = 0; i < toRemove.length; i += DELETE_ID_CHUNK) {
+    const slice = toRemove.slice(i, i + DELETE_ID_CHUNK)
+    const { error: oErr } = await supabase
+      .from('invest_template_overrides')
+      .delete()
+      .eq('household_id', householdId)
+      .in('template_id', slice)
+    if (oErr) throw new Error(`invest_template_overrides(delete): ${oErr.message}`)
+  }
+  for (let i = 0; i < toRemove.length; i += DELETE_ID_CHUNK) {
+    const slice = toRemove.slice(i, i + DELETE_ID_CHUNK)
+    const { error: tErr } = await supabase
+      .from('invest_templates')
+      .delete()
+      .eq('household_id', householdId)
+      .in('id', slice)
+    if (tErr) throw new Error(`invest_templates(delete): ${tErr.message}`)
+  }
+}
+
 /** 부트스트랩: Auth 세션+가계 연결 시에만 원격 반영. 그 외 로컬만 사용 */
 export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
   if (!isSupabaseConfigured || !supabase) return
@@ -764,6 +833,8 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
     const appS = useAppStore.getState()
     const settleS = useSettlementStore.getState()
 
+    await deleteOrphanFixedTemplates(householdId, new Set(fixedS.templates.map((t) => t.id)))
+
     const fixedTplRows: DbFixedTemplate[] = fixedS.templates.map((t) => ({
       id: t.id,
       household_id: householdId,
@@ -812,6 +883,8 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
       fixedOvRows as unknown as Record<string, unknown>[],
       'household_id,template_id,year_month',
     )
+
+    await deleteOrphanInvestTemplates(householdId, new Set(investS.templates.map((t) => t.id)))
 
     const invTplRows: DbInvestTemplate[] = investS.templates.map((t) => ({
       id: t.id,

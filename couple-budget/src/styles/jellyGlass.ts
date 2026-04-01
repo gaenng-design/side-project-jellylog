@@ -12,19 +12,6 @@ const TEXT_MUTED = '#6B7280'
 const PRIMARY_BTN = '#4F8CFF'
 const PRIMARY_SOFT = '#EAF2FF'
 
-/** 미세 지형선 패턴 (참고 UI와 유사한 밝은 배경 질감) */
-const topoPattern = encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
-  <g fill="none" stroke="#94A3B8" stroke-width="0.35" opacity="0.14">
-    <path d="M0 30 Q30 20 60 30 T120 30"/>
-    <path d="M0 60 Q30 50 60 60 T120 60"/>
-    <path d="M0 90 Q30 80 60 90 T120 90"/>
-    <path d="M30 0 Q20 30 30 60 T30 120"/>
-    <path d="M60 0 Q50 30 60 60 T60 120"/>
-    <path d="M90 0 Q80 30 90 60 T90 120"/>
-  </g>
-</svg>`)
-
 export const JELLY = {
   text: TEXT,
   textMuted: TEXT_MUTED,
@@ -48,9 +35,7 @@ export const jellyFontStack =
   "'Inter', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif"
 
 export const jellyShellBackground: CSSProperties = {
-  backgroundColor: BG,
-  backgroundImage: `url("data:image/svg+xml,${topoPattern}")`,
-  backgroundSize: '120px 120px',
+  background: BG,
 }
 
 /** 앱 외곽 nav 전용이 아닌 레거시 참조용 — 다크 사이드바는 App.tsx에서 별도 정의 */

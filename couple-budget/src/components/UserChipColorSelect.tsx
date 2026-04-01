@@ -108,7 +108,6 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
           fontSize: 12,
           fontWeight: 700,
           cursor: 'pointer',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.55)',
         }}
       >
         <span style={{ fontSize: 10 }}>▾</span>
@@ -151,10 +150,7 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
                   fontWeight: 700,
                   cursor: 'pointer',
                   opacity: value === pastel ? 1 : 0.88,
-                  boxShadow:
-                    value === pastel
-                      ? '0 0 0 2px rgba(14, 165, 233, 0.35), inset 0 1px 0 rgba(255,255,255,0.6)'
-                      : 'inset 0 1px 0 rgba(255,255,255,0.5)',
+                  boxShadow: value === pastel ? '0 0 0 2px rgba(14, 165, 233, 0.35)' : undefined,
                 }}
               >
                 색상

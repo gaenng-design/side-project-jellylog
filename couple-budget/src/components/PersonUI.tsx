@@ -65,7 +65,6 @@ export function PersonBadge({ person }: { person: Person }) {
         background: bg,
         color,
         border: `1px solid rgba(255,255,255,0.55)`,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.65)',
         textShadow: userTinted ? '0 1px 2px rgba(15, 23, 42, 0.45)' : undefined,
         fontSize: 11,
         fontWeight: 700,
@@ -123,7 +122,7 @@ export function PersonToggle({
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              boxShadow: active ? '0 4px 16px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.5)' : 'none',
+              boxShadow: active ? '0 4px 16px rgba(15, 23, 42, 0.08)' : 'none',
             }}
             title={labels[p]}
           >

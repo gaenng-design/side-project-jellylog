@@ -1,5 +1,14 @@
 import type { CSSProperties } from 'react'
 import { JELLY, jellyCardStyle, jellyInputSurface } from '@/styles/jellyGlass'
+import { SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
+
+/** 화면 상단 메인 제목 — 지출 계획과 동일(크기·굵기·색) */
+export const pageTitleH1Style: CSSProperties = {
+  margin: 0,
+  fontSize: 24,
+  fontWeight: 700,
+  color: '#111827',
+}
 
 /** 단색 강조(아이콘·포커스 링 등). 본문은 JELLY.text 사용 */
 export const PRIMARY = '#4F8CFF'
@@ -13,6 +22,20 @@ export const ALLOWANCE_NEGATIVE_COLOR = '#dc2626'
 export function allowanceValueColor(value: number): string {
   return value >= 0 ? ALLOWANCE_POSITIVE_COLOR : ALLOWANCE_NEGATIVE_COLOR
 }
+
+/** 지출 계획 상단 요약 카드: 금액 강조색과 동일 계열의 연한 배경 */
+export function expensePlanSummaryCardBackground(kind: 'income' | 'fixed' | 'invest' | 'allowance'): string {
+  switch (kind) {
+    case 'income':
+      return `color-mix(in srgb, ${PRIMARY} 6%, white)`
+    case 'fixed':
+      return `color-mix(in oklch, ${SUB_FIXED_ACCENT} 7%, white)`
+    case 'invest':
+      return `color-mix(in oklch, ${SUB_INVEST_ACCENT} 7%, white)`
+    case 'allowance':
+      return `color-mix(in srgb, ${ALLOWANCE_POSITIVE_COLOR} 5%, white)`
+  }
+}
 export const INPUT_HEIGHT = 40
 /** 설정 > 고정·투자 템플릿 하단 행: 항목 추가 버튼·인풋·드롭다운 동일 높이 */
 export const SETTINGS_TEMPLATE_ROW_HEIGHT = 34
@@ -21,8 +44,11 @@ export const INPUT_FONT_SIZE = 14
 export const INPUT_BORDER = '1px solid #E5E7EB'
 export const AMOUNT_INPUT_MIN_WIDTH = 100
 
-/** 카테고리명 `CustomSelect` 트리거 너비(전역 통일) */
-export const CATEGORY_SELECT_TRIGGER_WIDTH = 120
+/** 카테고리명 `CustomSelect` 트리거 너비(설정·지출 계획·행 컴포넌트 통일) */
+export const CATEGORY_SELECT_TRIGGER_WIDTH = 80
+
+/** 입금일 `DaySelect` 트리거 너비(항목 행·모달·유저 설정 통일) */
+export const DAY_SELECT_TRIGGER_WIDTH = 80
 
 /** 지출 계획 행: 삭제 / 이번달만 제외 / 이번달 포함 동일 너비 */
 export const PLAN_ROW_ACTION_MIN_WIDTH = 80
@@ -52,10 +78,16 @@ export const buttonWriteDeleteStyle: CSSProperties = {
   boxShadow: '0 2px 8px rgba(239, 68, 68, 0.08)',
 }
 
-/** 설정 > 투자·저축 템플릿 섹션과 동일한 카드 외곽 */
+/** 설정·정산 등 일반 카드 외곽 */
 export const settingsSectionCardStyle: CSSProperties = {
   ...jellyCardStyle,
   padding: 16,
+}
+
+/** 설정 화면·지출계획 투자 카드: 상단 패딩 없음 — 타이틀 행(`stickySettingsSectionTitleWrapStyle`)이 상·하 여백·구분선 아래 간격 담당 */
+export const settingsSectionCardWithBleedTitleStyle: CSSProperties = {
+  ...jellyCardStyle,
+  padding: '0 16px 16px',
 }
 
 const cardSurface = (jellyCardStyle.background ?? '#FFFFFF') as string
@@ -63,34 +95,67 @@ const cardSurface = (jellyCardStyle.background ?? '#FFFFFF') as string
 /**
  * 설정 카드 상단 제목 행 — 메인 스크롤 시 카드가 뷰에 있는 동안 상단에 고정.
  * 카드 `padding`과 맞추기 위해 좌우만 끝까지 배경을 깔음.
+ * 타이틀 위·아래(구분선 직전) 패딩 동일, 구분선 아래 본문으로 `marginBottom`.
  */
-export const stickySettingsSectionTitleWrapStyle: CSSProperties = {
-  position: 'sticky',
-  top: 0,
-  zIndex: 6,
+const SETTINGS_SECTION_TITLE_PAD_Y = 16
+const SETTINGS_SECTION_AFTER_TITLE_DIVIDER_GAP = 16
+
+/** 카드(`jellyCardStyle`) 상단 곡률과 헤더 배경을 맞춤 — bleed 타이틀 행이 직각으로 잘리지 않게 */
+const settingsSectionTitleWrapBaseStyle: CSSProperties = {
   background: cardSurface,
   marginLeft: -16,
   marginRight: -16,
   paddingLeft: 16,
   paddingRight: 16,
+  paddingTop: SETTINGS_SECTION_TITLE_PAD_Y,
+  paddingBottom: SETTINGS_SECTION_TITLE_PAD_Y,
+  marginBottom: SETTINGS_SECTION_AFTER_TITLE_DIVIDER_GAP,
   boxSizing: 'border-box',
   boxShadow: '0 1px 0 rgba(15, 23, 42, 0.08)',
+  borderTopLeftRadius: JELLY.radiusLg,
+  borderTopRightRadius: JELLY.radiusLg,
 }
 
-/** 설정 > 고정·투자 템플릿: 섹션 제목(한 줄) 아래에 붙는 공금/A/B 그룹 헤더 */
-export const stickySettingsTemplateGroupHeaderStyle: CSSProperties = {
+export const stickySettingsSectionTitleWrapStyle: CSSProperties = {
+  ...settingsSectionTitleWrapBaseStyle,
   position: 'sticky',
-  top: 44,
-  zIndex: 5,
+  top: 0,
+  zIndex: 6,
+}
+
+/** PC(넓은 뷰) 설정: 타이틀 행을 일반 흐름으로 — sticky 없음 */
+export const settingsSectionTitleWrapNonStickyStyle: CSSProperties = {
+  ...settingsSectionTitleWrapBaseStyle,
+  position: 'relative',
+}
+
+/** 설정 화면: 모바일만 타이틀 sticky, PC는 일반 레이아웃 */
+export function settingsSectionTitleWrapForViewport(narrowViewport: boolean): CSSProperties {
+  return narrowViewport ? stickySettingsSectionTitleWrapStyle : settingsSectionTitleWrapNonStickyStyle
+}
+
+const settingsTemplateGroupHeaderBaseStyle: CSSProperties = {
   background: cardSurface,
   paddingTop: 2,
   paddingBottom: 2,
 }
 
+/** 설정 > 고정·투자 템플릿: 섹션 제목(한 줄) 아래에 붙는 공금/A/B 그룹 헤더 */
+export const stickySettingsTemplateGroupHeaderStyle: CSSProperties = {
+  ...settingsTemplateGroupHeaderBaseStyle,
+  position: 'sticky',
+  top: 54,
+  zIndex: 5,
+}
+
+export function settingsTemplateGroupHeaderForViewport(narrowViewport: boolean): CSSProperties {
+  return narrowViewport ? stickySettingsTemplateGroupHeaderStyle : settingsTemplateGroupHeaderBaseStyle
+}
+
 /** 지출 계획 SectionCard: 이모지·제목·합계 헤더 아래 그룹 헤더 */
 export const stickyPlanSectionGroupHeaderStyle: CSSProperties = {
   position: 'sticky',
-  top: 56,
+  top: 62,
   zIndex: 5,
   background: cardSurface,
   paddingTop: 2,
@@ -98,11 +163,12 @@ export const stickyPlanSectionGroupHeaderStyle: CSSProperties = {
 }
 
 /**
- * 지출 계획 > 투자 카드(settingsSectionCardStyle): 타이틀 행이 더 높을 수 있어 그룹 헤더 오프셋을 조금 크게 잡음.
+ * 지출 계획 > 투자 카드(settingsSectionCardWithBleedTitleStyle): 타이틀 행이 더 높을 수 있어 그룹 헤더 오프셋을 조금 크게 잡음.
  */
 export const stickyPlanInvestCardGroupHeaderStyle: CSSProperties = {
   ...stickySettingsTemplateGroupHeaderStyle,
-  top: 62,
+  /** 투자 카드 타이틀 행(이모지·합계·버튼)이 더 높음 */
+  top: 76,
 }
 
 /** 설정 템플릿 행 삭제 버튼과 동일 */

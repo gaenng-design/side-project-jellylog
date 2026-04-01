@@ -1,14 +1,16 @@
 import { useEffect, useRef } from 'react'
 import { useAppStore, YEAR_PICKER_MIN } from '@/store/useAppStore'
-import { PRIMARY, PRIMARY_LIGHT } from '@/styles/formControls'
+import { INPUT_BORDER_RADIUS, PRIMARY, PRIMARY_LIGHT } from '@/styles/formControls'
 import { YearSelectDropdown } from '@/components/YearSelectDropdown'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 
 interface MonthPickerProps {
   onBeforeChange?: (ym: string) => boolean | void
+  /** true면 연도 드롭다운을 렌더하지 않음(부모가 제목 옆 등에 배치) */
+  omitYearDropdown?: boolean
 }
 
-export function MonthPicker({ onBeforeChange }: MonthPickerProps) {
+export function MonthPicker({ onBeforeChange, omitYearDropdown = false }: MonthPickerProps) {
   const narrow = useNarrowLayout()
   const activeMonthBtnRef = useRef<HTMLButtonElement>(null)
   const { currentYearMonth, setYearMonth } = useAppStore()
@@ -47,7 +49,7 @@ export function MonthPicker({ onBeforeChange }: MonthPickerProps) {
         boxSizing: 'border-box',
       }}
     >
-      <YearSelectDropdown variant="dark" value={year} onChange={setYear} />
+      {!omitYearDropdown && <YearSelectDropdown variant="dark" value={year} onChange={setYear} />}
       {/* 모바일: 바깥 트랙은 부모 너비에 고정, 안쪽만 가로 스크롤 */}
       <div
         style={{
@@ -55,17 +57,22 @@ export function MonthPicker({ onBeforeChange }: MonthPickerProps) {
           flex: narrow ? undefined : '0 1 auto',
           minWidth: narrow ? 0 : undefined,
           maxWidth: '100%',
-          borderRadius: 9999,
+          minHeight: 40,
+          borderRadius: INPUT_BORDER_RADIUS,
           background: '#fff',
-          border: '1px solid rgba(15, 23, 42, 0.06)',
-          boxShadow: '0 2px 12px rgba(15, 23, 42, 0.07)',
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
           boxSizing: 'border-box',
           overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
         }}
       >
         <div
           className={narrow ? 'hide-horizontal-scrollbar' : undefined}
           style={{
+            flex: 1,
+            minWidth: 0,
             overflowX: 'auto',
             overflowY: 'hidden',
             WebkitOverflowScrolling: 'touch',

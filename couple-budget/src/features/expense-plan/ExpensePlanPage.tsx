@@ -16,9 +16,11 @@ import {
   PRIMARY_LIGHT,
   planRowActionButtonLayout,
   buttonWriteDeleteStyle,
-  settingsSectionCardStyle,
+  settingsSectionCardWithBleedTitleStyle,
   settingsTemplateDeleteButtonStyle,
   allowanceValueColor,
+  expensePlanSummaryCardBackground,
+  pageTitleH1Style,
   stickyPlanSectionGroupHeaderStyle,
   stickyPlanInvestCardGroupHeaderStyle,
   stickySettingsSectionTitleWrapStyle,
@@ -121,6 +123,7 @@ function SectionCard(props: {
   /** 헤더 합계 금액 색 (기본: PRIMARY) */
   totalColor?: string
 }) {
+  const narrow = useNarrowLayout()
   const { emoji, title, total, children, right, totalColor } = props
   return (
     <div style={{ ...jellyCardStyle, borderRadius: JELLY.radiusLg }}>
@@ -131,11 +134,15 @@ function SectionCard(props: {
           display: 'flex',
           alignItems: 'center',
           gap: 10,
-          position: 'sticky',
-          top: 0,
-          zIndex: 6,
+          ...(narrow
+            ? {
+                position: 'sticky' as const,
+                top: 0,
+                zIndex: 6,
+                boxShadow: '0 1px 0 rgba(15, 23, 42, 0.08)',
+              }
+            : { position: 'relative' as const }),
           background: jellyCardStyle.background ?? '#FFFFFF',
-          boxShadow: '0 1px 0 rgba(15, 23, 42, 0.08)',
           borderTopLeftRadius: JELLY.radiusLg,
           borderTopRightRadius: JELLY.radiusLg,
         }}
@@ -527,6 +534,7 @@ function FixedExpenseCard(props: FixedCardProps) {
     forcePersonPublicFund = false,
     hideRowPersonTags = false,
   } = props
+  const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
   const personAName = settings.personAName || '유저1'
   const personBName = settings.personBName || '유저2'
@@ -657,7 +665,7 @@ function FixedExpenseCard(props: FixedCardProps) {
             {(() => {
               const groupTotal = list.filter((r) => !r.isExcluded).reduce((s, r) => s + r.amount, 0)
               return (
-                <div style={stickyPlanSectionGroupHeaderStyle}>
+                <div style={narrow ? stickyPlanSectionGroupHeaderStyle : { paddingTop: 2, paddingBottom: 2 }}>
                   <GroupHeaderChip
                     label={groupLabel}
                     total={groupTotal}
@@ -1094,18 +1102,32 @@ function InvestCard(props: InvestCardProps) {
 
   return (
     <>
-    <div style={{ ...settingsSectionCardStyle }}>
+    <div style={{ ...settingsSectionCardWithBleedTitleStyle }}>
       {/* 고정지출 SectionCard 헤더와 동일한 타이틀 행(이모지·제목·합계·구분선) */}
       <div
         style={{
-          ...stickySettingsSectionTitleWrapStyle,
-          paddingBottom: 14,
-          marginBottom: 14,
           borderBottom: '1px solid #f3f4f6',
           display: 'flex',
           alignItems: 'center',
           gap: 10,
           flexWrap: 'wrap',
+          ...(narrow
+            ? stickySettingsSectionTitleWrapStyle
+            : {
+                position: 'relative' as const,
+                background: stickySettingsSectionTitleWrapStyle.background,
+                marginLeft: stickySettingsSectionTitleWrapStyle.marginLeft,
+                marginRight: stickySettingsSectionTitleWrapStyle.marginRight,
+                paddingLeft: stickySettingsSectionTitleWrapStyle.paddingLeft,
+                paddingRight: stickySettingsSectionTitleWrapStyle.paddingRight,
+                paddingTop: stickySettingsSectionTitleWrapStyle.paddingTop,
+                paddingBottom: stickySettingsSectionTitleWrapStyle.paddingBottom,
+                marginBottom: stickySettingsSectionTitleWrapStyle.marginBottom,
+                boxSizing: stickySettingsSectionTitleWrapStyle.boxSizing,
+                boxShadow: stickySettingsSectionTitleWrapStyle.boxShadow,
+                borderTopLeftRadius: stickySettingsSectionTitleWrapStyle.borderTopLeftRadius,
+                borderTopRightRadius: stickySettingsSectionTitleWrapStyle.borderTopRightRadius,
+              }),
         }}
       >
         <span style={{ fontSize: 18 }}>📈</span>
@@ -1140,7 +1162,7 @@ function InvestCard(props: InvestCardProps) {
           const groupLabel = personKey === 'A' ? personAName : personBName
           return (
             <div key={personKey}>
-              <div style={stickyPlanInvestCardGroupHeaderStyle}>
+              <div style={narrow ? stickyPlanInvestCardGroupHeaderStyle : { paddingTop: 2, paddingBottom: 2 }}>
                 <GroupHeaderChip
                   label={groupLabel}
                   total={groupTotal}
@@ -1427,11 +1449,15 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
           padding: '16px 20px',
           borderBottom: JELLY.innerBorderSoft,
           gap: 8,
-          position: 'sticky',
-          top: 0,
-          zIndex: 6,
+          ...(narrow
+            ? {
+                position: 'sticky' as const,
+                top: 0,
+                zIndex: 6,
+                boxShadow: '0 1px 0 rgba(15, 23, 42, 0.08)',
+              }
+            : { position: 'relative' as const }),
           background: jellyCardStyle.background ?? '#FFFFFF',
-          boxShadow: '0 1px 0 rgba(15, 23, 42, 0.08)',
           borderTopLeftRadius: JELLY.radiusLg,
           borderTopRightRadius: JELLY.radiusLg,
         }}
@@ -1715,6 +1741,14 @@ export function ExpensePlanPage() {
     setPendingSwitchYm(newYm)
     setLeaveConfirmOpen(true)
     return false
+  }
+
+  const planHeaderYear = Number(currentYearMonth.split('-')[0])
+  const handlePlanHeaderYearChange = (y: number) => {
+    const m = currentYearMonth.split('-')[1] ?? '01'
+    const ym = `${y}-${m.padStart(2, '0')}`
+    if (handleBeforeMonthChange(ym) === false) return
+    setYearMonth(ym)
   }
 
   const handleLeaveWithoutSave = () => {
@@ -2010,18 +2044,31 @@ export function ExpensePlanPage() {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <h1
-          style={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#111827',
-            margin: 0,
-            marginBottom: 12,
-          }}
-        >
-          지출 계획
-        </h1>
-        <MonthPicker onBeforeChange={handleBeforeMonthChange} />
+        {narrow ? (
+          <>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 10,
+                marginBottom: 10,
+                minWidth: 0,
+              }}
+            >
+              <h1 style={{ ...pageTitleH1Style, flex: '1 1 auto', minWidth: 0 }}>지출 계획</h1>
+              <div style={{ flexShrink: 0 }}>
+                <YearSelectDropdown variant="dark" value={planHeaderYear} onChange={handlePlanHeaderYearChange} />
+              </div>
+            </div>
+            <MonthPicker omitYearDropdown onBeforeChange={handleBeforeMonthChange} />
+          </>
+        ) : (
+          <>
+            <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>지출 계획</h1>
+            <MonthPicker onBeforeChange={handleBeforeMonthChange} />
+          </>
+        )}
         {/* 작성되지 않은 달: 작성하기로 진입 */}
         {planState === 'none' && (
           <div style={{ marginTop: 16, padding: 24, background: '#f9fafb', borderRadius: JELLY.radiusControl, border: '1px dashed #e5e7eb', textAlign: 'center' }}>
@@ -2252,9 +2299,9 @@ export function ExpensePlanPage() {
             }}
           >
             {[
-              { label: '수입 합계', value: totalIncome, color: PRIMARY },
-              { label: '고정·별도 지출 합계', value: totalFixed, color: SUB_FIXED_ACCENT },
-              { label: '투자·저축 합계', value: totalInvest, color: SUB_INVEST_ACCENT },
+              { label: '수입 합계', value: totalIncome, color: PRIMARY, surface: 'income' as const },
+              { label: '고정·별도 지출 합계', value: totalFixed, color: SUB_FIXED_ACCENT, surface: 'fixed' as const },
+              { label: '투자·저축 합계', value: totalInvest, color: SUB_INVEST_ACCENT, surface: 'invest' as const },
             ].map((c) => (
               <div
                 key={c.label}
@@ -2263,10 +2310,11 @@ export function ExpensePlanPage() {
                   minWidth: narrow ? 0 : 140,
                   width: narrow ? '100%' : undefined,
                   boxSizing: 'border-box',
-                  background: '#fff',
+                  background: expensePlanSummaryCardBackground(c.surface),
                   borderRadius: JELLY.radiusControl,
                   padding: '14px 16px',
-                  boxShadow: '0px 1px 3px rgba(15,23,42,0.12)',
+                  boxShadow: '0px 1px 3px rgba(15,23,42,0.08)',
+                  border: '2px solid #fff',
                 }}
               >
                 <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>{c.label}</div>
@@ -2279,10 +2327,11 @@ export function ExpensePlanPage() {
                 minWidth: narrow ? 0 : 160,
                 width: narrow ? '100%' : undefined,
                 boxSizing: 'border-box',
-                background: '#fff',
+                background: expensePlanSummaryCardBackground('allowance'),
                 borderRadius: JELLY.radiusControl,
                 padding: '14px 16px',
-                boxShadow: '0px 1px 3px rgba(15,23,42,0.12)',
+                boxShadow: '0px 1px 3px rgba(15,23,42,0.08)',
+                border: '2px solid #fff',
               }}
             >
               <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>용돈</div>
@@ -2309,7 +2358,7 @@ export function ExpensePlanPage() {
                 role="separator"
                 style={{
                   height: 1,
-                  background: '#e5e7eb',
+                  background: 'rgba(15, 23, 42, 0.08)',
                   margin: '10px 0',
                 }}
               />

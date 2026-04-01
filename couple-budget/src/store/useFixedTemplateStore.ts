@@ -74,6 +74,13 @@ export const useFixedTemplateStore = create<FixedTemplateState>()(
       removeTemplate: (id) =>
         set((s) => ({
           templates: s.templates.filter((t) => t.id !== id),
+          exclusions: s.exclusions.filter((e) => e.templateId !== id),
+          monthlyAmounts: Object.fromEntries(
+            Object.entries(s.monthlyAmounts).filter(([k]) => !k.startsWith(`${id}::`)),
+          ),
+          monthlySeparations: Object.fromEntries(
+            Object.entries(s.monthlySeparations).filter(([k]) => !k.startsWith(`${id}::`)),
+          ),
         })),
       reorderTemplate: (id, direction) =>
         set((s) => {

@@ -1,6 +1,4 @@
--- 기존 프로젝트에만 실행하면 됩니다. (household-auth 마이그레이션 전체를 다시 돌리지 않을 때)
--- "가계 연결 해제"가 delete_my_household 를 쓰던 버그 수정: 멤버십만 제거하고 서버 예산 데이터는 유지.
-
+-- 가계 연결 해제: 멤버십만 제거(동기화 데이터 유지). 앱 RPC leave_my_household_membership
 create or replace function public.leave_my_household_membership()
 returns void
 language plpgsql
@@ -18,5 +16,5 @@ $fn$;
 
 grant execute on function public.leave_my_household_membership() to authenticated;
 
--- 여전히 "schema cache" 오류면 SQL Editor에서 한 번 더 실행:
--- notify pgrst, 'reload schema';
+-- PostgREST 스키마 캐시 갱신(함수 추가 직후 "schema cache" 오류 방지)
+notify pgrst, 'reload schema';

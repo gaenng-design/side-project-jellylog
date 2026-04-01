@@ -19,6 +19,7 @@ import {
   jellyPrimaryButtonDisabled,
 } from '@/styles/jellyGlass'
 import { NarrowLayoutProvider, useNarrowLayout } from '@/context/NarrowLayoutContext'
+import { MobileSnackbar } from '@/components/MobileSnackbar'
 
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', icon: '📊' },
@@ -134,6 +135,7 @@ function AppShell() {
             flexDirection: narrow ? 'row' : 'column',
             alignItems: narrow ? 'center' : 'stretch',
             gap: narrow ? 0 : undefined,
+            /* narrow 높이(≈65px) 바꾸면 MobileSnackbar 의 MOBILE_GNB_HEIGHT_PX 도 맞출 것 */
             padding: narrow ? '10px 12px' : iconOnlyNav ? '20px 12px' : '28px 16px 24px',
             transition: 'width 0.2s ease, padding 0.2s ease',
             overflow: narrow ? 'visible' : 'hidden',
@@ -442,24 +444,12 @@ function AppShell() {
         </>
       ) : null}
       {narrow && cloudMsg ? (
-        <div
-          style={{
-            flexShrink: 0,
-            padding: '6px 12px',
-            fontSize: 11,
-            lineHeight: 1.4,
-            color:
-              cloudMsg.tone === 'err'
-                ? '#FCA5A5'
-                : cloudMsg.tone === 'ok'
-                  ? '#6EE7B7'
-                  : '#FCD34D',
-            background: 'rgba(15,23,42,0.35)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
-          {cloudMsg.text}
-        </div>
+        <MobileSnackbar
+          open
+          tone={cloudMsg.tone}
+          text={cloudMsg.text}
+          onClose={() => setCloudMsg(null)}
+        />
       ) : null}
       <main
         style={{

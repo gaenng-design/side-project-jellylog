@@ -55,6 +55,10 @@ export const useInvestTemplateStore = create<InvestTemplateState>()(
       removeTemplate: (id) =>
         set((s) => ({
           templates: s.templates.filter((t) => t.id !== id),
+          exclusions: s.exclusions.filter((e) => e.templateId !== id),
+          monthlyAmounts: Object.fromEntries(
+            Object.entries(s.monthlyAmounts).filter(([k]) => !k.startsWith(`${id}::`)),
+          ),
         })),
       getSortedTemplates: () => {
         const t = get().templates

@@ -236,6 +236,9 @@ export function FixedExpenseRow({
             alignItems: 'center',
           }}
         >
+          {dragHandle && (
+            <div style={{ flexShrink: 0, cursor: disabled ? 'default' : 'grab', alignSelf: 'center' }}>{dragHandle}</div>
+          )}
           {(hideRowPersonTags || !categoryViewLeadUserFirst) && (
             <>
               {!row.isSeparate && inactiveSeparateButton}
@@ -250,27 +253,24 @@ export function FixedExpenseRow({
               {separateReadonlyChip}
             </>
           )}
+          {!hideRowPersonTags && categoryViewLeadUserFirst && !row.isSeparate && (
+            <div
+              style={{
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 6,
+                minHeight: ROW_CHIP_HEIGHT,
+              }}
+            >
+              <PersonBadge person={planPerson} />
+            </div>
+          )}
         </FlexRowCell>
       )}
       {!hideRowPersonTags && categoryViewLeadUserFirst && (
-        narrow ? (
-          !row.isSeparate ? (
-            <FlexRowCell narrow={narrow} mobileStyle={{ flex: '0 0 auto', alignSelf: 'center' }}>
-              <div
-                style={{
-                  flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: 6,
-                  minHeight: ROW_CHIP_HEIGHT,
-                }}
-              >
-                <PersonBadge person={planPerson} />
-              </div>
-            </FlexRowCell>
-          ) : null
-        ) : (
+        narrow ? null : (
           <FlexRowCell narrow={false} mobileStyle={{}}>
             <div
               style={{
@@ -307,9 +307,6 @@ export function FixedExpenseRow({
             boxSizing: 'border-box',
           }}
         >
-          {dragHandle && (
-            <div style={{ flexShrink: 0, cursor: disabled ? 'default' : 'grab' }}>{dragHandle}</div>
-          )}
           <div style={{ flex: '0 0 auto', width: CATEGORY_SELECT_TRIGGER_WIDTH }}>
             <CustomSelect
               compact
@@ -378,7 +375,6 @@ export function FixedExpenseRow({
             onChange={(v) => !disabled && onUpdate({ payDay: v })}
             disabled={disabled}
             compact
-            fillWidth={narrow}
           />
         </FlexRowCell>
       )}

@@ -50,7 +50,6 @@ export function GroupHeaderChip({ label, total, color, useUserChipStyle, totalCo
           background: chipBg,
           color: chipColor,
           border: useUserChipStyle && isPastel ? `1px solid rgba(255,255,255,0.55)` : undefined,
-          boxShadow: useUserChipStyle && isPastel ? 'inset 0 1px 0 rgba(255,255,255,0.55)' : undefined,
           textShadow: useUserChipStyle && isPastel ? '0 1px 2px rgba(15, 23, 42, 0.45)' : undefined,
         }}
       >
