@@ -5,7 +5,7 @@ import {
   joinHouseholdRpc,
   ensureSupabaseSessionForSync,
   resolveSessionAndHouseholdBeforeHydrate,
-  deleteHouseholdOnServerAndClearLocal,
+  leaveHouseholdAndClearLocal,
   getSyncHouseholdId,
   getSavedAccessCode,
 } from '@/services/authHousehold'
@@ -106,7 +106,7 @@ export function AccountPage() {
     setMsg(null)
     setBusy(true)
     try {
-      const res = await deleteHouseholdOnServerAndClearLocal()
+      const res = await leaveHouseholdAndClearLocal()
       if (!res.ok) {
         setMsg({ tone: 'err', text: res.error })
         return
@@ -124,7 +124,7 @@ export function AccountPage() {
   if (!isSupabaseConfigured) {
     return (
       <div style={{ maxWidth: 520 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12, color: JELLY.text }}>동기화 · 가계</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12, color: JELLY.text }}>계정</h1>
         <p style={{ color: JELLY.textMuted, fontSize: 14, lineHeight: 1.6 }}>
           Supabase가 설정되지 않았습니다. 프로젝트 루트 <code>.env</code>에 <code>VITE_SUPABASE_URL</code>,{' '}
           <code>VITE_SUPABASE_ANON_KEY</code>를 넣은 뒤 앱을 다시 실행해 주세요.
@@ -135,7 +135,7 @@ export function AccountPage() {
 
   return (
     <div style={{ maxWidth: 520, paddingBottom: 40 }}>
-      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8, color: JELLY.text }}>동기화 · 가계</h1>
+      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8, color: JELLY.text }}>계정</h1>
       <p style={{ color: JELLY.textMuted, fontSize: 13, lineHeight: 1.55, marginBottom: 20 }}>
         {householdId ? (
           <>
@@ -265,40 +265,52 @@ export function AccountPage() {
             <p style={{ margin: '0 0 10px', fontSize: 12, color: JELLY.textMuted, lineHeight: 1.5 }}>
               상대가 알려준 16자 아이디를 입력합니다. 새 기기에서도 같은 아이디로 들어오면 됩니다.
             </p>
-            <input
-              type="text"
-              inputMode="text"
-              autoCapitalize="characters"
-              autoCorrect="off"
-              spellCheck={false}
-              value={accessCodeInput}
-              onChange={(e) =>
-                setAccessCodeInput(e.target.value.toUpperCase().replace(/[^0-9A-F]/g, ''))
-              }
-              placeholder="16자 (0-9, A-F)"
-              aria-label="가계 접속 코드 16자"
+            <div
               style={{
-                ...jellyInputSurface,
-                padding: '10px 14px',
-                fontSize: 14,
-                width: '100%',
-                maxWidth: 320,
-                marginBottom: 18,
-                fontFamily: 'ui-monospace, monospace',
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: 12,
               }}
-            />
-            <button
-              type="button"
-              disabled={busy || !sessionReady || accessCodeInput.length < 16}
-              onClick={() => void handleJoin()}
-              style={
-                busy || !sessionReady || accessCodeInput.length < 16
-                  ? jellyPrimaryButtonDisabled
-                  : jellyPrimaryButton
-              }
             >
-              참여하기
-            </button>
+              <input
+                type="text"
+                inputMode="text"
+                autoCapitalize="characters"
+                autoCorrect="off"
+                spellCheck={false}
+                value={accessCodeInput}
+                onChange={(e) =>
+                  setAccessCodeInput(e.target.value.toUpperCase().replace(/[^0-9A-F]/g, ''))
+                }
+                placeholder="16자 (0-9, A-F)"
+                aria-label="가계 접속 코드 16자"
+                style={{
+                  ...jellyInputSurface,
+                  padding: '10px 14px',
+                  fontSize: 14,
+                  flex: '1 1 200px',
+                  minWidth: 0,
+                  maxWidth: 320,
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  fontFamily: 'ui-monospace, monospace',
+                }}
+              />
+              <button
+                type="button"
+                disabled={busy || !sessionReady || accessCodeInput.length < 16}
+                onClick={() => void handleJoin()}
+                style={{
+                  flexShrink: 0,
+                  ...(busy || !sessionReady || accessCodeInput.length < 16
+                    ? jellyPrimaryButtonDisabled
+                    : jellyPrimaryButton),
+                }}
+              >
+                참여하기
+              </button>
+            </div>
           </div>
         </>
       ) : null}

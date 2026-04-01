@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAppStore, getYearPickerYearOptions } from '@/store/useAppStore'
 import { PRIMARY, PRIMARY_DARK, PRIMARY_LIGHT } from '@/styles/formControls'
 import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
+import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 
 type YearSelectDropdownProps = {
   value: number
@@ -11,11 +12,13 @@ type YearSelectDropdownProps = {
 }
 
 export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearSelectDropdownProps) {
+  const narrow = useNarrowLayout()
   const yearPickerMaxYear = useAppStore((s) => s.yearPickerMaxYear)
   const extendYearPickerMax = useAppStore((s) => s.extendYearPickerMax)
   const years = getYearPickerYearOptions(yearPickerMaxYear, value)
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!open) return
@@ -30,24 +33,22 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
     variant === 'dark'
       ? {
           appearance: 'none' as const,
-          background:
-            'linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, rgba(224, 242, 254, 0.88) 40%, rgba(186, 230, 253, 0.65) 100%)',
+          background: '#ffffff',
           color: JELLY.text,
-          border: JELLY.innerBorder,
-          borderRadius: JELLY.radiusControl,
-          padding: '8px 20px',
+          border: '1px solid rgba(15, 23, 42, 0.06)',
+          borderRadius: 9999,
+          padding: '8px 16px',
           fontSize: 13,
-          fontWeight: 700,
+          fontWeight: 600,
           cursor: 'pointer',
           outline: 'none',
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center' as const,
-          gap: 8,
-          minWidth: 120,
-          backdropFilter: JELLY.blur,
-          WebkitBackdropFilter: JELLY.blur,
-          boxShadow: '0 6px 22px rgba(14, 165, 233, 0.18), inset 0 1px 0 rgba(255,255,255,0.85)',
+          gap: 6,
+          minWidth: 108,
+          boxShadow: '0 2px 12px rgba(15, 23, 42, 0.07)',
+          boxSizing: 'border-box' as const,
         }
       : {
           padding: '8px 18px',
@@ -68,11 +69,42 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
           boxShadow: JELLY.shadowFloat,
         }
 
-  const caretColor = variant === 'dark' ? JELLY.textMuted : JELLY.textMuted
+  const caretColor = JELLY.textMuted
+
+  const panelStyle =
+    variant === 'dark'
+      ? {
+          background: '#ffffff',
+          border: '1px solid rgba(15, 23, 42, 0.06)',
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.1)',
+        }
+      : {
+          ...jellyCardStyle,
+          background: 'rgba(255, 255, 255, 0.42)',
+        }
+
+  const triggerW = triggerRef.current?.offsetWidth ?? (variant === 'dark' ? 108 : 120)
 
   return (
-    <div ref={wrapRef} style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-      <button type="button" onClick={() => setOpen((o) => !o)} style={triggerStyle} aria-expanded={open} aria-haspopup="listbox">
+    <div
+      ref={wrapRef}
+      style={{
+        position: 'relative',
+        display: 'inline-flex',
+        alignItems: 'center',
+        width: 'fit-content',
+        maxWidth: '100%',
+        alignSelf: 'flex-start',
+      }}
+    >
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        style={triggerStyle}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+      >
         <span>{value}년</span>
         <span style={{ fontSize: 10, color: caretColor, pointerEvents: 'none' }}>▾</span>
       </button>
@@ -83,18 +115,27 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
           style={{
             position: 'absolute',
             top: '100%',
-            left: '50%',
-            transform: 'translateX(-50%)',
             marginTop: 8,
-            minWidth: Math.max(120, wrapRef.current?.offsetWidth ?? 0),
             boxSizing: 'border-box',
-            ...jellyCardStyle,
             borderRadius: JELLY.radiusControl,
             zIndex: 200,
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            background: 'rgba(255, 255, 255, 0.42)',
+            ...(narrow
+              ? {
+                  left: 0,
+                  transform: 'none',
+                  width: 'max-content',
+                  minWidth: Math.max(168, triggerW),
+                  maxWidth: 'min(260px, calc(100vw - 24px))',
+                }
+              : {
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  minWidth: Math.max(120, triggerW),
+                }),
+            ...panelStyle,
           }}
         >
           <div style={{ maxHeight: 240, overflowY: 'auto', padding: 6 }}>
@@ -132,9 +173,9 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
             style={{
               borderTop: JELLY.innerBorderSoft,
               padding: 10,
-              background: 'rgba(255,255,255,0.25)',
-              backdropFilter: JELLY.blur,
-              WebkitBackdropFilter: JELLY.blur,
+              background: variant === 'dark' ? '#f9fafb' : 'rgba(255,255,255,0.25)',
+              backdropFilter: variant === 'dark' ? undefined : JELLY.blur,
+              WebkitBackdropFilter: variant === 'dark' ? undefined : JELLY.blur,
             }}
           >
             <button
@@ -145,16 +186,16 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
                 fontSize: 12,
                 padding: '10px 14px',
                 borderRadius: JELLY.radiusControl,
-                border: `1px solid ${variant === 'dark' ? 'rgba(2, 132, 199, 0.45)' : 'rgba(14, 165, 233, 0.4)'}`,
-                background: 'rgba(255,255,255,0.4)',
-                backdropFilter: JELLY.blur,
-                WebkitBackdropFilter: JELLY.blur,
-                color: variant === 'dark' ? PRIMARY_DARK : PRIMARY,
+                border: variant === 'dark' ? `1px solid rgba(79, 140, 255, 0.35)` : `1px solid rgba(14, 165, 233, 0.4)`,
+                background: variant === 'dark' ? PRIMARY_LIGHT : 'rgba(255,255,255,0.4)',
+                backdropFilter: variant === 'dark' ? undefined : JELLY.blur,
+                WebkitBackdropFilter: variant === 'dark' ? undefined : JELLY.blur,
+                color: PRIMARY,
                 fontWeight: 600,
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 textAlign: 'center',
-                boxShadow: '0 4px 14px rgba(14, 165, 233, 0.12)',
+                boxShadow: variant === 'dark' ? 'none' : '0 4px 14px rgba(14, 165, 233, 0.12)',
               }}
             >
               신년 추가하기

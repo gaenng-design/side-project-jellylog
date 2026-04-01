@@ -156,8 +156,8 @@ grant execute on function public.create_household_with_access_code() to authenti
 grant execute on function public.join_household_by_access_code(text) to authenticated;
 grant execute on function public.join_household_by_invite(text) to authenticated;
 
--- 가계·접속 코드·서버의 예산/설정 데이터는 유지. 멤버십만 제거 → 같은 코드로 재참여 시 hydrate 로 그대로 복구.
--- (서버 데이터까지 지우려면 대시보드에서 테이블 정리 또는 별도 관리 도구가 필요함.)
+-- [관리/초기화용] 가계(households 행·접속 코드 해시)는 유지하고, 멤버·동기화 데이터 전부 삭제.
+-- 앱의 "연결 해제"에는 쓰지 말 것 — `leave_my_household_membership` 사용. 같은 코드로 재참여 시 빈 가계.
 create or replace function public.delete_my_household()
 returns void
 language plpgsql
@@ -177,16 +177,76 @@ begin
   if hid is null then
     raise exception '가계에 속해 있지 않습니다.';
   end if;
+  delete from public.fixed_template_overrides where household_id = hid;
+  delete from public.invest_template_overrides where household_id = hid;
+  delete from public.plan_snapshots where household_id = hid;
+  delete from public.settlement_data where household_id = hid;
+  delete from public.fixed_expenses where household_id = hid;
+  delete from public.investments where household_id = hid;
+  delete from public.incomes where household_id = hid;
+  delete from public.separate_items where household_id = hid;
+  delete from public.fixed_templates where household_id = hid;
+  delete from public.invest_templates where household_id = hid;
+  delete from public.app_snapshot where household_id = hid;
   delete from public.household_members where household_id = hid;
+  -- households.id, invite_code, access_code_hash 유지
 end;
 $fn$;
 
 grant execute on function public.delete_my_household() to authenticated;
 
+-- 가계 연결 해제(앱): 본인 멤버십만 제거. incomes·스냅샷 등 서버 데이터는 유지 → 같은 접속 코드로 재참여 시 hydrate 로 복구.
+create or replace function public.leave_my_household_membership()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $fn$
+begin
+  if auth.uid() is null then
+    raise exception '로그인이 필요합니다.';
+  end if;
+  delete from public.household_members
+  where user_id = auth.uid();
+end;
+$fn$;
+
+grant execute on function public.leave_my_household_membership() to authenticated;
+
 drop function if exists public.create_household_for_user();
 
 alter table public.incomes add column if not exists household_id uuid references public.households (id) on delete cascade;
 alter table public.separate_items add column if not exists household_id uuid references public.households (id) on delete cascade;
+alter table public.separate_items add column if not exists separate_person text;
+alter table public.separate_items add column if not exists is_separate boolean default true;
+
+-- 레거시 separate_items 만 "yearMonth" 인 경우 (normalized-full 의 create if not exists 가 스킵된 DB)
+do $si$
+begin
+  if exists (
+    select 1
+    from pg_attribute a
+    join pg_class c on c.oid = a.attrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relname = 'separate_items'
+      and a.attname = 'yearMonth'
+      and not a.attisdropped
+      and a.attnum > 0
+  ) and not exists (
+    select 1
+    from pg_attribute a2
+    join pg_class c2 on c2.oid = a2.attrelid
+    join pg_namespace n2 on n2.oid = c2.relnamespace
+    where n2.nspname = 'public'
+      and c2.relname = 'separate_items'
+      and a2.attname = 'year_month'
+      and not a2.attisdropped
+      and a2.attnum > 0
+  ) then
+    execute 'alter table public.separate_items rename column "yearMonth" to year_month';
+  end if;
+end $si$;
 alter table public.fixed_templates add column if not exists household_id uuid references public.households (id) on delete cascade;
 alter table public.invest_templates add column if not exists household_id uuid references public.households (id) on delete cascade;
 alter table public.fixed_template_overrides add column if not exists household_id uuid references public.households (id) on delete cascade;

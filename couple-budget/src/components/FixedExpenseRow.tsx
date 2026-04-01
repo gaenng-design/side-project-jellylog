@@ -1,11 +1,27 @@
+import type { CSSProperties, ReactNode } from 'react'
 import { useAppStore } from '@/store/useAppStore'
-import { getPersonStyle, PersonBadge, PersonToggle } from '@/components/PersonUI'
+import { getPersonStyle, PersonBadge } from '@/components/PersonUI'
 import { CustomSelect } from '@/components/CustomSelect'
 import { DaySelect } from '@/components/DaySelect'
 import { AmountInput } from '@/components/AmountInput'
-import { inputBaseStyle } from '@/styles/formControls'
+import { CATEGORY_SELECT_TRIGGER_WIDTH, inputBaseStyle } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
+import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import type { Person } from '@/types'
+
+/** 뷰포트 ≤600px 일 때만 플렉스 줄바꿈용 래퍼 */
+function FlexRowCell({
+  narrow,
+  mobileStyle,
+  children,
+}: {
+  narrow: boolean
+  mobileStyle: CSSProperties
+  children: ReactNode
+}) {
+  if (!narrow) return <>{children}</>
+  return <div style={{ boxSizing: 'border-box', ...mobileStyle }}>{children}</div>
+}
 
 /** 삭제 버튼과 동일한 높이 (padding 6*2 + font 11 ≈ 26) */
 const ROW_CHIP_HEIGHT = 26
@@ -18,7 +34,7 @@ const FIXED_CATEGORIES = ['주거', '통신', '보험', '구독', '교통', '식
 
 export interface FixedExpenseRowData {
   id: string
-  /** 지출 계획 구분(공금 / A / B) — 별도 지출 카드에서 편집 시 필요 */
+  /** 지출 계획 구분(공금 / A / B) */
   person?: Person
   category: string
   description: string
@@ -45,8 +61,8 @@ interface FixedExpenseRowProps {
   planPerson?: Person
   /** true면 카테고리보다 앞에 유저(또는 별도정산 담당) 칩 */
   categoryViewLeadUserFirst?: boolean
-  /** 별도 지출 카드: 앞줄에서 구분(공금/A/B) 편집 */
-  leadPlanPersonEditable?: boolean
+  /** true면 공금/A/B 태그·토글 숨김(고정지출 등 그룹 헤더로 구분할 때) */
+  hideRowPersonTags?: boolean
 }
 
 export function FixedExpenseRow({
@@ -61,8 +77,9 @@ export function FixedExpenseRow({
   showPayDay = true,
   planPerson = '공금',
   categoryViewLeadUserFirst = false,
-  leadPlanPersonEditable = false,
+  hideRowPersonTags = false,
 }: FixedExpenseRowProps) {
+  const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
   const separatePerson = row.separatePerson ?? 'A'
   const { bg: chipBg, color: chipColor } = getPersonStyle(separatePerson, settings)
@@ -179,11 +196,20 @@ export function FixedExpenseRow({
     </div>
   )
 
+  const descInputStyle: CSSProperties = { flex: 1, minWidth: 0, ...inputBaseStyle }
+
+  const amountWrapStyle: CSSProperties = narrow
+    ? { width: '100%', minWidth: 0, maxWidth: '100%' }
+    : { width: AMOUNT_INPUT_WIDTH, minWidth: AMOUNT_INPUT_WIDTH, flexShrink: 0 }
+
+  const showPlanLead = !hideRowPersonTags && categoryViewLeadUserFirst
+
   return (
     <div
       style={{
         display: 'flex',
-        alignItems: 'center',
+        alignItems: narrow ? 'flex-start' : 'center',
+        flexWrap: narrow ? 'wrap' : 'nowrap',
         gap: 8,
         padding: '10px 12px',
         borderRadius: JELLY.radiusControl,
@@ -192,87 +218,182 @@ export function FixedExpenseRow({
         opacity: disabled ? 0.6 : 1,
       }}
     >
-      {dragHandle && (
-        <div style={{ flexShrink: 0, cursor: disabled ? 'default' : 'grab' }}>{dragHandle}</div>
+      {dragHandle && !narrow && (
+        <FlexRowCell narrow={false} mobileStyle={{}}>
+          <div style={{ flexShrink: 0, cursor: disabled ? 'default' : 'grab' }}>{dragHandle}</div>
+        </FlexRowCell>
       )}
-      {categoryViewLeadUserFirst && (
-        <div
-          style={{
-            flexShrink: 0,
+      {narrow && (
+        <FlexRowCell
+          narrow
+          mobileStyle={{
+            flex: '1 1 100%',
+            minWidth: 0,
+            maxWidth: '100%',
             display: 'flex',
-            alignItems: 'center',
             flexWrap: 'wrap',
             gap: 6,
-            minHeight: ROW_CHIP_HEIGHT,
+            alignItems: 'center',
           }}
         >
-          {leadPlanPersonEditable ? (
-            <PersonToggle
-              compact
-              value={row.person ?? planPerson}
-              onChange={(p) => {
-                if (disabled) return
-                if (p === '공금') {
-                  onUpdate({ person: p, separatePerson: row.separatePerson ?? 'A' })
-                } else {
-                  onUpdate({ person: p, separatePerson: p })
-                }
-              }}
-            />
-          ) : row.isSeparate ? (
+          {(hideRowPersonTags || !categoryViewLeadUserFirst) && (
             <>
+              {!row.isSeparate && inactiveSeparateButton}
               {separatePersonSelectChip}
               {separateReadonlyChip}
             </>
-          ) : (
-            <PersonBadge person={planPerson} />
           )}
-          {leadPlanPersonEditable && row.isSeparate && (
+          {showPlanLead && !row.isSeparate && inactiveSeparateButton}
+          {showPlanLead && row.isSeparate && (
             <>
               {separatePersonSelectChip}
               {separateReadonlyChip}
             </>
           )}
-        </div>
+        </FlexRowCell>
       )}
-      <CustomSelect
-        compact
-        options={FIXED_CATEGORIES}
-        value={row.category}
-        onChange={(v) => !disabled && onUpdate({ category: v })}
-      />
-      <input
-        value={row.description}
-        onChange={(e) => !disabled && onUpdate({ description: e.target.value })}
-        placeholder="항목명"
-        disabled={disabled}
-        style={{ flex: 1, minWidth: 0, ...inputBaseStyle }}
-      />
-      {categoryViewLeadUserFirst ? (
-        !row.isSeparate && inactiveSeparateButton
+      {!hideRowPersonTags && categoryViewLeadUserFirst && (
+        narrow ? (
+          !row.isSeparate ? (
+            <FlexRowCell narrow={narrow} mobileStyle={{ flex: '0 0 auto', alignSelf: 'center' }}>
+              <div
+                style={{
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 6,
+                  minHeight: ROW_CHIP_HEIGHT,
+                }}
+              >
+                <PersonBadge person={planPerson} />
+              </div>
+            </FlexRowCell>
+          ) : null
+        ) : (
+          <FlexRowCell narrow={false} mobileStyle={{}}>
+            <div
+              style={{
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 6,
+                minHeight: ROW_CHIP_HEIGHT,
+              }}
+            >
+              {row.isSeparate ? (
+                <>
+                  {separatePersonSelectChip}
+                  {separateReadonlyChip}
+                </>
+              ) : (
+                <PersonBadge person={planPerson} />
+              )}
+            </div>
+          </FlexRowCell>
+        )
+      )}
+      {narrow ? (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            flex: '1 1 100%',
+            minWidth: 0,
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+          }}
+        >
+          {dragHandle && (
+            <div style={{ flexShrink: 0, cursor: disabled ? 'default' : 'grab' }}>{dragHandle}</div>
+          )}
+          <div style={{ flex: '0 0 auto', width: CATEGORY_SELECT_TRIGGER_WIDTH }}>
+            <CustomSelect
+              compact
+              compactFill
+              options={FIXED_CATEGORIES}
+              value={row.category}
+              onChange={(v) => !disabled && onUpdate({ category: v })}
+              triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
+            />
+          </div>
+          <input
+            value={row.description}
+            onChange={(e) => !disabled && onUpdate({ description: e.target.value })}
+            placeholder="항목명"
+            disabled={disabled}
+            style={descInputStyle}
+          />
+        </div>
       ) : (
         <>
-          {!row.isSeparate && inactiveSeparateButton}
-          {separatePersonSelectChip}
-          {separateReadonlyChip}
+          <CustomSelect
+            compact
+            options={FIXED_CATEGORIES}
+            value={row.category}
+            onChange={(v) => !disabled && onUpdate({ category: v })}
+            triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
+          />
+          <input
+            value={row.description}
+            onChange={(e) => !disabled && onUpdate({ description: e.target.value })}
+            placeholder="항목명"
+            disabled={disabled}
+            style={descInputStyle}
+          />
         </>
       )}
+      {!narrow && (hideRowPersonTags || !categoryViewLeadUserFirst) ? (
+        <FlexRowCell
+          narrow={narrow}
+          mobileStyle={{
+            flex: '1 1 30%',
+            minWidth: 0,
+            maxWidth: '100%',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 6,
+            alignItems: 'center',
+            alignSelf: 'center',
+          }}
+        >
+          <>
+            {!row.isSeparate && inactiveSeparateButton}
+            {separatePersonSelectChip}
+            {separateReadonlyChip}
+          </>
+        </FlexRowCell>
+      ) : !narrow && showPlanLead && !row.isSeparate ? (
+        <FlexRowCell narrow={narrow} mobileStyle={{ flex: '0 0 auto', alignSelf: 'center' }}>
+          {inactiveSeparateButton}
+        </FlexRowCell>
+      ) : null}
       {showPayDay && (
-        <DaySelect
-          value={row.payDay}
-          onChange={(v) => !disabled && onUpdate({ payDay: v })}
-          disabled={disabled}
-          compact
-        />
+        <FlexRowCell narrow={narrow} mobileStyle={{ flex: '1 1 30%', minWidth: 0, maxWidth: '100%' }}>
+          <DaySelect
+            value={row.payDay}
+            onChange={(v) => !disabled && onUpdate({ payDay: v })}
+            disabled={disabled}
+            compact
+            fillWidth={narrow}
+          />
+        </FlexRowCell>
       )}
-      <div style={{ width: AMOUNT_INPUT_WIDTH, minWidth: AMOUNT_INPUT_WIDTH, flexShrink: 0 }}>
-        <AmountInput
-          value={String(row.amount)}
-          onChange={(v) => !disabled && onUpdate({ amount: Number(v.replace(/,/g, '')) || 0 })}
-          disabled={disabled}
-        />
-      </div>
-      {actionSlot}
+      <FlexRowCell narrow={narrow} mobileStyle={{ flex: '1 1 30%', minWidth: 100, maxWidth: '100%' }}>
+        <div style={amountWrapStyle}>
+          <AmountInput
+            value={String(row.amount)}
+            onChange={(v) => !disabled && onUpdate({ amount: Number(v.replace(/,/g, '')) || 0 })}
+            disabled={disabled}
+          />
+        </div>
+      </FlexRowCell>
+      <FlexRowCell narrow={narrow} mobileStyle={{ flex: '0 0 auto', alignSelf: 'center' }}>
+        {actionSlot}
+      </FlexRowCell>
     </div>
   )
 }

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <g fill="none" stroke="#94A3B8" stroke-width="0.35" opacity="0.14">
+    <path d="M0 30 Q30 20 60 30 T120 30"/>
+    <path d="M0 60 Q30 50 60 60 T120 60"/>
+    <path d="M0 90 Q30 80 60 90 T120 90"/>
+    <path d="M30 0 Q20 30 30 60 T30 120"/>
+    <path d="M60 0 Q50 30 60 60 T60 120"/>
+    <path d="M90 0 Q80 30 90 60 T90 120"/>
+  </g>
+</svg>

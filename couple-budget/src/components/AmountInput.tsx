@@ -1,5 +1,19 @@
-import { useRef } from 'react'
-import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER } from '@/styles/formControls'
+import { useLayoutEffect, useRef } from 'react'
+import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE } from '@/styles/formControls'
+import { JELLY, jellyInputSurface } from '@/styles/jellyGlass'
+
+/** 포맷된 문자열에서 왼쪽부터 `digitOffset`개의 숫자 뒤에 해당하는 문자 인덱스(커서 위치) */
+function cursorIndexAfterDigitOffset(formatted: string, digitOffset: number): number {
+  if (digitOffset <= 0) return 0
+  let n = 0
+  for (let i = 0; i < formatted.length; i++) {
+    if (/\d/.test(formatted[i])) {
+      n += 1
+      if (n === digitOffset) return i + 1
+    }
+  }
+  return formatted.length
+}
 
 interface AmountInputProps {
   value: string
@@ -8,23 +22,43 @@ interface AmountInputProps {
   disabled?: boolean
   /** 미지정 시 `INPUT_HEIGHT` */
   height?: number
+  /** `filled`: 면 채움 배경(모달·항목 추가 등) */
+  variant?: 'default' | 'filled'
 }
 
-export function AmountInput({ value, onChange, placeholder = '0', disabled, height: heightProp }: AmountInputProps) {
+export function AmountInput({
+  value,
+  onChange,
+  placeholder = '0',
+  disabled,
+  height: heightProp,
+  variant = 'default',
+}: AmountInputProps) {
   const height = heightProp ?? INPUT_HEIGHT
   const inputRef = useRef<HTMLInputElement>(null)
+  /** 다음 렌더 후 커서를 놓을 “커서 왼쪽 숫자 개수” (콤마 포맷 반영) */
+  const restoreDigitOffsetRef = useRef<number | null>(null)
   const raw = value.replace(/,/g, '')
   const displayValue = raw ? Number(raw).toLocaleString('ko-KR') : ''
 
+  useLayoutEffect(() => {
+    const el = inputRef.current
+    const off = restoreDigitOffsetRef.current
+    if (el == null || off === null || disabled) return
+    restoreDigitOffsetRef.current = null
+    const maxDigits = (displayValue.match(/\d/g) ?? []).length
+    const clamped = Math.max(0, Math.min(off, maxDigits))
+    const pos = cursorIndexAfterDigitOffset(displayValue, clamped)
+    el.setSelectionRange(pos, pos)
+  }, [displayValue, disabled])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/[^0-9]/g, '')
+    const inputVal = e.target.value
+    const sel = e.target.selectionStart ?? inputVal.length
+    const digitsBeforeCursor = [...inputVal.slice(0, sel)].filter((c) => /\d/.test(c)).length
+    const digits = inputVal.replace(/\D/g, '')
+    restoreDigitOffsetRef.current = digitsBeforeCursor
     onChange(digits)
-    setTimeout(() => {
-      if (inputRef.current) {
-        const len = inputRef.current.value.length
-        inputRef.current.setSelectionRange(len, len)
-      }
-    }, 0)
   }
 
   return (
@@ -49,15 +83,22 @@ export function AmountInput({ value, onChange, placeholder = '0', disabled, heig
           width: '100%',
           height,
           padding: '0 38px 0 12px',
-          border: INPUT_BORDER,
           borderRadius: INPUT_BORDER_RADIUS,
           fontSize: INPUT_FONT_SIZE,
-          color: '#232d3c',
           fontFamily: 'inherit',
           outline: 'none',
-          background: '#fff',
           textAlign: 'right',
           boxSizing: 'border-box',
+          ...(variant === 'filled'
+            ? {
+                background: JELLY.surfaceInput,
+                border: JELLY.innerBorderSoft,
+                boxShadow: 'none',
+              }
+            : {
+                ...jellyInputSurface,
+              }),
+          color: '#232d3c',
         }}
       />
       <span

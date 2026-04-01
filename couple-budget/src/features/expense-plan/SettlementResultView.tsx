@@ -1,6 +1,7 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import { PRIMARY, allowanceValueColor, settingsSectionCardStyle } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
+import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { SUB_CHART_COLORS, SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
 
 const CHART_COLORS = SUB_CHART_COLORS
@@ -17,35 +18,20 @@ function compositionSegmentColor(c: { label: string; amount: number }): string {
   return 'oklch(0.75 0.04 250 / 1)'
 }
 
-/** 세그먼트 위 광택·아래 음영 (베이스 컬러는 backgroundColor) */
-const segmentGlossLayers =
-  'linear-gradient(180deg, rgba(255,255,255,0.52) 0%, rgba(255,255,255,0.18) 18%, rgba(255,255,255,0.04) 38%, transparent 52%), linear-gradient(180deg, transparent 58%, rgba(15,23,42,0.1) 100%)'
-
 const incomeBarOuterStyle: CSSProperties = {
   width: '100%',
-  padding: 3,
-  borderRadius: JELLY.radiusLg,
-  background: 'linear-gradient(145deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.12) 45%, rgba(186,230,253,0.25) 100%)',
-  boxShadow: `
-    0 4px 16px rgba(14, 165, 233, 0.12),
-    0 12px 40px rgba(99, 102, 241, 0.08),
-    inset 0 1px 0 rgba(255,255,255,0.75),
-    inset 0 -1px 0 rgba(255,255,255,0.2)
-  `,
-  border: JELLY.innerBorderSoft,
-  backdropFilter: JELLY.blur,
-  WebkitBackdropFilter: JELLY.blur,
   boxSizing: 'border-box',
 }
 
 const incomeBarTrackStyle: CSSProperties = {
   display: 'flex',
   width: '100%',
-  height: 46,
-  borderRadius: JELLY.radiusLg - 3,
+  height: 40,
+  borderRadius: 9999,
   overflow: 'hidden',
-  boxShadow: 'inset 0 2px 6px rgba(15, 23, 42, 0.08), inset 0 0 0 1px rgba(255,255,255,0.35)',
-  background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 100%)',
+  background: '#f3f4f6',
+  border: '1px solid rgba(15, 23, 42, 0.06)',
+  boxSizing: 'border-box',
 }
 
 const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
@@ -297,22 +283,13 @@ function IncomeStackedBar(props: { chartData: { label: string; amount: number; p
     )
   }
 
-  let lastPositiveIdx = -1
-  for (let i = chartData.length - 1; i >= 0; i--) {
-    if (chartData[i].amount > 0) {
-      lastPositiveIdx = i
-      break
-    }
-  }
-
   return (
     <div style={incomeBarOuterStyle}>
       <div style={incomeBarTrackStyle}>
-        {chartData.map((c, idx) => {
+        {chartData.map((c) => {
           const w = Math.max(0, Math.min(100, (c.amount / totalIncome) * 100))
           const showPct = w >= 6
           const base = compositionSegmentColor(c)
-          const isLastVisible = idx === lastPositiveIdx
           return (
             <div
               key={c.label}
@@ -322,32 +299,23 @@ function IncomeStackedBar(props: { chartData: { label: string; amount: number; p
                 minWidth: w > 0 && w < 0.5 ? 2 : 0,
                 flexShrink: 0,
                 backgroundColor: base,
-                backgroundImage: segmentGlossLayers,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxSizing: 'border-box',
                 position: 'relative',
-                boxShadow: isLastVisible
-                  ? 'none'
-                  : 'inset -1px 0 0 rgba(255,255,255,0.55), 2px 0 8px rgba(255,255,255,0.12)',
               }}
             >
               {showPct ? (
                 <span
                   style={{
                     fontSize: 11,
-                    fontWeight: 800,
-                    letterSpacing: '0.02em',
-                    color: 'rgba(30, 41, 59, 0.92)',
+                    fontWeight: 700,
+                    color: '#fff',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     padding: '0 6px',
-                    position: 'relative',
-                    zIndex: 1,
-                    textShadow:
-                      '0 1px 0 rgba(255,255,255,0.95), 0 0 10px rgba(255,255,255,0.65), 0 1px 2px rgba(255,255,255,0.4)',
                   }}
                 >
                   {Math.round(c.pct)}%
@@ -366,6 +334,7 @@ export function SettlementResultView({
   personAName,
   personBName,
 }: SettlementResultViewProps) {
+  const narrow = useNarrowLayout()
   const { userSummary, chartData, fixedDepositByUser, totalIncome } = summary
   const fixedDepositBreakdown = summary.fixedDepositBreakdown ?? deriveFixedDepositBreakdown(summary)
   const sep5090 = summary.separateExpenseCard5090
@@ -426,15 +395,11 @@ export function SettlementResultView({
             <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span
                 style={{
-                  width: 11,
-                  height: 11,
+                  width: 10,
+                  height: 10,
                   borderRadius: '50%',
                   backgroundColor: compositionSegmentColor(c),
-                  backgroundImage:
-                    'linear-gradient(145deg, rgba(255,255,255,0.65) 0%, transparent 52%), linear-gradient(210deg, transparent 40%, rgba(15,23,42,0.08) 100%)',
                   flexShrink: 0,
-                  boxShadow:
-                    'inset 0 1px 2px rgba(255,255,255,0.75), 0 1px 3px rgba(15, 23, 42, 0.1), inset 0 -1px 1px rgba(15,23,42,0.06)',
                 }}
               />
               <span style={{ color: c.label === '용돈' ? allowanceValueColor(c.amount) : JELLY.text }}>
@@ -601,7 +566,7 @@ export function SettlementResultView({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'repeat(2, minmax(0, 1fr))',
             gap: 14,
             alignItems: 'start',
           }}
@@ -620,7 +585,7 @@ export function SettlementResultView({
               style={{
                 minWidth: 0,
                 ...settingsSectionCardStyle,
-                borderLeft: `4px solid ${CHART_COLORS[idx % CHART_COLORS.length]}`,
+                borderTop: `4px solid ${CHART_COLORS[idx % CHART_COLORS.length]}`,
               }}
             >
               <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text, marginBottom: 12 }}>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useAppStore } from '@/store/useAppStore'
+import { useAppStore, YEAR_PICKER_MIN, getYearPickerYearOptions } from '@/store/useAppStore'
 import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
 import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
 import { UserChipColorSelect } from '@/components/UserChipColorSelect'
@@ -14,17 +14,20 @@ import { CustomSelect } from '@/components/CustomSelect'
 import { FixedExpenseRow } from '@/components/FixedExpenseRow'
 import { InvestRow } from '@/components/InvestRow'
 import { GroupHeaderChip } from '@/components/GroupHeaderChip'
+import { Modal } from '@/components/Modal'
 import {
   inputBaseStyle,
+  CATEGORY_SELECT_TRIGGER_WIDTH,
   PRIMARY,
   settingsSectionCardStyle,
-  SETTINGS_TEMPLATE_ROW_HEIGHT,
-  settingsTemplateAddRowInputStyle,
-  settingsTemplateAddItemButtonBase,
+  stickySettingsSectionTitleWrapStyle,
+  stickySettingsTemplateGroupHeaderStyle,
 } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
+import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { isSupabaseConfigured } from '@/data/supabase'
 import { saveAllToSupabase } from '@/data/saveAllToSupabase'
+import { downloadYearBudgetExcel } from '@/lib/yearExcelExport'
 import type { Person } from '@/types'
 import type { FixedTemplate, InvestTemplate } from '@/types'
 
@@ -153,6 +156,7 @@ function SortableInvestRow(props: {
 }
 
 function UserSettings() {
+  const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
   const updateSettings = useAppStore((s) => s.updateSettings)
   const [draft, setDraft] = useState(settings)
@@ -185,8 +189,10 @@ function UserSettings() {
   return (
     <>
     <div style={settingsSectionCardStyle}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 14 }}>유저 설정</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 14 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>유저 설정</div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr', gap: 24 }}>
         {/* 유저 1 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -287,8 +293,8 @@ function UserSettings() {
 
 const RATIO_OPTIONS = [
   { value: '50:50' as const, label: '50:50' },
-  { value: 'custom' as const, label: '사용자 설정에 따라' },
   { value: 'income' as const, label: '수입 %에 따라' },
+  { value: 'custom' as const, label: '사용자 설정에 따라' },
 ]
 
 function SharedLivingCostSettings() {
@@ -298,7 +304,9 @@ function SharedLivingCostSettings() {
 
   return (
     <div style={settingsSectionCardStyle}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text, marginBottom: 14 }}>공동 생활비</div>
+      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 14 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text }}>공동 생활비</div>
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div>
           <div style={{ fontSize: 12, marginBottom: 4, color: JELLY.textMuted }}>월 공동 생활비 (원)</div>
@@ -464,8 +472,18 @@ function FixedTemplateSettings() {
   const [amount, setAmount] = useState('')
   const [defaultSeparate, setDefaultSeparate] = useState(false)
   const [defaultSeparatePerson, setDefaultSeparatePerson] = useState<'A' | 'B'>('A')
+  const [addFixedOpen, setAddFixedOpen] = useState(false)
 
-  const handleAdd = () => {
+  const resetFixedAddForm = () => {
+    setPerson('공금')
+    setCategory('관리비')
+    setDesc('')
+    setAmount('')
+    setDefaultSeparate(false)
+    setDefaultSeparatePerson('A')
+  }
+
+  const handleFixedAdd = () => {
     if (!desc) return
     addTemplate({
       person,
@@ -475,9 +493,11 @@ function FixedTemplateSettings() {
       defaultSeparate: person === '공금' ? defaultSeparate : undefined,
       defaultSeparatePerson: person === '공금' && defaultSeparate ? defaultSeparatePerson : undefined,
     })
-    setDesc('')
-    setAmount('')
+    resetFixedAddForm()
+    setAddFixedOpen(false)
   }
+
+  const modalSepH = 34
 
   const grouped = useMemo(() => {
     const acc = templatesRaw.reduce((a, t) => {
@@ -496,11 +516,39 @@ function FixedTemplateSettings() {
 
   return (
     <div style={settingsSectionCardStyle}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>고정지출 템플릿</div>
+      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 14 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>고정지출 템플릿</div>
+          <button
+            type="button"
+            onClick={() => {
+              resetFixedAddForm()
+              setAddFixedOpen(true)
+            }}
+            style={{
+              fontSize: 12,
+              padding: '6px 12px',
+              borderRadius: JELLY.radiusControl,
+              border: '1px solid #e5e7eb',
+              background: '#f9fafb',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            + 항목 추가
+          </button>
+        </div>
       </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
-          {PERSON_ORDER.filter((p) => (grouped[p]?.length ?? 0) > 0).map((personKey) => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+        {PERSON_ORDER.filter((p) => (grouped[p]?.length ?? 0) > 0).map((personKey) => (
             <DndContext
               key={personKey}
               sensors={sensors}
@@ -512,18 +560,20 @@ function FixedTemplateSettings() {
               }}
             >
               <div>
-                <GroupHeaderChip
-                  label={PERSON_LABELS[personKey]}
-                  total={grouped[personKey]?.reduce((s, t) => s + t.defaultAmount, 0)}
-                  color={
-                    personKey === '공금'
-                      ? '#111827'
-                      : personKey === 'A'
-                        ? settings.user1Color
-                        : settings.user2Color
-                  }
-                  useUserChipStyle={personKey !== '공금'}
-                />
+                <div style={stickySettingsTemplateGroupHeaderStyle}>
+                  <GroupHeaderChip
+                    label={PERSON_LABELS[personKey]}
+                    total={grouped[personKey]?.reduce((s, t) => s + t.defaultAmount, 0)}
+                    color={
+                      personKey === '공금'
+                        ? '#111827'
+                        : personKey === 'A'
+                          ? settings.user1Color
+                          : settings.user2Color
+                    }
+                    useUserChipStyle={personKey !== '공금'}
+                  />
+                </div>
                 <SortableContext items={grouped[personKey]?.map((t) => t.id) ?? []} strategy={verticalListSortingStrategy}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {grouped[personKey]?.map((tpl) => (
@@ -541,104 +591,148 @@ function FixedTemplateSettings() {
                 </SortableContext>
               </div>
             </DndContext>
-          ))}
-        </div>
-      <div
-        style={{
-          paddingTop: 12,
-          borderTop: '1px solid #e5e7eb',
-          display: 'flex',
-          flexWrap: 'nowrap',
-          gap: 8,
-          alignItems: 'center',
-          minWidth: 0,
-          overflowX: 'auto',
-        }}
-      >
-        <PersonToggle value={person} onChange={(p) => setPerson(p)} compact />
-        {person === '공금' && (() => {
-          const { bg: chipBg, color: chipColor } = getPersonStyle(defaultSeparatePerson, settings)
-          const nameLabel = defaultSeparatePerson === 'A' ? personAName : personBName
-          if (!defaultSeparate) {
-            return (
-              <button
-                type="button"
-                onClick={() => setDefaultSeparate(true)}
-                title="별도 정산"
-                style={{
-                  height: SETTINGS_TEMPLATE_ROW_HEIGHT,
-                  minHeight: SETTINGS_TEMPLATE_ROW_HEIGHT,
-                  padding: '0 12px',
-                  borderRadius: JELLY.radiusControl,
-                  border: '1px solid #e5e7eb',
-                  background: '#f9fafb',
-                  color: '#9ca3af',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  flexShrink: 0,
-                  boxSizing: 'border-box',
-                  fontFamily: 'inherit',
-                }}
-              >
-                ↗
-              </button>
-            )
-          }
-          return (
-            <CustomSelect
-              compact
-              compactAutoWidth
-              compactHeight={SETTINGS_TEMPLATE_ROW_HEIGHT}
-              options={[personAName, personBName]}
-              value={nameLabel}
-              onChange={(v) => setDefaultSeparatePerson(v === personAName ? 'A' : 'B')}
-              placeholder="선택"
-              customBgColor={chipColor}
-              customChipBg={chipBg}
-              title="별도 정산 담당 선택 · ↗ 누르면 해제"
-              compactLeading={<span style={{ color: '#fff', fontSize: 12, lineHeight: 1 }}>↗</span>}
-              onCompactLeadingClick={() => setDefaultSeparate(false)}
-              compactCaretColor="#fff"
-            />
-          )
-        })()}
-        <CustomSelect
-          height={SETTINGS_TEMPLATE_ROW_HEIGHT}
-          options={FIXED_CATEGORIES}
-          value={category}
-          onChange={(v) => setCategory(v)}
-          placeholder="카테고리"
-        />
-        <input
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          placeholder="항목명"
-          style={{ width: 120, minWidth: 0, flex: 1, ...settingsTemplateAddRowInputStyle }}
-        />
-        <div style={{ width: 150, minWidth: 150, flexShrink: 0 }}>
-          <AmountInput value={amount} onChange={(v) => setAmount(v)} height={SETTINGS_TEMPLATE_ROW_HEIGHT} />
-        </div>
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={!desc}
-          style={{
-            ...settingsTemplateAddItemButtonBase,
-            background: !desc ? '#e5e7eb' : PRIMARY,
-            color: !desc ? '#9ca3af' : '#fff',
-            cursor: !desc ? 'not-allowed' : 'pointer',
-          }}
-        >
-          + 항목 추가
-        </button>
+        ))}
       </div>
       <div style={{ marginTop: 10, fontSize: 11, color: '#6b7280' }}>
         지출 계획 화면의 고정지출 카드에 반영됩니다.
       </div>
+
+      <Modal
+        open={addFixedOpen}
+        title="고정지출 항목 추가"
+        onClose={() => {
+          setAddFixedOpen(false)
+          resetFixedAddForm()
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
+            <PersonToggle
+              value={person}
+              onChange={(p) => {
+                setPerson(p)
+                if (p !== '공금') setDefaultSeparate(false)
+              }}
+              compact
+            />
+          </div>
+          {person === '공금' && (() => {
+            const { bg: chipBg, color: chipColor } = getPersonStyle(defaultSeparatePerson, settings)
+            const nameLabel = defaultSeparatePerson === 'A' ? personAName : personBName
+            if (!defaultSeparate) {
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => setDefaultSeparate(true)}
+                    title="별도 정산"
+                    style={{
+                      height: modalSepH,
+                      minHeight: modalSepH,
+                      padding: '0 12px',
+                      borderRadius: JELLY.radiusControl,
+                      border: '1px solid #e5e7eb',
+                      background: '#f9fafb',
+                      color: '#9ca3af',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      flexShrink: 0,
+                      boxSizing: 'border-box',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    ↗
+                  </button>
+                  <span style={{ fontSize: 12, color: '#6b7280' }}>별도 정산(공금 항목)</span>
+                </div>
+              )
+            }
+            return (
+              <CustomSelect
+                compact
+                compactAutoWidth
+                compactHeight={modalSepH}
+                options={[personAName, personBName]}
+                value={nameLabel}
+                onChange={(v) => setDefaultSeparatePerson(v === personAName ? 'A' : 'B')}
+                placeholder="선택"
+                customBgColor={chipColor}
+                customChipBg={chipBg}
+                title="별도 정산 담당 선택 · ↗ 누르면 해제"
+                compactLeading={<span style={{ color: '#fff', fontSize: 12, lineHeight: 1 }}>↗</span>}
+                onCompactLeadingClick={() => setDefaultSeparate(false)}
+                compactCaretColor="#fff"
+              />
+            )
+          })()}
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+            <CustomSelect
+              options={FIXED_CATEGORIES}
+              value={category}
+              onChange={(v) => setCategory(v)}
+              placeholder="카테고리 선택"
+              triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+            <input
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+              placeholder="예: 관리비"
+              style={{ width: '100%', ...inputBaseStyle }}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+            <div style={{ width: 150, minWidth: 150 }}>
+              <AmountInput variant="filled" value={amount} onChange={(v) => setAmount(v)} />
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
+          <button
+            type="button"
+            onClick={() => {
+              setAddFixedOpen(false)
+              resetFixedAddForm()
+            }}
+            style={{
+              padding: '8px 14px',
+              borderRadius: JELLY.radiusControl,
+              border: '1px solid #e5e7eb',
+              background: '#fff',
+              fontSize: 13,
+              cursor: 'pointer',
+            }}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={handleFixedAdd}
+            disabled={!desc}
+            style={{
+              padding: '8px 16px',
+              borderRadius: JELLY.radiusControl,
+              border: 'none',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: !desc ? 'not-allowed' : 'pointer',
+              background: !desc ? '#e5e7eb' : '#111827',
+              color: !desc ? '#9ca3af' : '#fff',
+            }}
+          >
+            추가
+          </button>
+        </div>
+      </Modal>
     </div>
   )
 }
@@ -669,8 +763,17 @@ function InvestTemplateSettings() {
   const [amount, setAmount] = useState('')
   const [maturityDate, setMaturityDate] = useState('')
   const addFormDateRef = useRef<HTMLInputElement>(null)
+  const [addInvestOpen, setAddInvestOpen] = useState(false)
 
-  const handleAdd = () => {
+  const resetInvestAddForm = () => {
+    setPerson('A')
+    setCategory('저축')
+    setDesc('')
+    setAmount('')
+    setMaturityDate('')
+  }
+
+  const handleInvestAdd = () => {
     if (!desc || !amount) return
     addTemplate({
       person,
@@ -679,9 +782,8 @@ function InvestTemplateSettings() {
       defaultAmount: Number(amount.replace(/,/g, '')) || 0,
       maturityDate: maturityDate || undefined,
     })
-    setDesc('')
-    setAmount('')
-    setMaturityDate('')
+    resetInvestAddForm()
+    setAddInvestOpen(false)
   }
 
   const grouped = useMemo(() => {
@@ -702,7 +804,37 @@ function InvestTemplateSettings() {
 
   return (
     <div style={settingsSectionCardStyle}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 14 }}>투자·저축 템플릿</div>
+      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 14 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>투자·저축 템플릿</div>
+          <button
+            type="button"
+            onClick={() => {
+              resetInvestAddForm()
+              setAddInvestOpen(true)
+            }}
+            style={{
+              fontSize: 12,
+              padding: '6px 12px',
+              borderRadius: JELLY.radiusControl,
+              border: '1px solid #e5e7eb',
+              background: '#f9fafb',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            + 항목 추가
+          </button>
+        </div>
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
         {INVEST_PERSON_ORDER.filter((p) => (grouped[p]?.length ?? 0) > 0).map((personKey) => (
           <DndContext
@@ -716,12 +848,14 @@ function InvestTemplateSettings() {
             }}
           >
             <div>
-              <GroupHeaderChip
-                label={PERSON_LABELS[personKey]}
-                total={grouped[personKey]?.reduce((s, t) => s + t.defaultAmount, 0)}
-                color={personKey === 'A' ? settings.user1Color : settings.user2Color}
-                useUserChipStyle
-              />
+              <div style={stickySettingsTemplateGroupHeaderStyle}>
+                <GroupHeaderChip
+                  label={PERSON_LABELS[personKey]}
+                  total={grouped[personKey]?.reduce((s, t) => s + t.defaultAmount, 0)}
+                  color={personKey === 'A' ? settings.user1Color : settings.user2Color}
+                  useUserChipStyle
+                />
+              </div>
               <SortableContext items={grouped[personKey]?.map((t) => t.id) ?? []} strategy={verticalListSortingStrategy}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {grouped[personKey]?.map((tpl) => (
@@ -743,99 +877,200 @@ function InvestTemplateSettings() {
           </DndContext>
         ))}
       </div>
-      <div
-        style={{
-          paddingTop: 12,
-          borderTop: '1px solid #e5e7eb',
-          display: 'flex',
-          flexWrap: 'nowrap',
-          gap: 8,
-          alignItems: 'center',
-          minWidth: 0,
-          overflowX: 'auto',
-        }}
-      >
-        <PersonToggle value={person} onChange={(p) => setPerson(p)} options={['A', 'B']} compact />
-        <CustomSelect
-          height={SETTINGS_TEMPLATE_ROW_HEIGHT}
-          options={INVEST_CATEGORIES}
-          value={category}
-          onChange={(v) => setCategory(v)}
-          placeholder="카테고리"
-        />
-        <input
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          placeholder="항목명"
-          style={{ width: 120, minWidth: 0, flex: 1, ...settingsTemplateAddRowInputStyle }}
-        />
-        <div style={{ width: 150, minWidth: 150, flexShrink: 0 }}>
-          <AmountInput value={amount} onChange={(v) => setAmount(v)} height={SETTINGS_TEMPLATE_ROW_HEIGHT} />
-        </div>
-        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, position: 'relative' }}>
-          <input
-            ref={addFormDateRef}
-            type="date"
-            value={maturityDate}
-            onChange={(e) => setMaturityDate(e.target.value)}
-            style={{ position: 'absolute', opacity: 0, width: 1, height: 1, left: 0, top: 0, pointerEvents: 'none' }}
-            tabIndex={-1}
-          />
-          <button
-            type="button"
-            onClick={() => {
-              const el = addFormDateRef.current
-              if (el) {
-                if (typeof el.showPicker === 'function') el.showPicker()
-                else el.click()
-              }
-            }}
-            title="만기일 선택"
-            style={{
-              height: SETTINGS_TEMPLATE_ROW_HEIGHT,
-              minHeight: SETTINGS_TEMPLATE_ROW_HEIGHT,
-              minWidth: SETTINGS_TEMPLATE_ROW_HEIGHT,
-              padding: 0,
-              border: JELLY.innerBorderSoft,
-              borderRadius: JELLY.radiusControl,
-              background: 'rgba(255,255,255,0.25)',
-              backdropFilter: JELLY.blur,
-              WebkitBackdropFilter: JELLY.blur,
-              color: JELLY.textMuted,
-              fontSize: 14,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              boxSizing: 'border-box',
-              flexShrink: 0,
-            }}
-          >
-            📅
-          </button>
-          {maturityDate && (
-            <span style={{ fontSize: 13, color: '#111827', minWidth: 72 }}>
-              {formatMaturityDate(maturityDate)}
-            </span>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={!desc || !amount}
-          style={{
-            ...settingsTemplateAddItemButtonBase,
-            background: !desc || !amount ? '#e5e7eb' : PRIMARY,
-            color: !desc || !amount ? '#9ca3af' : '#fff',
-            cursor: !desc || !amount ? 'not-allowed' : 'pointer',
-          }}
-        >
-          + 항목 추가
-        </button>
-      </div>
       <div style={{ marginTop: 10, fontSize: 11, color: '#6b7280' }}>
         지출 계획 화면의 투자·저축 카드 기본값으로 사용됩니다.
       </div>
+
+      <Modal
+        open={addInvestOpen}
+        title="투자·저축 항목 추가"
+        onClose={() => {
+          setAddInvestOpen(false)
+          resetInvestAddForm()
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
+            <PersonToggle value={person} onChange={(p) => setPerson(p)} options={['A', 'B']} compact />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+            <CustomSelect
+              options={INVEST_CATEGORIES}
+              value={category}
+              onChange={(v) => setCategory(v)}
+              placeholder="카테고리"
+              triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+            <input
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+              placeholder="예: 적금, ETF"
+              style={{ width: '100%', ...inputBaseStyle }}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+            <div style={{ width: 150, minWidth: 150 }}>
+              <AmountInput variant="filled" value={amount} onChange={(v) => setAmount(v)} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', position: 'relative' }}>
+              <input
+                ref={addFormDateRef}
+                type="date"
+                value={maturityDate}
+                onChange={(e) => setMaturityDate(e.target.value)}
+                style={{ position: 'absolute', opacity: 0, width: 1, height: 1, left: 0, top: 0, pointerEvents: 'none' }}
+                tabIndex={-1}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const el = addFormDateRef.current
+                  if (el) {
+                    if (typeof el.showPicker === 'function') el.showPicker()
+                    else el.click()
+                  }
+                }}
+                title="만기일 선택"
+                style={{
+                  width: 40,
+                  height: 40,
+                  minHeight: 40,
+                  padding: 0,
+                  border: JELLY.innerBorderSoft,
+                  borderRadius: JELLY.radiusControl,
+                  background: JELLY.surfaceInput,
+                  color: JELLY.textMuted,
+                  fontSize: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box',
+                  flexShrink: 0,
+                }}
+              >
+                📅
+              </button>
+              {maturityDate ? (
+                <span style={{ fontSize: 13, color: '#111827', minWidth: 72 }}>{formatMaturityDate(maturityDate)}</span>
+              ) : null}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
+          <button
+            type="button"
+            onClick={() => {
+              setAddInvestOpen(false)
+              resetInvestAddForm()
+            }}
+            style={{
+              padding: '8px 14px',
+              borderRadius: JELLY.radiusControl,
+              border: '1px solid #e5e7eb',
+              background: '#fff',
+              fontSize: 13,
+              cursor: 'pointer',
+            }}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={handleInvestAdd}
+            disabled={!desc || !amount}
+            style={{
+              padding: '8px 16px',
+              borderRadius: JELLY.radiusControl,
+              border: 'none',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: !desc || !amount ? 'not-allowed' : 'pointer',
+              background: !desc || !amount ? '#e5e7eb' : '#111827',
+              color: !desc || !amount ? '#9ca3af' : '#fff',
+            }}
+          >
+            추가
+          </button>
+        </div>
+      </Modal>
+    </div>
+  )
+}
+
+function YearExcelExportSection() {
+  const currentYearMonth = useAppStore((s) => s.currentYearMonth)
+  const yearPickerMaxYear = useAppStore((s) => s.yearPickerMaxYear)
+  const defaultYear = Number(String(currentYearMonth).split('-')[0]) || YEAR_PICKER_MIN
+  const [exportYear, setExportYear] = useState(defaultYear)
+  const [exporting, setExporting] = useState(false)
+  const [exportErr, setExportErr] = useState<string | null>(null)
+
+  const yearOptions = useMemo(
+    () => getYearPickerYearOptions(yearPickerMaxYear, exportYear),
+    [yearPickerMaxYear, exportYear],
+  )
+
+  return (
+    <div style={settingsSectionCardStyle}>
+      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 8 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text }}>엑셀보내기</div>
+      </div>
+      <p style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.55, margin: '12px 0 12px' }}>
+        선택한 연도의 수입·고정·별도·투자·정산 스냅샷을 한 파일로 받습니다. 맨 앞에 공통 설정 시트가 붙고,{' '}
+        <strong style={{ color: '#111827' }}>데이터가 있는 달만</strong> 월별 시트가 추가됩니다.
+      </p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: JELLY.text }}>
+          <span style={{ color: JELLY.textMuted }}>연도</span>
+          <select
+            value={exportYear}
+            onChange={(e) => setExportYear(Number(e.target.value))}
+            style={{ ...inputBaseStyle, minWidth: 100, height: 38 }}
+          >
+            {yearOptions.map((y) => (
+              <option key={y} value={y}>
+                {y}년
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          disabled={exporting}
+          onClick={() => {
+            setExportErr(null)
+            setExporting(true)
+            void downloadYearBudgetExcel(exportYear)
+              .catch((e) => setExportErr(e instanceof Error ? e.message : String(e)))
+              .finally(() => setExporting(false))
+          }}
+          style={{
+            padding: '10px 18px',
+            borderRadius: JELLY.radiusControl,
+            border: `1px solid ${PRIMARY}`,
+            background: '#fff',
+            color: PRIMARY,
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: exporting ? 'wait' : 'pointer',
+          }}
+        >
+          {exporting ? '만드는 중…' : '엑셀 다운로드'}
+        </button>
+      </div>
+      {exportErr ? (
+        <div style={{ marginTop: 10, fontSize: 13, color: '#b91c1c' }}>{exportErr}</div>
+      ) : null}
     </div>
   )
 }
@@ -870,8 +1105,10 @@ function SupabaseStatus() {
 
   return (
     <div style={settingsSectionCardStyle}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Supabase</div>
-      <div style={{ fontSize: 13, color: isSupabaseConfigured ? '#374151' : '#6b7280', lineHeight: 1.55, marginBottom: 12 }}>
+      <div style={{ ...stickySettingsSectionTitleWrapStyle, paddingBottom: 8 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Supabase</div>
+      </div>
+      <div style={{ fontSize: 13, color: isSupabaseConfigured ? '#374151' : '#6b7280', lineHeight: 1.55, marginTop: 12, marginBottom: 12 }}>
         {isSupabaseConfigured ? (
           <>
             연결됨. 일상적인 입력은 이 기기(로컬)에만 저장되며,{' '}
@@ -930,6 +1167,7 @@ export function SettingsPage() {
         <SharedLivingCostSettings />
         <FixedTemplateSettings />
         <InvestTemplateSettings />
+        <YearExcelExportSection />
         <SupabaseStatus />
       </div>
     </div>

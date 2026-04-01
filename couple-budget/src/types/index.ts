@@ -30,7 +30,7 @@ export interface Investment {
   amount: number
 }
 
-/** `separate_items` 테이블 (supabase-migration-initial-tables.sql)과 동일 구조 */
+/** `separate_items` 테이블 (정규화 스키마 + is_separate 등) */
 export interface SeparateItem {
   id: string
   yearMonth: string
@@ -38,6 +38,8 @@ export interface SeparateItem {
   category: string
   description?: string
   amount: number
+  isSeparate?: boolean
+  separatePerson?: 'A' | 'B'
 }
 
 export interface FixedTemplate {

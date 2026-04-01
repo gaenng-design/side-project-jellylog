@@ -20,6 +20,10 @@ interface CustomSelectProps {
   compactHeight?: number
   /** compact 모드에서 넓이를 텍스트에 맞춤 */
   compactAutoWidth?: boolean
+  /** compact: 부모(플렉스 셀) 너비에 맞춤 — 모바일 줄바꿈 행용 */
+  compactFill?: boolean
+  /** 트리거·패널 기준 너비 고정 (예: 카테고리 `CATEGORY_SELECT_TRIGGER_WIDTH`) */
+  triggerWidth?: number
   /** compact: 트리거 버튼 앞쪽 (예: 별도 정산 ↗). 클릭 시 드롭다운 대신 onCompactLeadingClick */
   compactLeading?: ReactNode
   onCompactLeadingClick?: (e: MouseEvent) => void
@@ -55,6 +59,8 @@ export function CustomSelect({
   height: heightProp,
   compactHeight,
   compactAutoWidth,
+  compactFill,
+  triggerWidth,
   compactLeading,
   onCompactLeadingClick,
   compactCaretColor,
@@ -116,6 +122,7 @@ export function CustomSelect({
   const triggerHeight = compact ? (heightProp ?? compactHeight ?? INPUT_HEIGHT) : (heightProp ?? INPUT_HEIGHT)
 
   const caretColor = compactCaretColor ?? '#6b7280'
+  const fixedTriggerW = triggerWidth != null
   const leadingDividerBg =
     caretColor === '#fff' || caretColor.toLowerCase() === '#ffffff'
       ? 'rgba(255,255,255,0.35)'
@@ -124,7 +131,18 @@ export function CustomSelect({
   if (compact) {
     return (
       <>
-        <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
+        <div
+          ref={ref}
+          style={{
+            position: 'relative',
+            display: fixedTriggerW ? 'inline-block' : compactFill ? 'block' : 'inline-block',
+            width: fixedTriggerW ? triggerWidth : compactFill ? '100%' : undefined,
+            minWidth: fixedTriggerW ? triggerWidth : compactFill ? 0 : undefined,
+            maxWidth: fixedTriggerW ? triggerWidth : undefined,
+            flexShrink: fixedTriggerW ? 0 : undefined,
+            boxSizing: 'border-box',
+          }}
+        >
           <button
             type="button"
             title={title}
@@ -132,7 +150,13 @@ export function CustomSelect({
             style={{
               height: triggerHeight,
               minHeight: triggerHeight,
-              ...(compactAutoWidth ? {} : { minWidth: compactMinWidth, maxWidth: compactMinWidth }),
+              ...(fixedTriggerW
+                ? { width: '100%', minWidth: 0, maxWidth: '100%', boxSizing: 'border-box' as const }
+                : compactFill
+                  ? { width: '100%', minWidth: 0, maxWidth: '100%', boxSizing: 'border-box' as const }
+                  : compactAutoWidth
+                    ? {}
+                    : { minWidth: compactMinWidth, maxWidth: compactMinWidth }),
               padding: compactLeading != null ? '0 10px 0 8px' : '0 10px',
               display: 'inline-flex',
               alignItems: 'center',
@@ -240,7 +264,20 @@ export function CustomSelect({
 
   return (
     <>
-      <div ref={ref} style={{ position: 'relative' }}>
+      <div
+        ref={ref}
+        style={{
+          position: 'relative',
+          ...(fixedTriggerW
+            ? {
+                width: triggerWidth,
+                maxWidth: triggerWidth,
+                flexShrink: 0,
+                boxSizing: 'border-box',
+              }
+            : { width: '100%' }),
+        }}
+      >
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}

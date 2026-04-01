@@ -315,15 +315,17 @@ export async function signOutAndClearHousehold(): Promise<void> {
 }
 
 /**
- * 서버: household_members 만 제거(가계 데이터는 서버에 유지).
+ * 서버: `leave_my_household_membership` — 본인 household_members 행만 제거(동기화 데이터는 유지).
  * 이 기기: 로컬 예산·설정·동기화 키 전부 제거 후 signOut → 새 익명 세션.
  * (Supabase 세션 스토리지 키만 제외 — 제거 시 400 등)
+ *
+ * 가계 데이터까지 서버에서 지우려면 DB의 `delete_my_household` 를 별도로 호출하는 마이그레이션/관리용 RPC 를 쓰면 됩니다.
  */
-export async function deleteHouseholdOnServerAndClearLocal(): Promise<
+export async function leaveHouseholdAndClearLocal(): Promise<
   { ok: true } | { ok: false; error: string }
 > {
   if (!supabase) return { ok: false, error: 'Supabase 클라이언트가 없습니다.' }
-  const { error } = await supabase.rpc('delete_my_household')
+  const { error } = await supabase.rpc('leave_my_household_membership')
   if (error) return { ok: false, error: error.message }
   clearCoupleBudgetLocalDataKeepAuth()
   await signOutAndClearHousehold()

@@ -16,19 +16,43 @@ import type { MonthlySettlement } from '@/store/useSettlementStore'
  * - camelCase(기본): supabase-migration-initial-tables.sql 처럼 "yearMonth" 등 quoted camelCase
  * - snake_case: supabase-migration-normalized-full.sql 의 year_month
  */
-const REPO_COLUMNS = (import.meta.env.VITE_SUPABASE_REPO_COLUMNS as string) || 'camelCase'
+/** 정규화 스키마(supabase-migration-normalized-full)는 snake_case. 구형 quoted camelCase DB만 `VITE_SUPABASE_REPO_COLUMNS=camelCase` */
+const REPO_COLUMNS = ((import.meta.env.VITE_SUPABASE_REPO_COLUMNS as string) || 'snake_case').trim()
 
 /**
- * incomes upsert의 ON CONFLICT 대상 = DB의 UNIQUE 인덱스와 정확히 일치해야 함.
- * Dashboard 등에서 흔한 이름 `incomes_yearmonth_person_category_unique`는 (year_month, person, category)만 쓰는 경우가 많음.
- * 가계별 유니크가 (household_id, year_month, person, category)면 .env에 VITE_SUPABASE_INCOMES_ON_CONFLICT 로 지정.
+ * 초기 스키마(supabase-migration-initial-tables)의 incomes만 "yearMonth" 컬럼인 경우가 있음.
+ * 나머지 테이블은 year_month(snake)인데 incomes만 레거시면 true → upsert 시 yearMonth 키로 보냄.
+ * 장기적으로는 supabase-migration-incomes-rename-year-month.sql 로 컬럼명 통일 권장.
+ */
+const INCOMES_LEGACY_YEAR_MONTH_COLUMN =
+  import.meta.env.VITE_SUPABASE_INCOMES_LEGACY_YEAR_MONTH === 'true' ||
+  import.meta.env.VITE_SUPABASE_INCOMES_LEGACY_YEAR_MONTH === '1'
+
+/**
+ * separate_items 가 예전 quoted 컬럼(yearMonth, separatePerson, isSeparate)만 있을 때.
+ * snake_case 페이로드를 camel 키로 바꿔 upsert (정규화 컬럼이 이미 있으면 false 유지).
+ */
+const SEPARATE_ITEMS_LEGACY_CAMEL =
+  import.meta.env.VITE_SUPABASE_SEPARATE_ITEMS_LEGACY_CAMEL === 'true' ||
+  import.meta.env.VITE_SUPABASE_SEPARATE_ITEMS_LEGACY_CAMEL === '1'
+
+/**
+ * DB에 separate_person / is_separate 컬럼이 아직 없을 때만 임시로 true — 태그 필드는 동기화 안 됨.
+ * Supabase에서 supabase-migration-separate-items-columns.sql 실행 후 끄세요.
+ */
+const SEPARATE_ITEMS_STRIP_EXTENDED_COLUMNS =
+  import.meta.env.VITE_SUPABASE_SEPARATE_ITEMS_STRIP_EXTENDED_COLUMNS === 'true' ||
+  import.meta.env.VITE_SUPABASE_SEPARATE_ITEMS_STRIP_EXTENDED_COLUMNS === '1'
+
+/**
+ * incomes upsert의 ON CONFLICT 대상 = DB의 UNIQUE/PK와 정확히 일치해야 함.
+ * normalized-full·initial-tables 모두 PK는 `id`만 있음 → 기본은 id.
+ * DB에 (household_id, year_month, person, category) 등 복합 유니크를 추가했다면 .env에 VITE_SUPABASE_INCOMES_ON_CONFLICT 로 지정.
  */
 function incomesOnConflictColumns(): string {
   const o = (import.meta.env.VITE_SUPABASE_INCOMES_ON_CONFLICT as string)?.trim()
   if (o) return o
-  return REPO_COLUMNS === 'snake_case'
-    ? 'year_month,person,category'
-    : 'yearMonth,person,category'
+  return 'id'
 }
 
 /**
@@ -74,6 +98,33 @@ function yearMonthOf(r: Record<string, unknown>): string {
   return str(r, 'year_month', 'yearMonth')
 }
 
+/** separate_items upsert 본문: snake ↔ 레거시 camel, 또는 확장 컬럼 제거 */
+function finalizeSeparateItemsPushPayload(p: Record<string, unknown>): Record<string, unknown> {
+  let o = { ...p }
+  if (SEPARATE_ITEMS_STRIP_EXTENDED_COLUMNS) {
+    delete o.separate_person
+    delete o.separatePerson
+    delete o.is_separate
+    delete o.isSeparate
+  }
+  if (SEPARATE_ITEMS_LEGACY_CAMEL && REPO_COLUMNS === 'snake_case') {
+    o = { ...o }
+    if ('year_month' in o) {
+      o.yearMonth = o.year_month
+      delete o.year_month
+    }
+    if ('separate_person' in o) {
+      o.separatePerson = o.separate_person
+      delete o.separate_person
+    }
+    if ('is_separate' in o) {
+      o.isSeparate = o.is_separate
+      delete o.is_separate
+    }
+  }
+  return o
+}
+
 const STORAGE_PREFIX = 'couple-budget'
 const REPO_PREFIX = `${STORAGE_PREFIX}:repo:`
 
@@ -96,6 +147,49 @@ function writePersist(key: string, state: unknown): void {
   } catch (e) {
     console.warn('[supabase-sync] localStorage write failed', key, e)
   }
+}
+
+/** Zustand persist 항목의 `state`만 읽기 (hydrate 병합용) */
+function readPersistedZustandState(key: string): Record<string, unknown> | null {
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return null
+    const p = JSON.parse(raw) as PersistWrap<Record<string, unknown>>
+    if (!p || typeof p !== 'object' || p.state == null || typeof p.state !== 'object' || Array.isArray(p.state)) return null
+    return p.state
+  } catch {
+    return null
+  }
+}
+
+/** useAppStore.settings 초기값과 동일 — 스냅샷 누락·부분 필드 시 공동생활비·유저명 등이 0으로 초기화되지 않게 함 */
+const HYDRATE_DEFAULT_APP_SETTINGS: Record<string, unknown> = {
+  personAName: '유저 1',
+  personBName: '유저 2',
+  personAIncome: 0,
+  personBIncome: 0,
+  personAIncomeDay: 25,
+  personBIncomeDay: 25,
+  currency: 'KRW',
+  sharedLivingCost: 0,
+  sharedLivingCostRatioMode: '50:50',
+  sharedLivingCostRatio: [50, 50],
+  user1Color: subOklch(SUB_HUES[0]),
+  user2Color: subOklch(SUB_HUES[1]),
+  sharedColor: subOklch(SUB_HUES[2]),
+}
+
+/** defaults ← 로컬(스냅샷에 없는 키 보존) ← 스냅샷(서버가 보낸 키는 우선). 다기기 동기화 + 부분 스냅샷 호환 */
+function mergeAppSettingsForHydrate(snapshotSettings: unknown, localSettings: unknown): Record<string, unknown> {
+  const snap =
+    snapshotSettings != null && typeof snapshotSettings === 'object' && !Array.isArray(snapshotSettings)
+      ? (snapshotSettings as Record<string, unknown>)
+      : {}
+  const loc =
+    localSettings != null && typeof localSettings === 'object' && !Array.isArray(localSettings)
+      ? (localSettings as Record<string, unknown>)
+      : {}
+  return { ...HYDRATE_DEFAULT_APP_SETTINGS, ...loc, ...snap }
 }
 
 function readRepoIncomes(): Income[] {
@@ -227,15 +321,23 @@ function incomePushRow(i: Income, householdId: string): Record<string, unknown> 
   let description = i.description ?? ''
   if (i.category === '급여' && i.person === 'A') description = aLabel
   if (i.category === '급여' && i.person === 'B') description = bLabel
+  const p = repoPayload({
+    id: i.id,
+    yearMonth: i.yearMonth,
+    person: i.person,
+    category: i.category,
+    description: description || null,
+    amount: i.amount,
+  }) as Record<string, unknown>
+  if (INCOMES_LEGACY_YEAR_MONTH_COLUMN && REPO_COLUMNS === 'snake_case') {
+    const ym = p.year_month
+    if (ym != null) {
+      delete p.year_month
+      p.yearMonth = ym
+    }
+  }
   return {
-    ...repoPayload({
-      id: i.id,
-      yearMonth: i.yearMonth,
-      person: i.person,
-      category: i.category,
-      description: description || null,
-      amount: i.amount,
-    }),
+    ...p,
     household_id: householdId,
   }
 }
@@ -441,18 +543,19 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
     }
     for (const r of fixedExp) {
       if (!(r.is_separate ?? r.isSeparate)) continue
-      putSeparate(yearMonthOf(r), mapFixedRow(r))
+      putSeparate(yearMonthOf(r), { ...mapFixedRow(r), person: '공금' })
     }
     for (const r of sepRows) {
       const ym = yearMonthOf(r)
       const sp = r.separate_person ?? r.separatePerson
+      const sepFlag = r.is_separate ?? r.isSeparate
       putSeparate(ym, {
         id: String(r.id),
-        person: str(r, 'person', 'person'),
+        person: '공금',
         category: str(r, 'category', 'category'),
         description: str(r, 'description', 'description', ''),
         amount: num(r, 'amount', 'amount'),
-        isSeparate: true,
+        isSeparate: sepFlag == null ? true : !!sepFlag,
         separatePerson:
           sp === 'A' || sp === 'B' ? sp : undefined,
         payDay: undefined,
@@ -472,11 +575,48 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       defaultSalaryExcludedByMonth = { ...rawPlan.state.defaultSalaryExcludedByMonth }
     }
 
+    /** 서버에 아직 없는 월의 로컬 추가·별도 지출이 hydrate 한 번에 사라지지 않도록 병합 */
+    const localPlan = readPersistedZustandState(KEY_PLAN_EXTRA)
+    const localExtra = localPlan?.extraRowsByMonth
+    const localSep = localPlan?.separateExpenseRowsByMonth
+    const localTpl = localPlan?.templateSnapshotsByMonth
+    const localDefEx = localPlan?.defaultSalaryExcludedByMonth
+    const mergedExtraRowsByMonth: Record<string, unknown> = {
+      ...(localExtra != null && typeof localExtra === 'object' && !Array.isArray(localExtra)
+        ? (localExtra as Record<string, unknown>)
+        : {}),
+    }
+    for (const [ym, pack] of Object.entries(extraMapped)) {
+      mergedExtraRowsByMonth[ym] = pack
+    }
+    const mergedSeparateExpenseRowsByMonth: Record<string, unknown> = {
+      ...(localSep != null && typeof localSep === 'object' && !Array.isArray(localSep)
+        ? (localSep as Record<string, unknown>)
+        : {}),
+    }
+    for (const [ym, rows] of Object.entries(separateExpenseRowsByMonth)) {
+      mergedSeparateExpenseRowsByMonth[ym] = rows
+    }
+    const mergedTemplateSnapshotsByMonth: Record<string, unknown> = {
+      ...(localTpl != null && typeof localTpl === 'object' && !Array.isArray(localTpl)
+        ? (localTpl as Record<string, unknown>)
+        : {}),
+    }
+    for (const [ym, snap] of Object.entries(templateSnapshotsByMonth)) {
+      mergedTemplateSnapshotsByMonth[ym] = snap
+    }
+    const mergedDefaultSalaryExcluded: Record<string, unknown> = {
+      ...(localDefEx != null && typeof localDefEx === 'object' && !Array.isArray(localDefEx)
+        ? (localDefEx as Record<string, unknown>)
+        : {}),
+      ...defaultSalaryExcludedByMonth,
+    }
+
     writePersist(KEY_PLAN_EXTRA, {
-      extraRowsByMonth: extraMapped,
-      separateExpenseRowsByMonth,
-      templateSnapshotsByMonth,
-      defaultSalaryExcludedByMonth,
+      extraRowsByMonth: mergedExtraRowsByMonth,
+      separateExpenseRowsByMonth: mergedSeparateExpenseRowsByMonth,
+      templateSnapshotsByMonth: mergedTemplateSnapshotsByMonth,
+      defaultSalaryExcludedByMonth: mergedDefaultSalaryExcluded,
     })
 
     const monthlySettlements: MonthlySettlement[] = []
@@ -535,33 +675,32 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
     const mergedSettled = [...new Set([...(rawApp?.state?.settledMonths ?? []), ...settledMonths])].sort()
     const mergedStarted = [...new Set([...(rawApp?.state?.startedMonths ?? []), ...inferredStarted])].sort()
 
-    if (rawApp?.state) {
+    const localAppState = readPersistedZustandState(KEY_APP)
+    const now = new Date()
+    const defaultYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
+    if (rawApp?.state && typeof rawApp.state === 'object') {
+      const st = rawApp.state as Record<string, unknown>
+      const mergedSettings = mergeAppSettingsForHydrate(st.settings, localAppState?.settings)
       writePersist(KEY_APP, {
-        ...rawApp.state,
-        startedMonths: mergedStarted.length ? mergedStarted : rawApp.state.startedMonths ?? [],
+        ...st,
+        settings: mergedSettings,
+        startedMonths: mergedStarted.length ? mergedStarted : (st.startedMonths as string[]) ?? [],
+        settledMonths: mergedSettled,
+      })
+    } else if (localAppState) {
+      const mergedSettings = mergeAppSettingsForHydrate(undefined, localAppState.settings)
+      writePersist(KEY_APP, {
+        ...localAppState,
+        settings: mergedSettings,
+        startedMonths: mergedStarted.length ? mergedStarted : (localAppState.startedMonths as string[]) ?? [defaultYm],
         settledMonths: mergedSettled,
       })
     } else {
-      const now = new Date()
-      const defaultYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
       writePersist(KEY_APP, {
         currentYearMonth: defaultYm,
         yearPickerMaxYear: Math.max(2026, now.getFullYear()),
-        settings: {
-          personAName: '유저 1',
-          personBName: '유저 2',
-          personAIncome: 0,
-          personBIncome: 0,
-          personAIncomeDay: 25,
-          personBIncomeDay: 25,
-          currency: 'KRW',
-          sharedLivingCost: 0,
-          sharedLivingCostRatioMode: '50:50',
-          sharedLivingCostRatio: [50, 50],
-          user1Color: subOklch(SUB_HUES[0]),
-          user2Color: subOklch(SUB_HUES[1]),
-          sharedColor: subOklch(SUB_HUES[2]),
-        },
+        settings: { ...HYDRATE_DEFAULT_APP_SETTINGS },
         startedMonths: mergedStarted.length ? mergedStarted : [defaultYm],
         settledMonths: mergedSettled,
         lastSavedByMonth: {},
@@ -791,18 +930,21 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
     const separateOnly: Record<string, unknown>[] = []
     for (const [ym, rows] of Object.entries(planS.separateExpenseRowsByMonth ?? {})) {
       for (const r of rows) {
-        separateOnly.push({
-          ...repoPayload({
-            id: r.id,
-            yearMonth: ym,
-            person: r.person,
-            category: r.category,
-            description: r.description ?? null,
-            amount: r.amount,
-            separatePerson: r.separatePerson ?? null,
+        separateOnly.push(
+          finalizeSeparateItemsPushPayload({
+            ...repoPayload({
+              id: r.id,
+              yearMonth: ym,
+              person: r.person,
+              category: r.category,
+              description: r.description ?? null,
+              amount: r.amount,
+              isSeparate: r.isSeparate ?? true,
+              separatePerson: r.separatePerson ?? null,
+            }),
+            household_id: householdId,
           }),
-          household_id: householdId,
-        })
+        )
       }
     }
     await upsertChunk('separate_items', separateOnly, 'id')
@@ -812,8 +954,7 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
       return {
         ok: true,
         snapshotOk: false,
-        snapshotHint:
-          '정규화 테이블은 반영되었습니다. app_snapshot 백업은 스키마·오류로 건너뛰었습니다.',
+        snapshotHint: `정규화 테이블은 반영되었습니다. app_snapshot 백업만 실패했습니다. (${snap.reason})`,
       }
     }
     return { ok: true, snapshotOk: true }

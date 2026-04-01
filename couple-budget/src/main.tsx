@@ -1,4 +1,5 @@
 import './index.css'
+import './design-system/ds.css'
 import {
   ensureSupabaseSessionForSync,
   resolveSessionAndHouseholdBeforeHydrate,

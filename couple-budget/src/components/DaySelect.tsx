@@ -35,9 +35,11 @@ interface DaySelectProps {
   onChange: (v: number | undefined) => void
   disabled?: boolean
   compact?: boolean
+  /** compact: 부모 너비에 맞춤(모바일 플렉스 셀) */
+  fillWidth?: boolean
 }
 
-export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps) {
+export function DaySelect({ value, onChange, disabled, compact, fillWidth }: DaySelectProps) {
   const [open, setOpen] = useState(false)
   const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
@@ -94,7 +96,7 @@ export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps
     ? {
         height: INPUT_HEIGHT,
         minHeight: INPUT_HEIGHT,
-        minWidth: 90,
+        ...(fillWidth ? { width: '100%', minWidth: 0, boxSizing: 'border-box' as const } : { minWidth: 90 }),
         padding: '0 10px',
         display: 'inline-flex' as const,
         alignItems: 'center',
@@ -133,7 +135,15 @@ export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps
 
   return (
     <>
-      <div ref={ref} style={{ position: 'relative', display: compact ? 'inline-block' : 'block' }}>
+      <div
+        ref={ref}
+        style={{
+          position: 'relative',
+          display: compact && !fillWidth ? 'inline-block' : 'block',
+          width: compact && fillWidth ? '100%' : undefined,
+          minWidth: compact && fillWidth ? 0 : undefined,
+        }}
+      >
         <button
           type="button"
           onClick={() => !disabled && setOpen((o) => !o)}

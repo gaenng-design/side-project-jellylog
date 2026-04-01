@@ -9,6 +9,7 @@ interface FixedExtraRow {
   category: string
   description: string
   amount: number
+  /** 별도 지출 카드: ↗ 별도 정산 태그 (Supabase separate_items.is_separate 와 동기화) */
   isSeparate?: boolean
   separatePerson?: 'A' | 'B'
   payDay?: number

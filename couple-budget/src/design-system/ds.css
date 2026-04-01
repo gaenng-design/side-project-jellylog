@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Pretendard: optional CDN; Inter loads as primary per spec */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+:root {
+  --ds-bg-primary: #f5f7fa;
+  --ds-bg-secondary: #ffffff;
+  --ds-text-primary: #1a1d1f;
+  --ds-text-secondary: #6b7280;
+  --ds-primary: #4f8cff;
+  --ds-primary-soft: #eaf2ff;
+  --ds-shadow-1: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --ds-shadow-2: 0 8px 20px rgba(0, 0, 0, 0.06);
+  --ds-shadow-3: 0 16px 40px rgba(0, 0, 0, 0.08);
+  --ds-motion: 150ms ease-in-out;
+}
+
+.ds-tabular {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,29 @@
+couple-budget → Figma로 디자인 가져가기
+=====================================
+
+이 폴더는 코드에 맞춘 토큰·에셋입니다. 화면을 Figma에서 새로 그릴 때 참고하세요.
+
+1) 색상 Variables (수동)
+   - figma/colors.csv 를 스프레드시트로 열어 복사하거나,
+   - Figma → Local variables → 컬렉션 추가 후 hex 입력.
+
+2) Tokens Studio 플러그인 (자동에 가깝게)
+   - Figma Community에서 "Tokens Studio for Figma" 설치.
+   - 플러그인 → Load / Import → figma/tokens.tokens.json 선택.
+   - 플러그인 버전에 따라 shadow·typography 일부는 수동 보정이 필요할 수 있습니다.
+
+3) 배경 지형 패턴 (캔버스 질감)
+   - figma/topo-pattern.svg 를 Figma 캔버스로 드래그.
+   - 프레임 Fill → Image, 타일 간격 120×120 (코드: backgroundSize 120px).
+
+4) 타이포
+   - 기본: Inter (없으면 Pretendard / Noto Sans KR).
+   - 크기·굵기: tokens.json 의 ds.font.title1 / title2 / body / caption 과 동일.
+
+5) 그리드·간격
+   - 8pt 스케일: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64 px (tokens.json ds.space).
+   - 대시보드 그리드: gutter 24, margin 32, max width 1440 (ds.grid).
+
+6) 코드와 싱크 맞추기
+   - 토큰을 바꾼 뒤에는 src/styles/jellyGlass.ts, design-system/tokens.ts 등과
+     숫자·hex가 같은지 한 번만 대조하면 됩니다.

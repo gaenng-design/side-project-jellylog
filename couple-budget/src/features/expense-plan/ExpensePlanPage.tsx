@@ -11,6 +11,7 @@ import { YearSelectDropdown } from '@/components/YearSelectDropdown'
 import {
   inputBaseStyle,
   AMOUNT_INPUT_MIN_WIDTH,
+  CATEGORY_SELECT_TRIGGER_WIDTH,
   PRIMARY,
   PRIMARY_LIGHT,
   planRowActionButtonLayout,
@@ -18,6 +19,9 @@ import {
   settingsSectionCardStyle,
   settingsTemplateDeleteButtonStyle,
   allowanceValueColor,
+  stickyPlanSectionGroupHeaderStyle,
+  stickyPlanInvestCardGroupHeaderStyle,
+  stickySettingsSectionTitleWrapStyle,
 } from '@/styles/formControls'
 import { JELLY, jellyCardStyle, jellyPrimaryButton } from '@/styles/jellyGlass'
 import { SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
@@ -35,6 +39,7 @@ import { computeSeparateExpenseCard5090, payerForSeparateExpenseRow } from '@/li
 import { saveAllToSupabase } from '@/data/saveAllToSupabase'
 import { isSupabaseConfigured } from '@/data/supabase'
 import { SettlementResultView } from './SettlementResultView'
+import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 
 const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
 const FIXED_CATEGORIES = ['주거', '통신', '보험', '구독', '교통', '식비', '의료', '교육', '문화', '관리비', '기타']
@@ -118,7 +123,7 @@ function SectionCard(props: {
 }) {
   const { emoji, title, total, children, right, totalColor } = props
   return (
-    <div style={{ ...jellyCardStyle, borderRadius: JELLY.radiusLg, overflow: 'hidden' }}>
+    <div style={{ ...jellyCardStyle, borderRadius: JELLY.radiusLg }}>
       <div
         style={{
           padding: '16px 20px',
@@ -126,6 +131,13 @@ function SectionCard(props: {
           display: 'flex',
           alignItems: 'center',
           gap: 10,
+          position: 'sticky',
+          top: 0,
+          zIndex: 6,
+          background: jellyCardStyle.background ?? '#FFFFFF',
+          boxShadow: '0 1px 0 rgba(15, 23, 42, 0.08)',
+          borderTopLeftRadius: JELLY.radiusLg,
+          borderTopRightRadius: JELLY.radiusLg,
         }}
       >
         <span style={{ fontSize: 18 }}>{emoji}</span>
@@ -162,6 +174,7 @@ function IncomeCard(props: {
     defaultAIncomeId,
     defaultBIncomeId,
   } = props
+  const narrow = useNarrowLayout()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<{ person: Exclude<Person, '공금'>; category: string; description: string; amount: string }>({
     person: 'A',
@@ -170,10 +183,22 @@ function IncomeCard(props: {
     amount: '',
   })
 
+  const excludeBtnLayout = narrow
+    ? {
+        boxSizing: 'border-box' as const,
+        textAlign: 'center' as const,
+        flexShrink: 0 as const,
+        width: 'auto' as const,
+        maxWidth: 'none' as const,
+        minWidth: 0,
+        whiteSpace: 'nowrap' as const,
+      }
+    : planRowActionButtonLayout
+
   const incomeExcludeBtnStyle = (excluded: boolean) =>
     excluded
       ? {
-          ...planRowActionButtonLayout,
+          ...excludeBtnLayout,
           fontSize: 11 as const,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
@@ -183,7 +208,7 @@ function IncomeCard(props: {
           cursor: 'pointer' as const,
         }
       : {
-          ...planRowActionButtonLayout,
+          ...excludeBtnLayout,
           fontSize: 11 as const,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
@@ -246,6 +271,99 @@ function IncomeCard(props: {
           const salarySlot = defaultSalaryPersonSlot(row, defaultAIncomeId, defaultBIncomeId)
           const isDefaultSalary = salarySlot != null
           const excluded = !!(salarySlot && defaultSalaryExcluded?.[salarySlot])
+          const rowShell = {
+            padding: '8px 10px' as const,
+            borderBottom: idx === rows.length - 1 ? 'none' : '1px solid #f3f4f6',
+            minWidth: 0,
+            opacity: excluded ? 0.6 : 1,
+          }
+          const amountWrapStyle = narrow
+            ? { flex: 1, minWidth: 0, maxWidth: '100%' }
+            : { width: 150, minWidth: 150, flexShrink: 0 as const }
+          const amountInput = (
+            <div style={amountWrapStyle}>
+              <AmountInput
+                value={String(row.amount)}
+                disabled={excluded}
+                onChange={(v) => {
+                  if (excluded) return
+                  updateRow(row.id, { amount: Number(String(v).replace(/,/g, '')) || 0 })
+                }}
+              />
+            </div>
+          )
+          const actionButton =
+            isDefaultSalary && salarySlot && onToggleDefaultSalaryExcluded ? (
+              <button
+                type="button"
+                onClick={() => onToggleDefaultSalaryExcluded(salarySlot)}
+                style={incomeExcludeBtnStyle(excluded)}
+              >
+                {excluded ? '이번달 포함' : '이번달만 제외'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => removeRow(row.id)}
+                style={{
+                  minWidth: 76,
+                  flexShrink: 0,
+                  fontSize: 12,
+                  padding: '6px 0',
+                  borderRadius: JELLY.radiusControl,
+                  border: '1px solid #e5e7eb',
+                  background: '#f9fafb',
+                  color: '#6b7280',
+                  cursor: 'pointer',
+                }}
+              >
+                삭제
+              </button>
+            )
+
+          if (narrow) {
+            return (
+              <div key={row.id} style={{ display: 'flex', flexDirection: 'column', gap: 8, ...rowShell }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', minWidth: 0 }}>
+                  <span style={{ flexShrink: 0 }}>
+                    <PersonBadge person={row.person} />
+                  </span>
+                  <span style={{ minWidth: 80, flexShrink: 0, fontSize: 12, color: '#6b7280' }}>{row.category}</span>
+                  {!isDefaultSalary && (
+                    <span
+                      style={{
+                        flex: '1 1 140px',
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        fontSize: 13,
+                        color: '#111827',
+                      }}
+                    >
+                      {useTextFields ? (
+                        <input
+                          value={row.description}
+                          onChange={(e) => updateRow(row.id, { description: e.target.value })}
+                          placeholder="항목명"
+                          style={{ ...inputBaseStyle, width: '100%', minWidth: 0 }}
+                        />
+                      ) : (
+                        <InlineEdit
+                          value={row.description}
+                          onSave={(v) => updateRow(row.id, { description: v })}
+                          placeholder="항목명"
+                        />
+                      )}
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, width: '100%' }}>
+                  {amountInput}
+                  {actionButton}
+                </div>
+              </div>
+            )
+          }
+
           return (
             <div
               key={row.id}
@@ -253,10 +371,7 @@ function IncomeCard(props: {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                padding: '8px 10px',
-                borderBottom: idx === rows.length - 1 ? 'none' : '1px solid #f3f4f6',
-                minWidth: 0,
-                opacity: excluded ? 0.6 : 1,
+                ...rowShell,
               }}
             >
               <span style={{ flexShrink: 0 }}>
@@ -282,43 +397,8 @@ function IncomeCard(props: {
                 </span>
               )}
               {isDefaultSalary && <span style={{ flex: 1, minWidth: 0 }} />}
-              <div style={{ width: 150, minWidth: 150, flexShrink: 0 }}>
-                <AmountInput
-                  value={String(row.amount)}
-                  disabled={excluded}
-                  onChange={(v) => {
-                    if (excluded) return
-                    updateRow(row.id, { amount: Number(String(v).replace(/,/g, '')) || 0 })
-                  }}
-                />
-              </div>
-              {isDefaultSalary && salarySlot && onToggleDefaultSalaryExcluded ? (
-                <button
-                  type="button"
-                  onClick={() => onToggleDefaultSalaryExcluded(salarySlot)}
-                  style={incomeExcludeBtnStyle(excluded)}
-                >
-                  {excluded ? '이번달 포함' : '이번달만 제외'}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => removeRow(row.id)}
-                  style={{
-                    minWidth: 76,
-                    flexShrink: 0,
-                    fontSize: 12,
-                    padding: '6px 0',
-                    borderRadius: JELLY.radiusControl,
-                    border: '1px solid #e5e7eb',
-                    background: '#f9fafb',
-                    color: '#6b7280',
-                    cursor: 'pointer',
-                  }}
-                >
-                  삭제
-                </button>
-              )}
+              {amountInput}
+              {actionButton}
             </div>
           )
         })}
@@ -350,9 +430,7 @@ function IncomeCard(props: {
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
-            <div style={{ width: 150, minWidth: 150 }}>
-              <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
-            </div>
+            <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
@@ -391,14 +469,16 @@ const FIXED_CAT_ORDER: Record<string, number> = { 주거: 0, 통신: 1, 보험: 
 /** FixedExpenseRow 별도 정산 칩과 동일 높이 */
 const MODAL_SEPARATE_CHIP_H = 26
 
-/** 카테고리별 보기: 같은 카테고리 안 행 순서 — 공금 → 유저1(A) → 유저2(B) */
-const FIXED_ROW_PERSON_RANK: Record<Person, number> = { 공금: 0, A: 1, B: 2 }
-
-function sortFixedRowsByPersonInCategory(list: FixedRow[]): FixedRow[] {
+/** 구분(유저)별 보기: 같은 구분 안 행 순서 — 카테고리 순 → 항목명 */
+function sortFixedRowsByCategoryInPerson(list: FixedRow[]): FixedRow[] {
   return [...list].sort(
-    (a, b) => (FIXED_ROW_PERSON_RANK[a.person] ?? 9) - (FIXED_ROW_PERSON_RANK[b.person] ?? 9),
+    (a, b) =>
+      (FIXED_CAT_ORDER[a.category] ?? 99) - (FIXED_CAT_ORDER[b.category] ?? 99) ||
+      (a.description || '').localeCompare(b.description || '', 'ko'),
   )
 }
+
+const FIXED_PERSON_GROUP_ORDER: Person[] = ['공금', 'A', 'B']
 
 type FixedCardProps = {
   rows: FixedRow[]
@@ -420,8 +500,10 @@ type FixedCardProps = {
   showPayDayOnRows?: boolean
   /** 추가 모달에서 입금일 블록 숨김 */
   hidePayDayInModal?: boolean
-  /** 별도 지출 카드: 행 앞줄에서 구분(공금/A/B) 편집 */
-  leadPlanPersonEditable?: boolean
+  /** 별도 지출 카드: 구분은 항상 공금(모달·행에서 유저 전환 없음) */
+  forcePersonPublicFund?: boolean
+  /** 고정지출: 행에서 공금/유저 태그 숨김(그룹 헤더로만 구분) */
+  hideRowPersonTags?: boolean
 }
 
 function FixedExpenseCard(props: FixedCardProps) {
@@ -442,7 +524,8 @@ function FixedExpenseCard(props: FixedCardProps) {
     addModalTitle = '고정지출 항목 추가',
     showPayDayOnRows = true,
     hidePayDayInModal = false,
-    leadPlanPersonEditable = false,
+    forcePersonPublicFund = false,
+    hideRowPersonTags = false,
   } = props
   const settings = useAppStore((s) => s.settings)
   const personAName = settings.personAName || '유저1'
@@ -459,30 +542,37 @@ function FixedExpenseCard(props: FixedCardProps) {
 
   const total = rows.filter((r) => !r.isExcluded).reduce((s, r) => s + r.amount, 0)
   const grouped = useMemo(() => {
-    const map = new Map<string, FixedRow[]>()
+    const map = new Map<Person, FixedRow[]>()
     for (const r of rows) {
-      const list = map.get(r.category) ?? []
+      const list = map.get(r.person) ?? []
       list.push(r)
-      map.set(r.category, list)
+      map.set(r.person, list)
     }
-    return [...map.entries()]
-      .sort((a, b) => (FIXED_CAT_ORDER[a[0]] ?? 99) - (FIXED_CAT_ORDER[b[0]] ?? 99))
-      .map(([cat, list]) => [cat, sortFixedRowsByPersonInCategory(list)] as const)
+    return FIXED_PERSON_GROUP_ORDER.filter((p) => (map.get(p)?.length ?? 0) > 0).map(
+      (p) => [p, sortFixedRowsByCategoryInPerson(map.get(p)!)] as const,
+    )
   }, [rows])
 
   const isTemplate = (id: string) => id.startsWith('ft-tpl-')
   const getTemplateId = (id: string) => id.replace(/^ft-tpl-/, '')
 
   const updateRow = (id: string, patch: Partial<FixedRow>) => {
-    if (isTemplate(id)) onUpdateTemplate(getTemplateId(id), patch)
-    else onUpdate(id, patch)
+    const next = forcePersonPublicFund ? { ...patch, person: '공금' as Person } : patch
+    if (isTemplate(id)) onUpdateTemplate(getTemplateId(id), next)
+    else onUpdate(id, next)
   }
 
   const handleAdd = () => {
     if (!form.description || !form.amount) return
-    const separatePerson = form.isSeparate && form.person === '공금' ? form.separatePerson : (form.person === 'A' || form.person === 'B' ? form.person : 'A')
+    const planPerson: Person = forcePersonPublicFund ? '공금' : form.person
+    const separatePerson =
+      form.isSeparate && planPerson === '공금'
+        ? form.separatePerson
+        : planPerson === 'A' || planPerson === 'B'
+          ? planPerson
+          : 'A'
     onAdd({
-      person: form.person,
+      person: planPerson,
       category: form.category || '기타',
       description: form.description,
       amount: Number(form.amount.replace(/,/g, '')) || 0,
@@ -559,27 +649,29 @@ function FixedExpenseCard(props: FixedCardProps) {
             {emptyMessage}
           </div>
         )}
-        {grouped.map(([cat, list, personKey]) => (
-          <div key={cat} style={{ marginBottom: 12 }}>
+        {grouped.map(([personKey, list]) => {
+          const groupLabel =
+            personKey === '공금' ? '공금' : personKey === 'A' ? personAName : personBName
+          return (
+          <div key={personKey} style={{ marginBottom: 12 }}>
             {(() => {
               const groupTotal = list.filter((r) => !r.isExcluded).reduce((s, r) => s + r.amount, 0)
               return (
-                <GroupHeaderChip
-                  label={cat}
-                  total={groupTotal}
-                  totalColor={FIXED_EXPENSE_SUMMARY_COLOR}
-                  {...(personKey
-                    ? {
-                        color:
-                          personKey === '공금'
-                            ? '#111827'
-                            : personKey === 'A'
-                              ? (settings.user1Color ?? '#FFADAD')
-                              : (settings.user2Color ?? '#9BF6FF'),
-                        useUserChipStyle: personKey !== '공금',
-                      }
-                    : { color: '#111827' })}
-                />
+                <div style={stickyPlanSectionGroupHeaderStyle}>
+                  <GroupHeaderChip
+                    label={groupLabel}
+                    total={groupTotal}
+                    totalColor={FIXED_EXPENSE_SUMMARY_COLOR}
+                    color={
+                      personKey === '공금'
+                        ? '#111827'
+                        : personKey === 'A'
+                          ? (settings.user1Color ?? '#FFADAD')
+                          : (settings.user2Color ?? '#9BF6FF')
+                    }
+                    useUserChipStyle={personKey !== '공금'}
+                  />
+                </div>
               )
             })()}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -589,7 +681,7 @@ function FixedExpenseCard(props: FixedCardProps) {
                 const isSettledOrphan =
                   planState === 'settled' && isTpl && !globalTemplateIds.has(tplId)
                 const useExcludeForTpl = isTpl && !isSettledOrphan
-                const excluded = row.isExcluded
+                const excluded = !!row.isExcluded
                 const rowData: FixedExpenseRowData = {
                   id: row.id,
                   person: row.person,
@@ -645,22 +737,25 @@ function FixedExpenseCard(props: FixedCardProps) {
                       showPayDay={showPayDayOnRows}
                       planPerson={row.person}
                       categoryViewLeadUserFirst
-                      leadPlanPersonEditable={leadPlanPersonEditable}
+                      hideRowPersonTags={hideRowPersonTags}
                     />
                   </div>
                 )
               })}
             </div>
           </div>
-        ))}
+          )
+        })}
       </SectionCard>
 
       <Modal open={open} title={addModalTitle} onClose={() => setOpen(false)}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
-            <PersonToggle value={form.person} onChange={(p) => setForm({ ...form, person: p as Person })} />
-          </div>
+          {!forcePersonPublicFund && (
+            <div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
+              <PersonToggle value={form.person} onChange={(p) => setForm({ ...form, person: p as Person })} />
+            </div>
+          )}
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
             <CustomSelect
@@ -668,6 +763,7 @@ function FixedExpenseCard(props: FixedCardProps) {
               value={form.category}
               onChange={(v) => setForm({ ...form, category: v })}
               placeholder="카테고리 선택"
+              triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
             />
           </div>
           <div>
@@ -681,9 +777,7 @@ function FixedExpenseCard(props: FixedCardProps) {
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
-            <div style={{ width: 150, minWidth: 150 }}>
-              <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
-            </div>
+            <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
           </div>
           {!hidePayDayInModal && (
             <div>
@@ -905,18 +999,27 @@ function InvestCard(props: InvestCardProps) {
   })
 
   const settings = useAppStore((s) => s.settings)
+  const personAName = settings.personAName || '유저1'
+  const personBName = settings.personBName || '유저2'
   const total = rows.filter((r) => !r.isExcluded).reduce((s, r) => s + r.amount, 0)
   const grouped = useMemo(() => {
-    const map = new Map<string, typeof rows>()
-    for (const r of rows) {
-      const list = map.get(r.category) ?? []
-      list.push(r)
-      map.set(r.category, list)
-    }
+    const map = new Map<'A' | 'B', InvestRow[]>()
     const catOrder: Record<string, number> = { 저축: 0, 투자: 1 }
-    return [...map.entries()]
-      .sort((a, b) => (catOrder[a[0]] ?? 99) - (catOrder[b[0]] ?? 99))
-      .map(([cat, list]) => [cat, list] as const)
+    const sortByCategory = (list: InvestRow[]) =>
+      [...list].sort(
+        (a, b) =>
+          (catOrder[a.category] ?? 99) - (catOrder[b.category] ?? 99) ||
+          (a.description || '').localeCompare(b.description || '', 'ko'),
+      )
+    for (const r of rows) {
+      const p: 'A' | 'B' = r.person === 'B' ? 'B' : 'A'
+      const list = map.get(p) ?? []
+      list.push(r)
+      map.set(p, list)
+    }
+    return (['A', 'B'] as const)
+      .filter((p) => (map.get(p)?.length ?? 0) > 0)
+      .map((p) => [p, sortByCategory(map.get(p)!)] as const)
   }, [rows])
 
   const isTemplate = (id: string) => id.startsWith('inv-tpl-')
@@ -953,10 +1056,23 @@ function InvestCard(props: InvestCardProps) {
     setAddOpen(false)
   }
 
+  const narrow = useNarrowLayout()
+  const investExcludeBtnLayout = narrow
+    ? {
+        boxSizing: 'border-box' as const,
+        textAlign: 'center' as const,
+        flexShrink: 0 as const,
+        width: 'auto' as const,
+        maxWidth: 'none' as const,
+        minWidth: 0,
+        whiteSpace: 'nowrap' as const,
+      }
+    : planRowActionButtonLayout
+
   const excludeBtnStyle = (excluded: boolean) =>
     excluded
       ? {
-          ...planRowActionButtonLayout,
+          ...investExcludeBtnLayout,
           fontSize: 11 as const,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
@@ -966,7 +1082,7 @@ function InvestCard(props: InvestCardProps) {
           cursor: 'pointer' as const,
         }
       : {
-          ...planRowActionButtonLayout,
+          ...investExcludeBtnLayout,
           fontSize: 11 as const,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
@@ -982,6 +1098,7 @@ function InvestCard(props: InvestCardProps) {
       {/* 고정지출 SectionCard 헤더와 동일한 타이틀 행(이모지·제목·합계·구분선) */}
       <div
         style={{
+          ...stickySettingsSectionTitleWrapStyle,
           paddingBottom: 14,
           marginBottom: 14,
           borderBottom: '1px solid #f3f4f6',
@@ -1018,16 +1135,20 @@ function InvestCard(props: InvestCardProps) {
             투자·저축 항목을 추가해주세요.
           </div>
         )}
-        {grouped.map(([cat, list]) => {
+        {grouped.map(([personKey, list]) => {
           const groupTotal = list.filter((r) => !r.isExcluded).reduce((s, r) => s + r.amount, 0)
+          const groupLabel = personKey === 'A' ? personAName : personBName
           return (
-            <div key={cat}>
-              <GroupHeaderChip
-                label={cat}
-                total={groupTotal}
-                totalColor={INVEST_GROUP_TOGGLE_COLOR}
-                color="#111827"
-              />
+            <div key={personKey}>
+              <div style={stickyPlanInvestCardGroupHeaderStyle}>
+                <GroupHeaderChip
+                  label={groupLabel}
+                  total={groupTotal}
+                  totalColor={INVEST_GROUP_TOGGLE_COLOR}
+                  color={personKey === 'A' ? (settings.user1Color ?? '#FFADAD') : (settings.user2Color ?? '#9BF6FF')}
+                  useUserChipStyle
+                />
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {list.map((row) => {
                   const isTpl = isTemplate(row.id)
@@ -1035,7 +1156,7 @@ function InvestCard(props: InvestCardProps) {
                   const isSettledOrphan =
                     planState === 'settled' && isTpl && !globalTemplateIds.has(tplId)
                   const useExcludeForTpl = isTpl && !isSettledOrphan
-                  const excluded = row.isExcluded
+                  const excluded = !!row.isExcluded
                   const actionSlot = (
                     <button
                       type="button"
@@ -1054,6 +1175,7 @@ function InvestCard(props: InvestCardProps) {
                       <InvestRow
                         row={{
                           id: row.id,
+                          person: row.person === 'B' ? 'B' : 'A',
                           category: row.category,
                           description: row.description,
                           amount: row.amount,
@@ -1098,6 +1220,7 @@ function InvestCard(props: InvestCardProps) {
               value={form.category}
               onChange={(v) => setForm({ ...form, category: v })}
               placeholder="카테고리"
+              triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
             />
           </div>
           <div>
@@ -1111,9 +1234,7 @@ function InvestCard(props: InvestCardProps) {
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
-            <div style={{ width: 150, minWidth: 150 }}>
-              <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
-            </div>
+            <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
@@ -1293,11 +1414,12 @@ function computeAllowanceBreakdown(
 }
 
 function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: string; personBName: string }) {
+  const narrow = useNarrowLayout()
   const { breakdown, personAName, personBName } = props
   const { total, rows, halfFixedRegular, halfFixedSeparate, separateExpenseCard5090 } = breakdown
 
   return (
-    <div style={{ ...jellyCardStyle, borderRadius: JELLY.radiusLg, overflow: 'hidden' }}>
+    <div style={{ ...jellyCardStyle, borderRadius: JELLY.radiusLg }}>
       <div
         style={{
           display: 'flex',
@@ -1305,6 +1427,13 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
           padding: '16px 20px',
           borderBottom: JELLY.innerBorderSoft,
           gap: 8,
+          position: 'sticky',
+          top: 0,
+          zIndex: 6,
+          background: jellyCardStyle.background ?? '#FFFFFF',
+          boxShadow: '0 1px 0 rgba(15, 23, 42, 0.08)',
+          borderTopLeftRadius: JELLY.radiusLg,
+          borderTopRightRadius: JELLY.radiusLg,
         }}
       >
         <span style={{ fontSize: 18 }}>💰</span>
@@ -1338,39 +1467,88 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
         </div>
       )}
       <div style={{ padding: '8px 8px 10px' }}>
-        {rows.map((row, idx) => (
-          <div
-            key={row.person}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '8px 10px',
-              borderBottom: idx === 1 ? 'none' : '1px solid #f3f4f6',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-              <PersonBadge person={row.person} />
-              <span style={{ fontSize: 12, color: '#6b7280' }}>({row.incomeDay}일)</span>
-            </div>
-            <span style={{ flex: 1, fontSize: 11, color: '#6b7280' }}>
+        {rows.map((row, idx) => {
+          const formula = (
+            <>
               {fmt(row.income)} − 고정지출 {fmt(halfFixedRegular)} − 별도지출 {fmt(halfFixedSeparate)} − 공동생활비{' '}
               {fmt(row.sharedLiving)} − 투자·저축 {fmt(row.invest)}
-            </span>
-            <span
+            </>
+          )
+          const rowShell = {
+            padding: '8px 10px' as const,
+            borderBottom: (idx === 1 ? 'none' : '1px solid #f3f4f6') as const,
+          }
+          if (narrow) {
+            return (
+              <div
+                key={row.person}
+                style={{
+                  ...rowShell,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'stretch',
+                  gap: 8,
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 10,
+                    minWidth: 0,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, minWidth: 0 }}>
+                    <PersonBadge person={row.person} />
+                    <span style={{ fontSize: 12, color: '#6b7280' }}>({row.incomeDay}일)</span>
+                  </div>
+                  <span
+                    style={{
+                      flexShrink: 0,
+                      textAlign: 'right',
+                      fontSize: 15,
+                      fontWeight: 700,
+                      color: allowanceValueColor(row.allowance),
+                    }}
+                  >
+                    {fmt(row.allowance)}
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.5, wordBreak: 'keep-all' }}>{formula}</div>
+              </div>
+            )
+          }
+          return (
+            <div
+              key={row.person}
               style={{
-                width: AMOUNT_INPUT_MIN_WIDTH,
-                minWidth: AMOUNT_INPUT_MIN_WIDTH,
-                textAlign: 'right',
-                fontSize: 13,
-                fontWeight: 700,
-                color: allowanceValueColor(row.allowance),
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                ...rowShell,
               }}
             >
-              {fmt(row.allowance)}
-            </span>
-          </div>
-        ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                <PersonBadge person={row.person} />
+                <span style={{ fontSize: 12, color: '#6b7280' }}>({row.incomeDay}일)</span>
+              </div>
+              <span style={{ flex: 1, fontSize: 11, color: '#6b7280' }}>{formula}</span>
+              <span
+                style={{
+                  width: AMOUNT_INPUT_MIN_WIDTH,
+                  minWidth: AMOUNT_INPUT_MIN_WIDTH,
+                  textAlign: 'right',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: allowanceValueColor(row.allowance),
+                }}
+              >
+                {fmt(row.allowance)}
+              </span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -1380,6 +1558,7 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
 
 
 export function ExpensePlanPage() {
+  const narrow = useNarrowLayout()
   const {
     currentYearMonth,
     settings,
@@ -1476,6 +1655,7 @@ export function ExpensePlanPage() {
   const investExtraRows: InvestRow[] = (extraRowsByMonth[currentYearMonth]?.invest ?? []).map((r) => ({ ...r, isExcluded: false }))
   const separateExpenseExtraRows: FixedRow[] = (separateExpenseRowsByMonth[currentYearMonth] ?? []).map((r) => ({
     ...r,
+    person: '공금',
     isExcluded: false,
   }))
 
@@ -1486,8 +1666,16 @@ export function ExpensePlanPage() {
   const setSeparateExpenseExtraRows = (updater: (prev: FixedRow[]) => FixedRow[]) =>
     setSeparateExpenseForMonth(currentYearMonth, (prev) => {
       const lifted: FixedRow[] = (prev ?? []).map((r) => ({ ...r, isExcluded: false }))
-      return updater(lifted).map(({ isExcluded: _e, ...rest }) => rest)
+      return updater(lifted).map(({ isExcluded: _e, ...rest }) => ({ ...rest, person: '공금' as Person }))
     })
+
+  /** 레거시: 별도 지출에 A/B가 저장된 경우 공금으로 정규화 */
+  const sepRowsStored = separateExpenseRowsByMonth[currentYearMonth]
+  useEffect(() => {
+    const rows = sepRowsStored ?? []
+    if (!rows.some((r) => r.person !== '공금')) return
+    setSeparateExpenseForMonth(currentYearMonth, (prev) => prev.map((r) => ({ ...r, person: '공금' as Person })))
+  }, [currentYearMonth, sepRowsStored, setSeparateExpenseForMonth])
 
   const planState = useMemo(() => {
     const started = startedMonths.includes(currentYearMonth)
@@ -2054,7 +2242,15 @@ export function ExpensePlanPage() {
           </div>
         ) : (
         <div key={currentYearMonth}>
-          <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: narrow ? 'column' : 'row',
+              gap: 12,
+              marginBottom: 20,
+              flexWrap: narrow ? 'nowrap' : 'wrap',
+            }}
+          >
             {[
               { label: '수입 합계', value: totalIncome, color: PRIMARY },
               { label: '고정·별도 지출 합계', value: totalFixed, color: SUB_FIXED_ACCENT },
@@ -2063,8 +2259,10 @@ export function ExpensePlanPage() {
               <div
                 key={c.label}
                 style={{
-                  flex: 1,
-                  minWidth: 140,
+                  flex: narrow ? undefined : 1,
+                  minWidth: narrow ? 0 : 140,
+                  width: narrow ? '100%' : undefined,
+                  boxSizing: 'border-box',
                   background: '#fff',
                   borderRadius: JELLY.radiusControl,
                   padding: '14px 16px',
@@ -2077,8 +2275,10 @@ export function ExpensePlanPage() {
             ))}
             <div
               style={{
-                flex: 1,
-                minWidth: 160,
+                flex: narrow ? undefined : 1,
+                minWidth: narrow ? 0 : 160,
+                width: narrow ? '100%' : undefined,
+                boxSizing: 'border-box',
                 background: '#fff',
                 borderRadius: JELLY.radiusControl,
                 padding: '14px 16px',
@@ -2217,6 +2417,7 @@ export function ExpensePlanPage() {
             }
           }}
           useTextFields={planFieldsEditable}
+          hideRowPersonTags
         />
         <FixedExpenseCard
           rows={separateExpenseExtraRows}
@@ -2237,7 +2438,8 @@ export function ExpensePlanPage() {
           addModalTitle="별도지출 추가"
           showPayDayOnRows={false}
           hidePayDayInModal
-          leadPlanPersonEditable
+          hideRowPersonTags
+          forcePersonPublicFund
         />
         <InvestCard
           rows={investRows}

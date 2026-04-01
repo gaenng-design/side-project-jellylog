@@ -1,0 +1,231 @@
+{
+  "$description": "couple-budget → Figma: Tokens Studio 플러그인에서 Load / Sync, 또는 Variables 수동 입력 시 참고. 소스: src/styles/jellyGlass.ts, formControls.ts, design-system/tokens.ts, oklchSubColors.ts, App.tsx",
+  "jelly": {
+    "color": {
+      "bg": { "$value": "#F5F7FA", "$type": "color", "$description": "앱 캔버스 배경" },
+      "surface": { "$value": "#FFFFFF", "$type": "color", "$description": "카드·모달 면" },
+      "surfaceInput": { "$value": "#F0F2F5", "$type": "color" },
+      "text": { "$value": "#1A1D1F", "$type": "color" },
+      "textMuted": { "$value": "#6B7280", "$type": "color" },
+      "primary": { "$value": "#4F8CFF", "$type": "color", "$description": "버튼·포인트" },
+      "primarySoft": { "$value": "#EAF2FF", "$type": "color" },
+      "sidebar": { "$value": "#1A1D21", "$type": "color", "$description": "글로벌 내비 배경" },
+      "modalOverlay": { "$value": "rgba(26, 29, 31, 0.45)", "$type": "color" }
+    },
+    "radius": {
+      "control": { "$value": "12px", "$type": "dimension" },
+      "lg": { "$value": "20px", "$type": "dimension" },
+      "full": { "$value": "9999px", "$type": "dimension" }
+    },
+    "shadow": {
+      "float": {
+        "$type": "shadow",
+        "$value": {
+          "color": "#0000000f",
+          "offsetX": "0px",
+          "offsetY": "8px",
+          "blur": "24px",
+          "spread": "0px"
+        }
+      },
+      "modal": {
+        "$type": "shadow",
+        "$value": {
+          "color": "#0000001a",
+          "offsetX": "0px",
+          "offsetY": "16px",
+          "blur": "48px",
+          "spread": "0px"
+        }
+      },
+      "primaryButton": {
+        "$type": "shadow",
+        "$value": {
+          "color": "#4F8CFF59",
+          "offsetX": "0px",
+          "offsetY": "4px",
+          "blur": "14px",
+          "spread": "0px"
+        }
+      },
+      "sidebar": {
+        "$type": "shadow",
+        "$value": {
+          "color": "#0000000f",
+          "offsetX": "4px",
+          "offsetY": "0px",
+          "blur": "24px",
+          "spread": "0px"
+        }
+      }
+    },
+    "border": {
+      "inner": { "$value": "1px solid #0000000f", "$type": "other" },
+      "innerSoft": { "$value": "1px solid #0000000a", "$type": "other" }
+    }
+  },
+  "form": {
+    "color": {
+      "primary": { "$value": "#4F8CFF", "$type": "color" },
+      "primaryLight": { "$value": "#EAF2FF", "$type": "color" },
+      "primaryDark": { "$value": "#3B6FD9", "$type": "color" },
+      "allowancePositive": { "$value": "#0d9488", "$type": "color" },
+      "allowanceNegative": { "$value": "#dc2626", "$type": "color" },
+      "inputBorder": { "$value": "#E5E7EB", "$type": "color" }
+    },
+    "size": {
+      "inputHeight": { "$value": "40px", "$type": "dimension" },
+      "inputFontSize": { "$value": "14px", "$type": "dimension" },
+      "settingsTemplateRowHeight": { "$value": "34px", "$type": "dimension" }
+    }
+  },
+  "ds": {
+    "color": {
+      "bgPrimary": { "$value": "#F5F7FA", "$type": "color" },
+      "bgSecondary": { "$value": "#FFFFFF", "$type": "color" },
+      "bgTertiary": { "$value": "#F0F2F5", "$type": "color" },
+      "textPrimary": { "$value": "#1A1D1F", "$type": "color" },
+      "textSecondary": { "$value": "#6B7280", "$type": "color" },
+      "textDisabled": { "$value": "#A0A4A8", "$type": "color" },
+      "primary": { "$value": "#4F8CFF", "$type": "color" },
+      "primarySoft": { "$value": "#EAF2FF", "$type": "color" },
+      "success": { "$value": "#22C55E", "$type": "color" },
+      "warning": { "$value": "#F59E0B", "$type": "color" },
+      "error": { "$value": "#EF4444", "$type": "color" },
+      "info": { "$value": "#3B82F6", "$type": "color" }
+    },
+    "font": {
+      "family": {
+        "$value": "Inter, Pretendard, Apple SD Gothic Neo, Noto Sans KR",
+        "$type": "fontFamily"
+      },
+      "title1": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{ds.font.family}",
+          "fontSize": "24px",
+          "fontWeight": 700,
+          "lineHeight": 1.25
+        }
+      },
+      "title2": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{ds.font.family}",
+          "fontSize": "20px",
+          "fontWeight": 600,
+          "lineHeight": 1.3
+        }
+      },
+      "body": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{ds.font.family}",
+          "fontSize": "14px",
+          "fontWeight": 400,
+          "lineHeight": 1.5
+        }
+      },
+      "caption": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{ds.font.family}",
+          "fontSize": "12px",
+          "fontWeight": 500,
+          "lineHeight": 1.45
+        }
+      }
+    },
+    "space": {
+      "1": { "$value": "4px", "$type": "dimension" },
+      "2": { "$value": "8px", "$type": "dimension" },
+      "3": { "$value": "12px", "$type": "dimension" },
+      "4": { "$value": "16px", "$type": "dimension" },
+      "5": { "$value": "20px", "$type": "dimension" },
+      "6": { "$value": "24px", "$type": "dimension" },
+      "7": { "$value": "32px", "$type": "dimension" },
+      "8": { "$value": "40px", "$type": "dimension" },
+      "9": { "$value": "48px", "$type": "dimension" },
+      "10": { "$value": "64px", "$type": "dimension" }
+    },
+    "grid": {
+      "gutter": { "$value": "24px", "$type": "dimension" },
+      "margin": { "$value": "32px", "$type": "dimension" },
+      "maxWidth": { "$value": "1440px", "$type": "dimension" },
+      "columns": { "$value": 12, "$type": "number" }
+    },
+    "shadow": {
+      "1": {
+        "$type": "shadow",
+        "$value": {
+          "color": "#0000000a",
+          "offsetX": "0px",
+          "offsetY": "2px",
+          "blur": "8px",
+          "spread": "0px"
+        }
+      },
+      "2": {
+        "$type": "shadow",
+        "$value": {
+          "color": "#0000000f",
+          "offsetX": "0px",
+          "offsetY": "8px",
+          "blur": "20px",
+          "spread": "0px"
+        }
+      },
+      "3": {
+        "$type": "shadow",
+        "$value": {
+          "color": "#00000014",
+          "offsetX": "0px",
+          "offsetY": "16px",
+          "blur": "40px",
+          "spread": "0px"
+        }
+      }
+    },
+    "radius": {
+      "card": { "$value": "16px", "$type": "dimension" },
+      "button": { "$value": "12px", "$type": "dimension" }
+    },
+    "component": {
+      "buttonHeight": { "$value": "40px", "$type": "dimension" },
+      "sidebarWidth": { "$value": "80px", "$type": "dimension" },
+      "transactionRowHeight": { "$value": "64px", "$type": "dimension" }
+    },
+    "motion": {
+      "durationMs": { "$value": "150ms", "$type": "duration" }
+    }
+  },
+  "appShell": {
+    "nav": {
+      "brand": { "$value": "#F9FAFB", "$type": "color" },
+      "subtitle": { "$value": "#FFFFFF73", "$type": "color", "$description": "rgba(255,255,255,0.45)" },
+      "link": { "$value": "#FFFFFF8C", "$type": "color", "$description": "inactive 0.55" },
+      "linkActive": { "$value": "#FFFFFF", "$type": "color" },
+      "linkBgActive": { "$value": "#4F8CFF47", "$type": "color", "$description": "rgba(79,140,255,0.28)" },
+      "linkBorderActive": { "$value": "#4F8CFF59", "$type": "color" },
+      "divider": { "$value": "#FFFFFF14", "$type": "color" },
+      "collapseBorder": { "$value": "#FFFFFF1F", "$type": "color" },
+      "collapseBg": { "$value": "#FFFFFF0F", "$type": "color" },
+      "collapseLabel": { "$value": "#FFFFFFA6", "$type": "color" }
+    },
+    "cloudMsg": {
+      "err": { "$value": "#FCA5A5", "$type": "color" },
+      "ok": { "$value": "#6EE7B7", "$type": "color" },
+      "hint": { "$value": "#FCD34D", "$type": "color" }
+    }
+  },
+  "chart": {
+    "oklch": {
+      "fixedAccent": { "$value": "oklch(0.7044 0.1047 252)", "$type": "color" },
+      "investAccent": { "$value": "oklch(0.7044 0.1047 330)", "$type": "color" },
+      "hue175": { "$value": "oklch(0.7044 0.1047 175)", "$type": "color" },
+      "hue95": { "$value": "oklch(0.7044 0.1047 95)", "$type": "color" },
+      "hue25": { "$value": "oklch(0.7044 0.1047 25)", "$type": "color" },
+      "hue288": { "$value": "oklch(0.7044 0.1047 288)", "$type": "color" }
+    }
+  }
+}

@@ -45,8 +45,37 @@ create table if not exists public.separate_items (
   category text not null,
   description text default '',
   amount numeric not null default 0,
-  separate_person text
+  separate_person text,
+  is_separate boolean not null default true
 );
+
+-- 예전 initial-tables 등으로 테이블만 먼저 생긴 경우 "yearMonth" 만 있고 create 는 스킵됨 → 컬럼명 통일
+do $si$
+begin
+  if exists (
+    select 1
+    from pg_attribute a
+    join pg_class c on c.oid = a.attrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relname = 'separate_items'
+      and a.attname = 'yearMonth'
+      and not a.attisdropped
+      and a.attnum > 0
+  ) and not exists (
+    select 1
+    from pg_attribute a2
+    join pg_class c2 on c2.oid = a2.attrelid
+    join pg_namespace n2 on n2.oid = c2.relnamespace
+    where n2.nspname = 'public'
+      and c2.relname = 'separate_items'
+      and a2.attname = 'year_month'
+      and not a2.attisdropped
+      and a2.attnum > 0
+  ) then
+    execute 'alter table public.separate_items rename column "yearMonth" to year_month';
+  end if;
+end $si$;
 
 alter table public.separate_items enable row level security;
 drop policy if exists "Allow all for anon" on public.separate_items;

@@ -1,0 +1,23 @@
+token,hex_or_value,note
+jelly/bg,#F5F7FA,앱 캔버스
+jelly/surface,#FFFFFF,카드·모달
+jelly/surfaceInput,#F0F2F5,인풋 주변
+jelly/text,#1A1D1F,본문
+jelly/textMuted,#6B7280,보조
+jelly/primary,#4F8CFF,포인트·CTA
+jelly/primarySoft,#EAF2FF,포인트 연한 면
+jelly/sidebar,#1A1D21,글로벌 내비 배경
+form/primaryDark,#3B6FD9,포인트 진하게
+form/allowancePositive,#0d9488,용돈 양수
+form/allowanceNegative,#dc2626,용돈 음수
+form/inputBorder,#E5E7EB,인풋 테두리
+ds/success,#22C55E,성공
+ds/warning,#F59E0B,경고
+ds/error,#EF4444,오류
+ds/info,#3B82F6,정보
+nav/brand,#F9FAFB,사이드바 타이틀
+appShell/cloudMsg/err,#FCA5A5,Supabase 오류 문구
+appShell/cloudMsg/ok,#6EE7B7,성공 문구
+appShell/cloudMsg/hint,#FCD34D,힌트 문구
+chart/fixedAccent,oklch(0.7044 0.1047 252),고정지출 강조(코드와 동일)
+chart/investAccent,oklch(0.7044 0.1047 330),투자·저축 강조
