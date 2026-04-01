@@ -41,6 +41,7 @@ import { computeSeparateExpenseCard5090, payerForSeparateExpenseRow } from '@/li
 import { saveAllToSupabase } from '@/data/saveAllToSupabase'
 import { isSupabaseConfigured } from '@/data/supabase'
 import { SettlementResultView } from './SettlementResultView'
+import { deletePlanMonthCore } from './deletePlanMonth'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 
 const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
@@ -1590,7 +1591,6 @@ export function ExpensePlanPage() {
     settings,
     setYearMonth,
     startMonth,
-    removeStartedMonth,
     settleMonth,
     unsetSettleMonth,
     isMonthStarted,
@@ -1610,8 +1610,6 @@ export function ExpensePlanPage() {
   const isFixedSeparated = useFixedTemplateStore((s) => s.isSeparated)
   const toggleFixedSeparation = useFixedTemplateStore((s) => s.toggleSeparation)
   const monthlySeparations = useFixedTemplateStore((s) => s.monthlySeparations)
-  const clearFixedMonth = useFixedTemplateStore((s) => s.clearMonthForYearMonth)
-
   const getSortedInvestTemplates = useInvestTemplateStore((s) => s.getSortedTemplates)
   const investTemplates = useMemo(() => getSortedInvestTemplates(), [getSortedInvestTemplates])
   const globalInvestTemplateIds = useMemo(() => new Set(investTemplates.map((t) => t.id)), [investTemplates])
@@ -1621,14 +1619,27 @@ export function ExpensePlanPage() {
   const getInvestMonthlyAmount = useInvestTemplateStore((s) => s.getMonthlyAmount)
   const setInvestMonthlyAmount = useInvestTemplateStore((s) => s.setMonthlyAmount)
   const toggleInvestExclusion = useInvestTemplateStore((s) => s.toggleExclusion)
-  const clearInvestMonth = useInvestTemplateStore((s) => s.clearMonthForYearMonth)
-
-  const { items: incomeItems, hasLoaded: incomesLoaded, create: createIncome, update: updateIncome, remove: removeIncome } = useIncomes(currentYearMonth)
+  const {
+    items: incomeItems,
+    hasLoaded: incomesLoaded,
+    create: createIncome,
+    update: updateIncome,
+    remove: removeIncome,
+    refresh: refreshIncomes,
+  } = useIncomes(currentYearMonth)
   const seededMonthsRef = useRef<Set<string>>(new Set())
   const [incomeOverrides, setIncomeOverrides] = useState<Record<string, Partial<IncomeRow>>>({})
   useEffect(() => {
     setIncomeOverrides({})
   }, [currentYearMonth])
+
+  /** 작성 삭제 후에도 ref에 달이 남으면 재진입 시 기본 수입 시드가 막히거나, 라우트 전환과 겹칠 때 상태가 꼬일 수 있음 */
+  useEffect(() => {
+    if (!currentYearMonth) return
+    if (!isMonthStarted(currentYearMonth)) {
+      seededMonthsRef.current.delete(currentYearMonth)
+    }
+  }, [currentYearMonth, isMonthStarted])
 
   const extraRowsByMonth = usePlanExtraStore((s) => s.extraRowsByMonth)
   const templateSnapshotsByMonth = usePlanExtraStore((s) => s.templateSnapshotsByMonth)
@@ -1767,16 +1778,21 @@ export function ExpensePlanPage() {
 
   const handleDeletePlan = async () => {
     if (!currentYearMonth) return
-    for (const i of incomeItems) {
-      await removeIncome(i.id)
-    }
-    clearMonth(currentYearMonth)
-    clearFixedMonth(currentYearMonth)
-    clearInvestMonth(currentYearMonth)
-    removeStartedMonth(currentYearMonth)
-    unsetSettleMonth(currentYearMonth)
-    cancelSettlement(currentYearMonth)
+    const ym = currentYearMonth
+    await deletePlanMonthCore(ym)
+    seededMonthsRef.current.delete(ym)
+    await refreshIncomes()
     setDeleteConfirmOpen(false)
+
+    if (isSupabaseConfigured) {
+      await new Promise((r) => setTimeout(r, 0))
+      const res = await saveAllToSupabase()
+      if (!res.ok) {
+        console.warn('[Supabase] 작성 삭제 후 업로드 실패:', res.message)
+      } else if (!res.snapshotOk && res.snapshotHint) {
+        console.warn('[Supabase]', res.snapshotHint)
+      }
+    }
   }
 
   // 수입: 작성이 시작된 달만 해당 월 기준 유저1/2 기본 수입 2건 시드(설정값 사용). 초기 로드 완료 후에만 실행(설정 갔다 왔을 때 기존 데이터 유지)

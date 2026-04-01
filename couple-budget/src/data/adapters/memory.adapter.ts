@@ -1,4 +1,3 @@
-import { logAdapterOnSave } from '../repo-logger'
 import type { IRepository } from '../types'
 
 const STORAGE_PREFIX = 'couple-budget:repo:'
@@ -35,6 +34,7 @@ export class MemoryAdapter<T extends { id: string }> implements IRepository<T> {
   private persist(): void {
     const items = Array.from(this.store.values())
     saveToStorage(this.storageKey, items)
+    void import('@/services/debouncedCloudSync').then((m) => m.scheduleCloudSync('memory-repo'))
   }
 
   async query(predicate: (item: T) => boolean, _yearMonth?: string): Promise<T[]> {
@@ -46,26 +46,22 @@ export class MemoryAdapter<T extends { id: string }> implements IRepository<T> {
     const newItem = { ...item, id } as T
     this.store.set(id, newItem)
     this.persist()
-    logAdapterOnSave(this.storageKey.replace(STORAGE_PREFIX, ''), 'create', true)
     return newItem
   }
 
   async update(id: string, partial: Partial<T>): Promise<T> {
     const existing = this.store.get(id)
     if (!existing) {
-      logAdapterOnSave(this.storageKey.replace(STORAGE_PREFIX, ''), 'update', false, `Item ${id} not found`)
       throw new Error(`Item ${id} not found`)
     }
     const updated = { ...existing, ...partial }
     this.store.set(id, updated)
     this.persist()
-    logAdapterOnSave(this.storageKey.replace(STORAGE_PREFIX, ''), 'update', true)
     return updated
   }
 
   async remove(id: string): Promise<void> {
     this.store.delete(id)
     this.persist()
-    logAdapterOnSave(this.storageKey.replace(STORAGE_PREFIX, ''), 'remove', true)
   }
 }

@@ -228,8 +228,6 @@ export async function resolveSessionAndHouseholdBeforeHydrate(): Promise<void> {
       /* ignore */
     }
     await syncAuthProfileFromSavedAccessCodeIfNeeded()
-    const { hydrateFromSupabaseBeforeApp } = await import('@/services/supabase-sync')
-    await hydrateFromSupabaseBeforeApp()
     return
   }
 
@@ -243,8 +241,6 @@ export async function resolveSessionAndHouseholdBeforeHydrate(): Promise<void> {
         /* ignore */
       }
       await syncAuthProfileFromSavedAccessCodeIfNeeded()
-      const { hydrateFromSupabaseBeforeApp } = await import('@/services/supabase-sync')
-      await hydrateFromSupabaseBeforeApp()
       return
     }
   }

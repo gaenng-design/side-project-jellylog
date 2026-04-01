@@ -13,13 +13,6 @@ export const isSupabaseConfigured =
   !String(url).includes('your-project-id') &&
   !String(key).includes('your-anon-key')
 
-/** 디버깅: URL 마스킹 (앞 8자 + ... + 뒤 4자) */
-function maskUrl(u: string | undefined): string {
-  if (!u) return '(없음)'
-  if (u.length <= 20) return u.slice(0, 4) + '****'
-  return u.slice(0, 8) + '...' + u.slice(-4)
-}
-
 let supabaseClient: SupabaseClient | null = null
 
 if (isSupabaseConfigured && url && key) {
@@ -33,16 +26,9 @@ if (isSupabaseConfigured && url && key) {
         storageKey: COUPLE_BUDGET_SUPABASE_AUTH_KEY,
       },
     })
-    console.log('[Supabase] init OK | URL:', maskUrl(url), '| configured: true')
   } catch (err) {
     console.error('[Supabase] createClient 실패:', err)
   }
-} else {
-  console.log('[Supabase] init | Adapter: MemoryAdapter (Supabase 미사용) | URL:', maskUrl(url), '| key:', !!key, '| configured:', isSupabaseConfigured)
 }
 
 export const supabase = supabaseClient
-export const logSupabaseConfig = () => {
-  const adapter = isSupabaseConfigured ? 'SupabaseAdapter' : 'MemoryAdapter'
-  console.log('[Supabase] 저장 시 사용 | Adapter:', adapter, '| VITE_SUPABASE_URL:', maskUrl(url), '| configured:', isSupabaseConfigured)
-}

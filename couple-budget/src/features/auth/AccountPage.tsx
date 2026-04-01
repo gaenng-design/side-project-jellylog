@@ -25,7 +25,8 @@ import { PRIMARY_DARK, pageTitleH1Style } from '@/styles/formControls'
 export function AccountPage() {
   const [accessCodeInput, setAccessCodeInput] = useState('')
   const [sessionReady, setSessionReady] = useState(false)
-  const [householdId, setHouseholdId] = useState<string | null>(null)
+  /** 첫 페인트부터 미연결 UI가 잠깐 보이지 않도록 로컬에 저장된 가계 ID로 초기화 */
+  const [householdId, setHouseholdId] = useState<string | null>(() => getSyncHouseholdId())
   const [msg, setMsg] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null)
   const [busy, setBusy] = useState(false)
   const [sessionError, setSessionError] = useState<string | null>(null)
@@ -52,6 +53,7 @@ export function AccountPage() {
     } = await supabase.auth.getSession()
     setSessionReady(!!session?.user)
     await resolveSessionAndHouseholdBeforeHydrate()
+    /** 전체 pull은 부트·인증 변경 시에만 (여기서 매번 하면 지출 계획 등 로컬 편집이 서버로 덮어써질 수 있음) */
     setHouseholdId(getSyncHouseholdId())
   }
 

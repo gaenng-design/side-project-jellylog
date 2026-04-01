@@ -7,6 +7,11 @@ import { supabase, isSupabaseConfigured } from '@/data/supabase'
 import { getSyncHouseholdId } from '@/services/authHousehold'
 import { rehydrateAllPersistedStores } from '@/store/rehydratePersistedStores'
 import { useAppStore } from '@/store/useAppStore'
+import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
+import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
+import { usePlanExtraStore } from '@/store/usePlanExtraStore'
+import { useSettlementStore } from '@/store/useSettlementStore'
+import { markPullSuccess, markPushSuccess, withSuppressedSyncTrackingAsync } from '@/services/syncMeta'
 import { SUB_HUES, subOklch } from '@/styles/oklchSubColors'
 import type { Income } from '@/types'
 import type { MonthlySettlement } from '@/store/useSettlementStore'
@@ -162,6 +167,23 @@ function readPersistedZustandState(key: string): Record<string, unknown> | null 
   }
 }
 
+/** plan-extra 등 월(YYYY-MM) 키 맵에서, 작성이 끝난 달 집합 밖 키 제거 */
+function pruneMonthKeyedRecord(rec: Record<string, unknown>, keepMonths: Set<string>): void {
+  for (const k of Object.keys(rec)) {
+    if (!keepMonths.has(k)) delete rec[k]
+  }
+}
+
+function pruneLastSavedByMonth(raw: unknown, keepStarted: Set<string>): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return out
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (!keepStarted.has(k)) continue
+    if (typeof v === 'string') out[k] = v
+  }
+  return out
+}
+
 /** useAppStore.settings 초기값과 동일 — 스냅샷 누락·부분 필드 시 공동생활비·유저명 등이 0으로 초기화되지 않게 함 */
 const HYDRATE_DEFAULT_APP_SETTINGS: Record<string, unknown> = {
   personAName: '유저 1',
@@ -218,9 +240,51 @@ function buildAppSnapshotBody(): Record<string, unknown> {
   return bundle
 }
 
+/**
+ * persist는 대개 즉시 localStorage에 쓰지만, 일부 타이밍에서 스냅샷만 오래된 JSON을 올릴 수 있음.
+ * Zustand partialize와 동일한 필드로 메모리 상태를 스냅샷 본문에 덮어씀.
+ */
+function overlayLiveCoupleBudgetStateOnSnapshotBundle(body: Record<string, unknown>): void {
+  const app = useAppStore.getState()
+  body[KEY_APP] = wrapPersist({
+    currentYearMonth: app.currentYearMonth,
+    yearPickerMaxYear: app.yearPickerMaxYear,
+    settings: app.settings,
+    startedMonths: app.startedMonths,
+    settledMonths: app.settledMonths,
+    lastSavedByMonth: app.lastSavedByMonth,
+  })
+  const fixed = useFixedTemplateStore.getState()
+  body[KEY_FIXED_TPL] = wrapPersist({
+    templates: fixed.templates,
+    exclusions: fixed.exclusions,
+    monthlyAmounts: fixed.monthlyAmounts,
+    monthlySeparations: fixed.monthlySeparations,
+  })
+  const invest = useInvestTemplateStore.getState()
+  body[KEY_INVEST_TPL] = wrapPersist({
+    templates: invest.templates,
+    exclusions: invest.exclusions,
+    monthlyAmounts: invest.monthlyAmounts,
+  })
+  const plan = usePlanExtraStore.getState()
+  body[KEY_PLAN_EXTRA] = wrapPersist({
+    extraRowsByMonth: plan.extraRowsByMonth,
+    separateExpenseRowsByMonth: plan.separateExpenseRowsByMonth,
+    templateSnapshotsByMonth: plan.templateSnapshotsByMonth,
+    defaultSalaryExcludedByMonth: plan.defaultSalaryExcludedByMonth,
+  })
+  const settle = useSettlementStore.getState()
+  body[KEY_SETTLEMENTS] = wrapPersist({
+    settlements: settle.settlements,
+    transfers: settle.transfers,
+  })
+}
+
 async function upsertAppSnapshot(householdId: string): Promise<{ ok: true } | { ok: false; reason: string }> {
   if (!supabase) return { ok: false, reason: 'no client' }
   const body = buildAppSnapshotBody()
+  overlayLiveCoupleBudgetStateOnSnapshotBundle(body)
   const payload = {
     household_id: householdId,
     body,
@@ -432,6 +496,114 @@ async function deleteOrphanInvestTemplates(householdId: string, keepIds: Set<str
   }
 }
 
+/**
+ * `startedMonths` / `settledMonths`에서 빠진 월은 로컬에서만 지워도 DB·hydrate 시 `inferredStarted`로 부활함.
+ * 전체 저장 시 가계 기준으로 해당 월의 계획·정산 행을 제거한다.
+ */
+async function deleteOrphanHouseholdPlanMonths(
+  householdId: string,
+  startedMonths: string[],
+  settledMonths: string[],
+): Promise<void> {
+  if (!supabase) return
+  const started = new Set(startedMonths)
+  const settled = new Set(settledMonths)
+  if (started.size === 0) return
+
+  const delIdsChunked = async (table: string, ids: string[]) => {
+    for (let i = 0; i < ids.length; i += DELETE_ID_CHUNK) {
+      const slice = ids.slice(i, i + DELETE_ID_CHUNK)
+      const { error } = await supabase.from(table).delete().in('id', slice)
+      if (error) throw new Error(`${table}(delete orphan): ${error.message}`)
+    }
+  }
+
+  const orphanIds = (rows: Record<string, unknown>[]) => {
+    const ids: string[] = []
+    for (const r of rows) {
+      const ym = yearMonthOf(r)
+      if (!ym || started.has(ym)) continue
+      const id = r.id
+      if (id != null && String(id).length > 0) ids.push(String(id))
+    }
+    return ids
+  }
+
+  for (const table of ['incomes', 'fixed_expenses', 'investments', 'separate_items'] as const) {
+    const { data, error } = await supabase.from(table).select('*').eq('household_id', householdId)
+    if (error) throw new Error(`${table}(select orphan): ${error.message}`)
+    const ids = orphanIds((data ?? []) as Record<string, unknown>[])
+    if (ids.length) await delIdsChunked(table, ids)
+  }
+
+  const { data: psRows, error: psErr } = await supabase
+    .from('plan_snapshots')
+    .select('year_month')
+    .eq('household_id', householdId)
+  if (psErr) throw new Error(`plan_snapshots(select orphan): ${psErr.message}`)
+  for (const row of psRows ?? []) {
+    const pr = row as Record<string, unknown>
+    const ym = yearMonthOf(pr)
+    if (!ym || started.has(ym)) continue
+    const { error: dErr } = await supabase
+      .from('plan_snapshots')
+      .delete()
+      .eq('household_id', householdId)
+      .eq('year_month', ym)
+    if (dErr) throw new Error(`plan_snapshots(delete orphan): ${dErr.message}`)
+  }
+
+  const { data: sdRows, error: sdErr } = await supabase
+    .from('settlement_data')
+    .select('year_month')
+    .eq('household_id', householdId)
+  if (sdErr) throw new Error(`settlement_data(select orphan): ${sdErr.message}`)
+  for (const row of sdRows ?? []) {
+    const ym = yearMonthOf(row as Record<string, unknown>)
+    if (!ym || settled.has(ym)) continue
+    const { error: dErr } = await supabase
+      .from('settlement_data')
+      .delete()
+      .eq('household_id', householdId)
+      .eq('year_month', ym)
+    if (dErr) throw new Error(`settlement_data(delete orphan): ${dErr.message}`)
+  }
+}
+
+/**
+ * 작성 삭제 후에도 fixed/invest template_overrides 행이 DB에 남으면 다음 저장·hydrate에서 월 데이터가 되살아날 수 있음.
+ */
+async function deleteOrphanTemplateOverrides(householdId: string, startedMonths: string[]): Promise<void> {
+  if (!supabase) return
+  const started = new Set(startedMonths)
+  if (started.size === 0) return
+
+  for (const table of ['fixed_template_overrides', 'invest_template_overrides'] as const) {
+    const { data, error } = await supabase
+      .from(table)
+      .select('template_id, year_month')
+      .eq('household_id', householdId)
+    if (error) throw new Error(`${table}(select orphan ym): ${error.message}`)
+    const orphans: { templateId: string; ym: string }[] = []
+    for (const r of data ?? []) {
+      const row = r as Record<string, unknown>
+      const ym = str(row, 'year_month', 'yearMonth')
+      const templateId = str(row, 'template_id', 'templateId')
+      if (!ym || !templateId || started.has(ym)) continue
+      orphans.push({ templateId, ym })
+    }
+    for (const { templateId, ym } of orphans) {
+      const { error: dErr } = await supabase
+        .from(table)
+        .delete()
+        .eq('household_id', householdId)
+        .eq('template_id', templateId)
+        .eq('year_month', ym)
+      if (dErr) throw new Error(`${table}(delete orphan ym): ${dErr.message}`)
+    }
+  }
+}
+
 /** 부트스트랩: Auth 세션+가계 연결 시에만 원격 반영. 그 외 로컬만 사용 */
 export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
   if (!isSupabaseConfigured || !supabase) return
@@ -439,7 +611,8 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
   const householdId = getSyncHouseholdId()
   if (!householdId) return
 
-  try {
+  await withSuppressedSyncTrackingAsync(async () => {
+    try {
     const normalized = await hasAnyNormalizedSignal(householdId)
     if (!normalized) {
       const body = await fetchAppSnapshotBody(householdId)
@@ -453,6 +626,7 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
           }
         }
         await rehydrateAllPersistedStores()
+        markPullSuccess()
         return
       }
       /* 정규화 행도 app_snapshot 도 없음(가계 초기화 직후 등) → 아래 select 로 빈 서버 기준으로 로컬 덮어쓰기 */
@@ -681,20 +855,13 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       ...defaultSalaryExcludedByMonth,
     }
 
-    writePersist(KEY_PLAN_EXTRA, {
-      extraRowsByMonth: mergedExtraRowsByMonth,
-      separateExpenseRowsByMonth: mergedSeparateExpenseRowsByMonth,
-      templateSnapshotsByMonth: mergedTemplateSnapshotsByMonth,
-      defaultSalaryExcludedByMonth: mergedDefaultSalaryExcluded,
-    })
-
     const monthlySettlements: MonthlySettlement[] = []
-    const transfers: Record<string, boolean> = {}
-    const settledMonths: string[] = []
+    const transfersFull: Record<string, boolean> = {}
+    const settledYmsFromDb: string[] = []
     for (const row of settlements) {
       const sr = row as unknown as Record<string, unknown>
       const sym = yearMonthOf(sr)
-      settledMonths.push(sym)
+      settledYmsFromDb.push(sym)
       const full = (sr.full_settlement_json ?? sr.fullSettlementJson) as MonthlySettlement | null
       if (
         full &&
@@ -708,19 +875,9 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       const tj = sr.transfers_json ?? sr.transfersJson
       if (tj && typeof tj === 'object' && !Array.isArray(tj)) {
         for (const [itemId, val] of Object.entries(tj as Record<string, boolean>)) {
-          transfers[`${sym}::${itemId}`] = !!val
+          transfersFull[`${sym}::${itemId}`] = !!val
         }
       }
-    }
-    writePersist(KEY_SETTLEMENTS, {
-      settlements: monthlySettlements,
-      transfers,
-    })
-
-    try {
-      localStorage.setItem(KEY_REPO_INCOMES, JSON.stringify(incomeRows.map(incomeFromDbRow)))
-    } catch (e) {
-      console.warn('[supabase-sync] repo incomes', e)
     }
 
     const ymSet = new Set<string>()
@@ -731,6 +888,7 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
     for (const p of planSnaps) ymSet.add(yearMonthOf(p as unknown as Record<string, unknown>))
     for (const s of settlements) ymSet.add(yearMonthOf(s as unknown as Record<string, unknown>))
     const inferredStarted = [...ymSet].sort()
+    const inferredStartedSet = new Set(inferredStarted)
 
     const rawApp = snapBody?.[KEY_APP] as PersistWrap<{
       currentYearMonth?: string
@@ -741,45 +899,96 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       lastSavedByMonth?: Record<string, string>
     }> | undefined
 
-    const mergedSettled = [...new Set([...(rawApp?.state?.settledMonths ?? []), ...settledMonths])].sort()
-    const mergedStarted = [...new Set([...(rawApp?.state?.startedMonths ?? []), ...inferredStarted])].sort()
-
     const localAppState = readPersistedZustandState(KEY_APP)
+
+    const locStarted = Array.isArray(localAppState?.startedMonths) ? (localAppState.startedMonths as string[]) : []
+    const srvStarted = Array.isArray(rawApp?.state?.startedMonths) ? (rawApp.state.startedMonths as string[]) : []
+    /** app_snapshot만 오래된 경우: 스냅샷의 startedMonths ∪ 로컬 이 삭제 월을 되살림 → 서버 월은 DB에 실제 행이 있을 때만 채택 */
+    const srvStartedWithRows = srvStarted.filter((m) => inferredStartedSet.has(m))
+    let mergedStarted = [...new Set([...locStarted, ...srvStartedWithRows])].sort()
+    if (mergedStarted.length === 0) mergedStarted = [...new Set(inferredStarted)].sort()
+
+    const locSettled = Array.isArray(localAppState?.settledMonths) ? (localAppState.settledMonths as string[]) : []
+    const srvSettled = Array.isArray(rawApp?.state?.settledMonths) ? (rawApp.state.settledMonths as string[]) : []
+    const settledFromDbSet = new Set(settledYmsFromDb)
+    const srvSettledWithRows = srvSettled.filter((m) => settledFromDbSet.has(m))
+    let mergedSettled = [...new Set([...locSettled, ...srvSettledWithRows])].sort()
+    if (mergedSettled.length === 0) mergedSettled = [...settledFromDbSet].sort()
+
+    const mergedStartedSet = new Set(mergedStarted)
+    const mergedSettledSet = new Set(mergedSettled)
+    pruneMonthKeyedRecord(mergedExtraRowsByMonth, mergedStartedSet)
+    pruneMonthKeyedRecord(mergedSeparateExpenseRowsByMonth, mergedStartedSet)
+    pruneMonthKeyedRecord(mergedTemplateSnapshotsByMonth, mergedStartedSet)
+    pruneMonthKeyedRecord(mergedDefaultSalaryExcluded, mergedStartedSet)
+
+    writePersist(KEY_PLAN_EXTRA, {
+      extraRowsByMonth: mergedExtraRowsByMonth,
+      separateExpenseRowsByMonth: mergedSeparateExpenseRowsByMonth,
+      templateSnapshotsByMonth: mergedTemplateSnapshotsByMonth,
+      defaultSalaryExcludedByMonth: mergedDefaultSalaryExcluded,
+    })
+
+    const persistedSettlements = monthlySettlements.filter((s) => mergedSettledSet.has(s.yearMonth))
+    const persistedTransfers: Record<string, boolean> = {}
+    for (const [k, v] of Object.entries(transfersFull)) {
+      const ym = k.split('::')[0] ?? ''
+      if (mergedSettledSet.has(ym)) persistedTransfers[k] = v
+    }
+    writePersist(KEY_SETTLEMENTS, {
+      settlements: persistedSettlements,
+      transfers: persistedTransfers,
+    })
+
+    try {
+      localStorage.setItem(KEY_REPO_INCOMES, JSON.stringify(incomeRows.map(incomeFromDbRow)))
+    } catch (e) {
+      console.warn('[supabase-sync] repo incomes', e)
+    }
     const now = new Date()
     const defaultYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
     if (rawApp?.state && typeof rawApp.state === 'object') {
       const st = rawApp.state as Record<string, unknown>
       const mergedSettings = mergeAppSettingsForHydrate(st.settings, localAppState?.settings)
+      const sm = mergedStarted.length ? mergedStarted : ((st.startedMonths as string[]) ?? [])
+      const startedSetForLsb = new Set(sm)
       writePersist(KEY_APP, {
         ...st,
         settings: mergedSettings,
-        startedMonths: mergedStarted.length ? mergedStarted : (st.startedMonths as string[]) ?? [],
+        startedMonths: sm,
         settledMonths: mergedSettled,
+        lastSavedByMonth: pruneLastSavedByMonth(st.lastSavedByMonth, startedSetForLsb),
       })
     } else if (localAppState) {
       const mergedSettings = mergeAppSettingsForHydrate(undefined, localAppState.settings)
+      const sm = mergedStarted.length ? mergedStarted : ((localAppState.startedMonths as string[]) ?? [defaultYm])
+      const startedSetForLsb = new Set(sm)
       writePersist(KEY_APP, {
         ...localAppState,
         settings: mergedSettings,
-        startedMonths: mergedStarted.length ? mergedStarted : (localAppState.startedMonths as string[]) ?? [defaultYm],
+        startedMonths: sm,
         settledMonths: mergedSettled,
+        lastSavedByMonth: pruneLastSavedByMonth(localAppState.lastSavedByMonth, startedSetForLsb),
       })
     } else {
+      const sm = mergedStarted.length ? mergedStarted : [defaultYm]
       writePersist(KEY_APP, {
         currentYearMonth: defaultYm,
         yearPickerMaxYear: Math.max(2026, now.getFullYear()),
         settings: { ...HYDRATE_DEFAULT_APP_SETTINGS },
-        startedMonths: mergedStarted.length ? mergedStarted : [defaultYm],
+        startedMonths: sm,
         settledMonths: mergedSettled,
         lastSavedByMonth: {},
       })
     }
 
     await rehydrateAllPersistedStores()
+    markPullSuccess()
   } catch (e) {
     console.warn('[supabase-sync] hydrate failed, keeping local storage', e)
   }
+  })
 }
 
 export type SaveAllToSupabaseResult =
@@ -832,6 +1041,9 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
     const planS = usePlanExtraStore.getState()
     const appS = useAppStore.getState()
     const settleS = useSettlementStore.getState()
+
+    await deleteOrphanHouseholdPlanMonths(householdId, appS.startedMonths ?? [], appS.settledMonths ?? [])
+    await deleteOrphanTemplateOverrides(householdId, appS.startedMonths ?? [])
 
     await deleteOrphanFixedTemplates(householdId, new Set(fixedS.templates.map((t) => t.id)))
 
@@ -1024,12 +1236,14 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
 
     const snap = await upsertAppSnapshot(householdId)
     if (!snap.ok) {
+      markPushSuccess()
       return {
         ok: true,
         snapshotOk: false,
         snapshotHint: `정규화 테이블은 반영되었습니다. app_snapshot 백업만 실패했습니다. (${snap.reason})`,
       }
     }
+    markPushSuccess()
     return { ok: true, snapshotOk: true }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)

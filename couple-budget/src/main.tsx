@@ -6,8 +6,8 @@ import {
   getSyncHouseholdId,
   clearCoupleBudgetLocalDataKeepAuth,
 } from '@/services/authHousehold'
-import { hydrateFromSupabaseBeforeApp } from '@/services/supabase-sync'
-import { rehydrateAllPersistedStores } from '@/store/rehydratePersistedStores'
+import { setCloudSyncReady } from '@/services/debouncedCloudSync'
+import { rehydrateThenPreflightPullRehydrate } from '@/services/syncBootstrap'
 
 const sessionResult = await ensureSupabaseSessionForSync()
 if (!sessionResult.ok) {
@@ -21,9 +21,8 @@ await resolveSessionAndHouseholdBeforeHydrate()
 if (!getSyncHouseholdId()) {
   clearCoupleBudgetLocalDataKeepAuth()
 }
-await hydrateFromSupabaseBeforeApp()
-/** persist 초기 hydration과 hydrate 타이밍이 겹치면 빈 상태가 남을 수 있어 한 번 더 맞춤 */
-await rehydrateAllPersistedStores()
+await rehydrateThenPreflightPullRehydrate()
+setCloudSyncReady(true)
 
 const { createRoot } = await import('react-dom/client')
 const { StrictMode } = await import('react')

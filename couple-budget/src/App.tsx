@@ -20,6 +20,9 @@ import {
 } from '@/styles/jellyGlass'
 import { NarrowLayoutProvider, useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { MobileSnackbar } from '@/components/MobileSnackbar'
+import { subscribePersistedStoresToCloudSync } from '@/services/debouncedCloudSync'
+import { rehydrateThenPreflightPullRehydrate } from '@/services/syncBootstrap'
+import { useSyncStatusStore } from '@/store/useSyncStatusStore'
 
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', icon: '📊' },
@@ -60,6 +63,7 @@ function AppShell() {
         setCloudMsg({ tone: 'err', text: res.message })
         return
       }
+      useSyncStatusStore.getState().recordSyncSuccess()
       if (res.snapshotOk) {
         setCloudMsg({ tone: 'ok', text: 'Supabase에 반영했습니다. (가계에 연동된 데이터)' })
       } else {
@@ -83,10 +87,13 @@ function AppShell() {
       void (async () => {
         if (!session) await ensureSupabaseSessionForSync()
         await resolveSessionAndHouseholdBeforeHydrate()
+        await rehydrateThenPreflightPullRehydrate()
       })()
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => subscribePersistedStoresToCloudSync(), [])
 
   return (
     <div

@@ -40,7 +40,6 @@ export function SpendingDonut(props: {
           boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)',
         }}
       />
-      {/* subtle outer ring gloss */}
       <div
         style={{
           position: 'absolute',
@@ -52,10 +51,4 @@ export function SpendingDonut(props: {
       />
     </div>
   )
-}
-
-export const chartColors = {
-  primary: DS.color.primary,
-  soft: '#94B8FF',
-  muted: DS.color.bg.tertiary,
 }
