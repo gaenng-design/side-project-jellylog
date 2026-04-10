@@ -26,6 +26,8 @@ interface InvestTemplateState {
   setMonthlyAmount: (key: string, yearMonth: string, amount: number) => void
   getMonthlyAmount: (key: string, yearMonth: string) => number | undefined
   clearMonthForYearMonth: (ym: string) => void
+  /** startedMonths 에 없는 달의 exclusions·monthlyAmounts 일괄 제거 */
+  pruneMonthOverrides: (activeMonths: Set<string>) => void
 }
 
 const catOrder: Record<string, number> = { 저축: 0, 투자: 1 }
@@ -133,6 +135,16 @@ export const useInvestTemplateStore = create<InvestTemplateState>()(
           exclusions: s.exclusions.filter((e) => e.yearMonth !== ym),
           monthlyAmounts: Object.fromEntries(
             Object.entries(s.monthlyAmounts).filter(([k]) => !k.endsWith(`::${ym}`)),
+          ),
+        })),
+      pruneMonthOverrides: (activeMonths) =>
+        set((s) => ({
+          exclusions: s.exclusions.filter((e) => activeMonths.has(e.yearMonth)),
+          monthlyAmounts: Object.fromEntries(
+            Object.entries(s.monthlyAmounts).filter(([k]) => {
+              const ym = k.split('::')[1]
+              return ym != null && activeMonths.has(ym)
+            }),
           ),
         })),
     }),

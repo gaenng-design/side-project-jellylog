@@ -8,6 +8,13 @@ import {
   INPUT_BORDER,
   PRIMARY,
   PRIMARY_LIGHT,
+  DROPDOWN_PADDING_COMPACT,
+  DROPDOWN_PADDING_REGULAR,
+  DROPDOWN_CARET_COLOR,
+  DROPDOWN_CARET_FONT_SIZE_COMPACT,
+  DROPDOWN_CARET_FONT_SIZE_REGULAR,
+  DROPDOWN_ITEM_PADDING_COMPACT,
+  DROPDOWN_ITEM_PADDING_REGULAR,
 } from '@/styles/formControls'
 
 const DAY_OPTIONS = [
@@ -36,9 +43,10 @@ interface DaySelectProps {
   onChange: (v: number | undefined) => void
   disabled?: boolean
   compact?: boolean
+  width?: number
 }
 
-export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps) {
+export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELECT_TRIGGER_WIDTH }: DaySelectProps) {
   const [open, setOpen] = useState(false)
   const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
@@ -92,9 +100,9 @@ export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps
   const close = () => setOpen(false)
 
   const triggerFixedW = {
-    width: DAY_SELECT_TRIGGER_WIDTH,
-    minWidth: DAY_SELECT_TRIGGER_WIDTH,
-    maxWidth: DAY_SELECT_TRIGGER_WIDTH,
+    width,
+    minWidth: width,
+    maxWidth: width,
     boxSizing: 'border-box' as const,
   }
 
@@ -103,11 +111,11 @@ export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps
         height: INPUT_HEIGHT,
         minHeight: INPUT_HEIGHT,
         ...triggerFixedW,
-        padding: '0 8px',
+        padding: DROPDOWN_PADDING_COMPACT,
         display: 'inline-flex' as const,
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 4,
+        gap: 6,
         fontSize: 12,
         borderRadius: INPUT_BORDER_RADIUS,
         border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
@@ -122,7 +130,7 @@ export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps
     : {
         height: INPUT_HEIGHT,
         ...triggerFixedW,
-        padding: '0 8px',
+        padding: DROPDOWN_PADDING_REGULAR,
         border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
         borderRadius: INPUT_BORDER_RADIUS,
         fontSize: INPUT_FONT_SIZE,
@@ -133,7 +141,7 @@ export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 6,
+        gap: 8,
         fontFamily: 'inherit',
       }
 
@@ -158,7 +166,7 @@ export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps
           style={triggerStyle}
         >
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayValue || '미정'}</span>
-          <span style={{ color: '#6b7280', fontSize: compact ? 10 : 12, flexShrink: 0 }}>▾</span>
+          <span style={{ color: DROPDOWN_CARET_COLOR, fontSize: compact ? DROPDOWN_CARET_FONT_SIZE_COMPACT : DROPDOWN_CARET_FONT_SIZE_REGULAR, flexShrink: 0 }}>▾</span>
         </button>
       </div>
       {open &&
@@ -191,8 +199,8 @@ export function DaySelect({ value, onChange, disabled, compact }: DaySelectProps
                     close()
                   }}
                   style={{
-                    minHeight: INPUT_HEIGHT,
-                    padding: compact ? '0 12px' : '0 14px',
+                    height: INPUT_HEIGHT,
+                    padding: compact ? DROPDOWN_ITEM_PADDING_COMPACT : DROPDOWN_ITEM_PADDING_REGULAR,
                     display: 'flex',
                     alignItems: 'center',
                     fontSize: compact ? 12 : INPUT_FONT_SIZE,

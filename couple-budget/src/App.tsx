@@ -4,11 +4,13 @@ import { ExpensePlanPage } from '@/features/expense-plan/ExpensePlanPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { AccountPage } from '@/features/auth/AccountPage'
+import { AssetPage } from '@/features/assets/AssetPage'
 import { supabase, isSupabaseConfigured } from '@/data/supabase'
 import { saveAllToSupabase } from '@/data/saveAllToSupabase'
 import {
   ensureSupabaseSessionForSync,
   resolveSessionAndHouseholdBeforeHydrate,
+  getSyncHouseholdName,
 } from '@/services/authHousehold'
 import {
   JELLY,
@@ -23,10 +25,12 @@ import { MobileSnackbar } from '@/components/MobileSnackbar'
 import { subscribePersistedStoresToCloudSync } from '@/services/debouncedCloudSync'
 import { rehydrateThenPreflightPullRehydrate } from '@/services/syncBootstrap'
 import { useSyncStatusStore } from '@/store/useSyncStatusStore'
+import { useAppStore } from '@/store/useAppStore'
 
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', icon: '📊' },
   { to: '/expense-plan', label: '지출 계획', icon: '📋' },
+  { to: '/assets', label: '자산', icon: '💰' },
   { to: '/account', label: '계정', icon: '👤' },
   { to: '/settings', label: '설정', icon: '⚙️' },
 ]
@@ -38,8 +42,14 @@ function AppShell() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [cloudSaving, setCloudSaving] = useState(false)
   const [cloudMsg, setCloudMsg] = useState<{ tone: 'ok' | 'err' | 'hint'; text: string } | null>(null)
+  const setHouseholdName = useAppStore((s) => s.setHouseholdName)
   const sidebarWidth = sidebarCollapsed ? 56 : 220
   const iconOnlyNav = narrow || sidebarCollapsed
+
+  useEffect(() => {
+    const householdName = getSyncHouseholdName()
+    setHouseholdName(householdName)
+  }, [setHouseholdName])
 
   useEffect(() => {
     setMobileMenuOpen(false)
@@ -480,6 +490,7 @@ function AppShell() {
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/expense-plan" element={<ExpensePlanPage />} />
+            <Route path="/assets" element={<AssetPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>

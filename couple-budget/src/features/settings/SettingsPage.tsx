@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useAppStore, YEAR_PICKER_MIN, getYearPickerYearOptions } from '@/store/useAppStore'
+import { useAppStore, YEAR_PICKER_MIN, DEFAULT_FIXED_CATEGORIES } from '@/store/useAppStore'
 import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
 import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
 import { UserChipColorSelect } from '@/components/UserChipColorSelect'
@@ -10,6 +10,7 @@ import { PersonToggle, getPersonStyle } from '@/components/PersonUI'
 import { AmountInput } from '@/components/AmountInput'
 import { DaySelect } from '@/components/DaySelect'
 import { CustomSelect } from '@/components/CustomSelect'
+import { YearSelectDropdown } from '@/components/YearSelectDropdown'
 import { FixedExpenseRow } from '@/components/FixedExpenseRow'
 import { InvestRow } from '@/components/InvestRow'
 import { GroupHeaderChip } from '@/components/GroupHeaderChip'
@@ -19,10 +20,14 @@ import {
   inputBaseStyle,
   CATEGORY_SELECT_TRIGGER_WIDTH,
   PRIMARY,
+  PRIMARY_LIGHT,
   settingsSectionCardWithBleedTitleStyle,
   settingsSectionTitleWrapForViewport,
   settingsTemplateGroupHeaderForViewport,
   pageTitleH1Style,
+  settingsTemplateDeleteButtonStyle,
+  settingsTemplateAddItemButtonBase,
+  SETTINGS_TEMPLATE_ROW_HEIGHT,
 } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
@@ -30,7 +35,6 @@ import { downloadYearBudgetExcel } from '@/lib/yearExcelExport'
 import type { Person } from '@/types'
 import type { FixedTemplate, InvestTemplate } from '@/types'
 
-const FIXED_CATEGORIES = ['주거', '통신', '보험', '구독', '교통', '식비', '의료', '교육', '문화', '관리비', '기타']
 const INVEST_CATEGORIES = ['저축', '투자']
 const PERSON_ORDER = ['공금', 'A', 'B'] as const
 
@@ -466,9 +470,148 @@ function SharedLivingCostSettings() {
   )
 }
 
+function DragCategoryItem({ idx, cat, onRename, onDelete }: { idx: number; cat: string; onRename: (val: string) => void; onDelete: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({ id: `cat-${idx}` })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition: isDragging ? 'none' : 'transform 200ms ease',
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div {...attributes} {...listeners} style={{ padding: '4px 2px', cursor: isDragging ? 'grabbing' : 'grab', color: '#d1d5db', flexShrink: 0 }}>
+          ⋮
+        </div>
+        <input
+          value={cat}
+          onChange={(e) => onRename(e.target.value)}
+          style={{
+            flex: 1,
+            minWidth: 0,
+            height: SETTINGS_TEMPLATE_ROW_HEIGHT,
+            padding: '0 10px',
+            borderRadius: JELLY.radiusControl,
+            border: '1px solid #e5e7eb',
+            background: '#fff',
+            fontSize: 13,
+            outline: 'none',
+            boxSizing: 'border-box',
+            fontFamily: 'inherit',
+            color: JELLY.text,
+          }}
+        />
+        <button type="button" onClick={onDelete} style={settingsTemplateDeleteButtonStyle}>
+          ×
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const updateSettings = useAppStore((s) => s.updateSettings)
+  const categories = useAppStore((s) => s.settings.fixedCategories) ?? DEFAULT_FIXED_CATEGORIES
+  const [newCat, setNewCat] = useState('')
+  const newCatInputRef = useRef<HTMLInputElement>(null)
+  const sensors = useSensors(useSensor(PointerSensor, { distance: 8 }))
+
+  const update = (next: string[]) => updateSettings({ fixedCategories: next })
+
+  const handleRename = (idx: number, val: string) => {
+    const next = [...categories]
+    next[idx] = val
+    update(next)
+  }
+
+  const handleDelete = (idx: number) => {
+    update(categories.filter((_, i) => i !== idx))
+  }
+
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const activeIdx = parseInt(active.id.split('-')[1])
+    const overIdx = parseInt(over.id.split('-')[1])
+
+    const next = [...categories]
+    ;[next[activeIdx], next[overIdx]] = [next[overIdx], next[activeIdx]]
+    update(next)
+  }
+
+  const handleAdd = () => {
+    const t = newCat.trim()
+    if (!t || categories.includes(t)) return
+    update([...categories, t])
+    setNewCat('')
+    newCatInputRef.current?.focus()
+  }
+
+  return (
+    <Modal open={open} title="카테고리 수정" onClose={onClose}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={categories.map((_, i) => `cat-${i}`)} strategy={verticalListSortingStrategy}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 320, overflowY: 'auto', marginBottom: 4 }}>
+              {categories.map((cat, idx) => (
+                <DragCategoryItem
+                  key={idx}
+                  idx={idx}
+                  cat={cat}
+                  onRename={(val) => handleRename(idx, val)}
+                  onDelete={() => handleDelete(idx)}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <input
+            ref={newCatInputRef}
+            value={newCat}
+            onChange={(e) => setNewCat(e.target.value)}
+            placeholder="새 카테고리 입력"
+            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              height: SETTINGS_TEMPLATE_ROW_HEIGHT,
+              padding: '0 10px',
+              borderRadius: JELLY.radiusControl,
+              border: '1px solid #e5e7eb',
+              background: '#fff',
+              fontSize: 13,
+              outline: 'none',
+              boxSizing: 'border-box',
+              fontFamily: 'inherit',
+              color: JELLY.text,
+            }}
+          />
+          <button
+            type="button"
+            onClick={handleAdd}
+            style={{
+              ...settingsTemplateAddItemButtonBase,
+              background: newCat.trim() ? PRIMARY_LIGHT : '#f3f4f6',
+              color: newCat.trim() ? PRIMARY : '#9ca3af',
+              cursor: newCat.trim() ? 'pointer' : 'default',
+            }}
+          >
+            + 추가
+          </button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
 function FixedTemplateSettings() {
   const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
+  const fixedCategories = settings.fixedCategories ?? DEFAULT_FIXED_CATEGORIES
   const templatesRaw = useFixedTemplateStore((s) => s.templates)
   const addTemplate = useFixedTemplateStore((s) => s.addTemplate)
   const updateTemplate = useFixedTemplateStore((s) => s.updateTemplate)
@@ -495,6 +638,7 @@ function FixedTemplateSettings() {
     separatePerson: 'A',
   })
   const [addFixedOpen, setAddFixedOpen] = useState(false)
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false)
 
   const resetFixedAddForm = () => {
     setFixedAddForm({
@@ -553,29 +697,46 @@ function FixedTemplateSettings() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 12,
+            gap: 8,
             flexWrap: 'wrap',
           }}
         >
           <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>고정지출 템플릿</div>
-          <button
-            type="button"
-            onClick={() => {
-              resetFixedAddForm()
-              setAddFixedOpen(true)
-            }}
-            style={{
-              fontSize: 12,
-              padding: '6px 12px',
-              borderRadius: JELLY.radiusControl,
-              border: '1px solid #e5e7eb',
-              background: '#f9fafb',
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
-          >
-            + 항목 추가
-          </button>
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={() => setCategoryModalOpen(true)}
+              style={{
+                fontSize: 12,
+                padding: '6px 12px',
+                borderRadius: JELLY.radiusControl,
+                border: '1px solid #e5e7eb',
+                background: '#f9fafb',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              카테고리 수정
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                resetFixedAddForm()
+                setAddFixedOpen(true)
+              }}
+              style={{
+                fontSize: 12,
+                padding: '6px 12px',
+                borderRadius: JELLY.radiusControl,
+                border: '1px solid #e5e7eb',
+                background: '#f9fafb',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              + 항목 추가
+            </button>
+          </div>
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
@@ -644,38 +805,43 @@ function FixedTemplateSettings() {
               onChange={(p) => setFixedAddForm((f) => ({ ...f, person: p }))}
             />
           </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
-            <CustomSelect
-              options={FIXED_CATEGORIES}
-              value={fixedAddForm.category}
-              onChange={(v) => setFixedAddForm((f) => ({ ...f, category: v }))}
-              placeholder="카테고리 선택"
-              triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
-            />
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+            <div style={{ flex: '0 0 auto' }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+              <CustomSelect
+                options={fixedCategories}
+                value={fixedAddForm.category}
+                onChange={(v) => setFixedAddForm((f) => ({ ...f, category: v }))}
+                placeholder="카테고리 선택"
+                triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+              <input
+                value={fixedAddForm.description}
+                onChange={(e) => setFixedAddForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="예: 관리비"
+                style={{ width: '100%', ...inputBaseStyle }}
+              />
+            </div>
           </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
-            <input
-              value={fixedAddForm.description}
-              onChange={(e) => setFixedAddForm((f) => ({ ...f, description: e.target.value }))}
-              placeholder="예: 관리비"
-              style={{ width: '100%', ...inputBaseStyle }}
-            />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
-            <AmountInput
-              value={fixedAddForm.amount}
-              onChange={(v) => setFixedAddForm((f) => ({ ...f, amount: v }))}
-            />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
-            <DaySelect
-              value={fixedAddForm.payDay}
-              onChange={(v) => setFixedAddForm((f) => ({ ...f, payDay: v }))}
-            />
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+            <div style={{ flex: '0 0 auto' }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
+              <DaySelect
+                value={fixedAddForm.payDay}
+                onChange={(v) => setFixedAddForm((f) => ({ ...f, payDay: v }))}
+                width={100}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+              <AmountInput
+                value={fixedAddForm.amount}
+                onChange={(v) => setFixedAddForm((f) => ({ ...f, amount: v }))}
+              />
+            </div>
           </div>
           {(() => {
             const sepSlot = fixedAddForm.separatePerson ?? 'A'
@@ -1017,82 +1183,86 @@ function InvestTemplateSettings() {
               options={['A', 'B']}
             />
           </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
-            <CustomSelect
-              options={INVEST_CATEGORIES}
-              value={category}
-              onChange={(v) => setCategory(v)}
-              placeholder="카테고리"
-              triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
-            />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
-            <input
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-              placeholder="예: 적금, ETF"
-              style={{ width: '100%', ...inputBaseStyle }}
-            />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
-            <AmountInput value={amount} onChange={(v) => setAmount(v)} />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', position: 'relative' }}>
-              <input
-                ref={addFormDateRef}
-                type="date"
-                value={maturityDate}
-                onChange={(e) => setMaturityDate(e.target.value)}
-                style={{ position: 'absolute', opacity: 0, width: 1, height: 1, left: 0, top: 0, pointerEvents: 'none' }}
-                tabIndex={-1}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+            <div style={{ flex: '0 0 auto' }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+              <CustomSelect
+                options={INVEST_CATEGORIES}
+                value={category}
+                onChange={(v) => setCategory(v)}
+                placeholder="카테고리"
+                triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
               />
-              <button
-                type="button"
-                onClick={() => {
-                  const el = addFormDateRef.current
-                  if (el) {
-                    if (typeof el.showPicker === 'function') el.showPicker()
-                    else el.click()
-                  }
-                }}
-                title="만기일 선택"
-                style={{
-                  padding: '8px 12px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: JELLY.radiusControl,
-                  background: '#fff',
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  color: '#6b7280',
-                }}
-              >
-                📅 날짜 선택
-              </button>
-              {maturityDate && (
-                <span style={{ fontSize: 13, color: '#111827' }}>{formatInvestMaturityLabel(maturityDate)}</span>
-              )}
-              {maturityDate && (
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+              <input
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                placeholder="예: 적금, ETF"
+                style={{ width: '100%', ...inputBaseStyle }}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+            <div style={{ flex: '0 0 auto' }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', position: 'relative' }}>
+                <input
+                  ref={addFormDateRef}
+                  type="date"
+                  value={maturityDate}
+                  onChange={(e) => setMaturityDate(e.target.value)}
+                  style={{ position: 'absolute', opacity: 0, width: 1, height: 1, left: 0, top: 0, pointerEvents: 'none' }}
+                  tabIndex={-1}
+                />
                 <button
                   type="button"
-                  onClick={() => setMaturityDate('')}
+                  onClick={() => {
+                    const el = addFormDateRef.current
+                    if (el) {
+                      if (typeof el.showPicker === 'function') el.showPicker()
+                      else el.click()
+                    }
+                  }}
+                  title="만기일 선택"
                   style={{
-                    fontSize: 12,
-                    padding: '4px 8px',
-                    borderRadius: JELLY.radiusControl,
+                    padding: '8px 12px',
                     border: '1px solid #e5e7eb',
-                    background: '#f9fafb',
+                    borderRadius: JELLY.radiusControl,
+                    background: '#fff',
                     cursor: 'pointer',
+                    fontSize: 13,
                     color: '#6b7280',
                   }}
                 >
-                  지우기
+                  📅 날짜 선택
                 </button>
-              )}
+                {maturityDate && (
+                  <span style={{ fontSize: 13, color: '#111827' }}>{formatInvestMaturityLabel(maturityDate)}</span>
+                )}
+                {maturityDate && (
+                  <button
+                    type="button"
+                    onClick={() => setMaturityDate('')}
+                    style={{
+                      fontSize: 12,
+                      padding: '4px 8px',
+                      borderRadius: JELLY.radiusControl,
+                      border: '1px solid #e5e7eb',
+                      background: '#f9fafb',
+                      cursor: 'pointer',
+                      color: '#6b7280',
+                    }}
+                  >
+                    지우기
+                  </button>
+                )}
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+              <AmountInput value={amount} onChange={(v) => setAmount(v)} />
             </div>
           </div>
         </div>
@@ -1133,6 +1303,8 @@ function InvestTemplateSettings() {
           </button>
         </div>
       </Modal>
+
+      <CategorySettingsModal open={categoryModalOpen} onClose={() => setCategoryModalOpen(false)} />
     </div>
   )
 }
@@ -1140,16 +1312,10 @@ function InvestTemplateSettings() {
 function YearExcelExportSection() {
   const narrow = useNarrowLayout()
   const currentYearMonth = useAppStore((s) => s.currentYearMonth)
-  const yearPickerMaxYear = useAppStore((s) => s.yearPickerMaxYear)
   const defaultYear = Number(String(currentYearMonth).split('-')[0]) || YEAR_PICKER_MIN
   const [exportYear, setExportYear] = useState(defaultYear)
   const [exporting, setExporting] = useState(false)
   const [exportErr, setExportErr] = useState<string | null>(null)
-
-  const yearOptions = useMemo(
-    () => getYearPickerYearOptions(yearPickerMaxYear, exportYear),
-    [yearPickerMaxYear, exportYear],
-  )
 
   return (
     <div style={settingsSectionCardWithBleedTitleStyle}>
@@ -1161,20 +1327,10 @@ function YearExcelExportSection() {
         <strong style={{ color: '#111827' }}>데이터가 있는 달만</strong> 월별 시트가 추가됩니다.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: JELLY.text }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: JELLY.text }}>
           <span style={{ color: JELLY.textMuted }}>연도</span>
-          <select
-            value={exportYear}
-            onChange={(e) => setExportYear(Number(e.target.value))}
-            style={{ ...inputBaseStyle, minWidth: 100, height: 38 }}
-          >
-            {yearOptions.map((y) => (
-              <option key={y} value={y}>
-                {y}년
-              </option>
-            ))}
-          </select>
-        </label>
+          <YearSelectDropdown value={exportYear} onChange={setExportYear} variant="light" />
+        </div>
         <button
           type="button"
           disabled={exporting}

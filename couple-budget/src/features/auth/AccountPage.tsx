@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { supabase, isSupabaseConfigured } from '@/data/supabase'
 import {
-  createHouseholdRpc,
-  joinHouseholdRpc,
+  createHouseholdByNameRpc,
+  joinHouseholdByPasswordRpcWithHydrate,
   ensureSupabaseSessionForSync,
   resolveSessionAndHouseholdBeforeHydrate,
   leaveHouseholdAndClearLocal,
   getSyncHouseholdId,
-  getSavedAccessCode,
+  getSyncHouseholdName,
+  getRememberHousehold,
 } from '@/services/authHousehold'
 import {
   JELLY,
@@ -18,21 +19,39 @@ import {
   jellyInputSurface,
   jellyErrorBanner,
   jellySuccessBanner,
-  jellyGhostButton,
 } from '@/styles/jellyGlass'
-import { PRIMARY_DARK, pageTitleH1Style } from '@/styles/formControls'
+import { PRIMARY, PRIMARY_DARK, pageTitleH1Style } from '@/styles/formControls'
 
 export function AccountPage() {
-  const [accessCodeInput, setAccessCodeInput] = useState('')
+  // Join form state
+  const [householdName, setHouseholdName] = useState('')
+  const [password, setPassword] = useState('')
+  const [rememberHousehold, setRememberHousehold] = useState(false)
+
+  // Create modal state
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [createHouseholdName, setCreateHouseholdName] = useState('')
+  const [createPassword, setCreatePassword] = useState('')
+  const [createConfirmPassword, setCreateConfirmPassword] = useState('')
+
+  // UI state
   const [sessionReady, setSessionReady] = useState(false)
-  /** 첫 페인트부터 미연결 UI가 잠깐 보이지 않도록 로컬에 저장된 가계 ID로 초기화 */
   const [householdId, setHouseholdId] = useState<string | null>(() => getSyncHouseholdId())
+  const [connectedHouseholdName, setConnectedHouseholdName] = useState<string | null>(() => getSyncHouseholdName())
   const [msg, setMsg] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null)
   const [busy, setBusy] = useState(false)
   const [sessionError, setSessionError] = useState<string | null>(null)
 
-  /** 가계 연결 시 localStorage 에 저장된 16자 코드(만든 사람·참여 시 입력한 코드). 페이지를 다시 열어도 동일 */
-  const persistedAccessCode = householdId ? getSavedAccessCode() : null
+  // Load remembered household name if checkbox was previously checked
+  useEffect(() => {
+    const remembered = getRememberHousehold()
+    if (remembered) {
+      const savedName = getSyncHouseholdName()
+      if (savedName) {
+        setHouseholdName(savedName)
+      }
+    }
+  }, [])
 
   const refreshLocal = async () => {
     if (!isSupabaseConfigured || !supabase) {
@@ -45,6 +64,7 @@ export function AccountPage() {
       setSessionError(ensured.reason)
       setSessionReady(false)
       setHouseholdId(null)
+      setConnectedHouseholdName(null)
       return
     }
     setSessionError(null)
@@ -53,8 +73,8 @@ export function AccountPage() {
     } = await supabase.auth.getSession()
     setSessionReady(!!session?.user)
     await resolveSessionAndHouseholdBeforeHydrate()
-    /** 전체 pull은 부트·인증 변경 시에만 (여기서 매번 하면 지출 계획 등 로컬 편집이 서버로 덮어써질 수 있음) */
     setHouseholdId(getSyncHouseholdId())
+    setConnectedHouseholdName(getSyncHouseholdName())
   }
 
   useEffect(() => {
@@ -68,19 +88,36 @@ export function AccountPage() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const handleCreateHousehold = async () => {
+  const handleCreate = async () => {
     setMsg(null)
+    if (!createHouseholdName.trim()) {
+      setMsg({ tone: 'err', text: '가계 이름을 입력해 주세요.' })
+      return
+    }
+    if (!createPassword.trim()) {
+      setMsg({ tone: 'err', text: '비밀번호를 입력해 주세요.' })
+      return
+    }
+    if (createPassword !== createConfirmPassword) {
+      setMsg({ tone: 'err', text: '비밀번호가 일치하지 않습니다.' })
+      return
+    }
     setBusy(true)
     try {
-      const res = await createHouseholdRpc()
+      const res = await createHouseholdByNameRpc(createHouseholdName.trim(), createPassword)
       if (!res.ok) {
         setMsg({ tone: 'err', text: res.error })
         return
       }
       setHouseholdId(res.householdId)
+      setConnectedHouseholdName(createHouseholdName.trim())
+      setCreateHouseholdName('')
+      setCreatePassword('')
+      setCreateConfirmPassword('')
+      setShowCreateModal(false)
       setMsg({
         tone: 'ok',
-        text: '가계가 만들어졌습니다. 아래 아이디를 상대에게 전달하면 같은 가계에 들어올 수 있습니다. 이 기기에도 저장되어 앱을 다시 켜도 이어집니다.',
+        text: `가계 "${createHouseholdName.trim()}"가 만들어졌습니다. 상대방과 가계 이름과 비밀번호를 공유해 주세요.`,
       })
     } finally {
       setBusy(false)
@@ -89,22 +126,33 @@ export function AccountPage() {
 
   const handleJoin = async () => {
     setMsg(null)
+    if (!householdName.trim()) {
+      setMsg({ tone: 'err', text: '가계 이름을 입력해 주세요.' })
+      return
+    }
+    if (!password.trim()) {
+      setMsg({ tone: 'err', text: '비밀번호를 입력해 주세요.' })
+      return
+    }
     setBusy(true)
     try {
-      const res = await joinHouseholdRpc(accessCodeInput)
+      const res = await joinHouseholdByPasswordRpcWithHydrate(householdName.trim(), password)
       if (!res.ok) {
         setMsg({ tone: 'err', text: res.error })
         return
       }
       setHouseholdId(res.householdId)
-      setAccessCodeInput('')
-      setMsg({ tone: 'ok', text: '같은 가계에 연결했습니다. 서버 데이터를 이 기기에 반영했습니다.' })
+      setConnectedHouseholdName(householdName.trim())
+      setMsg({
+        tone: 'ok',
+        text: `가계 "${householdName.trim()}"에 입장했습니다.`,
+      })
     } finally {
       setBusy(false)
     }
   }
 
-  const handleResetDevice = async () => {
+  const handleDisconnect = async () => {
     setMsg(null)
     setBusy(true)
     try {
@@ -115,7 +163,7 @@ export function AccountPage() {
       }
       setMsg({
         tone: 'ok',
-        text: '가계 연결이 끊겼습니다. 이 기기의 월별·템플릿·설정 저장은 비웁니다. 같은 접속 코드로 다시 참여하면 서버 데이터를 불러옵니다. 잠시 후 새로고침합니다.',
+        text: '가계 연결이 끊겼습니다. 잠시 후 새로고침합니다.',
       })
       window.setTimeout(() => window.location.reload(), 500)
     } finally {
@@ -138,30 +186,246 @@ export function AccountPage() {
   return (
     <div style={{ maxWidth: 520, paddingBottom: 40 }}>
       <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>계정</h1>
-      <p style={{ color: JELLY.textMuted, fontSize: 13, lineHeight: 1.55, marginBottom: 20 }}>
-        {householdId ? (
-          <>
-            가계에 연결된 상태입니다. 아래 <strong>접속 코드</strong>를 상대에게 알려 주면 같은 가계에 참여할 수 있습니다.
-            동기화는 서버와 자동으로 이뤄집니다. (MVP: 사용자 2명까지)
-          </>
-        ) : (
-          <>
-            <strong style={{ color: JELLY.text }}>새 가계 만들기</strong>를 누르면 이 가계만의{' '}
-            <strong>아이디(16자, 0–9·A–F)</strong>가 발급됩니다. 그 아이디가 곧 <strong>접속 코드</strong>이며, 상대
-            기기에서 같은 아이디를 입력하면 같은 가계에 붙습니다. 이 기기에 저장되며 이 페이지에서 계속 확인할 수 있습니다.
-            (MVP: 사용자 2명까지) 개발자 설정: Supabase 대시보드에서 <strong style={{ color: JELLY.text }}>Anonymous</strong>{' '}
-            로그인을 켜 두어야 합니다.
-          </>
-        )}
-      </p>
+
+      {householdId && connectedHouseholdName ? (
+        <>
+          <div style={{ ...jellyCardStyle, padding: '16px', marginBottom: 20 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: JELLY.text }}>
+              가계 연결됨
+            </div>
+            <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>
+              가계 이름: <strong>{connectedHouseholdName}</strong>
+            </div>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void handleDisconnect()}
+              style={busy ? jellyPrimaryButtonDisabled : jellyDangerButton}
+            >
+              가계 연결 해제
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ ...jellyCardStyle, padding: '16px', marginBottom: 20 }}>
+            <div style={{ marginBottom: 16 }}>
+              <input
+                type="text"
+                placeholder="가계 이름"
+                value={householdName}
+                onChange={(e) => setHouseholdName(e.target.value)}
+                style={{
+                  ...jellyInputSurface,
+                  width: '100%',
+                  marginBottom: 10,
+                  padding: '12px 14px',
+                  fontSize: 14,
+                  boxSizing: 'border-box',
+                }}
+              />
+              <input
+                type="password"
+                placeholder="비밀번호"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{
+                  ...jellyInputSurface,
+                  width: '100%',
+                  marginBottom: 6,
+                  padding: '12px 14px',
+                  fontSize: 14,
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                type="button"
+                disabled={busy || !sessionReady}
+                onClick={() => setShowCreateModal(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: '6px 0',
+                  fontSize: 13,
+                  color: busy || !sessionReady ? '#9ca3af' : PRIMARY,
+                  cursor: busy || !sessionReady ? 'default' : 'pointer',
+                  textAlign: 'left',
+                  fontWeight: 500,
+                  transition: 'color 0.15s ease',
+                }}
+              >
+                새 가계 생성
+              </button>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <button
+                type="button"
+                disabled={busy || !sessionReady || !householdName.trim() || !password.trim()}
+                onClick={() => void handleJoin()}
+                style={{
+                  width: '100%',
+                  marginBottom: msg?.tone === 'err' ? 8 : 0,
+                  ...(busy || !sessionReady || !householdName.trim() || !password.trim()
+                    ? jellyPrimaryButtonDisabled
+                    : jellyPrimaryButton)
+                }}
+              >
+                가계 진입
+              </button>
+              {msg?.tone === 'err' && (
+                <div style={{ fontSize: 12, color: '#dc2626', lineHeight: 1.4 }}>
+                  {msg.text}
+                </div>
+              )}
+            </div>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: JELLY.text, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={rememberHousehold}
+                onChange={(e) => setRememberHousehold(e.target.checked)}
+                style={{ cursor: 'pointer' }}
+              />
+              가계 진입 유지하기
+            </label>
+          </div>
+
+          {showCreateModal && (
+            <>
+              <div
+                role="presentation"
+                onClick={() => setShowCreateModal(false)}
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  background: 'rgba(0,0,0,0.35)',
+                  zIndex: 1000,
+                  marginBottom: 0,
+                }}
+              />
+              <div
+                role="dialog"
+                aria-modal="true"
+                style={{
+                  position: 'fixed',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: 'min(100%, 400px)',
+                  zIndex: 1001,
+                  ...jellyCardStyle,
+                  padding: '24px',
+                }}
+              >
+                <div style={{ marginBottom: 24 }}>
+                  <h2 style={{ fontSize: 18, fontWeight: 700, color: JELLY.text, marginBottom: 16 }}>
+                    새 가계 만들기
+                  </h2>
+                  <input
+                    type="text"
+                    placeholder="가계 이름"
+                    value={createHouseholdName}
+                    onChange={(e) => setCreateHouseholdName(e.target.value)}
+                    style={{
+                      ...jellyInputSurface,
+                      width: '100%',
+                      marginBottom: 10,
+                      padding: '12px 14px',
+                      fontSize: 14,
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <input
+                    type="password"
+                    placeholder="비밀번호"
+                    value={createPassword}
+                    onChange={(e) => setCreatePassword(e.target.value)}
+                    style={{
+                      ...jellyInputSurface,
+                      width: '100%',
+                      marginBottom: 10,
+                      padding: '12px 14px',
+                      fontSize: 14,
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <input
+                    type="password"
+                    placeholder="비밀번호 확인"
+                    value={createConfirmPassword}
+                    onChange={(e) => setCreateConfirmPassword(e.target.value)}
+                    style={{
+                      ...jellyInputSurface,
+                      width: '100%',
+                      marginBottom: 0,
+                      padding: '12px 14px',
+                      fontSize: 14,
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setShowCreateModal(false)}
+                    style={{
+                      flex: 1,
+                      padding: '10px 14px',
+                      borderRadius: 8,
+                      border: '1px solid #e5e7eb',
+                      background: '#fff',
+                      color: JELLY.text,
+                      cursor: 'pointer',
+                      fontSize: 14,
+                      fontWeight: 600,
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy || !createHouseholdName.trim() || !createPassword.trim() || !createConfirmPassword.trim()}
+                    onClick={() => void handleCreate()}
+                    style={{
+                      flex: 1,
+                      ...(busy || !createHouseholdName.trim() || !createPassword.trim() || !createConfirmPassword.trim()
+                        ? jellyPrimaryButtonDisabled
+                        : jellyPrimaryButton),
+                      fontSize: 14,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {busy ? '생성 중…' : '만들기'}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {msg && (
+        <div
+          style={{
+            ...jellyCardStyle,
+            padding: '12px 16px',
+            marginBottom: 20,
+            background: msg.tone === 'ok' ? jellySuccessBanner.background : jellyErrorBanner.background,
+          }}
+        >
+          <div style={{ fontSize: 13, color: msg.tone === 'ok' ? '#065f46' : '#991b1b', lineHeight: 1.5 }}>
+            {msg.text}
+          </div>
+        </div>
+      )}
 
       {sessionError ? (
         <div style={{ marginBottom: 20, padding: 16, ...jellyErrorBanner }}>
           <div style={{ fontWeight: 700, color: '#991b1b', marginBottom: 8 }}>연결 오류</div>
           <p style={{ margin: '0 0 12px', fontSize: 13, color: '#7f1d1d', lineHeight: 1.55 }}>{sessionError}</p>
-          <p style={{ margin: '0 0 12px', fontSize: 12, color: '#991b1b', lineHeight: 1.5 }}>
-            콘솔에도 같은 메시지가 찍힐 수 있습니다. `.env` 수정 뒤에는 dev 서버를 재시작하세요.
-          </p>
           <button
             type="button"
             disabled={busy}
@@ -177,176 +441,10 @@ export function AccountPage() {
           {!sessionReady ? (
             <span style={{ color: '#b45309' }}>준비 중…</span>
           ) : (
-            <span style={{ color: '#059669' }}>서버 연결됨 · 가계 아이디로 들어오면 동기화할 수 있습니다</span>
+            <span style={{ color: '#059669' }}>서버 연결됨</span>
           )}
-          {getSavedAccessCode() && !householdId && sessionReady ? (
-            <span style={{ display: 'block', marginTop: 6, fontSize: 12, color: PRIMARY_DARK }}>
-              이 기기에 가계 아이디가 저장되어 있습니다. 아래에서 참여하기를 누르면 같은 아이디로 다시 붙을 수 있습니다.
-            </span>
-          ) : null}
-          {householdId ? (
-            <span style={{ display: 'block', marginTop: 6, fontSize: 12, color: '#6b7280' }}>
-              가계 연결됨 · 내부 참고 <code style={{ fontSize: 11 }}>{householdId.slice(0, 8)}…</code>
-            </span>
-          ) : sessionReady ? (
-            <span style={{ display: 'block', marginTop: 6, fontSize: 12, color: '#b45309' }}>
-              아직 가계에 속하지 않았습니다. 새로 만들거나 상대가 알려준 아이디로 참여하세요.
-            </span>
-          ) : null}
         </div>
       )}
-
-      {persistedAccessCode ? (
-        <div
-          style={{
-            marginBottom: 20,
-            padding: 16,
-            ...jellySuccessBanner,
-            fontSize: 14,
-            color: '#166534',
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 8 }}>가계 아이디 (접속 코드)</div>
-          <p style={{ margin: '0 0 10px', fontSize: 12, lineHeight: 1.5, opacity: 0.95 }}>
-            이 기기에 저장되어 있어, 이 페이지를 다시 열어도 아래 코드로 확인·복사할 수 있습니다. 상대에게 전달하면 같은 가계에 참여합니다.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
-            <strong style={{ fontSize: 17, letterSpacing: 1, fontFamily: 'ui-monospace, monospace' }}>
-              {persistedAccessCode}
-            </strong>
-            <button
-              type="button"
-              onClick={() => void navigator.clipboard.writeText(persistedAccessCode)}
-              style={{
-                ...jellyGhostButton,
-                padding: '8px 16px',
-                fontSize: 12,
-                color: '#166534',
-                border: '1px solid rgba(167, 243, 208, 0.75)',
-                background: 'rgba(255,255,255,0.45)',
-              }}
-            >
-              복사
-            </button>
-          </div>
-        </div>
-      ) : null}
-
-      {!householdId ? (
-        <>
-          <div
-            style={{
-              marginBottom: 20,
-              padding: 16,
-              ...jellyCardStyle,
-            }}
-          >
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, color: JELLY.text }}>1. 새 가계 만들기</div>
-            <p style={{ margin: '0 0 10px', fontSize: 12, color: JELLY.textMuted, lineHeight: 1.5 }}>
-              가계가 생기면 <strong>아이디(접속 코드)</strong>가 발급되며, 이 페이지와 이 기기에 저장되어 계속 확인할 수
-              있습니다. 상대에게 전달해 주세요.
-            </p>
-            <button
-              type="button"
-              disabled={busy || !sessionReady}
-              onClick={() => void handleCreateHousehold()}
-              style={busy || !sessionReady ? jellyPrimaryButtonDisabled : jellyPrimaryButton}
-            >
-              새 가계 만들기
-            </button>
-          </div>
-
-          <div
-            style={{
-              marginBottom: 20,
-              padding: 16,
-              ...jellyCardStyle,
-            }}
-          >
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, color: JELLY.text }}>2. 가계 아이디로 참여</div>
-            <p style={{ margin: '0 0 10px', fontSize: 12, color: JELLY.textMuted, lineHeight: 1.5 }}>
-              상대가 알려준 16자 아이디를 입력합니다. 새 기기에서도 같은 아이디로 들어오면 됩니다.
-            </p>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: 12,
-              }}
-            >
-              <input
-                type="text"
-                inputMode="text"
-                autoCapitalize="characters"
-                autoCorrect="off"
-                spellCheck={false}
-                value={accessCodeInput}
-                onChange={(e) =>
-                  setAccessCodeInput(e.target.value.toUpperCase().replace(/[^0-9A-F]/g, ''))
-                }
-                placeholder="16자 (0-9, A-F)"
-                aria-label="가계 접속 코드 16자"
-                style={{
-                  ...jellyInputSurface,
-                  padding: '10px 14px',
-                  fontSize: 14,
-                  flex: '1 1 200px',
-                  minWidth: 0,
-                  maxWidth: 320,
-                  width: '100%',
-                  boxSizing: 'border-box',
-                  fontFamily: 'ui-monospace, monospace',
-                }}
-              />
-              <button
-                type="button"
-                disabled={busy || !sessionReady || accessCodeInput.length < 16}
-                onClick={() => void handleJoin()}
-                style={{
-                  flexShrink: 0,
-                  ...(busy || !sessionReady || accessCodeInput.length < 16
-                    ? jellyPrimaryButtonDisabled
-                    : jellyPrimaryButton),
-                }}
-              >
-                참여하기
-              </button>
-            </div>
-          </div>
-        </>
-      ) : null}
-
-      {householdId ? (
-        <div>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void handleResetDevice()}
-            style={busy ? { ...jellyDangerButton, opacity: 0.55, cursor: 'not-allowed' } : jellyDangerButton}
-          >
-            가계 연결 해제
-          </button>
-          <p style={{ margin: '8px 0 0', fontSize: 11, color: JELLY.textMuted, lineHeight: 1.45 }}>
-            <strong>서버의 가계 데이터는 그대로 두고</strong> 멤버 연결만 끊습니다. 이 기기에서는 월별·기본값 저장이 모두 지워져 빈
-            상태가 됩니다. 같은 접속 코드로 다시 참여하면 서버에 있는 데이터를 불러옵니다. 상대 기기도 연결이 끊기므로 같은 코드로
-            다시 참여해야 합니다.
-          </p>
-        </div>
-      ) : null}
-
-      {msg ? (
-        <div
-          style={{
-            marginTop: 16,
-            fontSize: 13,
-            color: msg.tone === 'err' ? '#b91c1c' : '#059669',
-            lineHeight: 1.5,
-          }}
-        >
-          {msg.text}
-        </div>
-      ) : null}
     </div>
   )
 }

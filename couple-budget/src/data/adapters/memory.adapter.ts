@@ -34,7 +34,9 @@ export class MemoryAdapter<T extends { id: string }> implements IRepository<T> {
   private persist(): void {
     const items = Array.from(this.store.values())
     saveToStorage(this.storageKey, items)
-    void import('@/services/debouncedCloudSync').then((m) => m.scheduleCloudSync('memory-repo'))
+    import('@/services/debouncedCloudSync')
+      .then((m) => m.scheduleCloudSync('memory-repo'))
+      .catch((err) => console.warn('[MemoryAdapter] 클라우드 동기화 스케줄 실패:', err))
   }
 
   async query(predicate: (item: T) => boolean, _yearMonth?: string): Promise<T[]> {

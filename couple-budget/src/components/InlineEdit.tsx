@@ -37,6 +37,11 @@ export function InlineEdit({
 
   const commit = () => {
     setEditing(false)
+    const trimmed = draft.trim()
+    if (type === 'number' && (trimmed === '' || !Number.isFinite(Number(trimmed)))) {
+      setDraft(value)
+      return
+    }
     if (draft !== value) onSave(draft)
   }
 

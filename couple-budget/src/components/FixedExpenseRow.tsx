@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { useAppStore } from '@/store/useAppStore'
+import { useAppStore, DEFAULT_FIXED_CATEGORIES } from '@/store/useAppStore'
 import { getPersonStyle, PersonBadge } from '@/components/PersonUI'
 import { CustomSelect } from '@/components/CustomSelect'
 import { DaySelect } from '@/components/DaySelect'
@@ -30,7 +30,6 @@ const USER_CHIP_MAX_WIDTH = 68
 /** 금액 인풋 넓이 */
 const AMOUNT_INPUT_WIDTH = 150
 
-const FIXED_CATEGORIES = ['주거', '통신', '보험', '구독', '교통', '식비', '의료', '교육', '문화', '관리비', '기타']
 
 export interface FixedExpenseRowData {
   id: string
@@ -81,6 +80,7 @@ export function FixedExpenseRow({
 }: FixedExpenseRowProps) {
   const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
+  const fixedCategories = useAppStore((s) => s.settings.fixedCategories) ?? DEFAULT_FIXED_CATEGORIES
   const separatePerson = row.separatePerson ?? 'A'
   const { bg: chipBg, color: chipColor } = getPersonStyle(separatePerson, settings)
   const separateLabel = row.separatePerson === 'A' ? personAName : row.separatePerson === 'B' ? personBName : null
@@ -311,7 +311,7 @@ export function FixedExpenseRow({
             <CustomSelect
               compact
               compactFill
-              options={FIXED_CATEGORIES}
+              options={fixedCategories}
               value={row.category}
               onChange={(v) => !disabled && onUpdate({ category: v })}
               triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
@@ -329,7 +329,7 @@ export function FixedExpenseRow({
         <>
           <CustomSelect
             compact
-            options={FIXED_CATEGORIES}
+            options={fixedCategories}
             value={row.category}
             onChange={(v) => !disabled && onUpdate({ category: v })}
             triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
@@ -369,7 +369,7 @@ export function FixedExpenseRow({
         </FlexRowCell>
       ) : null}
       {showPayDay && (
-        <FlexRowCell narrow={narrow} mobileStyle={{ flex: '1 1 30%', minWidth: 0, maxWidth: '100%' }}>
+        <FlexRowCell narrow={narrow} mobileStyle={{ flex: '0 0 auto' }}>
           <DaySelect
             value={row.payDay}
             onChange={(v) => !disabled && onUpdate({ payDay: v })}
@@ -378,7 +378,7 @@ export function FixedExpenseRow({
           />
         </FlexRowCell>
       )}
-      <FlexRowCell narrow={narrow} mobileStyle={{ flex: '1 1 30%', minWidth: 100, maxWidth: '100%' }}>
+      <FlexRowCell narrow={narrow} mobileStyle={{ flex: '1 1 0', minWidth: 100, maxWidth: '100%' }}>
         <div style={amountWrapStyle}>
           <AmountInput
             value={String(row.amount)}

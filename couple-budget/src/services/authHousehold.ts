@@ -1,8 +1,8 @@
 import { supabase, isSupabaseConfigured, COUPLE_BUDGET_SUPABASE_AUTH_KEY } from '@/data/supabase'
 
 const SYNC_HOUSEHOLD_KEY = 'couple-budget:sync-household-id'
-/** 이 기기에만 저장. 앱 재실행·익명 세션 갱신 후 같은 가계에 다시 붙을 때 사용 */
-const ACCESS_CODE_KEY = 'couple-budget:household-access-code'
+const SYNC_HOUSEHOLD_NAME_KEY = 'couple-budget:household-name'
+const SYNC_REMEMBER_HOUSEHOLD_KEY = 'couple-budget:remember-household'
 
 /** 가계 미연결: 로컬의 월별·템플릿·설정 저장만 제거. Supabase 세션 키는 유지(직접 지우지 않음). */
 export function clearCoupleBudgetLocalDataKeepAuth(): void {
@@ -111,100 +111,123 @@ export function clearSyncHouseholdId(): void {
   }
 }
 
-export function getSavedAccessCode(): string | null {
+export function getSyncHouseholdName(): string | null {
   try {
-    const v = localStorage.getItem(ACCESS_CODE_KEY)
-    return v && v.length >= 16 ? v : null
+    const v = localStorage.getItem(SYNC_HOUSEHOLD_NAME_KEY)
+    return v && v.length >= 2 && v.length <= 20 ? v : null
   } catch {
     return null
   }
 }
 
-function setSavedAccessCode(code: string): void {
+function setSyncHouseholdName(name: string): void {
   try {
-    localStorage.setItem(ACCESS_CODE_KEY, code.trim().toUpperCase().replace(/\s/g, ''))
+    localStorage.setItem(SYNC_HOUSEHOLD_NAME_KEY, name.trim())
   } catch {
     /* ignore */
   }
 }
 
-export function clearSavedAccessCode(): void {
+function clearSyncHouseholdName(): void {
   try {
-    localStorage.removeItem(ACCESS_CODE_KEY)
+    localStorage.removeItem(SYNC_HOUSEHOLD_NAME_KEY)
   } catch {
     /* ignore */
   }
 }
 
-function normalizeAccessCodeInput(code: string): string {
-  return code.trim().toUpperCase().replace(/\s/g, '')
+export function getRememberHousehold(): boolean {
+  try {
+    return localStorage.getItem(SYNC_REMEMBER_HOUSEHOLD_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+function setRememberHousehold(remember: boolean): void {
+  try {
+    if (remember) {
+      localStorage.setItem(SYNC_REMEMBER_HOUSEHOLD_KEY, 'true')
+    } else {
+      localStorage.removeItem(SYNC_REMEMBER_HOUSEHOLD_KEY)
+    }
+  } catch {
+    /* ignore */
+  }
 }
 
 /**
- * Authentication → Users 목록에서 UUID 대신 구분되도록 user_metadata 반영.
- * `full_name`은 여러 대시보드 버전에서 "Display name" 열에 쓰이는 경우가 많음.
- * (JWT·메타데이터에 평문 코드가 포함되므로 보안 요구가 높은 서비스에서는 생략할 수 있음.)
+ * Validate household name format: 2-20 characters
  */
-async function syncAuthUserMetadataHouseholdAccessCode(plainCode: string): Promise<void> {
-  if (!supabase) return
-  const code = normalizeAccessCodeInput(plainCode)
-  if (code.length < 16) return
-  const { error } = await supabase.auth.updateUser({
-    data: {
-      full_name: `가계 ${code}`,
-      household_access_code: code,
-    },
-  })
-  if (error) console.warn('[authHousehold] user_metadata(접속코드) 반영 실패:', error.message)
+function validateHouseholdName(name: string): { valid: boolean; error?: string } {
+  if (!name || name.length < 2 || name.length > 20) {
+    return { valid: false, error: '가계 이름은 2-20자여야 합니다' }
+  }
+  return { valid: true }
 }
 
-/** 세션 복원 후: 로컬에 저장된 코드가 있으면 메타데이터가 비어 있을 때만 보강 */
-async function syncAuthProfileFromSavedAccessCodeIfNeeded(): Promise<void> {
-  if (!supabase) return
-  const saved = getSavedAccessCode()
-  if (!saved || saved.length < 16) return
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  if (!session?.user) return
-  const meta = session.user.user_metadata ?? {}
-  if (meta.household_access_code === saved) return
-  await syncAuthUserMetadataHouseholdAccessCode(saved)
+/**
+ * Validate password: non-empty
+ */
+function validatePassword(password: string): { valid: boolean; error?: string } {
+  if (!password || password.length === 0) {
+    return { valid: false, error: '비밀번호를 입력해 주세요' }
+  }
+  return { valid: true }
 }
 
-async function joinHouseholdWithAccessCodeRpc(
-  code: string,
+async function joinHouseholdByPasswordRpc(
+  householdName: string,
+  password: string,
 ): Promise<{ ok: true; householdId: string } | { ok: false; error: string }> {
   if (!supabase) return { ok: false, error: 'Supabase 클라이언트가 없습니다.' }
-  const normalized = normalizeAccessCodeInput(code)
-  if (normalized.length < 16) {
-    return { ok: false, error: '접속 코드는 16자(0-9, A-F)입니다.' }
-  }
+
+  // Validate inputs
+  const nameVal = validateHouseholdName(householdName)
+  if (!nameVal.valid) return { ok: false, error: `가계 이름: ${nameVal.error}` }
+
+  const passVal = validatePassword(password)
+  if (!passVal.valid) return { ok: false, error: `비밀번호: ${passVal.error}` }
+
   for (let attempt = 0; attempt < 2; attempt++) {
     const prep = await ensureFreshAuthUserForRpc()
     if (!prep.ok) return { ok: false, error: prep.error }
-    const { data, error } = await supabase.rpc('join_household_by_access_code', {
-      p_code: normalized,
+
+    const { data, error } = await supabase.rpc('join_household_by_password', {
+      p_name: householdName,
+      p_password: password,
     })
+
     if (!error) {
       const hid = data as string | null
-      if (!hid) return { ok: false, error: '접속 코드 응답이 비었습니다.' }
+      if (!hid) return { ok: false, error: '가계 ID 응답이 비었습니다.' }
+      setSyncHouseholdName(householdName)
+      try {
+        localStorage.setItem(SYNC_HOUSEHOLD_KEY, hid)
+      } catch {
+        /* ignore */
+      }
       return { ok: true, householdId: hid }
     }
+
     if (attempt === 0 && isHouseholdMembersUserFkError(error.message)) {
       await supabase.auth.signOut()
-      await ensureSupabaseSessionForSync()
+      const reauth = await ensureSupabaseSessionForSync()
+      if (!reauth.ok) return { ok: false, error: reauth.reason }
       continue
     }
+
     return { ok: false, error: error.message }
   }
+
   return { ok: false, error: '가계 참여에 실패했습니다.' }
 }
 
-/** 세션 복원 후 household_members 조회; 없으면 저장된 16자 코드로 자동 재참여 시도 */
+/** 세션 복원 후: 로컬 저장소에서 가계 ID와 이름을 복원 */
 export async function resolveSessionAndHouseholdBeforeHydrate(): Promise<void> {
   if (!supabase || !isSupabaseConfigured) {
     clearSyncHouseholdId()
+    clearSyncHouseholdName()
     return
   }
   const {
@@ -212,6 +235,7 @@ export async function resolveSessionAndHouseholdBeforeHydrate(): Promise<void> {
   } = await supabase.auth.getSession()
   if (!session?.user) {
     clearSyncHouseholdId()
+    clearSyncHouseholdName()
     return
   }
   const { data } = await supabase
@@ -227,82 +251,82 @@ export async function resolveSessionAndHouseholdBeforeHydrate(): Promise<void> {
     } catch {
       /* ignore */
     }
-    await syncAuthProfileFromSavedAccessCodeIfNeeded()
     return
   }
 
-  const saved = getSavedAccessCode()
-  if (saved) {
-    const joinRes = await joinHouseholdWithAccessCodeRpc(saved)
-    if (joinRes.ok) {
-      try {
-        localStorage.setItem(SYNC_HOUSEHOLD_KEY, joinRes.householdId)
-      } catch {
-        /* ignore */
-      }
-      await syncAuthProfileFromSavedAccessCodeIfNeeded()
-      return
-    }
-  }
-
+  // If not found in household, clear local references
   clearSyncHouseholdId()
+  clearSyncHouseholdName()
 }
 
-export async function createHouseholdRpc(): Promise<
-  { ok: true; householdId: string; accessCode: string } | { ok: false; error: string }
-> {
+export async function createHouseholdByNameRpc(
+  householdName: string,
+  password: string,
+): Promise<{ ok: true; householdId: string } | { ok: false; error: string }> {
   if (!supabase) return { ok: false, error: 'Supabase 클라이언트가 없습니다.' }
+
+  // Validate inputs
+  const nameVal = validateHouseholdName(householdName)
+  if (!nameVal.valid) return { ok: false, error: `가계 이름: ${nameVal.error}` }
+
+  const passVal = validatePassword(password)
+  if (!passVal.valid) return { ok: false, error: `비밀번호: ${passVal.error}` }
+
   for (let attempt = 0; attempt < 2; attempt++) {
     const prep = await ensureFreshAuthUserForRpc()
     if (!prep.ok) return { ok: false, error: prep.error }
-    const { data, error } = await supabase.rpc('create_household_with_access_code')
+
+    const { data, error } = await supabase.rpc('create_household', {
+      p_name: householdName,
+      p_password: password,
+    })
+
     if (error) {
       if (attempt === 0 && isHouseholdMembersUserFkError(error.message)) {
         await supabase.auth.signOut()
-        await ensureSupabaseSessionForSync()
+        const reauth = await ensureSupabaseSessionForSync()
+        if (!reauth.ok) return { ok: false, error: reauth.reason }
         continue
       }
       return { ok: false, error: error.message }
     }
-    const row = (Array.isArray(data) ? data[0] : data) as
-      | { household_id?: string; access_code?: string }
-      | undefined
-    if (!row?.household_id || !row?.access_code) return { ok: false, error: '가계 생성 응답이 비었습니다.' }
-    setSavedAccessCode(row.access_code)
+
+    const hid = data as string | null
+    if (!hid) return { ok: false, error: '가계 생성 응답이 비었습니다.' }
+
+    setSyncHouseholdName(householdName)
     try {
-      localStorage.setItem(SYNC_HOUSEHOLD_KEY, row.household_id)
+      localStorage.setItem(SYNC_HOUSEHOLD_KEY, hid)
     } catch {
       /* ignore */
     }
-    await syncAuthUserMetadataHouseholdAccessCode(row.access_code)
+
     const { hydrateFromSupabaseBeforeApp } = await import('@/services/supabase-sync')
     await hydrateFromSupabaseBeforeApp()
-    return { ok: true, householdId: row.household_id, accessCode: row.access_code }
+
+    return { ok: true, householdId: hid }
   }
+
   return { ok: false, error: '가계 생성에 실패했습니다.' }
 }
 
-export async function joinHouseholdRpc(
-  code: string,
+export async function joinHouseholdByPasswordRpcWithHydrate(
+  householdName: string,
+  password: string,
 ): Promise<{ ok: true; householdId: string } | { ok: false; error: string }> {
-  const res = await joinHouseholdWithAccessCodeRpc(code)
+  const res = await joinHouseholdByPasswordRpc(householdName, password)
   if (!res.ok) return res
-  const normalized = normalizeAccessCodeInput(code)
-  setSavedAccessCode(normalized)
-  try {
-    localStorage.setItem(SYNC_HOUSEHOLD_KEY, res.householdId)
-  } catch {
-    /* ignore */
-  }
-  await syncAuthUserMetadataHouseholdAccessCode(normalized)
+
   const { hydrateFromSupabaseBeforeApp } = await import('@/services/supabase-sync')
   await hydrateFromSupabaseBeforeApp()
+
   return { ok: true, householdId: res.householdId }
 }
 
+
 export async function signOutAndClearHousehold(): Promise<void> {
   clearSyncHouseholdId()
-  clearSavedAccessCode()
+  clearSyncHouseholdName()
   if (supabase) {
     await supabase.auth.signOut()
     const r = await ensureSupabaseSessionForSync()

@@ -7,6 +7,10 @@ import {
   PRIMARY,
   PRIMARY_DARK,
   PRIMARY_LIGHT,
+  DROPDOWN_PADDING_COMPACT,
+  DROPDOWN_CARET_COLOR,
+  DROPDOWN_CARET_FONT_SIZE_COMPACT,
+  DROPDOWN_ITEM_PADDING_REGULAR,
 } from '@/styles/formControls'
 import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
@@ -21,7 +25,6 @@ type YearSelectDropdownProps = {
 export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearSelectDropdownProps) {
   const narrow = useNarrowLayout()
   const yearPickerMaxYear = useAppStore((s) => s.yearPickerMaxYear)
-  const extendYearPickerMax = useAppStore((s) => s.extendYearPickerMax)
   const years = getYearPickerYearOptions(yearPickerMaxYear, value)
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -44,9 +47,9 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
     maxWidth: CATEGORY_SELECT_TRIGGER_WIDTH,
     height: INPUT_HEIGHT,
     minHeight: INPUT_HEIGHT,
-    padding: '0 8px',
+    padding: DROPDOWN_PADDING_COMPACT,
     borderRadius: INPUT_BORDER_RADIUS,
-    border: `1.5px solid ${open ? PRIMARY : '#e5e7eb'}`,
+    border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
     background: '#fff',
     color: '#111827',
     fontSize: 12,
@@ -57,7 +60,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'space-between' as const,
-    gap: 4,
+    gap: 6,
     boxSizing: 'border-box' as const,
     whiteSpace: 'nowrap' as const,
     overflow: 'hidden',
@@ -65,7 +68,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
     boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
   }
 
-  const caretColor = '#6b7280'
+  const caretColor = DROPDOWN_CARET_COLOR
 
   const panelStyle =
     variant === 'dark'
@@ -105,7 +108,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
         aria-haspopup="listbox"
       >
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{value}년</span>
-        <span style={{ fontSize: 10, color: caretColor, pointerEvents: 'none', flexShrink: 0 }}>▾</span>
+        <span style={{ fontSize: DROPDOWN_CARET_FONT_SIZE_COMPACT, color: caretColor, pointerEvents: 'none', flexShrink: 0 }}>▾</span>
       </button>
 
       {open && (
@@ -153,7 +156,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
                   style={{
                     width: '100%',
                     textAlign: 'left',
-                    padding: '10px 14px',
+                    padding: DROPDOWN_ITEM_PADDING_REGULAR,
                     border: 'none',
                     background: active ? PRIMARY_LIGHT : 'transparent',
                     color: active ? PRIMARY_DARK : JELLY.text,
@@ -161,44 +164,15 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
                     fontWeight: active ? 700 : 500,
                     cursor: 'pointer',
                     borderRadius: JELLY.radiusControl,
+                    height: INPUT_HEIGHT,
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
                   {y}년
                 </button>
               )
             })}
-          </div>
-          <div
-            style={{
-              borderTop: JELLY.innerBorderSoft,
-              padding: 10,
-              background: variant === 'dark' ? '#f9fafb' : 'rgba(255,255,255,0.25)',
-              backdropFilter: variant === 'dark' ? undefined : JELLY.blur,
-              WebkitBackdropFilter: variant === 'dark' ? undefined : JELLY.blur,
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => extendYearPickerMax()}
-              style={{
-                width: '100%',
-                fontSize: 12,
-                padding: '10px 14px',
-                borderRadius: JELLY.radiusControl,
-                border: variant === 'dark' ? `1px solid rgba(79, 140, 255, 0.35)` : `1px solid rgba(14, 165, 233, 0.4)`,
-                background: variant === 'dark' ? PRIMARY_LIGHT : 'rgba(255,255,255,0.4)',
-                backdropFilter: variant === 'dark' ? undefined : JELLY.blur,
-                WebkitBackdropFilter: variant === 'dark' ? undefined : JELLY.blur,
-                color: PRIMARY,
-                fontWeight: 600,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                textAlign: 'center',
-                boxShadow: variant === 'dark' ? 'none' : '0 4px 14px rgba(14, 165, 233, 0.12)',
-              }}
-            >
-              신년 추가하기
-            </button>
           </div>
         </div>
       )}

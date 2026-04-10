@@ -30,6 +30,8 @@ interface FixedTemplateState {
   toggleSeparation: (templateId: string, yearMonth: string) => void
   isSeparated: (templateId: string, yearMonth: string) => boolean
   clearMonthForYearMonth: (ym: string) => void
+  /** startedMonths 에 없는 달의 exclusions·monthlyAmounts·monthlySeparations 일괄 제거 */
+  pruneMonthOverrides: (activeMonths: Set<string>) => void
 }
 
 const catOrder: Record<string, number> = {
@@ -184,6 +186,22 @@ export const useFixedTemplateStore = create<FixedTemplateState>()(
           ),
           monthlySeparations: Object.fromEntries(
             Object.entries(s.monthlySeparations).filter(([k]) => !k.endsWith(`::${ym}`)),
+          ),
+        })),
+      pruneMonthOverrides: (activeMonths) =>
+        set((s) => ({
+          exclusions: s.exclusions.filter((e) => activeMonths.has(e.yearMonth)),
+          monthlyAmounts: Object.fromEntries(
+            Object.entries(s.monthlyAmounts).filter(([k]) => {
+              const ym = k.split('::')[1]
+              return ym != null && activeMonths.has(ym)
+            }),
+          ),
+          monthlySeparations: Object.fromEntries(
+            Object.entries(s.monthlySeparations).filter(([k]) => {
+              const ym = k.split('::')[1]
+              return ym != null && activeMonths.has(ym)
+            }),
           ),
         })),
     }),

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, type ReactNode, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
-import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT } from '@/styles/formControls'
+import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT, DROPDOWN_PADDING_COMPACT, DROPDOWN_PADDING_REGULAR, DROPDOWN_CARET_COLOR, DROPDOWN_CARET_FONT_SIZE_COMPACT, DROPDOWN_CARET_FONT_SIZE_REGULAR, DROPDOWN_ITEM_PADDING_COMPACT, DROPDOWN_ITEM_PADDING_REGULAR } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
 
 interface CustomSelectProps {
@@ -157,14 +157,14 @@ export function CustomSelect({
                   : compactAutoWidth
                     ? {}
                     : { minWidth: compactMinWidth, maxWidth: compactMinWidth }),
-              padding: compactLeading != null ? '0 10px 0 8px' : '0 10px',
+              padding: DROPDOWN_PADDING_COMPACT,
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: compactLeading != null ? 6 : 8,
+              gap: 6,
               fontSize: 12,
               borderRadius: compactAutoWidth && customChipBg ? JELLY.radiusUserChip : INPUT_BORDER_RADIUS,
-              border: `1.5px solid ${open || (value && (customChipBg || customBgColor)) ? (customBgColor ?? PRIMARY) : '#e5e7eb'}`,
+              border: `1px solid ${open || (value && (customChipBg || customBgColor)) ? (customBgColor ?? PRIMARY) : '#e5e7eb'}`,
               background: value && customChipBg ? customChipBg : value && customBgColor ? hexToRgba(customBgColor, 0.2) : '#fff',
               color: value && customChipBg ? (customBgColor ?? PRIMARY) : value && customBgColor ? customBgColor : (value ? '#111827' : '#6b7280'),
               cursor: 'pointer',
@@ -211,7 +211,7 @@ export function CustomSelect({
               </>
             )}
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{value || placeholder}</span>
-            <span style={{ flexShrink: 0, color: caretColor, fontSize: 10 }}>▾</span>
+            <span style={{ flexShrink: 0, color: caretColor, fontSize: DROPDOWN_CARET_FONT_SIZE_COMPACT }}>▾</span>
           </button>
         </div>
         {open && dropdownRect && createPortal(
@@ -235,8 +235,8 @@ export function CustomSelect({
                 aria-selected={opt === value}
                 onClick={() => { onChange(opt); close() }}
                 style={{
-                  minHeight: INPUT_HEIGHT,
-                  padding: '0 12px',
+                  height: INPUT_HEIGHT,
+                  padding: DROPDOWN_ITEM_PADDING_COMPACT,
                   display: 'flex',
                   alignItems: 'center',
                   fontSize: 12,
@@ -284,7 +284,7 @@ export function CustomSelect({
           style={{
             width: '100%',
             height: triggerHeight,
-            padding: '0 12px',
+            padding: DROPDOWN_PADDING_REGULAR,
             border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
             borderRadius: INPUT_BORDER_RADIUS,
             fontSize: INPUT_FONT_SIZE,
@@ -301,7 +301,7 @@ export function CustomSelect({
           }}
         >
           <span>{value || placeholder}</span>
-          <span style={{ color: '#6b7280', fontSize: 12, flexShrink: 0 }}>▾</span>
+          <span style={{ color: DROPDOWN_CARET_COLOR, fontSize: DROPDOWN_CARET_FONT_SIZE_REGULAR, flexShrink: 0 }}>▾</span>
         </button>
       </div>
       {open && dropdownRect && createPortal(
@@ -324,8 +324,8 @@ export function CustomSelect({
               aria-selected={opt === value}
               onClick={() => { onChange(opt); close() }}
               style={{
-                minHeight: INPUT_HEIGHT,
-                padding: '0 14px',
+                height: INPUT_HEIGHT,
+                padding: DROPDOWN_ITEM_PADDING_REGULAR,
                 display: 'flex',
                 alignItems: 'center',
                 fontSize: INPUT_FONT_SIZE,

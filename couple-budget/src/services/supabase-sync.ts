@@ -63,10 +63,16 @@ function incomesOnConflictColumns(): string {
 /**
  * 로컬에 동일 (yearMonth, person, category) 행이 여러 개면 DB 유니크(incomes_yearmonth_person_category_unique 등)와 충돌함.
  * 한 슬롯당 하나만 남김(나중 항목 우선).
+ * yearMonth가 없는 항목은 필터링하여 DB NOT NULL 제약 위반 방지
  */
 function dedupeIncomesByMonthPersonCategory(incomes: Income[]): Income[] {
   const byKey = new Map<string, Income>()
   for (const inc of incomes) {
+    // yearMonth가 없으면 스킵
+    if (!inc.yearMonth) {
+      console.warn('[supabase-sync] income without yearMonth — skipping:', inc)
+      continue
+    }
     const k = `${inc.yearMonth}\0${inc.person}\0${inc.category}`
     byKey.set(k, inc)
   }
@@ -139,6 +145,7 @@ const KEY_INVEST_TPL = `${STORAGE_PREFIX}:invest-templates`
 const KEY_PLAN_EXTRA = `${STORAGE_PREFIX}:plan-extra`
 const KEY_SETTLEMENTS = `${STORAGE_PREFIX}:settlements`
 const KEY_REPO_INCOMES = `${REPO_PREFIX}incomes`
+const KEY_ASSETS = `${STORAGE_PREFIX}:assets`
 
 type PersistWrap<T> = { state: T; version: number }
 
@@ -162,7 +169,8 @@ function readPersistedZustandState(key: string): Record<string, unknown> | null 
     const p = JSON.parse(raw) as PersistWrap<Record<string, unknown>>
     if (!p || typeof p !== 'object' || p.state == null || typeof p.state !== 'object' || Array.isArray(p.state)) return null
     return p.state
-  } catch {
+  } catch (err) {
+    console.warn(`[supabase-sync] localStorage 키 "${key}" 파싱 실패 — 데이터 손상 가능:`, err)
     return null
   }
 }
@@ -219,7 +227,8 @@ function readRepoIncomes(): Income[] {
     const raw = localStorage.getItem(KEY_REPO_INCOMES)
     const parsed = raw ? JSON.parse(raw) : []
     return Array.isArray(parsed) ? parsed : []
-  } catch {
+  } catch (err) {
+    console.warn('[supabase-sync] income repo localStorage 파싱 실패 — 빈 배열로 대체:', err)
     return []
   }
 }
@@ -643,6 +652,8 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       { data: inv },
       { data: inc },
       { data: sep },
+      { data: assetItemsData },
+      { data: assetEntriesData },
     ] = await Promise.all([
       supabase.from('fixed_templates').select('*').eq('household_id', householdId),
       supabase.from('fixed_template_overrides').select('*').eq('household_id', householdId),
@@ -654,6 +665,8 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       supabase.from('investments').select('*').eq('household_id', householdId),
       supabase.from('incomes').select('*').eq('household_id', householdId),
       supabase.from('separate_items').select('*').eq('household_id', householdId),
+      supabase.from('asset_items').select('*').eq('household_id', householdId).order('sort_order'),
+      supabase.from('asset_entries').select('*').eq('household_id', householdId),
     ])
 
     const fixedTemplates = (ft ?? []) as DbFixedTemplate[]
@@ -945,6 +958,27 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
     } catch (e) {
       console.warn('[supabase-sync] repo incomes', e)
     }
+
+    // Assets hydration
+    if (assetItemsData && assetItemsData.length > 0) {
+      const pulledItems = (assetItemsData as Record<string, unknown>[]).map((r) => ({
+        id: r.id as string,
+        name: r.name as string,
+        category: r.category as string,
+        order: (r.sort_order as number) ?? 0,
+        source: (r.source as 'invest' | 'manual' | undefined) ?? 'manual',
+      }))
+      const pulledEntries = (assetEntriesData ?? []).map((r) => {
+        const row = r as Record<string, unknown>
+        return {
+          id: row.id as string,
+          itemId: row.item_id as string,
+          yearMonth: row.year_month as string,
+          amount: Number(row.amount),
+        }
+      })
+      writePersist(KEY_ASSETS, { items: pulledItems, entries: pulledEntries })
+    }
     const now = new Date()
     const defaultYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
@@ -1028,12 +1062,14 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
       { useInvestTemplateStore },
       { usePlanExtraStore },
       { useSettlementStore },
+      { useAssetStore },
     ] = await Promise.all([
       import('@/store/useAppStore'),
       import('@/store/useFixedTemplateStore'),
       import('@/store/useInvestTemplateStore'),
       import('@/store/usePlanExtraStore'),
       import('@/store/useSettlementStore'),
+      import('@/store/useAssetStore'),
     ])
 
     const fixedS = useFixedTemplateStore.getState()
@@ -1233,6 +1269,30 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
       }
     }
     await upsertChunk('separate_items', separateOnly, 'id')
+
+    // Asset items & entries
+    const assetS = useAssetStore.getState()
+    const assetItemRows = assetS.items.map((item) => ({
+      id: item.id,
+      household_id: householdId,
+      name: item.name,
+      category: item.category,
+      sort_order: item.order,
+      source: item.source ?? null,
+    }))
+    if (assetItemRows.length > 0) {
+      await upsertChunk('asset_items', assetItemRows as unknown as Record<string, unknown>[], 'id')
+    }
+    const assetEntryRows = assetS.entries.map((entry) => ({
+      id: entry.id,
+      household_id: householdId,
+      item_id: entry.itemId,
+      year_month: entry.yearMonth,
+      amount: entry.amount,
+    }))
+    if (assetEntryRows.length > 0) {
+      await upsertChunk('asset_entries', assetEntryRows as unknown as Record<string, unknown>[], 'id')
+    }
 
     const snap = await upsertAppSnapshot(householdId)
     if (!snap.ok) {

@@ -66,3 +66,21 @@ export interface InvestTemplate {
   payDay?: number
   maturityDate?: string
 }
+
+/** 자산 항목 (저축, 투자, 부동산, 주식 등) */
+export interface AssetItem {
+  id: string
+  name: string
+  category: string  // '저축' | '투자' | '부동산' | '주식' | '기타'
+  order: number
+  /** 지출 계획 투자·저축에서 자동 추가된 항목인지 여부 */
+  source?: 'invest' | 'manual'
+}
+
+/** 특정 월의 자산 항목에 적립된 금액 */
+export interface AssetEntry {
+  id: string
+  itemId: string
+  yearMonth: string
+  amount: number
+}

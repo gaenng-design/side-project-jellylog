@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Person, InvestTemplate } from '@/types'
-import { useAppStore, YEAR_PICKER_MIN } from '@/store/useAppStore'
+import { useAppStore, YEAR_PICKER_MIN, DEFAULT_FIXED_CATEGORIES } from '@/store/useAppStore'
 import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
 import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
@@ -43,9 +43,9 @@ import { isSupabaseConfigured } from '@/data/supabase'
 import { SettlementResultView } from './SettlementResultView'
 import { deletePlanMonthCore } from './deletePlanMonth'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
+import { useAssetStore } from '@/store/useAssetStore'
 
 const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
-const FIXED_CATEGORIES = ['주거', '통신', '보험', '구독', '교통', '식비', '의료', '교육', '문화', '관리비', '기타']
 const INVEST_CATEGORIES = ['투자', '저축']
 /** 고정지출 그룹 헤더 합계 강조색 */
 const FIXED_EXPENSE_SUMMARY_COLOR = SUB_FIXED_ACCENT
@@ -537,12 +537,13 @@ function FixedExpenseCard(props: FixedCardProps) {
   } = props
   const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
+  const fixedCategories = useAppStore((s) => s.settings.fixedCategories) ?? DEFAULT_FIXED_CATEGORIES
   const personAName = settings.personAName || '유저1'
   const personBName = settings.personBName || '유저2'
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<{ person: Person; category: string; description: string; amount: string; isSeparate: boolean; separatePerson: 'A' | 'B'; payDay?: number }>({
     person: '공금',
-    category: '관리비',
+    category: fixedCategories[0] ?? '관리비',
     description: '',
     amount: '',
     isSeparate: false,
@@ -765,33 +766,42 @@ function FixedExpenseCard(props: FixedCardProps) {
               <PersonToggle value={form.person} onChange={(p) => setForm({ ...form, person: p as Person })} />
             </div>
           )}
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
-            <CustomSelect
-              options={FIXED_CATEGORIES}
-              value={form.category}
-              onChange={(v) => setForm({ ...form, category: v })}
-              placeholder="카테고리 선택"
-              triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
-            />
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+            <div style={{ flex: '0 0 auto' }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+              <CustomSelect
+                options={fixedCategories}
+                value={form.category}
+                onChange={(v) => setForm({ ...form, category: v })}
+                placeholder="카테고리 선택"
+                triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+              <input
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="예: 관리비"
+                style={{ width: '100%', ...inputBaseStyle }}
+              />
+            </div>
           </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
-            <input
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="예: 관리비"
-              style={{ width: '100%', ...inputBaseStyle }}
-            />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
-            <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
-          </div>
-          {!hidePayDayInModal && (
+          {!hidePayDayInModal ? (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+              <div style={{ flex: '0 0 auto' }}>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
+                <DaySelect value={form.payDay} onChange={(v) => setForm((f) => ({ ...f, payDay: v }))} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+                <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
+              </div>
+            </div>
+          ) : (
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
-              <DaySelect value={form.payDay} onChange={(v) => setForm((f) => ({ ...f, payDay: v }))} />
+              <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+              <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
             </div>
           )}
           {(() => {
@@ -1236,82 +1246,86 @@ function InvestCard(props: InvestCardProps) {
             <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
             <PersonToggle value={form.person} onChange={(p) => setForm({ ...form, person: p as Exclude<Person, '공금'> })} options={['A', 'B']} />
           </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
-            <CustomSelect
-              options={INVEST_CATEGORIES}
-              value={form.category}
-              onChange={(v) => setForm({ ...form, category: v })}
-              placeholder="카테고리"
-              triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
-            />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
-            <input
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="예: 적금, ETF"
-              style={{ width: '100%', ...inputBaseStyle }}
-            />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
-            <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
-          </div>
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', position: 'relative' }}>
-              <input
-                ref={addFormDateRef}
-                type="date"
-                value={form.maturityDate}
-                onChange={(e) => setForm({ ...form, maturityDate: e.target.value })}
-                style={{ position: 'absolute', opacity: 0, width: 1, height: 1, left: 0, top: 0, pointerEvents: 'none' }}
-                tabIndex={-1}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+            <div style={{ flex: '0 0 auto' }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+              <CustomSelect
+                options={INVEST_CATEGORIES}
+                value={form.category}
+                onChange={(v) => setForm({ ...form, category: v })}
+                placeholder="카테고리"
+                triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
               />
-              <button
-                type="button"
-                onClick={() => {
-                  const el = addFormDateRef.current
-                  if (el) {
-                    if (typeof el.showPicker === 'function') el.showPicker()
-                    else el.click()
-                  }
-                }}
-                title="만기일 선택"
-                style={{
-                  padding: '8px 12px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: JELLY.radiusControl,
-                  background: '#fff',
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  color: '#6b7280',
-                }}
-              >
-                📅 날짜 선택
-              </button>
-              {form.maturityDate && (
-                <span style={{ fontSize: 13, color: '#111827' }}>{formatInvestMaturityLabel(form.maturityDate)}</span>
-              )}
-              {form.maturityDate && (
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+              <input
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="예: 적금, ETF"
+                style={{ width: '100%', ...inputBaseStyle }}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+            <div style={{ flex: '0 0 auto' }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', position: 'relative' }}>
+                <input
+                  ref={addFormDateRef}
+                  type="date"
+                  value={form.maturityDate}
+                  onChange={(e) => setForm({ ...form, maturityDate: e.target.value })}
+                  style={{ position: 'absolute', opacity: 0, width: 1, height: 1, left: 0, top: 0, pointerEvents: 'none' }}
+                  tabIndex={-1}
+                />
                 <button
                   type="button"
-                  onClick={() => setForm({ ...form, maturityDate: '' })}
+                  onClick={() => {
+                    const el = addFormDateRef.current
+                    if (el) {
+                      if (typeof el.showPicker === 'function') el.showPicker()
+                      else el.click()
+                    }
+                  }}
+                  title="만기일 선택"
                   style={{
-                    fontSize: 12,
-                    padding: '4px 8px',
-                    borderRadius: JELLY.radiusControl,
+                    padding: '8px 12px',
                     border: '1px solid #e5e7eb',
-                    background: '#f9fafb',
+                    borderRadius: JELLY.radiusControl,
+                    background: '#fff',
                     cursor: 'pointer',
+                    fontSize: 13,
                     color: '#6b7280',
                   }}
                 >
-                  지우기
+                  📅 날짜 선택
                 </button>
-              )}
+                {form.maturityDate && (
+                  <span style={{ fontSize: 13, color: '#111827' }}>{formatInvestMaturityLabel(form.maturityDate)}</span>
+                )}
+                {form.maturityDate && (
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, maturityDate: '' })}
+                    style={{
+                      fontSize: 12,
+                      padding: '4px 8px',
+                      borderRadius: JELLY.radiusControl,
+                      border: '1px solid #e5e7eb',
+                      background: '#f9fafb',
+                      cursor: 'pointer',
+                      color: '#6b7280',
+                    }}
+                  >
+                    지우기
+                  </button>
+                )}
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+              <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
             </div>
           </div>
         </div>
@@ -1619,6 +1633,7 @@ export function ExpensePlanPage() {
   const getInvestMonthlyAmount = useInvestTemplateStore((s) => s.getMonthlyAmount)
   const setInvestMonthlyAmount = useInvestTemplateStore((s) => s.setMonthlyAmount)
   const toggleInvestExclusion = useInvestTemplateStore((s) => s.toggleExclusion)
+  const syncInvestToAsset = useAssetStore((s) => s.syncFromInvestment)
   const {
     items: incomeItems,
     hasLoaded: incomesLoaded,
@@ -2508,8 +2523,20 @@ export function ExpensePlanPage() {
         />
         <InvestCard
           rows={investRows}
-          onAdd={(row) => setInvestExtraRows((prev) => [...prev, { ...row, id: newId() }])}
-          onUpdate={(id, patch) => setInvestExtraRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)))}
+          onAdd={(row) => {
+            setInvestExtraRows((prev) => [...prev, { ...row, id: newId() }])
+            if (row.description && row.amount > 0) syncInvestToAsset(row.description, currentYearMonth, row.amount)
+          }}
+          onUpdate={(id, patch) => {
+            setInvestExtraRows((prev) => {
+              const updated = prev.map((r) => (r.id === id ? { ...r, ...patch } : r))
+              if ('amount' in patch || 'description' in patch) {
+                const row = updated.find((r) => r.id === id)
+                if (row?.description && (row.amount > 0)) syncInvestToAsset(row.description, currentYearMonth, row.amount)
+              }
+              return updated
+            })
+          }}
           onRemove={(id) => setInvestExtraRows((prev) => prev.filter((r) => r.id !== id))}
           onExcludeThisMonth={(templateId) => toggleInvestExclusion(templateId, currentYearMonth)}
           globalTemplateIds={globalInvestTemplateIds}

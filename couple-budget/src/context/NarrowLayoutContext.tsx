@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
-const BREAKPOINT_MAX = 600
+const BREAKPOINT_MAX = 1000
 const MQ = `(max-width: ${BREAKPOINT_MAX}px)`
 
 function readNarrow(): boolean {
@@ -24,7 +24,7 @@ export function NarrowLayoutProvider({ children }: { children: ReactNode }) {
   return <NarrowLayoutContext.Provider value={narrow}>{children}</NarrowLayoutContext.Provider>
 }
 
-/** 뷰포트 너비 600px 이하 */
+/** 뷰포트 너비 1000px 이하 */
 export function useNarrowLayout(): boolean {
   return useContext(NarrowLayoutContext)
 }

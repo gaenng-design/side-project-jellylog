@@ -24,6 +24,8 @@ export function getYearPickerYearOptions(
   return Array.from({ length: endYear - YEAR_PICKER_MIN + 1 }, (_, i) => YEAR_PICKER_MIN + i)
 }
 
+export const DEFAULT_FIXED_CATEGORIES = ['주거', '통신', '보험', '구독', '교통', '식비', '의료', '교육', '문화', '관리비', '기타']
+
 export interface AppSettings {
   personAName: string
   personBName: string
@@ -38,6 +40,7 @@ export interface AppSettings {
   user1Color: string
   user2Color: string
   sharedColor: string
+  fixedCategories: string[]
 }
 
 interface AppState {
@@ -48,6 +51,7 @@ interface AppState {
   startedMonths: string[]
   settledMonths: string[]
   lastSavedByMonth: Record<string, string>
+  householdName: string | null
   setYearMonth: (ym: string) => void
   extendYearPickerMax: () => void
   /** 신년으로 늘린 맨 끝 연도를 드롭다운에서 제거할 때 yearPickerMaxYear 축소 (UI에서 데이터 없음 확인 후 호출) */
@@ -60,6 +64,7 @@ interface AppState {
   unsetSettleMonth: (ym: string) => void
   isMonthStarted: (ym: string) => boolean
   isMonthSettled: (ym: string) => boolean
+  setHouseholdName: (name: string | null) => void
 }
 
 export const useAppStore = create<AppState>()(
@@ -80,10 +85,12 @@ export const useAppStore = create<AppState>()(
         user1Color: subOklch(SUB_HUES[0]),
         user2Color: subOklch(SUB_HUES[1]),
         sharedColor: subOklch(SUB_HUES[2]),
+        fixedCategories: DEFAULT_FIXED_CATEGORIES,
       },
       startedMonths: [defaultYM],
       settledMonths: [],
       lastSavedByMonth: {},
+      householdName: null,
       yearPickerMaxYear: defaultYearPickerMaxYear(),
       setYearMonth: (ym) => set({ currentYearMonth: ym }),
       extendYearPickerMax: () =>
@@ -122,9 +129,13 @@ export const useAppStore = create<AppState>()(
           startedMonths: state.startedMonths.includes(ym) ? state.startedMonths : [...state.startedMonths, ym],
         })),
       removeStartedMonth: (ym) =>
-        set((state) => ({
-          startedMonths: state.startedMonths.filter((m) => m !== ym),
-        })),
+        set((state) => {
+          const { [ym]: _removed, ...restLastSaved } = state.lastSavedByMonth
+          return {
+            startedMonths: state.startedMonths.filter((m) => m !== ym),
+            lastSavedByMonth: restLastSaved,
+          }
+        }),
       settleMonth: (ym) =>
         set((state) => ({
           settledMonths: state.settledMonths.includes(ym) ? state.settledMonths : [...state.settledMonths, ym],
@@ -135,6 +146,7 @@ export const useAppStore = create<AppState>()(
         })),
       isMonthStarted: (ym) => get().startedMonths.includes(ym),
       isMonthSettled: (ym) => get().settledMonths.includes(ym),
+      setHouseholdName: (name) => set({ householdName: name }),
     }),
     {
       name: 'couple-budget:app',
@@ -145,6 +157,7 @@ export const useAppStore = create<AppState>()(
         startedMonths: s.startedMonths,
         settledMonths: s.settledMonths,
         lastSavedByMonth: s.lastSavedByMonth,
+        householdName: s.householdName,
       }),
     },
   ),

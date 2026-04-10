@@ -184,6 +184,15 @@ export const settingsTemplateDeleteButtonStyle: CSSProperties = {
   boxShadow: '0 2px 8px rgba(239, 68, 68, 0.06)',
 }
 
+/** 드롭다운 트리거 공통 스타일 토큰 */
+export const DROPDOWN_PADDING_REGULAR = '0 12px'
+export const DROPDOWN_PADDING_COMPACT = '0 8px'
+export const DROPDOWN_CARET_COLOR = '#6b7280'
+export const DROPDOWN_CARET_FONT_SIZE_REGULAR = 12
+export const DROPDOWN_CARET_FONT_SIZE_COMPACT = 10
+export const DROPDOWN_ITEM_PADDING_REGULAR = '0 14px'
+export const DROPDOWN_ITEM_PADDING_COMPACT = '0 12px'
+
 export const inputBaseStyle = {
   ...jellyInputSurface,
   height: INPUT_HEIGHT,
