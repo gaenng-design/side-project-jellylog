@@ -317,10 +317,9 @@ async function fetchAppSnapshotBody(householdId: string): Promise<Record<string,
 
 async function hasAnyNormalizedSignal(householdId: string): Promise<boolean> {
   if (!supabase) return false
-  /** plan_snapshots PK는 (household_id, year_month) — id 컬럼 없음 → select id 시 PostgREST 400 */
   const q = (t: string) =>
     supabase.from(t).select('household_id', { count: 'exact', head: true }).eq('household_id', householdId)
-  const tables = ['fixed_templates', 'invest_templates', 'incomes', 'plan_snapshots'] as const
+  const tables = ['fixed_templates', 'invest_templates', 'incomes'] as const
   const results = await Promise.all(tables.map((t) => q(t)))
   return results.some((r) => (r.count ?? 0) > 0)
 }
@@ -369,13 +368,6 @@ interface DbInvestOverride {
   year_month: string
   amount: number | null
   is_excluded: boolean | null
-}
-
-interface DbPlanSnapshot {
-  household_id?: string
-  year_month: string
-  fixed_snapshot: unknown
-  invest_snapshot: unknown
 }
 
 interface DbSettlementRow {
@@ -545,23 +537,6 @@ async function deleteOrphanHouseholdPlanMonths(
     if (ids.length) await delIdsChunked(table, ids)
   }
 
-  const { data: psRows, error: psErr } = await supabase
-    .from('plan_snapshots')
-    .select('year_month')
-    .eq('household_id', householdId)
-  if (psErr) throw new Error(`plan_snapshots(select orphan): ${psErr.message}`)
-  for (const row of psRows ?? []) {
-    const pr = row as Record<string, unknown>
-    const ym = yearMonthOf(pr)
-    if (!ym || started.has(ym)) continue
-    const { error: dErr } = await supabase
-      .from('plan_snapshots')
-      .delete()
-      .eq('household_id', householdId)
-      .eq('year_month', ym)
-    if (dErr) throw new Error(`plan_snapshots(delete orphan): ${dErr.message}`)
-  }
-
   const { data: sdRows, error: sdErr } = await supabase
     .from('settlement_data')
     .select('year_month')
@@ -646,7 +621,6 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       { data: fo },
       { data: it },
       { data: io },
-      { data: ps },
       { data: sd },
       { data: fx },
       { data: inv },
@@ -659,7 +633,6 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       supabase.from('fixed_template_overrides').select('*').eq('household_id', householdId),
       supabase.from('invest_templates').select('*').eq('household_id', householdId),
       supabase.from('invest_template_overrides').select('*').eq('household_id', householdId),
-      supabase.from('plan_snapshots').select('*').eq('household_id', householdId),
       supabase.from('settlement_data').select('*').eq('household_id', householdId),
       supabase.from('fixed_expenses').select('*').eq('household_id', householdId),
       supabase.from('investments').select('*').eq('household_id', householdId),
@@ -673,7 +646,6 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
     const fixedOverrides = (fo ?? []) as DbFixedOverride[]
     const investTemplates = (it ?? []) as DbInvestTemplate[]
     const investOverrides = (io ?? []) as DbInvestOverride[]
-    const planSnaps = (ps ?? []) as DbPlanSnapshot[]
     const settlements = (sd ?? []) as DbSettlementRow[]
     const fixedExp = (fx ?? []) as unknown as Record<string, unknown>[]
     const investRows = (inv ?? []) as unknown as Record<string, unknown>[]
@@ -744,17 +716,9 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
       monthlyAmounts: invMonthlyAmounts,
     })
 
+    // templateSnapshotsByMonth is recalculated on-the-fly from template data by the client
+    // No longer fetched from plan_snapshots table (removed in Phase 1 optimization)
     const templateSnapshotsByMonth: Record<string, { fixed: unknown[]; invest: unknown[] }> = {}
-    for (const p of planSnaps) {
-      const pr = p as unknown as Record<string, unknown>
-      const pym = yearMonthOf(pr)
-      const fx = pr.fixed_snapshot ?? pr.fixedSnapshot
-      const iv = pr.invest_snapshot ?? pr.investSnapshot
-      templateSnapshotsByMonth[pym] = {
-        fixed: Array.isArray(fx) ? fx : [],
-        invest: Array.isArray(iv) ? iv : [],
-      }
-    }
 
     const mapFixedRow = (r: Record<string, unknown>) => ({
       id: String(r.id),
@@ -898,7 +862,6 @@ export async function hydrateFromSupabaseBeforeApp(): Promise<void> {
     for (const r of fixedExp) ymSet.add(yearMonthOf(r))
     for (const r of investRows) ymSet.add(yearMonthOf(r))
     for (const r of sepRows) ymSet.add(yearMonthOf(r))
-    for (const p of planSnaps) ymSet.add(yearMonthOf(p as unknown as Record<string, unknown>))
     for (const s of settlements) ymSet.add(yearMonthOf(s as unknown as Record<string, unknown>))
     const inferredStarted = [...ymSet].sort()
     const inferredStartedSet = new Set(inferredStarted)
@@ -1175,13 +1138,8 @@ export async function saveAllToSupabase(): Promise<SaveAllToSupabaseResult> {
       'household_id,template_id,year_month',
     )
 
-    const planRows: DbPlanSnapshot[] = Object.entries(planS.templateSnapshotsByMonth).map(([ym, snap]) => ({
-      household_id: householdId,
-      year_month: ym,
-      fixed_snapshot: snap.fixed,
-      invest_snapshot: snap.invest,
-    }))
-    await upsertChunk('plan_snapshots', planRows as unknown as Record<string, unknown>[], 'household_id,year_month')
+    // plan_snapshots table removed in Phase 1 optimization
+    // Snapshots are now recalculated on-the-fly from template data by the client
 
     const settledMonths = appS.settledMonths ?? []
     const settlementByYm = new Map(settleS.settlements.map((s) => [s.yearMonth, s]))
