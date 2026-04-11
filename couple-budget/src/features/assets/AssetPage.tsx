@@ -95,16 +95,19 @@ function AmountCell({
   )
 }
 
-function AddItemRow({ onAdd }: { onAdd: (name: string, category: string) => void }) {
+function AddItemRow({ onAdd }: { onAdd: (name: string, category: string, amount: number) => void }) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState('저축')
+  const [amount, setAmount] = useState('')
 
   const handleAdd = () => {
     const t = name.trim()
     if (!t) return
-    onAdd(t, category)
+    const amt = amount ? parseInt(amount.replace(/,/g, ''), 10) : 0
+    onAdd(t, category, amt)
     setName('')
     setCategory('저축')
+    setAmount('')
   }
 
   return (
@@ -147,6 +150,27 @@ function AddItemRow({ onAdd }: { onAdd: (name: string, category: string) => void
           outline: 'none',
           boxSizing: 'border-box',
           fontFamily: 'inherit',
+        }}
+      />
+      <input
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        placeholder="정기입금액 (선택)"
+        onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+        style={{
+          width: 120,
+          height: 36,
+          padding: '0 12px',
+          borderRadius: JELLY.radiusControl,
+          border: '1px solid #e5e7eb',
+          background: '#fff',
+          fontSize: 13,
+          color: JELLY.text,
+          outline: 'none',
+          boxSizing: 'border-box',
+          fontFamily: 'inherit',
+          flexShrink: 0,
         }}
       />
       <button
@@ -427,7 +451,7 @@ export function AssetPage() {
 
         {/* Add row + Controls */}
         <div style={{ padding: '12px 16px', borderTop: '1px solid #f3f4f6' }}>
-          <AddItemRow onAdd={(name, category) => addItem({ name, category, source: 'manual' })} />
+          <AddItemRow onAdd={(name, category, amount) => addItem({ name, category, defaultAmount: amount > 0 ? amount : undefined, source: 'manual' })} />
         </div>
       </div>
     </div>

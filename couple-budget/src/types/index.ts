@@ -73,6 +73,8 @@ export interface AssetItem {
   name: string
   category: string  // '저축' | '투자' | '부동산' | '주식' | '기타'
   order: number
+  /** 정기입금액(선택사항) */
+  defaultAmount?: number
   /** 지출 계획 투자·저축에서 자동 추가된 항목인지 여부 */
   source?: 'invest' | 'manual'
 }
