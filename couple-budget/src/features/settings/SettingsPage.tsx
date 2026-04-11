@@ -1303,8 +1303,6 @@ function InvestTemplateSettings() {
           </button>
         </div>
       </Modal>
-
-      <CategorySettingsModal open={categoryModalOpen} onClose={() => setCategoryModalOpen(false)} />
     </div>
   )
 }

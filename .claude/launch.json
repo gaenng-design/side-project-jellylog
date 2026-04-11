@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Electron Dev (데스크톱 앱)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "Web Dev Server (브라우저)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:web"],
+      "port": 5173
+    },
+    {
+      "name": "Web Preview (빌드 결과 미리보기)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "preview:web"],
+      "port": 4173
+    }
+  ]
+}
