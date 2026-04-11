@@ -327,6 +327,11 @@ export async function joinHouseholdByPasswordRpcWithHydrate(
 export async function signOutAndClearHousehold(): Promise<void> {
   clearSyncHouseholdId()
   clearSyncHouseholdName()
+
+  // 메모리 상태 초기화
+  const { resetAllStoresInMemory } = await import('@/store/rehydratePersistedStores')
+  resetAllStoresInMemory()
+
   if (supabase) {
     await supabase.auth.signOut()
     const r = await ensureSupabaseSessionForSync()
