@@ -2323,10 +2323,10 @@ export function ExpensePlanPage() {
           <div
             style={{
               display: 'flex',
-              flexDirection: narrow ? 'column' : 'row',
+              flexDirection: 'row',
               gap: 12,
               marginBottom: 20,
-              flexWrap: narrow ? 'nowrap' : 'wrap',
+              flexWrap: 'wrap',
             }}
           >
             {[
@@ -2337,9 +2337,8 @@ export function ExpensePlanPage() {
               <div
                 key={c.label}
                 style={{
-                  flex: narrow ? undefined : 1,
-                  minWidth: narrow ? 0 : 140,
-                  width: narrow ? '100%' : undefined,
+                  flex: narrow ? '1 1 calc(50% - 6px)' : 1,
+                  minWidth: narrow ? 120 : 140,
                   boxSizing: 'border-box',
                   background: expensePlanSummaryCardBackground(c.surface),
                   borderRadius: JELLY.radiusControl,
@@ -2354,9 +2353,8 @@ export function ExpensePlanPage() {
             ))}
             <div
               style={{
-                flex: narrow ? undefined : 1,
-                minWidth: narrow ? 0 : 160,
-                width: narrow ? '100%' : undefined,
+                flex: narrow ? '1 1 calc(50% - 6px)' : 1,
+                minWidth: narrow ? 120 : 160,
                 boxSizing: 'border-box',
                 background: expensePlanSummaryCardBackground('allowance'),
                 borderRadius: JELLY.radiusControl,
