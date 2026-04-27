@@ -38,8 +38,6 @@ import { InvestRow } from '@/components/InvestRow'
 import { DaySelect } from '@/components/DaySelect'
 import { calcSettlementSummary, getSharedLivingByPerson } from '@/lib/calcSettlementSummary'
 import { computeSeparateExpenseCard5090, payerForSeparateExpenseRow } from '@/lib/separateExpenseSettlement'
-import { saveAllToSupabase } from '@/data/saveAllToSupabase'
-import { isSupabaseConfigured } from '@/data/supabase'
 import { SettlementResultView } from './SettlementResultView'
 import { deletePlanMonthCore } from './deletePlanMonth'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
@@ -1798,16 +1796,6 @@ export function ExpensePlanPage() {
     seededMonthsRef.current.delete(ym)
     await refreshIncomes()
     setDeleteConfirmOpen(false)
-
-    if (isSupabaseConfigured) {
-      await new Promise((r) => setTimeout(r, 0))
-      const res = await saveAllToSupabase()
-      if (!res.ok) {
-        console.warn('[Supabase] 작성 삭제 후 업로드 실패:', res.message)
-      } else if (!res.snapshotOk && res.snapshotHint) {
-        console.warn('[Supabase]', res.snapshotHint)
-      }
-    }
   }
 
   // 수입: 작성이 시작된 달만 해당 월 기준 유저1/2 기본 수입 2건 시드(설정값 사용). 초기 로드 완료 후에만 실행(설정 갔다 왔을 때 기존 데이터 유지)
@@ -1837,6 +1825,14 @@ export function ExpensePlanPage() {
   // 지출 계획의 수입 수정은 해당 월에만 반영. 설정은 변경하지 않음.
   const defaultA = incomeItems.find((i) => i.person === 'A' && i.category === '급여')
   const defaultB = incomeItems.find((i) => i.person === 'B' && i.category === '급여')
+
+  /** 정산 완료 달의 결과 화면에서는 설정 변경을 반영하지 않기 위해 고정된 기본값 사용 */
+  const useSettingsDefaults = !(planState === 'settled' && viewMode === 'result')
+  const fallbackPersonAName = useSettingsDefaults ? settings.personAName : '유저 1'
+  const fallbackPersonBName = useSettingsDefaults ? settings.personBName : '유저 2'
+  const fallbackPersonAIncome = useSettingsDefaults ? settings.personAIncome : 0
+  const fallbackPersonBIncome = useSettingsDefaults ? settings.personBIncome : 0
+
   /** 매 렌더 새 배열이면 incomeRowsEffective·buildSettlementSummary가 매번 바뀌어 정산 달에서 useEffect 무한 루프 */
   const incomeRows: IncomeRow[] = useMemo(() => {
     const da = incomeItems.find((i) => i.person === 'A' && i.category === '급여')
@@ -1849,15 +1845,15 @@ export function ExpensePlanPage() {
         id: da?.id ?? 'virtual-a',
         person: 'A' as const,
         category: '급여',
-        description: settings.personAName || '유저 1',
-        amount: da?.amount ?? settings.personAIncome ?? 0,
+        description: fallbackPersonAName || '유저 1',
+        amount: da?.amount ?? fallbackPersonAIncome ?? 0,
       },
       {
         id: db?.id ?? 'virtual-b',
         person: 'B' as const,
         category: '급여',
-        description: settings.personBName || '유저 2',
-        amount: db?.amount ?? settings.personBIncome ?? 0,
+        description: fallbackPersonBName || '유저 2',
+        amount: db?.amount ?? fallbackPersonBIncome ?? 0,
       },
       ...extras.map((i) => ({
         id: i.id,
@@ -1867,7 +1863,7 @@ export function ExpensePlanPage() {
         amount: i.amount,
       })),
     ]
-  }, [incomeItems, settings.personAName, settings.personBName, settings.personAIncome, settings.personBIncome])
+  }, [incomeItems, fallbackPersonAName, fallbackPersonBName, fallbackPersonAIncome, fallbackPersonBIncome])
 
   const incomeRowsWithOverrides = useMemo(
     () => incomeRows.map((row) => ({ ...row, ...incomeOverrides[row.id] })),
@@ -2051,16 +2047,6 @@ export function ExpensePlanPage() {
     skipSettledAutoResultRef.current = false
     setViewMode('result')
     setTimeout(() => resultScrollRef.current?.scrollIntoView?.({ behavior: 'smooth' }), 50)
-
-    if (isSupabaseConfigured) {
-      await new Promise((r) => setTimeout(r, 0))
-      const res = await saveAllToSupabase()
-      if (!res.ok) {
-        console.warn('[Supabase] 이달 정산 후 업로드 실패:', res.message)
-      } else if (!res.snapshotOk && res.snapshotHint) {
-        console.warn('[Supabase]', res.snapshotHint)
-      }
-    }
   }
 
   /** 정산 후 편집 화면에서 수정 반영 → 정산 결과 다시 보기 */
@@ -2314,8 +2300,8 @@ export function ExpensePlanPage() {
           <div ref={resultScrollRef}>
             <SettlementResultView
               summary={settlementSummary}
-              personAName={settings.personAName || '유저 1'}
-              personBName={settings.personBName || '유저 2'}
+              personAName={fallbackPersonAName || '유저 1'}
+              personBName={fallbackPersonBName || '유저 2'}
             />
           </div>
         ) : (
@@ -2337,8 +2323,8 @@ export function ExpensePlanPage() {
               <div
                 key={c.label}
                 style={{
-                  flex: narrow ? '1 1 calc(50% - 6px)' : 1,
-                  minWidth: narrow ? 120 : 140,
+                  flex: 1,
+                  minWidth: 140,
                   boxSizing: 'border-box',
                   background: expensePlanSummaryCardBackground(c.surface),
                   borderRadius: JELLY.radiusControl,
@@ -2353,8 +2339,8 @@ export function ExpensePlanPage() {
             ))}
             <div
               style={{
-                flex: narrow ? '1 1 calc(50% - 6px)' : 1,
-                minWidth: narrow ? 120 : 160,
+                flex: 1,
+                minWidth: 160,
                 boxSizing: 'border-box',
                 background: expensePlanSummaryCardBackground('allowance'),
                 borderRadius: JELLY.radiusControl,

@@ -2,8 +2,12 @@ import { useState, useRef } from 'react'
 import { useAssetStore, ASSET_CATEGORIES } from '@/store/useAssetStore'
 import { useAppStore } from '@/store/useAppStore'
 import { YearSelectDropdown } from '@/components/YearSelectDropdown'
-import { JELLY, jellyCardStyle, jellyPrimaryButton } from '@/styles/jellyGlass'
-import { pageTitleH1Style, PRIMARY, PRIMARY_LIGHT, settingsTemplateDeleteButtonStyle } from '@/styles/formControls'
+import { CustomSelect } from '@/components/CustomSelect'
+import { AmountInput } from '@/components/AmountInput'
+import { InlineEdit } from '@/components/InlineEdit'
+import { Modal } from '@/components/Modal'
+import { JELLY, jellyCardStyle, jellyPrimaryButton, jellyInputSurface } from '@/styles/jellyGlass'
+import { pageTitleH1Style, PRIMARY, PRIMARY_LIGHT, settingsTemplateDeleteButtonStyle, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE } from '@/styles/formControls'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import type { AssetItem } from '@/types'
 
@@ -21,7 +25,7 @@ function AmountCell({
   disabled,
 }: {
   value: number
-  onChange: (v: number) => void
+  onChange: (v: string) => void
   disabled?: boolean
 }) {
   const [editing, setEditing] = useState(false)
@@ -35,8 +39,11 @@ function AmountCell({
   }
 
   const commit = () => {
-    const v = parseInt(raw.replace(/,/g, ''), 10)
-    onChange(isNaN(v) ? 0 : v)
+    // 정확한 금액 계산: raw값이 공백이면 0, 아니면 파싱
+    const cleanValue = raw.replace(/,/g, '')
+    const parsed = cleanValue === '' ? '' : cleanValue
+    console.log('[AmountCell] commit:', { raw, cleanValue, parsed, disabled })
+    onChange(parsed)
     setEditing(false)
   }
 
@@ -88,6 +95,7 @@ function AmountCell({
         boxSizing: 'border-box',
         minWidth: 60,
         whiteSpace: 'nowrap',
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       {value === 0 ? '—' : value.toLocaleString('ko-KR')}
@@ -98,81 +106,84 @@ function AmountCell({
 function AddItemRow({ onAdd }: { onAdd: (name: string, category: string, amount: number) => void }) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState('저축')
+  const [hasAmount, setHasAmount] = useState(false)
   const [amount, setAmount] = useState('')
 
   const handleAdd = () => {
     const t = name.trim()
     if (!t) return
-    const amt = amount ? parseInt(amount.replace(/,/g, ''), 10) : 0
+    const amt = hasAmount && amount ? parseInt(amount.replace(/,/g, ''), 10) : 0
     onAdd(t, category, amt)
     setName('')
     setCategory('저축')
+    setHasAmount(false)
     setAmount('')
   }
 
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8 }}>
-      <select
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        style={{
-          height: 36,
-          padding: '0 10px',
-          borderRadius: JELLY.radiusControl,
-          border: '1px solid #e5e7eb',
-          background: '#f9fafb',
-          fontSize: 13,
-          color: JELLY.text,
-          outline: 'none',
-          fontFamily: 'inherit',
-          cursor: 'pointer',
-          flexShrink: 0,
-        }}
-      >
-        {ASSET_CATEGORIES.map((c) => (
-          <option key={c} value={c}>{c}</option>
-        ))}
-      </select>
+    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 8, flexWrap: 'wrap' }}>
+      <div style={{ minWidth: 120, flexShrink: 0 }}>
+        <CustomSelect
+          options={ASSET_CATEGORIES}
+          value={category}
+          onChange={setCategory}
+          compact
+          compactFill
+          compactHeight={40}
+        />
+      </div>
+
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="항목명 입력 (예: 청약저축, 주식 계좌)"
+        placeholder="항목명"
         onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
         style={{
           flex: 1,
-          height: 36,
+          minWidth: 140,
+          height: 40,
           padding: '0 12px',
-          borderRadius: JELLY.radiusControl,
-          border: '1px solid #e5e7eb',
-          background: '#fff',
-          fontSize: 13,
-          color: JELLY.text,
+          borderRadius: INPUT_BORDER_RADIUS,
+          fontSize: INPUT_FONT_SIZE,
+          fontFamily: 'inherit',
           outline: 'none',
           boxSizing: 'border-box',
-          fontFamily: 'inherit',
+          ...jellyInputSurface,
+          color: '#232d3c',
         }}
       />
-      <input
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        placeholder="정기입금액 (선택)"
-        onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-        style={{
-          width: 120,
-          height: 36,
-          padding: '0 12px',
-          borderRadius: JELLY.radiusControl,
-          border: '1px solid #e5e7eb',
-          background: '#fff',
-          fontSize: 13,
-          color: JELLY.text,
-          outline: 'none',
-          boxSizing: 'border-box',
-          fontFamily: 'inherit',
-          flexShrink: 0,
-        }}
-      />
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, paddingTop: 12 }}>
+        <input
+          type="checkbox"
+          checked={hasAmount}
+          onChange={(e) => {
+            setHasAmount(e.target.checked)
+            if (!e.target.checked) setAmount('')
+          }}
+          style={{
+            width: 18,
+            height: 18,
+            cursor: 'pointer',
+            accentColor: PRIMARY,
+          }}
+        />
+        <label style={{ fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }}>
+          정기입금액
+        </label>
+      </div>
+
+      {hasAmount && (
+        <div style={{ minWidth: 140, flexShrink: 0 }}>
+          <AmountInput
+            value={amount}
+            onChange={setAmount}
+            placeholder="0"
+            height={40}
+          />
+        </div>
+      )}
+
       <button
         type="button"
         onClick={handleAdd}
@@ -180,7 +191,7 @@ function AddItemRow({ onAdd }: { onAdd: (name: string, category: string, amount:
           ...jellyPrimaryButton,
           fontSize: 13,
           padding: '0 16px',
-          height: 36,
+          height: 40,
           flexShrink: 0,
           opacity: name.trim() ? 1 : 0.45,
           cursor: name.trim() ? 'pointer' : 'default',
@@ -197,7 +208,22 @@ export function AssetPage() {
   const currentYearMonth = useAppStore((s) => s.currentYearMonth)
   const yearPickerMaxYear = useAppStore((s) => s.yearPickerMaxYear)
   const currentYear = parseInt(currentYearMonth.split('-')[0], 10)
+  const currentMonth = parseInt(currentYearMonth.split('-')[1], 10) - 1 // 0-based
   const [year, setYear] = useState(currentYear)
+
+  /** 월이 편집 가능한지 확인 (현재 연도에서 현재 월 이전까지만 가능) */
+  const isMonthEditable = (monthIdx: number): boolean => {
+    // 현재 연도보다 이전 연도는 모두 편집 가능
+    if (year < currentYear) return true
+
+    // 다음 연도는 편집 불가 (읽기전용)
+    if (year > currentYear) return false
+
+    // 현재 연도: 현재 월과 이전 월만 편집 가능
+    // currentMonth는 0-based (0=1월, 3=4월)
+    // monthIdx도 0-based (0=1월, 3=4월)
+    return monthIdx <= currentMonth
+  }
 
   const items = useAssetStore((s) => s.items)
   const addItem = useAssetStore((s) => s.addItem)
@@ -206,6 +232,10 @@ export function AssetPage() {
   const reorderItem = useAssetStore((s) => s.reorderItem)
   const setEntry = useAssetStore((s) => s.setEntry)
   const getEntry = useAssetStore((s) => s.getEntry)
+
+  // 항목 수정 모달
+  const [editingItem, setEditingItem] = useState<AssetItem | null>(null)
+  const [editForm, setEditForm] = useState({ name: '', defaultAmount: '' })
 
   const sortedItems = [...items].sort((a, b) => a.order - b.order)
 
@@ -289,6 +319,10 @@ export function AssetPage() {
                   {sortedItems.map((item) => (
                     <div
                       key={`name-${item.id}`}
+                      onClick={() => {
+                        setEditingItem(item)
+                        setEditForm({ name: item.name, defaultAmount: item.defaultAmount ? String(item.defaultAmount) : '' })
+                      }}
                       style={{
                         width: CELL_W,
                         minWidth: CELL_W,
@@ -302,8 +336,12 @@ export function AssetPage() {
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap' as const,
+                        cursor: 'pointer',
+                        borderRadius: 6,
                       }}
-                      title={item.name}
+                      title={`${item.name}\n클릭하여 수정`}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = '#f0f4f8')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = '#f9fafb')}
                     >
                       {item.name}
                     </div>
@@ -318,19 +356,25 @@ export function AssetPage() {
                       color: JELLY.text,
                       background: '#f9fafb',
                       textAlign: 'center' as const,
+                      borderLeft: '2px solid #e5e7eb',
                       borderRight: '1px solid #e5e7eb',
+                      marginLeft: 'auto',
                     }}
                   >
                     합계
                   </div>
                 </div>
 
-                {/* Item categories header row */}
+                {/* Item categories + defaultAmount header row */}
                 <div style={{ display: 'flex', borderBottom: '2px solid #e5e7eb', background: '#fafbfc' }}>
                   <div style={{ ...monthHeaderStyle, background: '#fafbfc' }} />
                   {sortedItems.map((item) => (
                     <div
                       key={`cat-${item.id}`}
+                      onClick={() => {
+                        setEditingItem(item)
+                        setEditForm({ name: item.name, defaultAmount: item.defaultAmount ? String(item.defaultAmount) : '' })
+                      }}
                       style={{
                         width: CELL_W,
                         minWidth: CELL_W,
@@ -341,14 +385,28 @@ export function AssetPage() {
                         textAlign: 'center' as const,
                         borderRight: '1px solid #e5e7eb',
                         display: 'flex',
-                        alignItems: 'flex-end',
-                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        gap: 2,
+                        cursor: 'pointer',
+                        borderRadius: 6,
                       }}
+                      title="클릭하여 정기입금액 수정"
+                      onMouseEnter={(e) => (e.currentTarget.style.background = '#f4f7fc')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = '#fafbfc')}
                     >
-                      {item.category}
+                      <div>{item.category}</div>
+                      {item.defaultAmount ? (
+                        <div style={{ fontSize: 9, color: '#6b7280', fontWeight: 500 }}>
+                          {item.defaultAmount.toLocaleString('ko-KR')}
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: 9, color: '#d1d5db', fontWeight: 400 }}>정기입금액 없음</div>
+                      )}
                     </div>
                   ))}
-                  <div style={{ width: 80, minWidth: 80, background: '#fafbfc', borderRight: '1px solid #e5e7eb' }} />
+                  <div style={{ width: 80, minWidth: 80, background: '#fafbfc', borderLeft: '2px solid #e5e7eb', borderRight: '1px solid #e5e7eb', marginLeft: 'auto' }} />
                 </div>
               </>
             )}
@@ -360,44 +418,60 @@ export function AssetPage() {
               </div>
             ) : (
               <>
-                {MONTHS.map((month, mi) => (
-                  <div key={month} style={{ display: 'flex', borderBottom: '1px solid #f3f4f6' }}>
-                    <div style={monthHeaderStyle}>{month}</div>
-                    {sortedItems.map((item) => (
+                {MONTHS.map((month, mi) => {
+                  const isEditable = isMonthEditable(mi)
+                  return (
+                    <div key={month} style={{ display: 'flex', borderBottom: '1px solid #f3f4f6' }}>
+                      <div style={monthHeaderStyle}>{month}</div>
+                      {sortedItems.map((item) => (
+                        <div
+                          key={`${item.id}-${mi}`}
+                          style={{
+                            width: CELL_W,
+                            minWidth: CELL_W,
+                            padding: '0 2px',
+                            borderRight: '1px solid #f3f4f6',
+                          }}
+                        >
+                          <AmountCell
+                            value={getEntry(item.id, ym(year, mi))}
+                            onChange={(v) => {
+                              const amount = v ? parseInt(v.replace(/,/g, ''), 10) : 0
+                              console.log('[AssetPage] setEntry:', {
+                                itemId: item.id,
+                                yearMonth: ym(year, mi),
+                                inputValue: v,
+                                parsedAmount: amount,
+                                isEditable: !isEditable
+                              })
+                              setEntry(item.id, ym(year, mi), amount)
+                            }}
+                            disabled={!isEditable}
+                          />
+                        </div>
+                      ))}
+                      {/* Month total */}
                       <div
-                        key={`${item.id}-${mi}`}
                         style={{
-                          width: CELL_W,
-                          minWidth: CELL_W,
-                          padding: '0 2px',
+                          width: 80,
+                          minWidth: 80,
+                          padding: '0 6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'flex-end',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: monthTotals[mi] > 0 ? PRIMARY : '#d1d5db',
+                          borderLeft: '2px solid #f3f4f6',
                           borderRight: '1px solid #f3f4f6',
+                          marginLeft: 'auto',
                         }}
                       >
-                        <AmountCell
-                          value={getEntry(item.id, ym(year, mi))}
-                          onChange={(v) => setEntry(item.id, ym(year, mi), v)}
-                        />
+                        {monthTotals[mi] > 0 ? monthTotals[mi].toLocaleString('ko-KR') : '—'}
                       </div>
-                    ))}
-                    {/* Month total */}
-                    <div
-                      style={{
-                        width: 80,
-                        minWidth: 80,
-                        padding: '0 6px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: monthTotals[mi] > 0 ? PRIMARY : '#d1d5db',
-                        borderRight: '1px solid #f3f4f6',
-                      }}
-                    >
-                      {monthTotals[mi] > 0 ? monthTotals[mi].toLocaleString('ko-KR') : '—'}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
 
                 {/* Cumulative row */}
                 <div style={{ display: 'flex', borderBottom: 'none', background: `color-mix(in srgb, ${PRIMARY} 4%, white)`, borderTop: '2px solid #e5e7eb' }}>
@@ -438,7 +512,9 @@ export function AssetPage() {
                       fontSize: 13,
                       fontWeight: 700,
                       color: PRIMARY,
+                      borderLeft: '2px solid #f3f4f6',
                       borderRight: '1px solid #f3f4f6',
+                      marginLeft: 'auto',
                     }}
                   >
                     {totalSum > 0 ? totalSum.toLocaleString('ko-KR') : '—'}
@@ -451,9 +527,140 @@ export function AssetPage() {
 
         {/* Add row + Controls */}
         <div style={{ padding: '12px 16px', borderTop: '1px solid #f3f4f6' }}>
-          <AddItemRow onAdd={(name, category, amount) => addItem({ name, category, defaultAmount: amount > 0 ? amount : undefined, source: 'manual' })} />
+          <AddItemRow onAdd={(name, category, amount) => {
+            // 새 항목 추가
+            const newItemId = addItem({ name, category, defaultAmount: amount > 0 ? amount : undefined, source: 'manual' })
+
+            // CASE 1: 정기입금액이 설정되면 현재 월부터 누적 자동 채우기
+            if (amount > 0) {
+              for (let mi = currentMonth; mi < 12; mi++) {
+                const yearMonth = ym(currentYear, mi)
+                const cumulativeAmount = amount * (mi - currentMonth + 1)
+                setEntry(newItemId, yearMonth, cumulativeAmount)
+              }
+            }
+          }} />
         </div>
       </div>
+
+      {/* Edit item modal */}
+      <Modal
+        open={editingItem !== null}
+        title="항목 수정"
+        onClose={() => setEditingItem(null)}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+            <input
+              value={editForm.name}
+              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              placeholder="항목명"
+              style={{
+                width: '100%',
+                height: 40,
+                padding: '0 12px',
+                borderRadius: INPUT_BORDER_RADIUS,
+                fontSize: INPUT_FONT_SIZE,
+                fontFamily: 'inherit',
+                outline: 'none',
+                boxSizing: 'border-box',
+                ...jellyInputSurface,
+                color: '#232d3c',
+              }}
+            />
+          </div>
+
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>정기입금액 (선택)</div>
+            <AmountInput
+              value={editForm.defaultAmount}
+              onChange={(v) => setEditForm({ ...editForm, defaultAmount: v })}
+              placeholder="0"
+              height={40}
+            />
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
+          <button
+            onClick={() => setEditingItem(null)}
+            style={{
+              padding: '8px 14px',
+              borderRadius: JELLY.radiusControl,
+              border: '1px solid #e5e7eb',
+              background: '#fff',
+              fontSize: 13,
+              cursor: 'pointer',
+            }}
+          >
+            취소
+          </button>
+
+          <button
+            onClick={() => {
+              if (editingItem && editForm.name.trim()) {
+                const newDefaultAmount = editForm.defaultAmount ? parseInt(editForm.defaultAmount.replace(/,/g, ''), 10) : undefined
+                const oldDefaultAmount = editingItem.defaultAmount
+                const currentMonthIndex = currentMonth // 0-based
+
+                updateItem(editingItem.id, {
+                  name: editForm.name.trim(),
+                  defaultAmount: newDefaultAmount,
+                })
+
+                // 정기입금액 변경 로직 (4가지 경우)
+                if (newDefaultAmount && newDefaultAmount > 0) {
+                  if (!oldDefaultAmount) {
+                    // CASE 1: 새 항목 (AddItemRow에서 체크박스 선택한 경우)
+                    // 또는 CASE 2: 기존 항목에 정기입금액 추가 (현재 모달에서 처음 설정)
+                    if (year === currentYear) {
+                      // 현재 월은 기존값 유지, 다음 월부터 누적 시작
+                      const currentMonthAmount = getEntry(editingItem.id, ym(currentYear, currentMonthIndex))
+
+                      // 다음 월부터 적용
+                      for (let mi = currentMonthIndex + 1; mi < 12; mi++) {
+                        const prevMonthAmount = getEntry(editingItem.id, ym(currentYear, mi - 1))
+                        const cumulativeAmount = prevMonthAmount + newDefaultAmount
+                        setEntry(editingItem.id, ym(currentYear, mi), cumulativeAmount)
+                      }
+                    }
+                  } else if (newDefaultAmount !== oldDefaultAmount) {
+                    // CASE 3: 정기입금액 변경
+                    // 이전 월들은 유지, 다음 월부터 새 금액으로 누적
+                    if (year === currentYear) {
+                      for (let mi = currentMonthIndex + 1; mi < 12; mi++) {
+                        const prevMonthAmount = getEntry(editingItem.id, ym(currentYear, mi - 1))
+                        const cumulativeAmount = prevMonthAmount + newDefaultAmount
+                        setEntry(editingItem.id, ym(currentYear, mi), cumulativeAmount)
+                      }
+                    }
+                  }
+                  // else: 정기입금액이 같으면 변경 없음
+                } else if (!newDefaultAmount && oldDefaultAmount) {
+                  // CASE 4: 정기입금액 삭제
+                  // 이전 누적값은 유지, 수동 편집만 가능하게 됨
+                  // 아무 처리도 필요 없음 (이미 updateItem에서 defaultAmount를 undefined로 설정함)
+                }
+
+                setEditingItem(null)
+              }
+            }}
+            style={{
+              padding: '8px 16px',
+              borderRadius: JELLY.radiusControl,
+              border: 'none',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: editForm.name.trim() ? 'pointer' : 'not-allowed',
+              background: editForm.name.trim() ? PRIMARY : '#e5e7eb',
+              color: editForm.name.trim() ? '#fff' : '#9ca3af',
+            }}
+          >
+            저장
+          </button>
+        </div>
+      </Modal>
     </div>
   )
 }

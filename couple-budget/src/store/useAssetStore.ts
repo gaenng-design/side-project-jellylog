@@ -64,12 +64,16 @@ export const useAssetStore = create<AssetState>()(
       setEntry: (itemId, yearMonth, amount) => {
         set((s) => {
           const existing = s.entries.find((e) => e.itemId === itemId && e.yearMonth === yearMonth)
+          console.log('[useAssetStore.setEntry]:', { itemId, yearMonth, amount, existing: !!existing })
           if (amount === 0) {
+            console.log('  → Deleting entry (amount is 0)')
             return { entries: s.entries.filter((e) => !(e.itemId === itemId && e.yearMonth === yearMonth)) }
           }
           if (existing) {
+            console.log('  → Updating existing entry')
             return { entries: s.entries.map((e) => (e.itemId === itemId && e.yearMonth === yearMonth ? { ...e, amount } : e)) }
           }
+          console.log('  → Creating new entry')
           return { entries: [...s.entries, { id: uid(), itemId, yearMonth, amount }] }
         })
       },

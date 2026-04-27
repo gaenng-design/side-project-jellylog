@@ -5,13 +5,6 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { AccountPage } from '@/features/auth/AccountPage'
 import { AssetPage } from '@/features/assets/AssetPage'
-import { supabase, isSupabaseConfigured } from '@/data/supabase'
-import { saveAllToSupabase } from '@/data/saveAllToSupabase'
-import {
-  ensureSupabaseSessionForSync,
-  resolveSessionAndHouseholdBeforeHydrate,
-  getSyncHouseholdName,
-} from '@/services/authHousehold'
 import {
   JELLY,
   jellyFontStack,
@@ -22,9 +15,6 @@ import {
 } from '@/styles/jellyGlass'
 import { NarrowLayoutProvider, useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { MobileSnackbar } from '@/components/MobileSnackbar'
-import { subscribePersistedStoresToCloudSync } from '@/services/debouncedCloudSync'
-import { rehydrateThenPreflightPullRehydrate } from '@/services/syncBootstrap'
-import { useSyncStatusStore } from '@/store/useSyncStatusStore'
 import { useAppStore } from '@/store/useAppStore'
 
 const NAV_ITEMS = [
@@ -40,16 +30,9 @@ function AppShell() {
   const location = useLocation()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [cloudSaving, setCloudSaving] = useState(false)
-  const [cloudMsg, setCloudMsg] = useState<{ tone: 'ok' | 'err' | 'hint'; text: string } | null>(null)
-  const setHouseholdName = useAppStore((s) => s.setHouseholdName)
   const sidebarWidth = sidebarCollapsed ? 56 : 220
   const iconOnlyNav = narrow || sidebarCollapsed
 
-  useEffect(() => {
-    const householdName = getSyncHouseholdName()
-    setHouseholdName(householdName)
-  }, [setHouseholdName])
 
   useEffect(() => {
     setMobileMenuOpen(false)
@@ -64,46 +47,7 @@ function AppShell() {
     return () => window.removeEventListener('keydown', onKey)
   }, [mobileMenuOpen])
 
-  const handleSupabaseUpload = async () => {
-    setCloudMsg(null)
-    setCloudSaving(true)
-    try {
-      const res = await saveAllToSupabase()
-      if (!res.ok) {
-        setCloudMsg({ tone: 'err', text: res.message })
-        return
-      }
-      useSyncStatusStore.getState().recordSyncSuccess()
-      if (res.snapshotOk) {
-        setCloudMsg({ tone: 'ok', text: 'Supabase에 반영했습니다. (가계에 연동된 데이터)' })
-      } else {
-        setCloudMsg({
-          tone: 'hint',
-          text:
-            res.snapshotHint ??
-            'DB 테이블은 가계 기준으로 반영되었습니다. 앱 스냅샷은 SQL 마이그레이션 후 설정에서 다시 시도해 주세요.',
-        })
-      }
-    } finally {
-      setCloudSaving(false)
-    }
-  }
 
-  useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      void (async () => {
-        if (!session) await ensureSupabaseSessionForSync()
-        await resolveSessionAndHouseholdBeforeHydrate()
-        await rehydrateThenPreflightPullRehydrate()
-      })()
-    })
-    return () => subscription.unsubscribe()
-  }, [])
-
-  useEffect(() => subscribePersistedStoresToCloudSync(), [])
 
   return (
     <div
@@ -197,29 +141,6 @@ function AppShell() {
                 <span style={{ height: 2, borderRadius: 1, background: 'currentColor' }} />
               </span>
             </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-              <span style={{ fontSize: 22, lineHeight: 1 }} aria-hidden>
-                ☁️
-              </span>
-              <button
-                type="button"
-                disabled={!isSupabaseConfigured || cloudSaving}
-                title={!isSupabaseConfigured ? 'Supabase가 설정되지 않았습니다' : 'Supabase에 업로드'}
-                onClick={() => void handleSupabaseUpload()}
-                style={{
-                  ...(!isSupabaseConfigured || cloudSaving ? jellyPrimaryButtonDisabled : jellyPrimaryButton),
-                  fontSize: 13,
-                  fontWeight: 600,
-                  padding: '10px 14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {cloudSaving ? '업로드 중…' : '업로드'}
-              </button>
-            </div>
           </div>
         ) : (
           <>
@@ -296,44 +217,7 @@ function AppShell() {
                 flexShrink: 0,
                 width: '100%',
               }}
-            >
-              <button
-                type="button"
-                disabled={!isSupabaseConfigured || cloudSaving}
-                title={!isSupabaseConfigured ? 'Supabase가 설정되지 않았습니다' : undefined}
-                onClick={() => void handleSupabaseUpload()}
-                style={{
-                  ...(!isSupabaseConfigured || cloudSaving ? jellyPrimaryButtonDisabled : jellyPrimaryButton),
-                  width: '100%',
-                  fontSize: iconOnlyNav ? 15 : 12,
-                  padding: iconOnlyNav ? '10px 12px' : '10px 14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                }}
-              >
-                <span aria-hidden>☁️</span>
-                {!iconOnlyNav && <span>{cloudSaving ? '업로드 중…' : 'Supabase 업로드'}</span>}
-              </button>
-              {!iconOnlyNav && cloudMsg ? (
-                <div
-                  style={{
-                    marginTop: 8,
-                    fontSize: 10,
-                    lineHeight: 1.45,
-                    color:
-                      cloudMsg.tone === 'err'
-                        ? '#FCA5A5'
-                        : cloudMsg.tone === 'ok'
-                          ? '#6EE7B7'
-                          : '#FCD34D',
-                  }}
-                >
-                  {cloudMsg.text}
-                </div>
-              ) : null}
-            </div>
+            />
             <button
               type="button"
               onClick={() => setSidebarCollapsed((c) => !c)}
@@ -459,14 +343,6 @@ function AppShell() {
             </div>
           </div>
         </>
-      ) : null}
-      {narrow && cloudMsg ? (
-        <MobileSnackbar
-          open
-          tone={cloudMsg.tone}
-          text={cloudMsg.text}
-          onClose={() => setCloudMsg(null)}
-        />
       ) : null}
       <main
         style={{
