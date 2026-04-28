@@ -131,9 +131,9 @@ export class GitHubDataSync {
         const file = files[i]
         const key = file.key as keyof AppData
         if (data[key]) {
-          // 파일 간 500ms 간격 추가 (GitHub API 동시성 문제 방지)
+          // 파일 간 1초 간격 추가 (GitHub API 동시성 문제 방지)
           if (i > 0) {
-            await new Promise(resolve => setTimeout(resolve, 500))
+            await new Promise(resolve => setTimeout(resolve, 1000))
           }
           await this.setFileContent(
             `data/${file.name}`,
@@ -202,7 +202,7 @@ export class GitHubDataSync {
    */
   private async setFileContent(path: string, content: string, message: string, retryCount = 0): Promise<void> {
     const maxRetries = 5
-    const retryDelays = [100, 500, 1000, 2000, 3000] // 증가하는 대기 시간
+    const retryDelays = [1000, 2000, 3000, 4000, 5000] // 증가하는 대기 시간 (1초부터 시작)
 
     // Always fetch the current SHA (even on retries)
     let sha: string | undefined
