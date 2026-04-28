@@ -256,9 +256,9 @@ export function GitHubSyncPanel() {
 
   return (
     <div style={{ maxWidth: 520, paddingBottom: 40 }}>
-      <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>GitHub 동기화</h1>
-
       <div style={{ ...jellyCardStyle, padding: '16px', marginBottom: 20 }}>
+        <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>GitHub 동기화</h1>
+
         <div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: JELLY.text, marginBottom: 4 }}>
             저장소: {owner}/{repo}
@@ -283,7 +283,6 @@ export function GitHubSyncPanel() {
             cursor: 'pointer',
             fontSize: 14,
             fontWeight: 600,
-            marginBottom: 16,
           }}
         >
           설정 변경
