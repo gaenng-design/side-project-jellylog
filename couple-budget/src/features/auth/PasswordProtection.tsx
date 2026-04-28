@@ -5,6 +5,7 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   const appPassword = import.meta.env.VITE_APP_PASSWORD || '260517'
 
@@ -40,7 +41,7 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: '#000000',
       }}
     >
       <div style={{ ...jellyCardStyle, padding: '40px', maxWidth: '400px', width: '100%' }}>
@@ -52,20 +53,21 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
         </p>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 20, position: 'relative' }}>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoFocus
               style={{
                 width: '100%',
-                padding: '12px 16px',
+                padding: '12px 16px 12px 16px',
+                paddingRight: '44px',
                 fontSize: 14,
-                border: '1px solid rgba(255,255,255,0.2)',
+                border: '1px solid #ddd',
                 borderRadius: 8,
-                background: 'rgba(255,255,255,0.95)',
+                background: '#fff',
                 color: '#333',
                 boxSizing: 'border-box',
               }}
@@ -75,6 +77,28 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
                 }
               }}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: 12,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px 8px',
+                fontSize: 18,
+                color: '#666',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              title={showPassword ? '숨기기' : '보기'}
+            >
+              {showPassword ? '👁️' : '👁️‍🗨️'}
+            </button>
           </div>
 
           {error && (
