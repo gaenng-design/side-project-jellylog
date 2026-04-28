@@ -1336,9 +1336,23 @@ function YearExcelExportSection() {
           onClick={() => {
             setExportErr(null)
             setExporting(true)
-            void downloadYearBudgetExcel(exportYear)
-              .catch((e) => setExportErr(e instanceof Error ? e.message : String(e)))
-              .finally(() => setExporting(false))
+            void (async () => {
+              try {
+                // GitHub에서 최신 데이터 Pull
+                const { GitHubDataSync } = await import('@/services/github-sync')
+                const config = GitHubDataSync.loadConfig()
+                if (config) {
+                  const sync = new GitHubDataSync(config)
+                  await sync.pull()
+                }
+                // Pull 완료 후 엑셀 다운로드
+                await downloadYearBudgetExcel(exportYear)
+              } catch (e) {
+                setExportErr(e instanceof Error ? e.message : String(e))
+              } finally {
+                setExporting(false)
+              }
+            })()
           }}
           style={{
             padding: '10px 18px',
