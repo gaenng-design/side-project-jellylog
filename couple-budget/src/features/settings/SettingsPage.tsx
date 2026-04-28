@@ -1380,12 +1380,12 @@ export function SettingsPage() {
     <div style={{ paddingBottom: 40 }}>
       <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>설정</h1>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <GitHubSyncPanel />
         <UserSettings />
         <SharedLivingCostSettings />
         <FixedTemplateSettings />
         <InvestTemplateSettings />
         <YearExcelExportSection />
+        <GitHubSyncPanel />
       </div>
     </div>
   )
