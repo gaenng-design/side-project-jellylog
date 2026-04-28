@@ -18,5 +18,5 @@ export default defineConfig({
       input: resolve('src/index.html'),
     },
   },
-  base: '/side-project-jellylog/',
+  base: '/',
 })
