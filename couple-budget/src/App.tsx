@@ -323,7 +323,7 @@ function AppShell() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 4,
-                  opacity: syncing || syncComplete ? 0.6 : 1,
+                  opacity: syncing ? 0.6 : 1,
                   transition: 'all 0.2s',
                   minHeight: 44,
                 }}
@@ -464,7 +464,7 @@ function AppShell() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6,
-                    opacity: syncing || syncComplete ? 0.6 : 1,
+                    opacity: syncing ? 0.6 : 1,
                     transition: 'all 0.2s',
                   }}
                 >
