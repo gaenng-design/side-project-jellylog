@@ -5,6 +5,7 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { AccountPage } from '@/features/auth/AccountPage'
 import { AssetPage } from '@/features/assets/AssetPage'
+import { PasswordProtection } from '@/features/auth/PasswordProtection'
 import {
   JELLY,
   jellyFontStack,
@@ -378,10 +379,12 @@ function AppShell() {
 
 export default function App() {
   return (
-    <HashRouter>
-      <NarrowLayoutProvider>
-        <AppShell />
-      </NarrowLayoutProvider>
-    </HashRouter>
+    <PasswordProtection>
+      <HashRouter>
+        <NarrowLayoutProvider>
+          <AppShell />
+        </NarrowLayoutProvider>
+      </HashRouter>
+    </PasswordProtection>
   )
 }
