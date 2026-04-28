@@ -421,7 +421,7 @@ export function GitHubSyncPanel() {
               '중…'
             ) : (
               <>
-                <img src={saveIcon} alt="save" style={{ width: 16, height: 16 }} />
+                <img src={saveIcon} alt="save" style={{ width: 16, height: 16, filter: 'invert(1)' }} />
                 Commit & Push
               </>
             )}
