@@ -186,7 +186,10 @@ export class GitHubDataSync {
     }
 
     // GitHub returns base64 encoded content
-    return Buffer.from(data.content, 'base64').toString('utf-8')
+    // Decode base64 to UTF-8 string (browser-compatible)
+    return decodeURIComponent(atob(data.content).split('').map((c) => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''))
   }
 
   /**
@@ -215,9 +218,11 @@ export class GitHubDataSync {
     }
 
     // Now create or update the file
+    // Encode UTF-8 string to base64 (browser-compatible)
+    const base64Content = btoa(unescape(encodeURIComponent(content)))
     const body = {
       message: `${message}`,
-      content: Buffer.from(content).toString('base64'),
+      content: base64Content,
       branch: this.config.branch,
       ...(sha && { sha }),
     }
