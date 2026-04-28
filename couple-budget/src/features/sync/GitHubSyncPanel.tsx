@@ -26,6 +26,7 @@ export function GitHubSyncPanel() {
   const [lastSync, setLastSync] = useState<Date | null>(null)
   const [isConfigured, setIsConfigured] = useState(false)
   const [verifying, setVerifying] = useState(false)
+  const [showToken, setShowToken] = useState(false)
 
   // Load config on mount (from env vars or localStorage)
   useEffect(() => {
@@ -240,21 +241,48 @@ export function GitHubSyncPanel() {
             <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: JELLY.text }}>
               GitHub Token
             </label>
-            <input
-              type="password"
-              placeholder="ghp_xxxxxxxxxxxx"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              disabled={verifying}
-              style={{
-                ...jellyInputSurface,
-                width: '100%',
-                padding: '10px 12px',
-                fontSize: 13,
-                boxSizing: 'border-box',
-                opacity: verifying ? 0.6 : 1,
-              }}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showToken ? 'text' : 'password'}
+                placeholder="ghp_xxxxxxxxxxxx"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                disabled={verifying}
+                style={{
+                  ...jellyInputSurface,
+                  width: '100%',
+                  padding: '10px 12px 10px 12px',
+                  paddingRight: '40px',
+                  fontSize: 13,
+                  boxSizing: 'border-box',
+                  opacity: verifying ? 0.6 : 1,
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowToken(!showToken)}
+                disabled={verifying}
+                style={{
+                  position: 'absolute',
+                  right: 8,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: verifying ? 'not-allowed' : 'pointer',
+                  padding: '4px 8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 16,
+                  color: 'rgba(255,255,255,0.5)',
+                  opacity: verifying ? 0.5 : 1,
+                }}
+                title={showToken ? '숨기기' : '보기'}
+              >
+                {showToken ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
           </div>
 
           <div style={{ marginBottom: 16 }}>

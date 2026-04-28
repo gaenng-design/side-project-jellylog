@@ -50,9 +50,21 @@ export class GitHubDataSync {
       })
 
       if (!response.ok) {
+        let errorMsg = `GitHub API error: ${response.status} ${response.statusText}`
+
+        // Try to get more detail from response body
+        try {
+          const errorData = await response.json() as { message?: string }
+          if (errorData.message) {
+            errorMsg = `GitHub API error: ${errorData.message}`
+          }
+        } catch {
+          // Use default error message
+        }
+
         return {
           ok: false,
-          error: `GitHub API error: ${response.statusText}`,
+          error: errorMsg,
         }
       }
 
