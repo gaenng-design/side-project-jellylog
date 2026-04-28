@@ -4,15 +4,17 @@
       "id": "ft-1777358483511",
       "person": "공금",
       "category": "주거",
-      "description": "월세",
-      "defaultAmount": 0
+      "description": "전세이자",
+      "defaultAmount": 970000,
+      "payDay": 29
     },
     {
       "id": "ft-1777358483512",
       "person": "공금",
       "category": "관리비",
       "description": "관리비",
-      "defaultAmount": 0
+      "defaultAmount": 300000,
+      "payDay": 11
     },
     {
       "id": "ft-1777358483513",
@@ -27,6 +29,17 @@
       "category": "통신",
       "description": "휴대폰 요금",
       "defaultAmount": 0
+    },
+    {
+      "person": "공금",
+      "category": "통신",
+      "description": "인터넷 요금",
+      "defaultAmount": 34100,
+      "defaultSeparate": true,
+      "payDay": 27,
+      "id": "ft-1777398606346",
+      "order": 1,
+      "personOrder": 0
     }
   ],
   "investTemplates": [
