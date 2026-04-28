@@ -2,10 +2,10 @@
   "app": {
     "currentYearMonth": "2026-04",
     "settings": {
-      "personAName": "승윤",
-      "personBName": "경은",
-      "personAIncome": 5220000,
-      "personBIncome": 5200000,
+      "personAName": "유저 1",
+      "personBName": "유저 2",
+      "personAIncome": 0,
+      "personBIncome": 0,
       "personAIncomeDay": 25,
       "personBIncomeDay": 25,
       "currency": "KRW",
@@ -16,7 +16,7 @@
         50
       ],
       "user1Color": "oklch(0.7044 0.1047 252 / 1)",
-      "user2Color": "oklch(0.7044 0.1047 25 / 1)",
+      "user2Color": "oklch(0.7044 0.1047 330 / 1)",
       "sharedColor": "oklch(0.7044 0.1047 175 / 1)",
       "fixedCategories": [
         "주거",
@@ -40,5 +40,5 @@
     "householdName": null,
     "yearPickerMaxYear": 2026
   },
-  "lastUpdated": "2026-04-28T17:29:54.322Z"
+  "lastUpdated": "2026-04-28T17:30:48.210Z"
 }
