@@ -1376,6 +1376,8 @@ function YearExcelExportSection() {
 }
 
 export function SettingsPage() {
+  const narrow = useNarrowLayout()
+
   return (
     <div style={{ paddingBottom: 40 }}>
       <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>설정</h1>
@@ -1384,8 +1386,12 @@ export function SettingsPage() {
         <SharedLivingCostSettings />
         <FixedTemplateSettings />
         <InvestTemplateSettings />
-        <YearExcelExportSection />
-        <GitHubSyncPanel />
+
+        {/* 엑셀 내보내기와 깃허브 동기화를 PC에서만 2단 그리드로 배치 */}
+        <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr', gap: 14 }}>
+          <YearExcelExportSection />
+          <GitHubSyncPanel />
+        </div>
       </div>
     </div>
   )
