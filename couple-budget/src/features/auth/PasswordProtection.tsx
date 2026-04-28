@@ -65,8 +65,8 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
                 fontSize: 14,
                 border: '1px solid rgba(255,255,255,0.2)',
                 borderRadius: 8,
-                background: 'rgba(255,255,255,0.1)',
-                color: '#fff',
+                background: 'rgba(255,255,255,0.95)',
+                color: '#333',
                 boxSizing: 'border-box',
               }}
               onKeyPress={(e) => {
