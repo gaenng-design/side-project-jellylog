@@ -193,9 +193,11 @@ export class GitHubDataSync {
   }
 
   /**
-   * Internal: Set file content in GitHub
+   * Internal: Set file content in GitHub (with automatic retry on SHA mismatch)
    */
-  private async setFileContent(path: string, content: string, message: string): Promise<void> {
+  private async setFileContent(path: string, content: string, message: string, retryCount = 0): Promise<void> {
+    const maxRetries = 3
+
     // First, try to get the current file to get its SHA (needed for updates)
     let sha: string | undefined
     try {
@@ -242,7 +244,17 @@ export class GitHubDataSync {
 
     if (!response.ok) {
       const error = await response.json() as { message?: string }
-      throw new Error(`Failed to set file: ${error.message || response.statusText}`)
+      const errorMsg = error.message || response.statusText
+
+      // If SHA mismatch and retries remaining, fetch latest SHA and retry
+      if (errorMsg.includes('does not match') && retryCount < maxRetries) {
+        console.warn(`SHA mismatch for ${path}, retrying (attempt ${retryCount + 1}/${maxRetries})`)
+        // Wait a moment before retrying
+        await new Promise(resolve => setTimeout(resolve, 100))
+        return this.setFileContent(path, content, message, retryCount + 1)
+      }
+
+      throw new Error(`Failed to set file: ${errorMsg}`)
     }
   }
 
