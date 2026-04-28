@@ -496,6 +496,12 @@ function AppShell() {
           </Routes>
         </div>
       </main>
+      <MobileSnackbar
+        open={saveMessage !== null}
+        tone={saveMessage?.tone || 'ok'}
+        text={saveMessage?.text || ''}
+        onClose={() => setSaveMessage(null)}
+      />
     </div>
   )
 }
