@@ -23,6 +23,8 @@ import { useSettlementStore } from '@/store/useSettlementStore'
 import { useAssetStore } from '@/store/useAssetStore'
 import { GitHubDataSync } from '@/services/github-sync'
 
+const saveIcon = 'https://www.figma.com/api/mcp/asset/b5b2ec30-a900-427b-9a67-db611ae9b184'
+
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', icon: '📊' },
   { to: '/expense-plan', label: '지출 계획', icon: '📋' },
@@ -236,7 +238,7 @@ function AppShell() {
                 minHeight: 44,
               }}
             >
-              <span>{saving ? '중…' : '💾'}</span>
+              <img src={saveIcon} alt="" style={{ width: 20, height: 20, display: 'block' }} />
             </button>
           </div>
         ) : (
@@ -337,7 +339,8 @@ function AppShell() {
                   transition: 'all 0.2s',
                 }}
               >
-                <span>{saving ? '저장 중…' : '💾 저장하기'}</span>
+                <img src={saveIcon} alt="" style={{ width: 16, height: 16, display: 'block' }} />
+                <span>{saving ? '중…' : '저장하기'}</span>
               </button>
             </div>
             <button
