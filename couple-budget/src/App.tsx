@@ -238,7 +238,7 @@ function AppShell() {
                 minHeight: 44,
               }}
             >
-              <img src={saveIcon} alt="" style={{ width: 20, height: 20, display: 'block' }} />
+              <img src={saveIcon} alt="" style={{ width: 20, height: 20, display: 'block', filter: 'invert(1)' }} />
             </button>
           </div>
         ) : (
@@ -339,7 +339,7 @@ function AppShell() {
                   transition: 'all 0.2s',
                 }}
               >
-                <img src={saveIcon} alt="" style={{ width: 16, height: 16, display: 'block' }} />
+                <img src={saveIcon} alt="" style={{ width: 16, height: 16, display: 'block', filter: 'invert(1)' }} />
                 <span>{saving ? '중…' : '저장하기'}</span>
               </button>
             </div>
