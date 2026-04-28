@@ -127,9 +127,14 @@ export class GitHubDataSync {
         { name: 'metadata.json', key: 'metadata' },
       ] as const
 
-      for (const file of files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
         const key = file.key as keyof AppData
         if (data[key]) {
+          // 파일 간 500ms 간격 추가 (GitHub API 동시성 문제 방지)
+          if (i > 0) {
+            await new Promise(resolve => setTimeout(resolve, 500))
+          }
           await this.setFileContent(
             `data/${file.name}`,
             JSON.stringify(data[key], null, 2),
