@@ -10,6 +10,7 @@ import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
 import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { useSettlementStore } from '@/store/useSettlementStore'
+import { useAssetStore } from '@/store/useAssetStore'
 import type { SettledItem } from '@/store/useSettlementStore'
 
 type Cell = string | number | boolean | null | undefined
@@ -317,6 +318,51 @@ function safeSheetName(name: string): string {
 }
 
 /**
+ * GitHub 데이터를 JSON 시트로 추가
+ */
+function addGitHubDataSheets(wb: XLSX.WorkBook): void {
+  const assetStore = useAssetStore.getState()
+  const fixedStore = useFixedTemplateStore.getState()
+  const investStore = useInvestTemplateStore.getState()
+  const settlementStore = useSettlementStore.getState()
+  const appStore = useAppStore.getState()
+
+  // Assets 시트
+  const assetsData = JSON.stringify({ items: assetStore.items, entries: assetStore.entries }, null, 2)
+  const assetsAoA = [['자산 (JSON)'], [assetsData]]
+  const wsAssets = XLSX.utils.aoa_to_sheet(assetsAoA)
+  wsAssets['!cols'] = [{ wch: 80 }]
+  XLSX.utils.book_append_sheet(wb, wsAssets, '자산')
+
+  // Expenses 시트
+  const expensesData = JSON.stringify({
+    fixedTemplates: fixedStore.templates,
+    investTemplates: investStore.templates,
+  }, null, 2)
+  const expensesAoA = [['지출 (JSON)'], [expensesData]]
+  const wsExpenses = XLSX.utils.aoa_to_sheet(expensesAoA)
+  wsExpenses['!cols'] = [{ wch: 80 }]
+  XLSX.utils.book_append_sheet(wb, wsExpenses, '지출')
+
+  // Settlements 시트
+  const settlementsData = JSON.stringify({
+    settlements: settlementStore.settlements,
+    transfers: settlementStore.transfers,
+  }, null, 2)
+  const settlementsAoA = [['정산 (JSON)'], [settlementsData]]
+  const wsSettlements = XLSX.utils.aoa_to_sheet(settlementsAoA)
+  wsSettlements['!cols'] = [{ wch: 80 }]
+  XLSX.utils.book_append_sheet(wb, wsSettlements, '정산')
+
+  // Metadata 시트
+  const metadataData = JSON.stringify(appStore.settings, null, 2)
+  const metadataAoA = [['메타데이터 (JSON)'], [metadataData]]
+  const wsMetadata = XLSX.utils.aoa_to_sheet(metadataAoA)
+  wsMetadata['!cols'] = [{ wch: 80 }]
+  XLSX.utils.book_append_sheet(wb, wsMetadata, '메타데이터')
+}
+
+/**
  * @param year 예: 2026
  */
 export async function downloadYearBudgetExcel(year: number): Promise<void> {
@@ -340,6 +386,9 @@ export async function downloadYearBudgetExcel(year: number): Promise<void> {
     applyColumnAutofit(ws, data)
     XLSX.utils.book_append_sheet(wb, ws, safeSheetName(`${m}월`))
   }
+
+  // GitHub 데이터 시트 추가
+  addGitHubDataSheets(wb)
 
   const fileName = `jellylog_${year}.xlsx`
   XLSX.writeFile(wb, fileName)
