@@ -289,7 +289,7 @@ function AppShell() {
                 style={{
                   flexShrink: 0,
                   padding: '8px 12px',
-                  border: 'none',
+                  border: '1px solid #FFFFFF',
                   background: '#0F1419',
                   borderRadius: JELLY.radiusControl,
                   color: '#FFFFFF',
@@ -430,7 +430,7 @@ function AppShell() {
                   style={{
                     flex: 1,
                     padding: '10px 12px',
-                    border: 'none',
+                    border: '1px solid #FFFFFF',
                     background: '#0F1419',
                     borderRadius: JELLY.radiusControl,
                     color: '#FFFFFF',
