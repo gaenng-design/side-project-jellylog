@@ -1,28 +1,28 @@
 {
   "fixedTemplates": [
     {
-      "id": "ft-1777358952877",
+      "id": "ft-1777358483511",
       "person": "공금",
       "category": "주거",
       "description": "월세",
       "defaultAmount": 0
     },
     {
-      "id": "ft-1777358952878",
+      "id": "ft-1777358483512",
       "person": "공금",
       "category": "관리비",
       "description": "관리비",
       "defaultAmount": 0
     },
     {
-      "id": "ft-1777358952879",
+      "id": "ft-1777358483513",
       "person": "A",
       "category": "통신",
       "description": "휴대폰 요금",
       "defaultAmount": 0
     },
     {
-      "id": "ft-1777358952880",
+      "id": "ft-1777358483514",
       "person": "B",
       "category": "통신",
       "description": "휴대폰 요금",
@@ -31,7 +31,7 @@
   ],
   "investTemplates": [
     {
-      "id": "inv-1777358952877",
+      "id": "inv-1777358483511",
       "person": "A",
       "category": "저축",
       "description": "비상금 적금",
@@ -39,7 +39,7 @@
       "personOrder": 0
     },
     {
-      "id": "inv-1777358952878",
+      "id": "inv-1777358483512",
       "person": "B",
       "category": "투자",
       "description": "ETF 적립식",
