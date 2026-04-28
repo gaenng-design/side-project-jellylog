@@ -273,69 +273,70 @@ function AppShell() {
                 <span style={{ height: 2, borderRadius: 1, background: 'currentColor' }} />
               </span>
             </button>
-            <button
-              type="button"
-              onClick={() => void handleSave()}
-              disabled={saving}
-              title="GitHub에 저장"
-              style={{
-                flexShrink: 0,
-                padding: '8px 12px',
-                border: 'none',
-                background: saving ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
-                borderRadius: JELLY.radiusControl,
-                color: '#fff',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                fontSize: 12,
-                fontWeight: 500,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 4,
-                opacity: saving ? 0.6 : 1,
-                transition: 'all 0.2s',
-                minHeight: 44,
-              }}
-            >
-              <img src={saveIcon} alt="" style={{ width: 20, height: 20, display: 'block', filter: 'invert(1)' }} />
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleSync()}
-              disabled={syncing || syncComplete}
-              title="동기화"
-              style={{
-                flexShrink: 0,
-                padding: '8px 12px',
-                border: 'none',
-                background:
-                  syncComplete ? 'rgba(16, 185, 129, 0.8)' : syncing ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
-                borderRadius: JELLY.radiusControl,
-                color: '#fff',
-                cursor: syncing || syncComplete ? 'not-allowed' : 'pointer',
-                fontSize: 12,
-                fontWeight: 500,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 4,
-                opacity: syncing || syncComplete ? 0.6 : 1,
-                transition: 'all 0.2s',
-                minHeight: 44,
-              }}
-            >
-              <img
-                src={syncComplete ? syncDoneIcon : syncIcon}
-                alt=""
+            <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+              <button
+                type="button"
+                onClick={() => void handleSync()}
+                disabled={syncing || syncComplete}
+                title="동기화"
                 style={{
-                  width: 20,
-                  height: 20,
-                  display: 'block',
-                  filter: 'invert(1)',
-                  animation: syncing ? 'spin 1s linear infinite' : 'none',
+                  flexShrink: 0,
+                  padding: '8px 12px',
+                  border: 'none',
+                  background: '#fff',
+                  borderRadius: JELLY.radiusControl,
+                  color: '#3b82f6',
+                  cursor: syncing || syncComplete ? 'not-allowed' : 'pointer',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 4,
+                  opacity: syncing || syncComplete ? 0.6 : 1,
+                  transition: 'all 0.2s',
+                  minHeight: 44,
                 }}
-              />
-            </button>
+              >
+                <img
+                  src={syncComplete ? syncDoneIcon : syncIcon}
+                  alt=""
+                  style={{
+                    width: 20,
+                    height: 20,
+                    display: 'block',
+                    filter: syncComplete ? 'invert(0.3)' : 'invert(0.5)',
+                    animation: syncing ? 'spin 1s linear infinite' : 'none',
+                  }}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleSave()}
+                disabled={saving}
+                title="GitHub에 저장"
+                style={{
+                  flexShrink: 0,
+                  padding: '8px 12px',
+                  border: 'none',
+                  background: saving ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
+                  borderRadius: JELLY.radiusControl,
+                  color: '#fff',
+                  cursor: saving ? 'not-allowed' : 'pointer',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 4,
+                  opacity: saving ? 0.6 : 1,
+                  transition: 'all 0.2s',
+                  minHeight: 44,
+                }}
+              >
+                <img src={saveIcon} alt="" style={{ width: 20, height: 20, display: 'block', filter: 'invert(1)' }} />
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -413,31 +414,70 @@ function AppShell() {
                 width: '100%',
               }}
             >
-              <button
-                type="button"
-                onClick={() => void handleSave()}
-                disabled={saving}
-                title="GitHub에 저장"
-                style={{
-                  padding: '10px 12px',
-                  border: 'none',
-                  background: saving ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
-                  borderRadius: JELLY.radiusControl,
-                  color: '#fff',
-                  cursor: saving ? 'not-allowed' : 'pointer',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  opacity: saving ? 0.6 : 1,
-                  transition: 'all 0.2s',
-                }}
-              >
-                <img src={saveIcon} alt="" style={{ width: 16, height: 16, display: 'block', filter: 'invert(1)' }} />
-                <span>{saving ? '중…' : '저장하기'}</span>
-              </button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => void handleSync()}
+                  disabled={syncing || syncComplete}
+                  title="동기화"
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    border: 'none',
+                    background: '#fff',
+                    borderRadius: JELLY.radiusControl,
+                    color: '#3b82f6',
+                    cursor: syncing || syncComplete ? 'not-allowed' : 'pointer',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    opacity: syncing || syncComplete ? 0.6 : 1,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <img
+                    src={syncComplete ? syncDoneIcon : syncIcon}
+                    alt=""
+                    style={{
+                      width: 16,
+                      height: 16,
+                      display: 'block',
+                      filter: syncComplete ? 'invert(0.3)' : 'invert(0.5)',
+                      animation: syncing ? 'spin 1s linear infinite' : 'none',
+                    }}
+                  />
+                  <span>{syncing ? '중…' : '동기화'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleSave()}
+                  disabled={saving}
+                  title="GitHub에 저장"
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    border: 'none',
+                    background: saving ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
+                    borderRadius: JELLY.radiusControl,
+                    color: '#fff',
+                    cursor: saving ? 'not-allowed' : 'pointer',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    opacity: saving ? 0.6 : 1,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <img src={saveIcon} alt="" style={{ width: 16, height: 16, display: 'block', filter: 'invert(1)' }} />
+                  <span>{saving ? '중…' : '저장하기'}</span>
+                </button>
+              </div>
             </div>
             <button
               type="button"
