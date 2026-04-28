@@ -14,9 +14,9 @@ import { pageTitleH1Style } from '@/styles/formControls'
 
 export function GitHubSyncPanel() {
   const [mode, setMode] = useState<'config' | 'sync'>('sync')
-  const [token, setToken] = useState('')
-  const [owner, setOwner] = useState('')
-  const [repo, setRepo] = useState('')
+  const [token, setToken] = useState('ghp_X8SSsxiElYYElzMkc8Ao6WnZm4vV01Kruxy')
+  const [owner, setOwner] = useState('gaenng-design')
+  const [repo, setRepo] = useState('side-project-jellylog')
   const [message, setMessage] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null)
   const [lastSync, setLastSync] = useState<Date | null>(null)
   const [isConfigured, setIsConfigured] = useState(false)
