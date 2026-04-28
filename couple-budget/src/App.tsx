@@ -212,6 +212,32 @@ function AppShell() {
                 <span style={{ height: 2, borderRadius: 1, background: 'currentColor' }} />
               </span>
             </button>
+            <button
+              type="button"
+              onClick={() => void handleSave()}
+              disabled={saving}
+              title="GitHub에 저장"
+              style={{
+                flexShrink: 0,
+                padding: '8px 12px',
+                border: 'none',
+                background: saving ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
+                borderRadius: JELLY.radiusControl,
+                color: '#fff',
+                cursor: saving ? 'not-allowed' : 'pointer',
+                fontSize: 12,
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+                opacity: saving ? 0.6 : 1,
+                transition: 'all 0.2s',
+                minHeight: 44,
+              }}
+            >
+              <span>{saving ? '중…' : '💾'}</span>
+            </button>
           </div>
         ) : (
           <>
