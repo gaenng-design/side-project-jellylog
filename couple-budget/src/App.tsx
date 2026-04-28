@@ -24,6 +24,8 @@ import { useAssetStore } from '@/store/useAssetStore'
 import { GitHubDataSync } from '@/services/github-sync'
 
 const saveIcon = 'https://www.figma.com/api/mcp/asset/b188b8fa-34c9-4b58-af6b-348b1eab3024'
+const syncIcon = 'https://www.figma.com/api/mcp/asset/8f0090bc-bb88-4c0d-91f7-5220e0b6aa80'
+const syncDoneIcon = 'https://www.figma.com/api/mcp/asset/9c973308-4cda-4e9b-a70a-136bfac65d5c'
 
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', icon: '📊' },
@@ -39,6 +41,8 @@ function AppShell() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null)
+  const [syncing, setSyncing] = useState(false)
+  const [syncComplete, setSyncComplete] = useState(false)
   const sidebarWidth = sidebarCollapsed ? 56 : 220
   const iconOnlyNav = narrow || sidebarCollapsed
 
@@ -95,6 +99,7 @@ function AppShell() {
       }
 
       setSaveMessage({ tone: 'ok', text: '저장되었습니다' })
+      setSyncComplete(false)
       setTimeout(() => setSaveMessage(null), 2000)
     } catch (error) {
       setSaveMessage({
@@ -106,6 +111,32 @@ function AppShell() {
     }
   }
 
+  const handleSync = async () => {
+    setSyncing(true)
+    setSyncComplete(false)
+
+    try {
+      const config = GitHubDataSync.loadConfig()
+      if (!config) {
+        setSyncing(false)
+        return
+      }
+
+      const sync = new GitHubDataSync(config)
+      const result = await sync.pull()
+
+      if (result.ok) {
+        setSyncComplete(true)
+        // 5초 후 다시 체크 가능 상태로
+        setTimeout(() => setSyncComplete(false), 5000)
+      }
+    } catch (error) {
+      console.error('동기화 실패:', error)
+      setSyncComplete(false)
+    } finally {
+      setSyncing(false)
+    }
+  }
 
   useEffect(() => {
     setMobileMenuOpen(false)
@@ -154,6 +185,10 @@ function AppShell() {
               0% { width: 0%; }
               30% { width: 70%; }
               100% { width: 100%; }
+            }
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
             }
           `}</style>
         </>
@@ -263,6 +298,43 @@ function AppShell() {
               }}
             >
               <img src={saveIcon} alt="" style={{ width: 20, height: 20, display: 'block', filter: 'invert(1)' }} />
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleSync()}
+              disabled={syncing || syncComplete}
+              title="동기화"
+              style={{
+                flexShrink: 0,
+                padding: '8px 12px',
+                border: 'none',
+                background:
+                  syncComplete ? 'rgba(16, 185, 129, 0.8)' : syncing ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
+                borderRadius: JELLY.radiusControl,
+                color: '#fff',
+                cursor: syncing || syncComplete ? 'not-allowed' : 'pointer',
+                fontSize: 12,
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+                opacity: syncing || syncComplete ? 0.6 : 1,
+                transition: 'all 0.2s',
+                minHeight: 44,
+              }}
+            >
+              <img
+                src={syncComplete ? syncDoneIcon : syncIcon}
+                alt=""
+                style={{
+                  width: 20,
+                  height: 20,
+                  display: 'block',
+                  filter: 'invert(1)',
+                  animation: syncing ? 'spin 1s linear infinite' : 'none',
+                }}
+              />
             </button>
           </div>
         ) : (
