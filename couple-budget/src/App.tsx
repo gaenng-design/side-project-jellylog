@@ -127,10 +127,33 @@ function AppShell() {
       const sync = new GitHubDataSync(config)
       const result = await sync.pull()
 
-      if (result.ok) {
+      if (result.ok && result.data) {
+        // GitHub에서 가져온 데이터를 각 store에 로드
+        if (result.data.assets) {
+          const assetData = result.data.assets as any
+          if (assetData.items) useAssetStore.setState({ items: assetData.items })
+          if (assetData.entries) useAssetStore.setState({ entries: assetData.entries })
+        }
+
+        if (result.data.expenses) {
+          const expenseData = result.data.expenses as any
+          if (expenseData.fixedTemplates) useFixedTemplateStore.setState({ templates: expenseData.fixedTemplates })
+          if (expenseData.investTemplates) useInvestTemplateStore.setState({ templates: expenseData.investTemplates })
+          if (expenseData.planExtra) usePlanExtraStore.setState(expenseData.planExtra)
+        }
+
+        if (result.data.settlements) {
+          const settlementData = result.data.settlements as any
+          if (settlementData.settlements) useSettlementStore.setState({ settlements: settlementData.settlements })
+          if (settlementData.transfers) useSettlementStore.setState({ transfers: settlementData.transfers })
+        }
+
+        if (result.data.metadata && result.data.metadata.app) {
+          useAppStore.setState(result.data.metadata.app)
+        }
+
         setSyncComplete(true)
         setSaveMessage({ tone: 'ok', text: '동기화 완료' })
-        // 자동으로 리셋하지 않음 - 데이터 변경 시에만 리셋됨
       } else {
         setSaveMessage({ tone: 'err', text: result.error || '동기화 실패' })
       }
