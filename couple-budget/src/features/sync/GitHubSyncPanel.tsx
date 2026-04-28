@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { GitHubDataSync, type GitHubConfig } from '@/services/github-sync'
 import { useAppStore } from '@/store/useAppStore'
+
+const eyeOpenIcon = 'https://www.figma.com/api/mcp/asset/7cc8e223-a6b0-4c67-9fc6-736a9bf313e9'
+const eyeClosedIcon = 'https://www.figma.com/api/mcp/asset/35ae0e9c-6cce-46fb-82a4-9c7ce455e791'
 import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
 import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
@@ -264,7 +267,7 @@ export function GitHubSyncPanel() {
                 disabled={verifying}
                 style={{
                   position: 'absolute',
-                  right: 8,
+                  right: 12,
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'none',
@@ -274,13 +277,21 @@ export function GitHubSyncPanel() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 16,
-                  color: 'rgba(255,255,255,0.5)',
+                  width: 24,
+                  height: 24,
                   opacity: verifying ? 0.5 : 1,
                 }}
                 title={showToken ? '숨기기' : '보기'}
               >
-                {showToken ? '👁️' : '👁️‍🗨️'}
+                <img
+                  src={showToken ? eyeOpenIcon : eyeClosedIcon}
+                  alt={showToken ? 'token 숨기기' : 'token 보기'}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    display: 'block',
+                  }}
+                />
               </button>
             </div>
           </div>
