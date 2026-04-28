@@ -275,15 +275,14 @@ export function GitHubSyncPanel() {
           type="button"
           onClick={() => setMode('config')}
           style={{
-            width: '100%',
-            padding: '10px 14px',
-            borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.12)',
-            background: 'rgba(255,255,255,0.06)',
-            color: JELLY.text,
+            padding: '10px 18px',
+            borderRadius: 12,
+            border: '1px solid #4f8cff',
+            background: '#ffffff',
+            color: '#4f8cff',
             cursor: 'pointer',
-            fontSize: 13,
-            fontWeight: 500,
+            fontSize: 14,
+            fontWeight: 600,
             marginBottom: 16,
           }}
         >
