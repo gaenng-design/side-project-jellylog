@@ -290,9 +290,9 @@ function AppShell() {
                   flexShrink: 0,
                   padding: '8px 12px',
                   border: 'none',
-                  background: '#fff',
+                  background: '#0F1419',
                   borderRadius: JELLY.radiusControl,
-                  color: '#3b82f6',
+                  color: '#FFFFFF',
                   cursor: syncing || syncComplete ? 'not-allowed' : 'pointer',
                   fontSize: 12,
                   fontWeight: 500,
@@ -312,7 +312,7 @@ function AppShell() {
                     width: 20,
                     height: 20,
                     display: 'block',
-                    filter: syncComplete ? 'invert(0.3)' : 'invert(0.5)',
+                    filter: 'invert(1)',
                     animation: syncing ? 'spin 1s linear infinite' : 'none',
                   }}
                 />
@@ -431,9 +431,9 @@ function AppShell() {
                     flex: 1,
                     padding: '10px 12px',
                     border: 'none',
-                    background: '#fff',
+                    background: '#0F1419',
                     borderRadius: JELLY.radiusControl,
-                    color: '#3b82f6',
+                    color: '#FFFFFF',
                     cursor: syncing || syncComplete ? 'not-allowed' : 'pointer',
                     fontSize: 13,
                     fontWeight: 500,
@@ -452,7 +452,7 @@ function AppShell() {
                       width: 16,
                       height: 16,
                       display: 'block',
-                      filter: syncComplete ? 'invert(0.3)' : 'invert(0.5)',
+                      filter: 'invert(1)',
                       animation: syncing ? 'spin 1s linear infinite' : 'none',
                     }}
                   />
