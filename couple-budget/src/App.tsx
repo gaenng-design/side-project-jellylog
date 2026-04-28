@@ -49,6 +49,7 @@ function AppShell() {
   const handleSave = async () => {
     setSaveMessage(null)
     setSaving(true)
+    setSyncComplete(false)  // 저장 시 동기화 상태 리셋
 
     try {
       const config = GitHubDataSync.loadConfig()
@@ -99,7 +100,6 @@ function AppShell() {
       }
 
       setSaveMessage({ tone: 'ok', text: '저장되었습니다' })
-      setSyncComplete(false)
       setTimeout(() => setSaveMessage(null), 2000)
     } catch (error) {
       setSaveMessage({
@@ -114,10 +114,12 @@ function AppShell() {
   const handleSync = async () => {
     setSyncing(true)
     setSyncComplete(false)
+    setSaveMessage(null)
 
     try {
       const config = GitHubDataSync.loadConfig()
       if (!config) {
+        setSaveMessage({ tone: 'err', text: '동기화 설정이 필요합니다' })
         setSyncing(false)
         return
       }
@@ -127,12 +129,17 @@ function AppShell() {
 
       if (result.ok) {
         setSyncComplete(true)
-        // 5초 후 다시 체크 가능 상태로
-        setTimeout(() => setSyncComplete(false), 5000)
+        setSaveMessage({ tone: 'ok', text: '동기화 완료' })
+        // 자동으로 리셋하지 않음 - 데이터 변경 시에만 리셋됨
+      } else {
+        setSaveMessage({ tone: 'err', text: result.error || '동기화 실패' })
       }
     } catch (error) {
+      setSaveMessage({
+        tone: 'err',
+        text: `동기화 오류: ${error instanceof Error ? error.message : String(error)}`
+      })
       console.error('동기화 실패:', error)
-      setSyncComplete(false)
     } finally {
       setSyncing(false)
     }
@@ -414,7 +421,7 @@ function AppShell() {
                 width: '100%',
               }}
             >
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <button
                   type="button"
                   onClick={() => void handleSync()}
