@@ -1,22 +1,14 @@
 import { useState, useEffect } from 'react'
 import { GitHubDataSync, type GitHubConfig } from '@/services/github-sync'
-import { useAppStore } from '@/store/useAppStore'
 
 const eyeOpenIcon = 'https://www.figma.com/api/mcp/asset/7cc8e223-a6b0-4c67-9fc6-736a9bf313e9'
 const eyeClosedIcon = 'https://www.figma.com/api/mcp/asset/35ae0e9c-6cce-46fb-82a4-9c7ce455e791'
-const saveIcon = 'https://www.figma.com/api/mcp/asset/b188b8fa-34c9-4b58-af6b-348b1eab3024'
-import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
-import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
-import { usePlanExtraStore } from '@/store/usePlanExtraStore'
-import { useSettlementStore } from '@/store/useSettlementStore'
-import { useAssetStore } from '@/store/useAssetStore'
 import {
   JELLY,
   jellyCardStyle,
   jellyPrimaryButton,
   jellyPrimaryButtonDisabled,
   jellyInputSurface,
-  jellyDangerButton,
 } from '@/styles/jellyGlass'
 import { pageTitleH1Style } from '@/styles/formControls'
 
@@ -25,7 +17,6 @@ export function GitHubSyncPanel() {
   const [token, setToken] = useState('')
   const [owner, setOwner] = useState('')
   const [repo, setRepo] = useState('')
-  const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null)
   const [lastSync, setLastSync] = useState<Date | null>(null)
   const [isConfigured, setIsConfigured] = useState(false)
@@ -111,116 +102,6 @@ export function GitHubSyncPanel() {
     }
   }
 
-  const handlePull = async () => {
-    setMessage(null)
-    setLoading(true)
-
-    try {
-      const config = GitHubDataSync.loadConfig()
-      if (!config) {
-        setMessage({ tone: 'err', text: 'GitHub 설정이 없습니다.' })
-        return
-      }
-
-      const sync = new GitHubDataSync(config)
-      const result = await sync.pull()
-
-      if (!result.ok) {
-        setMessage({ tone: 'err', text: result.error || 'Pull 실패' })
-        return
-      }
-
-      // Update stores with pulled data
-      if (result.data) {
-        // The data is now loaded - stores should be updated via their persist middleware
-        setLastSync(new Date())
-      }
-
-      setMessage({ tone: 'ok', text: 'GitHub에서 데이터를 가져왔습니다.' })
-    } catch (error) {
-      setMessage({
-        tone: 'err',
-        text: `오류: ${error instanceof Error ? error.message : String(error)}`,
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCommitAndPush = async () => {
-    setMessage(null)
-    setLoading(true)
-
-    try {
-      const config = GitHubDataSync.loadConfig()
-      if (!config) {
-        setMessage({ tone: 'err', text: 'GitHub 설정이 없습니다.' })
-        return
-      }
-
-      // Collect current state from all stores
-      const appState = useAppStore.getState()
-      const fixedState = useFixedTemplateStore.getState()
-      const investState = useInvestTemplateStore.getState()
-      const planState = usePlanExtraStore.getState()
-      const settlementState = useSettlementStore.getState()
-      const assetState = useAssetStore.getState()
-
-      const data = {
-        assets: {
-          items: assetState.items,
-          entries: assetState.entries,
-        },
-        expenses: {
-          fixedTemplates: fixedState.templates,
-          investTemplates: investState.templates,
-          planExtra: planState,
-        },
-        incomes: {
-          // Income data structure
-        },
-        settlements: {
-          settlements: settlementState.settlements,
-          transfers: settlementState.transfers,
-        },
-        metadata: {
-          app: appState,
-          lastUpdated: new Date().toISOString(),
-        },
-      }
-
-      const sync = new GitHubDataSync(config)
-      const now = new Date()
-      const message = `Update from couple-budget app - ${now.toLocaleString('ko-KR')}`
-      const result = await sync.push(data, message)
-
-      if (!result.ok) {
-        setMessage({ tone: 'err', text: result.error || 'Push 실패' })
-        return
-      }
-
-      setLastSync(new Date())
-      setMessage({ tone: 'ok', text: 'GitHub에 데이터를 저장했습니다.' })
-    } catch (error) {
-      setMessage({
-        tone: 'err',
-        text: `오류: ${error instanceof Error ? error.message : String(error)}`,
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleDisconnect = () => {
-    GitHubDataSync.clearConfig()
-    setIsConfigured(false)
-    setMode('config')
-    setToken('')
-    setOwner('')
-    setRepo('')
-    setLastSync(null)
-    setMessage({ tone: 'ok', text: 'GitHub 설정이 제거되었습니다.' })
-  }
 
   if (mode === 'config') {
     return (
@@ -375,9 +256,9 @@ export function GitHubSyncPanel() {
 
   return (
     <div style={{ maxWidth: 520, paddingBottom: 40 }}>
-      <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>GitHub 동기화</h1>
-
       <div style={{ ...jellyCardStyle, padding: '16px', marginBottom: 20 }}>
+        <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>GitHub 동기화</h1>
+
         <div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: JELLY.text, marginBottom: 4 }}>
             저장소: {owner}/{repo}
@@ -390,73 +271,21 @@ export function GitHubSyncPanel() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          <button
-            type="button"
-            onClick={() => void handlePull()}
-            disabled={loading}
-            style={{
-              flex: 1,
-              ...(loading ? jellyPrimaryButtonDisabled : jellyPrimaryButton),
-              fontSize: 13,
-            }}
-          >
-            {loading ? '중…' : '🔄 Pull'}
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleCommitAndPush()}
-            disabled={loading}
-            style={{
-              flex: 1,
-              ...(loading ? jellyPrimaryButtonDisabled : jellyPrimaryButton),
-              fontSize: 13,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-            }}
-          >
-            {loading ? (
-              '중…'
-            ) : (
-              <>
-                <img src={saveIcon} alt="save" style={{ width: 16, height: 16, filter: 'invert(1)' }} />
-                Commit & Push
-              </>
-            )}
-          </button>
-        </div>
-
         <button
           type="button"
           onClick={() => setMode('config')}
           style={{
-            width: '100%',
-            padding: '10px 14px',
-            borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.12)',
-            background: 'rgba(255,255,255,0.06)',
-            color: JELLY.text,
+            padding: '10px 18px',
+            borderRadius: 12,
+            border: '1px solid #4f8cff',
+            background: '#ffffff',
+            color: '#4f8cff',
             cursor: 'pointer',
-            fontSize: 13,
-            fontWeight: 500,
+            fontSize: 14,
+            fontWeight: 600,
           }}
         >
           설정 변경
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleDisconnect()}
-          style={{
-            ...jellyDangerButton,
-            width: '100%',
-            marginTop: 8,
-            fontSize: 13,
-          }}
-        >
-          연결 해제
         </button>
       </div>
 
