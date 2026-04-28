@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { GitHubDataSync, type GitHubConfig } from '@/services/github-sync'
+import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 
 const eyeOpenIcon = 'https://www.figma.com/api/mcp/asset/7cc8e223-a6b0-4c67-9fc6-736a9bf313e9'
 const eyeClosedIcon = 'https://www.figma.com/api/mcp/asset/35ae0e9c-6cce-46fb-82a4-9c7ce455e791'
@@ -9,10 +10,13 @@ import {
   jellyPrimaryButton,
   jellyPrimaryButtonDisabled,
   jellyInputSurface,
+  settingsSectionCardWithBleedTitleStyle,
+  settingsSectionTitleWrapForViewport,
 } from '@/styles/jellyGlass'
 import { pageTitleH1Style } from '@/styles/formControls'
 
 export function GitHubSyncPanel() {
+  const narrow = useNarrowLayout()
   const [mode, setMode] = useState<'config' | 'sync'>('sync')
   const [token, setToken] = useState('')
   const [owner, setOwner] = useState('')
@@ -255,9 +259,11 @@ export function GitHubSyncPanel() {
   }
 
   return (
-    <div style={{ maxWidth: 520, paddingBottom: 40 }}>
-      <div style={{ ...jellyCardStyle, padding: '16px', marginBottom: 20 }}>
-        <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>GitHub 동기화</h1>
+    <div style={{ maxWidth: narrow ? undefined : 520, paddingBottom: narrow ? undefined : 40 }}>
+      <div style={narrow ? { ...jellyCardStyle, padding: '16px', marginBottom: 20 } : settingsSectionCardWithBleedTitleStyle}>
+        <div style={narrow ? { marginBottom: 12 } : settingsSectionTitleWrapForViewport(narrow)}>
+          <div style={{ fontSize: narrow ? undefined : 15, fontWeight: 700, color: JELLY.text }}>GitHub 동기화</div>
+        </div>
 
         <div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: JELLY.text, marginBottom: 4 }}>
@@ -298,6 +304,7 @@ export function GitHubSyncPanel() {
             color: message.tone === 'ok' ? '#059669' : '#dc2626',
             background: message.tone === 'ok' ? 'rgba(5, 150, 105, 0.1)' : 'rgba(220, 38, 38, 0.1)',
             lineHeight: 1.5,
+            marginTop: narrow ? 20 : 0,
           }}
         >
           {message.text}
