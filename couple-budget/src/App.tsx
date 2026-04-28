@@ -23,7 +23,7 @@ import { useSettlementStore } from '@/store/useSettlementStore'
 import { useAssetStore } from '@/store/useAssetStore'
 import { GitHubDataSync } from '@/services/github-sync'
 
-const saveIcon = 'https://www.figma.com/api/mcp/asset/b5b2ec30-a900-427b-9a67-db611ae9b184'
+const saveIcon = 'https://www.figma.com/api/mcp/asset/b188b8fa-34c9-4b58-af6b-348b1eab3024'
 
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', icon: '📊' },
