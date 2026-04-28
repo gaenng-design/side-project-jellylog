@@ -3,7 +3,6 @@ import { HashRouter, Routes, Route, NavLink, useLocation } from 'react-router-do
 import { ExpensePlanPage } from '@/features/expense-plan/ExpensePlanPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
-import { AccountPage } from '@/features/auth/AccountPage'
 import { AssetPage } from '@/features/assets/AssetPage'
 import { PasswordProtection } from '@/features/auth/PasswordProtection'
 import {
@@ -17,12 +16,17 @@ import {
 import { NarrowLayoutProvider, useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { MobileSnackbar } from '@/components/MobileSnackbar'
 import { useAppStore } from '@/store/useAppStore'
+import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
+import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
+import { usePlanExtraStore } from '@/store/usePlanExtraStore'
+import { useSettlementStore } from '@/store/useSettlementStore'
+import { useAssetStore } from '@/store/useAssetStore'
+import { GitHubDataSync } from '@/services/github-sync'
 
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', icon: '📊' },
   { to: '/expense-plan', label: '지출 계획', icon: '📋' },
   { to: '/assets', label: '자산', icon: '💰' },
-  { to: '/account', label: '계정', icon: '👤' },
   { to: '/settings', label: '설정', icon: '⚙️' },
 ]
 
@@ -31,8 +35,74 @@ function AppShell() {
   const location = useLocation()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveMessage, setSaveMessage] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null)
   const sidebarWidth = sidebarCollapsed ? 56 : 220
   const iconOnlyNav = narrow || sidebarCollapsed
+
+  const handleSave = async () => {
+    setSaveMessage(null)
+    setSaving(true)
+
+    try {
+      const config = GitHubDataSync.loadConfig()
+      if (!config) {
+        setSaveMessage({ tone: 'err', text: 'GitHub 설정이 필요합니다' })
+        setSaving(false)
+        return
+      }
+
+      // Collect current state from all stores
+      const appState = useAppStore.getState()
+      const fixedState = useFixedTemplateStore.getState()
+      const investState = useInvestTemplateStore.getState()
+      const planState = usePlanExtraStore.getState()
+      const settlementState = useSettlementStore.getState()
+      const assetState = useAssetStore.getState()
+
+      const data = {
+        assets: {
+          items: assetState.items,
+          entries: assetState.entries,
+        },
+        expenses: {
+          fixedTemplates: fixedState.templates,
+          investTemplates: investState.templates,
+          planExtra: planState,
+        },
+        incomes: {},
+        settlements: {
+          settlements: settlementState.settlements,
+          transfers: settlementState.transfers,
+        },
+        metadata: {
+          app: appState,
+          lastUpdated: new Date().toISOString(),
+        },
+      }
+
+      const sync = new GitHubDataSync(config)
+      const now = new Date()
+      const message = `Update from couple-budget app - ${now.toLocaleString('ko-KR')}`
+      const result = await sync.push(data, message)
+
+      if (!result.ok) {
+        setSaveMessage({ tone: 'err', text: result.error || 'GitHub 저장 실패' })
+        setSaving(false)
+        return
+      }
+
+      setSaveMessage({ tone: 'ok', text: '저장되었습니다' })
+      setTimeout(() => setSaveMessage(null), 2000)
+    } catch (error) {
+      setSaveMessage({
+        tone: 'err',
+        text: `오류: ${error instanceof Error ? error.message : String(error)}`,
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
 
 
   useEffect(() => {
@@ -161,7 +231,7 @@ function AppShell() {
                   <div style={{ fontSize: 17, fontWeight: 700, color: '#F9FAFB', letterSpacing: '-0.02em' }}>
                     Jelly log
                   </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>부부 월 정산</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>승윤 & 경은</div>
                 </div>
               )}
               {iconOnlyNav && <div style={{ fontSize: 20, lineHeight: 1 }}>📒</div>}
@@ -214,17 +284,42 @@ function AppShell() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'stretch',
-                gap: 0,
+                gap: 8,
                 flexShrink: 0,
                 width: '100%',
               }}
-            />
+            >
+              <button
+                type="button"
+                onClick={() => void handleSave()}
+                disabled={saving}
+                title="GitHub에 저장"
+                style={{
+                  padding: '10px 12px',
+                  border: 'none',
+                  background: saving ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
+                  borderRadius: JELLY.radiusControl,
+                  color: '#fff',
+                  cursor: saving ? 'not-allowed' : 'pointer',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  opacity: saving ? 0.6 : 1,
+                  transition: 'all 0.2s',
+                }}
+              >
+                <span>{saving ? '저장 중…' : '💾 저장하기'}</span>
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setSidebarCollapsed((c) => !c)}
               title={sidebarCollapsed ? '패널 펼치기' : '패널 접기'}
               style={{
-                marginTop: 10,
+                marginTop: 8,
                 padding: '10px 12px',
                 border: '1px solid rgba(255,255,255,0.12)',
                 background: 'rgba(255,255,255,0.06)',
@@ -288,7 +383,7 @@ function AppShell() {
                 <div style={{ fontSize: 18, fontWeight: 700, color: '#F9FAFB', letterSpacing: '-0.02em' }}>
                   Jelly log
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>부부 월 정산</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>승윤 & 경은</div>
               </div>
               <button
                 type="button"
@@ -368,7 +463,6 @@ function AppShell() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/expense-plan" element={<ExpensePlanPage />} />
             <Route path="/assets" element={<AssetPage />} />
-            <Route path="/account" element={<AccountPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </div>
