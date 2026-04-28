@@ -284,7 +284,7 @@ function AppShell() {
               <button
                 type="button"
                 onClick={() => void handleSync()}
-                disabled={syncing || syncComplete}
+                disabled={syncing}
                 title="동기화"
                 style={{
                   flexShrink: 0,
@@ -293,7 +293,7 @@ function AppShell() {
                   background: '#0F1419',
                   borderRadius: JELLY.radiusControl,
                   color: '#FFFFFF',
-                  cursor: syncing || syncComplete ? 'not-allowed' : 'pointer',
+                  cursor: syncing ? 'not-allowed' : 'pointer',
                   fontSize: 12,
                   fontWeight: 500,
                   display: 'flex',
@@ -425,7 +425,7 @@ function AppShell() {
                 <button
                   type="button"
                   onClick={() => void handleSync()}
-                  disabled={syncing || syncComplete}
+                  disabled={syncing}
                   title="동기화"
                   style={{
                     flex: 1,
@@ -434,7 +434,7 @@ function AppShell() {
                     background: '#0F1419',
                     borderRadius: JELLY.radiusControl,
                     color: '#FFFFFF',
-                    cursor: syncing || syncComplete ? 'not-allowed' : 'pointer',
+                    cursor: syncing ? 'not-allowed' : 'pointer',
                     fontSize: 13,
                     fontWeight: 500,
                     display: 'flex',
