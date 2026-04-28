@@ -4,6 +4,7 @@ import { useAppStore } from '@/store/useAppStore'
 
 const eyeOpenIcon = 'https://www.figma.com/api/mcp/asset/7cc8e223-a6b0-4c67-9fc6-736a9bf313e9'
 const eyeClosedIcon = 'https://www.figma.com/api/mcp/asset/35ae0e9c-6cce-46fb-82a4-9c7ce455e791'
+const saveIcon = 'https://www.figma.com/api/mcp/asset/b188b8fa-34c9-4b58-af6b-348b1eab3024'
 import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
 import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
@@ -410,9 +411,20 @@ export function GitHubSyncPanel() {
               flex: 1,
               ...(loading ? jellyPrimaryButtonDisabled : jellyPrimaryButton),
               fontSize: 13,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
             }}
           >
-            {loading ? '중…' : '💾 Commit & Push'}
+            {loading ? (
+              '중…'
+            ) : (
+              <>
+                <img src={saveIcon} alt="save" style={{ width: 16, height: 16 }} />
+                Commit & Push
+              </>
+            )}
           </button>
         </div>
 
