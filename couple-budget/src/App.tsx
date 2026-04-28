@@ -132,8 +132,32 @@ function AppShell() {
         ...jellyShellBackground,
         fontFamily: jellyFontStack,
         color: JELLY.text,
+        position: 'relative',
       }}
     >
+      {saving && (
+        <>
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 3,
+              background: 'linear-gradient(90deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%)',
+              animation: 'progress 1.5s ease-in-out infinite',
+              zIndex: 10000,
+            }}
+          />
+          <style>{`
+            @keyframes progress {
+              0% { width: 0%; }
+              30% { width: 70%; }
+              100% { width: 100%; }
+            }
+          `}</style>
+        </>
+      )}
       <div
         style={
           narrow
