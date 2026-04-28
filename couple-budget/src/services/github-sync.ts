@@ -196,9 +196,10 @@ export class GitHubDataSync {
    * Internal: Set file content in GitHub (with automatic retry on SHA mismatch)
    */
   private async setFileContent(path: string, content: string, message: string, retryCount = 0): Promise<void> {
-    const maxRetries = 3
+    const maxRetries = 5
+    const retryDelays = [100, 500, 1000, 2000, 3000] // 증가하는 대기 시간
 
-    // First, try to get the current file to get its SHA (needed for updates)
+    // Always fetch the current SHA (even on retries)
     let sha: string | undefined
     try {
       const response = await fetch(
@@ -246,11 +247,11 @@ export class GitHubDataSync {
       const error = await response.json() as { message?: string }
       const errorMsg = error.message || response.statusText
 
-      // If SHA mismatch and retries remaining, fetch latest SHA and retry
+      // If SHA mismatch and retries remaining, wait and retry with fresh SHA
       if (errorMsg.includes('does not match') && retryCount < maxRetries) {
-        console.warn(`SHA mismatch for ${path}, retrying (attempt ${retryCount + 1}/${maxRetries})`)
-        // Wait a moment before retrying
-        await new Promise(resolve => setTimeout(resolve, 100))
+        const delayMs = retryDelays[retryCount] || 3000
+        console.warn(`SHA mismatch for ${path}, retrying after ${delayMs}ms (attempt ${retryCount + 1}/${maxRetries})`)
+        await new Promise(resolve => setTimeout(resolve, delayMs))
         return this.setFileContent(path, content, message, retryCount + 1)
       }
 
