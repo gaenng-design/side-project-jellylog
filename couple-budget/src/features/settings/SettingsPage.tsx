@@ -803,7 +803,21 @@ function FixedTemplateSettings() {
             <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
             <PersonToggle
               value={fixedAddForm.person}
-              onChange={(p) => setFixedAddForm((f) => ({ ...f, person: p }))}
+              onChange={(p) => {
+                // 구분에 따라 별도 정산 자동 설정
+                if (p === '공금') {
+                  // 공금 선택: 별도 정산 가능 (선택지 유지)
+                  setFixedAddForm((f) => ({ ...f, person: p }))
+                } else {
+                  // 승윤 또는 경은 선택: 별도 정산 해제, separatePerson을 현재 person으로 설정
+                  setFixedAddForm((f) => ({
+                    ...f,
+                    person: p,
+                    isSeparate: false,
+                    separatePerson: p,
+                  }))
+                }
+              }}
             />
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
@@ -828,12 +842,12 @@ function FixedTemplateSettings() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-            <div style={{ flex: '0 0 auto' }}>
+            <div style={{ flex: 0, width: 80 }}>
               <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
               <DaySelect
                 value={fixedAddForm.payDay}
                 onChange={(v) => setFixedAddForm((f) => ({ ...f, payDay: v }))}
-                width={100}
+                width={80}
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>

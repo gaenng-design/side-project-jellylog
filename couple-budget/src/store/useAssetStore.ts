@@ -19,10 +19,6 @@ interface AssetState {
   getEntry: (itemId: string, yearMonth: string) => number
   /** 특정 연도 전체 entries 반환: { itemId: { yearMonth: amount } } */
   getYearData: (year: number) => Record<string, Record<string, number>>
-  /** 투자·저축에서 자동 동기: description으로 기존 항목 찾아 없으면 생성, 금액 업데이트 */
-  syncFromInvestment: (description: string, yearMonth: string, amount: number) => void
-  /** 투자 항목 삭제 시 연동 항목도 삭제 여부 (source='invest'이고 entries 없을 때) */
-  pruneInvestItem: (description: string) => void
 }
 
 export const useAssetStore = create<AssetState>()(
@@ -90,29 +86,6 @@ export const useAssetStore = create<AssetState>()(
           result[e.itemId][e.yearMonth] = e.amount
         }
         return result
-      },
-
-      syncFromInvestment: (description, yearMonth, amount) => {
-        const state = get()
-        const existing = state.items.find((it) => it.name === description && it.source === 'invest')
-        const itemId = existing ? existing.id : (() => {
-          const id = uid()
-          set((s) => ({
-            items: [...s.items, { id, name: description, category: '투자', order: s.items.length, source: 'invest' }],
-          }))
-          return id
-        })()
-        get().setEntry(itemId, yearMonth, amount)
-      },
-
-      pruneInvestItem: (description) => {
-        const state = get()
-        const item = state.items.find((it) => it.name === description && it.source === 'invest')
-        if (!item) return
-        const hasEntries = state.entries.some((e) => e.itemId === item.id)
-        if (!hasEntries) {
-          set((s) => ({ items: s.items.filter((it) => it.id !== item.id) }))
-        }
       },
     }),
     {

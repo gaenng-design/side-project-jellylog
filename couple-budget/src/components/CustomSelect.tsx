@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, type ReactNode, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
-import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT, DROPDOWN_PADDING_COMPACT, DROPDOWN_PADDING_REGULAR, DROPDOWN_CARET_COLOR, DROPDOWN_CARET_FONT_SIZE_COMPACT, DROPDOWN_CARET_FONT_SIZE_REGULAR, DROPDOWN_ITEM_PADDING_COMPACT, DROPDOWN_ITEM_PADDING_REGULAR } from '@/styles/formControls'
+import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT, DROPDOWN_PADDING_COMPACT, DROPDOWN_PADDING_REGULAR, DROPDOWN_CARET_COLOR, DROPDOWN_CARET_FONT_SIZE_COMPACT, DROPDOWN_CARET_FONT_SIZE_REGULAR, DROPDOWN_ITEM_PADDING_COMPACT, DROPDOWN_ITEM_PADDING_REGULAR, DROPDOWN_ARROW_ICON } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
 
 interface CustomSelectProps {
@@ -211,7 +211,7 @@ export function CustomSelect({
               </>
             )}
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{value || placeholder}</span>
-            <span style={{ flexShrink: 0, color: caretColor, fontSize: DROPDOWN_CARET_FONT_SIZE_COMPACT }}>▾</span>
+            <img src={DROPDOWN_ARROW_ICON} alt="" style={{ flexShrink: 0, width: 10, height: 10, display: 'block' }} />
           </button>
         </div>
         {open && dropdownRect && createPortal(
@@ -301,7 +301,7 @@ export function CustomSelect({
           }}
         >
           <span>{value || placeholder}</span>
-          <span style={{ color: DROPDOWN_CARET_COLOR, fontSize: DROPDOWN_CARET_FONT_SIZE_REGULAR, flexShrink: 0 }}>▾</span>
+          <img src={DROPDOWN_ARROW_ICON} alt="" style={{ flexShrink: 0, width: 10, height: 10, display: 'block' }} />
         </button>
       </div>
       {open && dropdownRect && createPortal(

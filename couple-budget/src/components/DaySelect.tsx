@@ -15,6 +15,7 @@ import {
   DROPDOWN_CARET_FONT_SIZE_REGULAR,
   DROPDOWN_ITEM_PADDING_COMPACT,
   DROPDOWN_ITEM_PADDING_REGULAR,
+  DROPDOWN_ARROW_ICON,
 } from '@/styles/formControls'
 
 const DAY_OPTIONS = [
@@ -166,7 +167,7 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
           style={triggerStyle}
         >
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayValue || '미정'}</span>
-          <span style={{ color: DROPDOWN_CARET_COLOR, fontSize: compact ? DROPDOWN_CARET_FONT_SIZE_COMPACT : DROPDOWN_CARET_FONT_SIZE_REGULAR, flexShrink: 0 }}>▾</span>
+          <img src={DROPDOWN_ARROW_ICON} alt="" style={{ flexShrink: 0, width: 10, height: 10, display: 'block' }} />
         </button>
       </div>
       {open &&

@@ -10,10 +10,8 @@ import {
   jellyPrimaryButton,
   jellyPrimaryButtonDisabled,
   jellyInputSurface,
-  settingsSectionCardWithBleedTitleStyle,
-  settingsSectionTitleWrapForViewport,
 } from '@/styles/jellyGlass'
-import { pageTitleH1Style } from '@/styles/formControls'
+import { pageTitleH1Style, settingsSectionCardWithBleedTitleStyle, settingsSectionTitleWrapForViewport } from '@/styles/formControls'
 
 export function GitHubSyncPanel() {
   const narrow = useNarrowLayout()

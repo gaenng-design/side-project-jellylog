@@ -11,6 +11,7 @@ import {
   DROPDOWN_CARET_COLOR,
   DROPDOWN_CARET_FONT_SIZE_COMPACT,
   DROPDOWN_ITEM_PADDING_REGULAR,
+  DROPDOWN_ARROW_ICON,
 } from '@/styles/formControls'
 import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
@@ -108,7 +109,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
         aria-haspopup="listbox"
       >
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{value}년</span>
-        <span style={{ fontSize: DROPDOWN_CARET_FONT_SIZE_COMPACT, color: caretColor, pointerEvents: 'none', flexShrink: 0 }}>▾</span>
+        <img src={DROPDOWN_ARROW_ICON} alt="" style={{ pointerEvents: 'none', flexShrink: 0, width: 10, height: 10, display: 'block' }} />
       </button>
 
       {open && (

@@ -479,7 +479,7 @@ function AppShell() {
                       animation: syncing ? 'spin 1s linear infinite' : 'none',
                     }}
                   />
-                  <span>{syncing ? '중…' : '동기화'}</span>
+                  {!iconOnlyNav && <span>{syncing ? '중…' : '동기화'}</span>}
                 </button>
                 <button
                   type="button"
@@ -505,7 +505,7 @@ function AppShell() {
                   }}
                 >
                   <img src={saveIcon} alt="" style={{ width: 16, height: 16, display: 'block', filter: 'invert(1)' }} />
-                  <span>{saving ? '중…' : '저장하기'}</span>
+                  {!iconOnlyNav && <span>{saving ? '중…' : '저장하기'}</span>}
                 </button>
               </div>
             </div>

@@ -41,7 +41,6 @@ import { computeSeparateExpenseCard5090, payerForSeparateExpenseRow } from '@/li
 import { SettlementResultView } from './SettlementResultView'
 import { deletePlanMonthCore } from './deletePlanMonth'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
-import { useAssetStore } from '@/store/useAssetStore'
 
 const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
 const INVEST_CATEGORIES = ['투자', '저축']
@@ -60,7 +59,7 @@ function formatInvestMaturityLabel(ymd: string) {
 }
 
 type IncomeRow = { id: string; person: Exclude<Person, '공금'>; category: string; description: string; amount: number }
-type FixedRow = { id: string; person: Person; category: string; description: string; amount: number; isSeparate?: boolean; separatePerson?: 'A' | 'B'; payDay?: number; isExcluded?: boolean }
+type FixedRow = { id: string; person: Person; category: string; description: string; amount: number; isSeparate?: boolean; separatePerson?: 'A' | 'B'; payDay?: number; isExcluded?: boolean; order?: number }
 type InvestRow = {
   id: string
   person: Person
@@ -475,11 +474,12 @@ const FIXED_CAT_ORDER: Record<string, number> = { 주거: 0, 통신: 1, 보험: 
 /** FixedExpenseRow 별도 정산 칩과 동일 높이 */
 const MODAL_SEPARATE_CHIP_H = 26
 
-/** 구분(유저)별 보기: 같은 구분 안 행 순서 — 카테고리 순 → 항목명 */
+/** 구분(유저)별 보기: 같은 구분 안 행 순서 — 카테고리 순 → 저장 순서 → 항목명 */
 function sortFixedRowsByCategoryInPerson(list: FixedRow[]): FixedRow[] {
   return [...list].sort(
     (a, b) =>
       (FIXED_CAT_ORDER[a.category] ?? 99) - (FIXED_CAT_ORDER[b.category] ?? 99) ||
+      (a.order ?? 999) - (b.order ?? 999) ||
       (a.description || '').localeCompare(b.description || '', 'ko'),
   )
 }
@@ -1631,7 +1631,6 @@ export function ExpensePlanPage() {
   const getInvestMonthlyAmount = useInvestTemplateStore((s) => s.getMonthlyAmount)
   const setInvestMonthlyAmount = useInvestTemplateStore((s) => s.setMonthlyAmount)
   const toggleInvestExclusion = useInvestTemplateStore((s) => s.toggleExclusion)
-  const syncInvestToAsset = useAssetStore((s) => s.syncFromInvestment)
   const {
     items: incomeItems,
     hasLoaded: incomesLoaded,
@@ -1899,6 +1898,7 @@ export function ExpensePlanPage() {
         separatePerson,
         payDay: tpl.payDay,
         isExcluded: excluded,
+        order: tpl.order,
       }
     })
     return [...fromTemplates, ...fixedExtraRows]
@@ -2509,15 +2509,10 @@ export function ExpensePlanPage() {
           rows={investRows}
           onAdd={(row) => {
             setInvestExtraRows((prev) => [...prev, { ...row, id: newId() }])
-            if (row.description && row.amount > 0) syncInvestToAsset(row.description, currentYearMonth, row.amount)
           }}
           onUpdate={(id, patch) => {
             setInvestExtraRows((prev) => {
               const updated = prev.map((r) => (r.id === id ? { ...r, ...patch } : r))
-              if ('amount' in patch || 'description' in patch) {
-                const row = updated.find((r) => r.id === id)
-                if (row?.description && (row.amount > 0)) syncInvestToAsset(row.description, currentYearMonth, row.amount)
-              }
               return updated
             })
           }}
