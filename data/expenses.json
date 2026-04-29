@@ -224,17 +224,80 @@
       "id": "inv-1777358483511",
       "person": "A",
       "category": "저축",
-      "description": "비상금 적금",
-      "defaultAmount": 0,
+      "description": "ISA",
+      "defaultAmount": 1300000,
       "personOrder": 0
     },
     {
       "id": "inv-1777358483512",
       "person": "B",
       "category": "투자",
-      "description": "ETF 적립식",
-      "defaultAmount": 0,
+      "description": "ISA",
+      "defaultAmount": 1300000,
       "personOrder": 0
+    },
+    {
+      "person": "A",
+      "category": "저축",
+      "description": "연금",
+      "defaultAmount": 200000,
+      "id": "inv-1777399537875",
+      "order": 1,
+      "personOrder": 1
+    },
+    {
+      "person": "B",
+      "category": "저축",
+      "description": "연금",
+      "defaultAmount": 200000,
+      "id": "inv-1777399537876",
+      "order": 2,
+      "personOrder": 1
+    },
+    {
+      "person": "A",
+      "category": "저축",
+      "description": "적금 (비상금)",
+      "defaultAmount": 1000000,
+      "id": "inv-1777399537877",
+      "order": 3,
+      "personOrder": 2
+    },
+    {
+      "person": "B",
+      "category": "저축",
+      "description": "청년지원 적금",
+      "defaultAmount": 700000,
+      "id": "inv-1777399537878",
+      "order": 4,
+      "personOrder": 2
+    },
+    {
+      "person": "B",
+      "category": "저축",
+      "description": "비상금",
+      "defaultAmount": 300000,
+      "id": "inv-1777399537879",
+      "order": 5,
+      "personOrder": 3
+    },
+    {
+      "person": "A",
+      "category": "저축",
+      "description": "청약",
+      "defaultAmount": 100000,
+      "id": "inv-1777399537880",
+      "order": 6,
+      "personOrder": 3
+    },
+    {
+      "person": "B",
+      "category": "저축",
+      "description": "청약 ",
+      "defaultAmount": 100000,
+      "id": "inv-1777399537881",
+      "order": 7,
+      "personOrder": 4
     }
   ],
   "planExtra": {
