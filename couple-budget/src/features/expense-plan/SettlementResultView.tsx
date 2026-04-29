@@ -38,6 +38,13 @@ const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
 
 type InvestLineItem = { label: string; amount: number }
 
+// ── 영수증 카드 스타일 ─────────────────────────────────────────────────────────
+const RECEIPT_BG = '#FEFCF3'
+const RECEIPT_BORDER = '#E2D5B0'
+const RECEIPT_DASH = '1px dashed #D4C4A0'
+const RECEIPT_TEXT = '#2A1F0E'
+const RECEIPT_MUTED = '#8B7355'
+
 const userPayTableStyle: CSSProperties = {
   width: '100%',
   borderCollapse: 'collapse',
@@ -46,19 +53,19 @@ const userPayTableStyle: CSSProperties = {
 }
 
 const tdLabelBase: CSSProperties = {
-  padding: '10px 8px 10px 0',
-  color: JELLY.text,
+  padding: '9px 8px 9px 0',
+  color: RECEIPT_TEXT,
   verticalAlign: 'top',
-  borderBottom: '1px solid rgba(255,255,255,0.35)',
+  borderBottom: RECEIPT_DASH,
 }
 
 const tdAmountBase: CSSProperties = {
-  padding: '10px 0',
+  padding: '9px 0',
   textAlign: 'right',
   fontWeight: 500,
-  color: JELLY.text,
+  color: RECEIPT_TEXT,
   verticalAlign: 'top',
-  borderBottom: '1px solid #f3f4f6',
+  borderBottom: RECEIPT_DASH,
   whiteSpace: 'nowrap',
 }
 
@@ -67,7 +74,7 @@ const tdFixedGroupHeader: CSSProperties = {
   fontSize: 12,
   fontWeight: 700,
   color: FIXED_EXPENSE_SUMMARY_COLOR,
-  borderBottom: '1px solid rgba(148, 163, 184, 0.25)',
+  borderBottom: RECEIPT_DASH,
   verticalAlign: 'bottom',
 }
 
@@ -83,7 +90,7 @@ const tdInvestGroupHeader: CSSProperties = {
   fontSize: 12,
   fontWeight: 700,
   color: INVEST_SUMMARY_COLOR,
-  borderBottom: '1px solid rgba(148, 163, 184, 0.25)',
+  borderBottom: RECEIPT_DASH,
   verticalAlign: 'bottom',
 }
 
@@ -102,13 +109,14 @@ const tdSepCardLabel: CSSProperties = {
   ...tdTreeChildLabel,
   paddingLeft: 20,
   fontSize: 12,
-  color: JELLY.textMuted,
+  color: RECEIPT_MUTED,
   fontWeight: 500,
 }
 
 const tdSepCardAmount: CSSProperties = {
   ...tdTreeChildAmount,
   fontSize: 12,
+  color: RECEIPT_MUTED,
 }
 
 /** 고카테고리 소계 행 (고정·별도 / 투자·저축) */
@@ -118,7 +126,7 @@ const tdCategorySubtotalLabel: CSSProperties = {
   paddingTop: 10,
   fontWeight: 700,
   fontSize: 12,
-  color: JELLY.text,
+  color: RECEIPT_TEXT,
 }
 
 const tdCategorySubtotalAmount: CSSProperties = {
@@ -126,7 +134,7 @@ const tdCategorySubtotalAmount: CSSProperties = {
   paddingTop: 10,
   fontWeight: 700,
   fontSize: 13,
-  color: JELLY.text,
+  color: RECEIPT_TEXT,
 }
 
 const labelWithCheckboxStyle: CSSProperties = {
@@ -584,13 +592,28 @@ export function SettlementResultView({
               key={p}
               style={{
                 minWidth: 0,
-                ...settingsSectionCardStyle,
-                borderTop: `4px solid ${CHART_COLORS[idx % CHART_COLORS.length]}`,
+                background: RECEIPT_BG,
+                border: `1px solid ${RECEIPT_BORDER}`,
+                borderRadius: 10,
+                boxShadow: '0 2px 14px rgba(0,0,0,0.07)',
+                overflow: 'hidden',
               }}
             >
-              <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text, marginBottom: 12 }}>
-                {name} 최종 낼 돈
+              {/* 영수증 헤더 */}
+              <div
+                style={{
+                  background: CHART_COLORS[idx % CHART_COLORS.length],
+                  padding: '16px 20px 14px',
+                  textAlign: 'center',
+                  borderBottom: '2px dashed rgba(255,255,255,0.45)',
+                }}
+              >
+                <div style={{ fontSize: 10, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.72)', marginBottom: 4 }}>RECEIPT</div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>{name}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.72)', marginTop: 4 }}>이번 달 각자 낼 돈</div>
               </div>
+              {/* 영수증 바디 */}
+              <div style={{ padding: '4px 18px 16px' }}>
               <table style={userPayTableStyle}>
                 <colgroup>
                   <col style={{ width: '58%' }} />
@@ -703,7 +726,7 @@ export function SettlementResultView({
                       }))
                     }
                   />
-                  <tr style={{ borderTop: '2px solid rgba(148, 163, 184, 0.2)', background: 'rgba(255,255,255,0.35)' }}>
+                  <tr style={{ borderTop: `2px solid ${RECEIPT_TEXT}` }}>
                     <td
                       style={{
                         ...tdLabelBase,
@@ -712,7 +735,7 @@ export function SettlementResultView({
                         paddingBottom: 12,
                         fontWeight: 700,
                         fontSize: 15,
-                        color: JELLY.text,
+                        color: RECEIPT_TEXT,
                       }}
                     >
                       총 납부/배분 결과
@@ -725,19 +748,20 @@ export function SettlementResultView({
                         paddingBottom: 12,
                         fontWeight: 700,
                         fontSize: 15,
-                        color: PRIMARY,
+                        color: RECEIPT_TEXT,
                       }}
                     >
                       {fmt(u.total)}
                     </td>
                   </tr>
-                  <tr style={{ borderTop: '1px solid rgba(148, 163, 184, 0.2)' }}>
+                  <tr style={{ borderTop: '1px dashed #B8A882' }}>
                     <td
                       style={{
                         ...tdLabelBase,
                         borderBottom: 'none',
                         paddingTop: 12,
-                        paddingBottom: 12,
+                        paddingBottom: 8,
+                        color: RECEIPT_MUTED,
                       }}
                     >
                       최종 용돈
@@ -747,7 +771,7 @@ export function SettlementResultView({
                         ...tdAmountBase,
                         borderBottom: 'none',
                         paddingTop: 12,
-                        paddingBottom: 12,
+                        paddingBottom: 8,
                         fontWeight: 600,
                         color: allowanceValueColor(u.allowance),
                       }}
@@ -757,6 +781,7 @@ export function SettlementResultView({
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
           )
         })}
