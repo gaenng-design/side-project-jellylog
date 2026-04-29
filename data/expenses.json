@@ -1,56 +1,6 @@
 {
   "fixedTemplates": [
     {
-      "id": "ft-1777358483514",
-      "person": "B",
-      "category": "통신",
-      "description": "휴대폰 요금",
-      "defaultAmount": 29620,
-      "payDay": 22
-    },
-    {
-      "id": "ft-1777358483511",
-      "person": "공금",
-      "category": "주거",
-      "description": "전세이자",
-      "defaultAmount": 970000,
-      "payDay": 27,
-      "defaultSeparate": true,
-      "personOrder": 0
-    },
-    {
-      "id": "ft-1777358483512",
-      "person": "공금",
-      "category": "관리비",
-      "description": "관리비",
-      "defaultAmount": 300000,
-      "payDay": 29,
-      "defaultSeparate": false,
-      "personOrder": 1
-    },
-    {
-      "person": "공금",
-      "category": "구독",
-      "description": "피그마",
-      "defaultAmount": 65815,
-      "defaultSeparate": false,
-      "payDay": 8,
-      "id": "ft-1777399537880",
-      "order": 5,
-      "personOrder": 2
-    },
-    {
-      "person": "공금",
-      "category": "통신",
-      "description": "인터넷 요금",
-      "defaultAmount": 34100,
-      "defaultSeparate": false,
-      "payDay": 11,
-      "id": "ft-1777398606346",
-      "order": 1,
-      "personOrder": 3
-    },
-    {
       "person": "A",
       "category": "기타",
       "description": "부모님",
@@ -138,6 +88,135 @@
       "id": "ft-1777399537884",
       "order": 9,
       "personOrder": 1
+    },
+    {
+      "person": "B",
+      "category": "구독",
+      "description": "애플 구독",
+      "defaultAmount": 11100,
+      "defaultSeparate": false,
+      "payDay": 1,
+      "id": "ft-1777399537886",
+      "order": 11,
+      "personOrder": 2
+    },
+    {
+      "person": "B",
+      "category": "구독",
+      "description": "클로드",
+      "defaultAmount": 32486,
+      "defaultSeparate": false,
+      "payDay": 7,
+      "id": "ft-1777399537889",
+      "order": 14,
+      "personOrder": 3
+    },
+    {
+      "person": "B",
+      "category": "구독",
+      "description": "유튜브",
+      "defaultAmount": 19500,
+      "defaultSeparate": false,
+      "payDay": 12,
+      "id": "ft-1777399537888",
+      "order": 13,
+      "personOrder": 4
+    },
+    {
+      "person": "B",
+      "category": "보험",
+      "description": "한화 보험",
+      "defaultAmount": 99240,
+      "defaultSeparate": true,
+      "defaultSeparatePerson": "B",
+      "payDay": 21,
+      "id": "ft-1777399537891",
+      "order": 16,
+      "personOrder": 5
+    },
+    {
+      "id": "ft-1777358483514",
+      "person": "B",
+      "category": "통신",
+      "description": "휴대폰 요금",
+      "defaultAmount": 29620,
+      "payDay": 22,
+      "personOrder": 6
+    },
+    {
+      "id": "ft-1777358483511",
+      "person": "공금",
+      "category": "주거",
+      "description": "전세이자",
+      "defaultAmount": 970000,
+      "payDay": 27,
+      "defaultSeparate": true,
+      "personOrder": 0
+    },
+    {
+      "person": "공금",
+      "category": "관리비",
+      "description": "넷플릭스",
+      "defaultAmount": 26000,
+      "defaultSeparate": false,
+      "payDay": 27,
+      "id": "ft-1777399537885",
+      "order": 10,
+      "personOrder": 1
+    },
+    {
+      "id": "ft-1777358483512",
+      "person": "공금",
+      "category": "관리비",
+      "description": "관리비",
+      "defaultAmount": 300000,
+      "payDay": 29,
+      "defaultSeparate": false,
+      "personOrder": 2
+    },
+    {
+      "person": "공금",
+      "category": "구독",
+      "description": "피그마",
+      "defaultAmount": 65815,
+      "defaultSeparate": false,
+      "payDay": 8,
+      "id": "ft-1777399537880",
+      "order": 5,
+      "personOrder": 3
+    },
+    {
+      "person": "공금",
+      "category": "통신",
+      "description": "인터넷 요금",
+      "defaultAmount": 34100,
+      "defaultSeparate": false,
+      "payDay": 11,
+      "id": "ft-1777398606346",
+      "order": 1,
+      "personOrder": 4
+    },
+    {
+      "person": "공금",
+      "category": "구독",
+      "description": "쿠팡",
+      "defaultAmount": 7890,
+      "defaultSeparate": false,
+      "payDay": 11,
+      "id": "ft-1777399537887",
+      "order": 12,
+      "personOrder": 5
+    },
+    {
+      "person": "공금",
+      "category": "구독",
+      "description": "삼성 가전 구독",
+      "defaultAmount": 44700,
+      "defaultSeparate": false,
+      "payDay": 24,
+      "id": "ft-1777399537890",
+      "order": 15,
+      "personOrder": 6
     }
   ],
   "investTemplates": [
