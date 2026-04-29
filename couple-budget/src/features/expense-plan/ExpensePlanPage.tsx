@@ -1993,8 +1993,8 @@ export function ExpensePlanPage() {
       B: activeInvest.filter((r) => r.person === 'B').reduce((s, r) => s + r.amount, 0),
     }
     const fixedDepositByUser = {
-      A: Math.round(totalFixed / 2) - separateByUserA,
-      B: Math.round(totalFixed / 2) - separateByUserB,
+      A: Math.round(totalFixedRegular / 2) - templateSepA,
+      B: Math.round(totalFixedRegular / 2) - templateSepB,
     }
     return calcSettlementSummary(
       {

@@ -129,11 +129,12 @@ export function calcSettlementSummary(
     investLinesByCategoryByPerson,
   } = inputs
   const separateByUser = inputs.separateByUser ?? { A: 0, B: 0 }
-  const halfEach = Math.round(totalFixed / 2)
   const sharedLivingCost = settings.sharedLivingCost ?? 0
   const sharedLivingByPerson = getSharedLivingByPerson(sharedLivingCost, settings, incomeByPerson)
   const sharedLivingCostPerPerson = Math.round((sharedLivingByPerson.A + sharedLivingByPerson.B) / 2)
   const fixedRegularTotal = inputs.fixedRegularTotal ?? inputs.totalFixed
+  // 고정지출 통장 기준: 별도지출 제외한 순수 고정지출만의 절반
+  const halfEach = Math.round(fixedRegularTotal / 2)
   const fixedSeparateTotal = inputs.fixedSeparateTotal ?? 0
   const allowanceFixedPerPerson = Math.round(fixedRegularTotal / 2) + Math.round(fixedSeparateTotal / 2)
   const allowanceA = incomeByPerson.A - allowanceFixedPerPerson - sharedLivingByPerson.A - investByPerson.A
@@ -189,9 +190,14 @@ export function calcSettlementSummary(
     allowanceByPerson: { A: allowanceA, B: allowanceB },
     fixedDepositByUser,
     fixedDepositBreakdown: {
-      totalFixed,
+      // 별도지출 제외한 순수 고정지출 합계
+      totalFixed: fixedRegularTotal,
       halfEach,
-      separateByUser: { A: separateByUser.A, B: separateByUser.B },
+      // 고정지출 절반에서 각자 별도 부담한 고정지출 항목을 뺀 것 (=통장 입금액)
+      separateByUser: {
+        A: halfEach - fixedDepositByUser.A,
+        B: halfEach - fixedDepositByUser.B,
+      },
     },
     separateExpenseCard5090: inputs.separateExpenseCard5090 ?? null,
     userSummary,
