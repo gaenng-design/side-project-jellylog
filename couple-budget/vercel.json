@@ -1,0 +1,22 @@
+{
+  "buildCommand": "npm run build:web",
+  "outputDirectory": "dist-web",
+  "public": true,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/github/(.*)",
+      "dest": "/api/github/$1.ts"
+    }
+  ],
+  "env": {
+    "VITE_GITHUB_TOKEN": "@github_token",
+    "VITE_GITHUB_OWNER": "@github_owner",
+    "VITE_GITHUB_REPO": "@github_repo"
+  }
+}
