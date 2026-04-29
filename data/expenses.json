@@ -5,14 +5,16 @@
       "person": "A",
       "category": "통신",
       "description": "휴대폰 요금",
-      "defaultAmount": 0
+      "defaultAmount": 52300,
+      "payDay": 11
     },
     {
       "id": "ft-1777358483514",
       "person": "B",
       "category": "통신",
       "description": "휴대폰 요금",
-      "defaultAmount": 0
+      "defaultAmount": 29620,
+      "payDay": 22
     },
     {
       "id": "ft-1777358483511",
@@ -44,6 +46,73 @@
       "id": "ft-1777398606346",
       "order": 1,
       "personOrder": 2
+    },
+    {
+      "person": "A",
+      "category": "기타",
+      "description": "부모님",
+      "defaultAmount": 380000,
+      "defaultSeparate": true,
+      "defaultSeparatePerson": "A",
+      "payDay": 25,
+      "id": "ft-1777399537877",
+      "order": 2,
+      "personOrder": 0
+    },
+    {
+      "person": "A",
+      "category": "구독",
+      "description": "유튜브",
+      "defaultAmount": 19500,
+      "defaultSeparate": false,
+      "payDay": 30,
+      "id": "ft-1777399537878",
+      "order": 3,
+      "personOrder": 1
+    },
+    {
+      "person": "A",
+      "category": "구독",
+      "description": "챗지피티",
+      "defaultAmount": 29000,
+      "defaultSeparate": false,
+      "payDay": 3,
+      "id": "ft-1777399537879",
+      "order": 4,
+      "personOrder": 2
+    },
+    {
+      "person": "공금",
+      "category": "구독",
+      "description": "피그마",
+      "defaultAmount": 65815,
+      "defaultSeparate": false,
+      "payDay": 8,
+      "id": "ft-1777399537880",
+      "order": 5,
+      "personOrder": 3
+    },
+    {
+      "person": "A",
+      "category": "보험",
+      "description": "실비 보험",
+      "defaultAmount": 35370,
+      "defaultSeparate": false,
+      "payDay": 10,
+      "id": "ft-1777399537881",
+      "order": 6,
+      "personOrder": 3
+    },
+    {
+      "person": "A",
+      "category": "보험",
+      "description": "KB 보험",
+      "defaultAmount": 178417,
+      "defaultSeparate": false,
+      "payDay": 23,
+      "id": "ft-1777399537882",
+      "order": 7,
+      "personOrder": 4
     }
   ],
   "investTemplates": [
