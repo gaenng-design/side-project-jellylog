@@ -5,7 +5,7 @@
       "personAName": "승윤",
       "personBName": "경은",
       "personAIncome": 5220000,
-      "personBIncome": 5160000,
+      "personBIncome": 5200000,
       "personAIncomeDay": 25,
       "personBIncomeDay": 25,
       "currency": "KRW",
@@ -40,5 +40,5 @@
     "householdName": null,
     "yearPickerMaxYear": 2026
   },
-  "lastUpdated": "2026-04-29T12:27:59.651Z"
+  "lastUpdated": "2026-04-29T12:29:03.988Z"
 }
