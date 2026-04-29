@@ -128,18 +128,41 @@ function AppShell() {
       const result = await sync.pull()
 
       if (result.ok) {
+        console.log('[Sync] Pull succeeded, data:', result.data)
+
+        // Apply pulled data to stores
+        if (result.data) {
+          if (result.data.assets) {
+            console.log('[Sync] Loading assets:', result.data.assets)
+            useAssetStore.setState({ assets: result.data.assets })
+          }
+          if (result.data.expenses) {
+            console.log('[Sync] Loading expenses:', result.data.expenses)
+            useAppStore.setState({ expenses: result.data.expenses })
+          }
+          if (result.data.incomes) {
+            console.log('[Sync] Loading incomes:', result.data.incomes)
+            useAppStore.setState({ incomes: result.data.incomes })
+          }
+          if (result.data.settlements) {
+            console.log('[Sync] Loading settlements:', result.data.settlements)
+            useSettlementStore.setState({ settlements: result.data.settlements })
+          }
+          // metadata 처리는 필요시 추가
+        }
+
         setSyncComplete(true)
         setSaveMessage({ tone: 'ok', text: '동기화 완료' })
-        // 자동으로 리셋하지 않음 - 데이터 변경 시에만 리셋됨
       } else {
+        console.error('[Sync] Pull failed:', result.error)
         setSaveMessage({ tone: 'err', text: result.error || '동기화 실패' })
       }
     } catch (error) {
+      console.error('[Sync] Sync error:', error)
       setSaveMessage({
         tone: 'err',
         text: `동기화 오류: ${error instanceof Error ? error.message : String(error)}`
       })
-      console.error('동기화 실패:', error)
     } finally {
       setSyncing(false)
     }
@@ -289,7 +312,7 @@ function AppShell() {
                 style={{
                   flexShrink: 0,
                   padding: '8px 12px',
-                  border: 'none',
+                  border: '1px solid #FFFFFF',
                   background: '#0F1419',
                   borderRadius: JELLY.radiusControl,
                   color: '#FFFFFF',
@@ -430,7 +453,7 @@ function AppShell() {
                   style={{
                     flex: 1,
                     padding: '10px 12px',
-                    border: 'none',
+                    border: '1px solid #FFFFFF',
                     background: '#0F1419',
                     borderRadius: JELLY.radiusControl,
                     color: '#FFFFFF',

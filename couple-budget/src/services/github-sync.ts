@@ -82,6 +82,7 @@ export class GitHubDataSync {
    */
   async pull(): Promise<GitHubSyncResult & { data?: Partial<AppData> }> {
     try {
+      console.log('[GitHub] Starting pull from', `${this.config.owner}/${this.config.repo}`)
       const data: Partial<AppData> = {}
 
       // List of data files to pull
@@ -89,17 +90,23 @@ export class GitHubDataSync {
 
       for (const file of files) {
         try {
+          console.log(`[GitHub] Fetching ${file}...`)
           const content = await this.getFileContent(`data/${file}`)
           if (content) {
+            console.log(`[GitHub] ${file} loaded, length:`, content.length)
             const key = file.replace('.json', '') as keyof AppData
             data[key] = JSON.parse(content)
+            console.log(`[GitHub] ${file} parsed successfully`)
+          } else {
+            console.log(`[GitHub] ${file} is empty or missing`)
           }
         } catch (error) {
-          console.warn(`Failed to load ${file}:`, error)
+          console.warn(`[GitHub] Failed to load ${file}:`, error)
           // Continue loading other files even if one fails
         }
       }
 
+      console.log('[GitHub] Pull complete, data keys:', Object.keys(data))
       this.updateLastSyncTime()
       return {
         ok: true,
@@ -107,6 +114,7 @@ export class GitHubDataSync {
         data,
       }
     } catch (error) {
+      console.error('[GitHub] Pull failed:', error)
       return {
         ok: false,
         error: `Failed to pull data: ${error instanceof Error ? error.message : String(error)}`,
@@ -162,34 +170,52 @@ export class GitHubDataSync {
    * Internal: Get file content from GitHub
    */
   private async getFileContent(path: string): Promise<string | null> {
-    const response = await fetch(
-      `${this.baseUrl}/repos/${this.config.owner}/${this.config.repo}/contents/${path}?ref=${this.config.branch}`,
-      {
+    const url = `${this.baseUrl}/repos/${this.config.owner}/${this.config.repo}/contents/${path}?ref=${this.config.branch}`
+    console.log(`[GitHub] Getting file: ${path}`)
+
+    try {
+      const response = await fetch(url, {
         headers: {
           'Authorization': `token ${this.config.token}`,
           'Accept': 'application/vnd.github.v3+json',
         },
+      })
+
+      console.log(`[GitHub] Got response for ${path}: status=${response.status}`)
+
+      if (response.status === 404) {
+        console.log(`[GitHub] File not found: ${path}`)
+        return null
       }
-    )
 
-    if (response.status === 404) {
-      return null // File doesn't exist yet
+      if (!response.ok) {
+        console.error(`[GitHub] HTTP error for ${path}: ${response.status} ${response.statusText}`)
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json() as { content?: string }
+      if (!data.content) {
+        console.log(`[GitHub] No content returned for ${path}`)
+        return null
+      }
+
+      try {
+        const decoded = decodeURIComponent(
+          atob(data.content).split('').map((c) => {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+          }).join('')
+        )
+        console.log(`[GitHub] Decoded ${path}: ${decoded.length} bytes`)
+        return decoded
+      } catch (decodeError) {
+        console.error(`[GitHub] Failed to decode ${path}:`, decodeError)
+        throw decodeError
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      console.error(`[GitHub] getFileContent failed for ${path}: ${errorMsg}`)
+      throw error
     }
-
-    if (!response.ok) {
-      throw new Error(`Failed to get file: ${response.statusText}`)
-    }
-
-    const data = await response.json() as { content?: string }
-    if (!data.content) {
-      return null
-    }
-
-    // GitHub returns base64 encoded content
-    // Decode base64 to UTF-8 string (browser-compatible)
-    return decodeURIComponent(atob(data.content).split('').map((c) => {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''))
   }
 
   /**
