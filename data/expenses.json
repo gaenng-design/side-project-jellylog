@@ -126,6 +126,18 @@
       "id": "ft-1777399537883",
       "order": 8,
       "personOrder": 0
+    },
+    {
+      "person": "B",
+      "category": "보험",
+      "description": "KB 보험",
+      "defaultAmount": 160068,
+      "defaultSeparate": true,
+      "defaultSeparatePerson": "B",
+      "payDay": 25,
+      "id": "ft-1777399537884",
+      "order": 9,
+      "personOrder": 1
     }
   ],
   "investTemplates": [
