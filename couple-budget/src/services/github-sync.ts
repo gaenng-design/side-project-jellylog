@@ -42,11 +42,15 @@ export class GitHubDataSync {
    */
   async verifyAccess(): Promise<GitHubSyncResult> {
     try {
+      // Base64 인코딩된 token을 Authorization 헤더로 사용 (CORS 문제 해결용)
+      const authHeader = `token ${this.config.token}`
       const response = await fetch(`${this.baseUrl}/repos/${this.config.owner}/${this.config.repo}`, {
         headers: {
-          'Authorization': `token ${this.config.token}`,
+          'Authorization': authHeader,
           'Accept': 'application/vnd.github.v3+json',
+          'X-GitHub-Api-Version': '2022-11-28',
         },
+        credentials: 'omit', // CORS 요청 시 credentials 미포함
       })
 
       if (!response.ok) {
@@ -115,44 +119,81 @@ export class GitHubDataSync {
   }
 
   /**
-   * Push data to GitHub repository
+   * Push data to GitHub repository with conflict resolution
    */
   async push(data: Partial<AppData>, message: string): Promise<GitHubSyncResult> {
-    try {
-      const files = [
-        { name: 'assets.json', key: 'assets' },
-        { name: 'expenses.json', key: 'expenses' },
-        { name: 'incomes.json', key: 'incomes' },
-        { name: 'settlements.json', key: 'settlements' },
-        { name: 'metadata.json', key: 'metadata' },
-      ] as const
+    const maxRetries = 3
+    let lastError: Error | null = null
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        const key = file.key as keyof AppData
-        if (data[key]) {
-          // 파일 간 1초 간격 추가 (GitHub API 동시성 문제 방지)
-          if (i > 0) {
-            await new Promise(resolve => setTimeout(resolve, 1000))
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const files = [
+          { name: 'assets.json', key: 'assets' },
+          { name: 'expenses.json', key: 'expenses' },
+          { name: 'incomes.json', key: 'incomes' },
+          { name: 'settlements.json', key: 'settlements' },
+          { name: 'metadata.json', key: 'metadata' },
+        ] as const
+
+        console.log(`[GitHub] Push attempt ${attempt}/${maxRetries}`)
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i]
+          const key = file.key as keyof AppData
+          if (data[key]) {
+            // 파일 간 1초 간격 추가 (GitHub API 동시성 문제 방지)
+            if (i > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1000))
+            }
+            try {
+              await this.setFileContent(
+                `data/${file.name}`,
+                JSON.stringify(data[key], null, 2),
+                message
+              )
+              console.log(`[GitHub] ${file.name} pushed successfully`)
+            } catch (fileError) {
+              console.warn(`[GitHub] Failed to push ${file.name}:`, fileError)
+              throw fileError
+            }
           }
-          await this.setFileContent(
-            `data/${file.name}`,
-            JSON.stringify(data[key], null, 2),
-            message
-          )
+        }
+
+        this.updateLastSyncTime()
+        console.log('[GitHub] Push completed successfully')
+        return {
+          ok: true,
+          message: 'Data pushed to GitHub',
+        }
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
+        const errorMsg = lastError.message
+        console.warn(`[GitHub] Push attempt ${attempt} failed:`, errorMsg)
+
+        // SHA 미스매치 에러인 경우, pull을 하고 재시도
+        if (errorMsg.includes('409') || errorMsg.includes('SHA')) {
+          console.log('[GitHub] Conflict detected. Pulling latest data before retry...')
+          try {
+            await this.pull()
+            // Pull 후 잠깐 대기 후 재시도
+            await new Promise((resolve) => setTimeout(resolve, 1000 * attempt))
+          } catch (pullError) {
+            console.warn('[GitHub] Pull failed during conflict recovery:', pullError)
+          }
+        }
+
+        // 마지막 시도가 아니면 계속 재시도
+        if (attempt < maxRetries) {
+          const delayMs = 2000 * attempt
+          console.log(`[GitHub] Retrying in ${delayMs}ms...`)
+          await new Promise((resolve) => setTimeout(resolve, delayMs))
         }
       }
+    }
 
-      this.updateLastSyncTime()
-      return {
-        ok: true,
-        message: 'Data pushed to GitHub',
-      }
-    } catch (error) {
-      return {
-        ok: false,
-        error: `Failed to push data: ${error instanceof Error ? error.message : String(error)}`,
-      }
+    return {
+      ok: false,
+      error: `Failed to push data after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`,
     }
   }
 
@@ -252,15 +293,16 @@ export class GitHubDataSync {
       const error = await response.json() as { message?: string }
       const errorMsg = error.message || response.statusText
 
-      // If SHA mismatch and retries remaining, wait and retry with fresh SHA
-      if (errorMsg.includes('does not match') && retryCount < maxRetries) {
+      // If SHA mismatch (409 or message contains mismatch) and retries remaining, wait and retry with fresh SHA
+      const isSHAMismatch = response.status === 409 || errorMsg.includes('does not match') || errorMsg.includes('SHA')
+      if (isSHAMismatch && retryCount < maxRetries) {
         const delayMs = retryDelays[retryCount] || 3000
-        console.warn(`SHA mismatch for ${path}, retrying after ${delayMs}ms (attempt ${retryCount + 1}/${maxRetries})`)
+        console.warn(`[GitHub] SHA mismatch for ${path}, retrying after ${delayMs}ms (attempt ${retryCount + 1}/${maxRetries}): ${errorMsg}`)
         await new Promise(resolve => setTimeout(resolve, delayMs))
         return this.setFileContent(path, content, message, retryCount + 1)
       }
 
-      throw new Error(`Failed to set file: ${errorMsg}`)
+      throw new Error(`Failed to set file: ${response.status} - ${errorMsg}`)
     }
   }
 
