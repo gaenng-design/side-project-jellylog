@@ -20,14 +20,14 @@ import {
 
 const DAY_OPTIONS = [
   { value: undefined as number | undefined, label: '미정' },
-  ...Array.from({ length: 31 }, (_, i) => ({ value: i + 1, label: `매월 ${i + 1}일` })),
+  ...Array.from({ length: 31 }, (_, i) => ({ value: i + 1, label: `${i + 1}일` })),
   { value: 0, label: '말일' },
 ]
 
 function formatPayDay(v: number | null | undefined): string {
   if (v == null) return ''
   if (v === 0) return '말일'
-  return `매월 ${v}일`
+  return `${v}일`
 }
 
 /** Modal 오버레이(12000) 위에 보이도록 — CustomSelect 포털과 동일 계열 */
