@@ -223,7 +223,7 @@
     {
       "id": "inv-1777358483511",
       "person": "A",
-      "category": "저축",
+      "category": "투자",
       "description": "ISA",
       "defaultAmount": 1300000,
       "personOrder": 0
@@ -301,8 +301,52 @@
     }
   ],
   "planExtra": {
-    "extraRowsByMonth": {},
-    "separateExpenseRowsByMonth": {},
+    "extraRowsByMonth": {
+      "2026-04": {
+        "fixed": [
+          {
+            "person": "A",
+            "category": "구독",
+            "description": "어도비",
+            "amount": 47300,
+            "isSeparate": false,
+            "payDay": 19,
+            "id": "1777466930004-ohw56"
+          }
+        ],
+        "invest": []
+      }
+    },
+    "separateExpenseRowsByMonth": {
+      "2026-04": [
+        {
+          "person": "공금",
+          "category": "기타",
+          "description": "청모 비용",
+          "amount": 602800,
+          "isSeparate": true,
+          "separatePerson": "B",
+          "id": "1777466999400-tpch2"
+        },
+        {
+          "person": "공금",
+          "category": "기타",
+          "description": "청모 비용 ",
+          "amount": 773150,
+          "isSeparate": true,
+          "separatePerson": "A",
+          "id": "1777467013629-5uweh"
+        },
+        {
+          "person": "공금",
+          "category": "식비",
+          "description": "어머님들 한복 점심",
+          "amount": 40000,
+          "isSeparate": true,
+          "id": "1777467032908-cdnq1"
+        }
+      ]
+    },
     "templateSnapshotsByMonth": {
       "2026-04": {
         "fixed": [
@@ -460,7 +504,7 @@
           {
             "person": "B",
             "category": "구독",
-            "description": "클로드",
+            "description": "커서",
             "defaultAmount": 32486,
             "defaultSeparate": false,
             "payDay": 7,
@@ -592,7 +636,7 @@
           {
             "id": "inv-1777358483511",
             "person": "A",
-            "category": "저축",
+            "category": "투자",
             "description": "ISA",
             "defaultAmount": 1300000,
             "personOrder": 0
