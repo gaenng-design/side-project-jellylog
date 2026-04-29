@@ -39,7 +39,7 @@ const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
 type InvestLineItem = { label: string; amount: number }
 
 // ── 영수증 카드 스타일 ─────────────────────────────────────────────────────────
-const RECEIPT_BG = '#FEFCF3'
+const RECEIPT_BG = '#FFFFFF'
 const RECEIPT_BORDER = '#E2D5B0'
 const RECEIPT_DASH = '1px dashed #D4C4A0'
 const RECEIPT_TEXT = '#2A1F0E'
