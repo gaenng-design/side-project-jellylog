@@ -27,16 +27,18 @@ export function GitHubSyncPanel() {
 
   // Load config on mount (from env vars or localStorage)
   useEffect(() => {
-    // First try environment variables
+    // First try environment variables as default
     const envToken = import.meta.env.VITE_GITHUB_TOKEN
     const envOwner = import.meta.env.VITE_GITHUB_OWNER
     const envRepo = import.meta.env.VITE_GITHUB_REPO
 
+    // Set form fields with environment variables first
+    if (envToken) setToken(envToken)
+    if (envOwner) setOwner(envOwner)
+    if (envRepo) setRepo(envRepo)
+
     if (envToken && envOwner && envRepo) {
-      // Use environment variables
-      setToken(envToken)
-      setOwner(envOwner)
-      setRepo(envRepo)
+      // Use environment variables as default
       setIsConfigured(true)
       setMode('sync')
 
