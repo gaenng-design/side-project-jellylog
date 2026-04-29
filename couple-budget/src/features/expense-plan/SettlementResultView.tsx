@@ -12,6 +12,7 @@ const INVEST_SUMMARY_COLOR = SUB_INVEST_ACCENT
 
 function compositionSegmentColor(c: { label: string; amount: number }): string {
   if (c.label === '고정지출') return SUB_FIXED_ACCENT
+  if (c.label === '별도지출') return 'oklch(0.65 0.07 12)' // 주황 톤
   if (c.label === '공동생활비') return PRIMARY
   if (c.label === '투자·저축') return SUB_INVEST_ACCENT
   if (c.label === '용돈') return allowanceValueColor(c.amount)

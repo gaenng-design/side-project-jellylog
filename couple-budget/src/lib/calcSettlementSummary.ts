@@ -170,7 +170,8 @@ export function calcSettlementSummary(
   const totalAllowance = allowanceA + allowanceB
   const chartData: { label: string; amount: number; pct: number }[] = []
   if (totalIncome > 0) {
-    chartData.push({ label: '고정지출', amount: totalFixed, pct: (totalFixed / totalIncome) * 100 })
+    chartData.push({ label: '고정지출', amount: fixedRegularTotal, pct: (fixedRegularTotal / totalIncome) * 100 })
+    chartData.push({ label: '별도지출', amount: fixedSeparateTotal, pct: (fixedSeparateTotal / totalIncome) * 100 })
     chartData.push({
       label: '공동생활비',
       amount: sharedLivingCost,
