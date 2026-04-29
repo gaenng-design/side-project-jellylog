@@ -59,7 +59,7 @@ function formatInvestMaturityLabel(ymd: string) {
 }
 
 type IncomeRow = { id: string; person: Exclude<Person, '공금'>; category: string; description: string; amount: number }
-type FixedRow = { id: string; person: Person; category: string; description: string; amount: number; isSeparate?: boolean; separatePerson?: 'A' | 'B'; payDay?: number; isExcluded?: boolean; order?: number }
+type FixedRow = { id: string; person: Person; category: string; description: string; amount: number; isSeparate?: boolean; separatePerson?: 'A' | 'B'; payDay?: number; isExcluded?: boolean; order?: number; personOrder?: number }
 type InvestRow = {
   id: string
   person: Person
@@ -69,6 +69,7 @@ type InvestRow = {
   isSeparate?: boolean
   isExcluded?: boolean
   maturityDate?: string
+  personOrder?: number
 }
 
 /** 정산 결과에서 유저별 투자/저축 행 분리 표시용 (공금 등은 해당 인원에 합산하지 않음) */
@@ -474,10 +475,11 @@ const FIXED_CAT_ORDER: Record<string, number> = { 주거: 0, 통신: 1, 보험: 
 /** FixedExpenseRow 별도 정산 칩과 동일 높이 */
 const MODAL_SEPARATE_CHIP_H = 26
 
-/** 구분(유저)별 보기: 같은 구분 안 행 순서 — 카테고리 순 → 저장 순서 → 항목명 */
+/** 구분(유저)별 보기: 같은 구분 안 행 순서 — 설정의 personOrder 순 → 카테고리 순 → 저장 순서 → 항목명 */
 function sortFixedRowsByCategoryInPerson(list: FixedRow[]): FixedRow[] {
   return [...list].sort(
     (a, b) =>
+      (a.personOrder ?? 999) - (b.personOrder ?? 999) ||
       (FIXED_CAT_ORDER[a.category] ?? 99) - (FIXED_CAT_ORDER[b.category] ?? 99) ||
       (a.order ?? 999) - (b.order ?? 999) ||
       (a.description || '').localeCompare(b.description || '', 'ko'),
@@ -1025,6 +1027,7 @@ function InvestCard(props: InvestCardProps) {
     const sortByCategory = (list: InvestRow[]) =>
       [...list].sort(
         (a, b) =>
+          (a.personOrder ?? 999) - (b.personOrder ?? 999) ||
           (catOrder[a.category] ?? 99) - (catOrder[b.category] ?? 99) ||
           (a.description || '').localeCompare(b.description || '', 'ko'),
       )
@@ -1899,6 +1902,7 @@ export function ExpensePlanPage() {
         payDay: tpl.payDay,
         isExcluded: excluded,
         order: tpl.order,
+        personOrder: tpl.personOrder,
       }
     })
     return [...fromTemplates, ...fixedExtraRows]
@@ -1921,6 +1925,7 @@ export function ExpensePlanPage() {
         amount: getInvestMonthlyAmount(tpl.id, currentYearMonth) ?? tpl.defaultAmount,
         isExcluded: excluded,
         maturityDate: tpl.maturityDate,
+        personOrder: tpl.personOrder,
       }
     })
     return [...fromTemplates, ...investExtraRows]
