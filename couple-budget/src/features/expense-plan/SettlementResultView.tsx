@@ -608,7 +608,6 @@ export function SettlementResultView({
                   borderBottom: '2px dashed rgba(255,255,255,0.45)',
                 }}
               >
-                <div style={{ fontSize: 10, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.72)', marginBottom: 4 }}>RECEIPT</div>
                 <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>{name}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.72)', marginTop: 4 }}>이번 달 각자 낼 돈</div>
               </div>
