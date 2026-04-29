@@ -1830,8 +1830,8 @@ export function ExpensePlanPage() {
 
   /** 정산 완료 달의 결과 화면에서는 설정 변경을 반영하지 않기 위해 고정된 기본값 사용 */
   const useSettingsDefaults = !(planState === 'settled' && viewMode === 'result')
-  const fallbackPersonAName = useSettingsDefaults ? settings.personAName : '유저 1'
-  const fallbackPersonBName = useSettingsDefaults ? settings.personBName : '유저 2'
+  const fallbackPersonAName = settings.personAName || '유저 1'
+  const fallbackPersonBName = settings.personBName || '유저 2'
   const fallbackPersonAIncome = useSettingsDefaults ? settings.personAIncome : 0
   const fallbackPersonBIncome = useSettingsDefaults ? settings.personBIncome : 0
 
