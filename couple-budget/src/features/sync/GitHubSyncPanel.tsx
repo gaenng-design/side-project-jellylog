@@ -27,18 +27,21 @@ export function GitHubSyncPanel() {
 
   // Load config on mount (from env vars or localStorage)
   useEffect(() => {
-    // First try environment variables as default
+    // 환경변수 → localStorage → 코드 기본값 순으로 적용
     const envToken = import.meta.env.VITE_GITHUB_TOKEN
-    const envOwner = import.meta.env.VITE_GITHUB_OWNER
-    const envRepo = import.meta.env.VITE_GITHUB_REPO
+    const envOwner = import.meta.env.VITE_GITHUB_OWNER || 'gaenng-design'
+    const envRepo = import.meta.env.VITE_GITHUB_REPO || 'side-project-jellylog'
 
-    // Set form fields with environment variables first
-    if (envToken) setToken(envToken)
-    if (envOwner) setOwner(envOwner)
-    if (envRepo) setRepo(envRepo)
+    const config = GitHubDataSync.loadConfig()
+    const resolvedToken = envToken || config?.token || ''
+    const resolvedOwner = envOwner
+    const resolvedRepo = envRepo
 
-    if (envToken && envOwner && envRepo) {
-      // Use environment variables as default
+    if (resolvedToken) setToken(resolvedToken)
+    setOwner(resolvedOwner)
+    setRepo(resolvedRepo)
+
+    if (resolvedToken) {
       setIsConfigured(true)
       setMode('sync')
 
@@ -51,26 +54,7 @@ export function GitHubSyncPanel() {
         }
       }
     } else {
-      // Fall back to localStorage config
-      const config = GitHubDataSync.loadConfig()
-      if (config) {
-        setOwner(config.owner)
-        setRepo(config.repo)
-        setToken(config.token)
-        setIsConfigured(true)
-        setMode('sync')
-
-        const lastSyncStr = localStorage.getItem('couple-budget:github-last-sync')
-        if (lastSyncStr) {
-          try {
-            setLastSync(new Date(JSON.parse(lastSyncStr)))
-          } catch {
-            // Ignore parse errors
-          }
-        }
-      } else {
-        setMode('config')
-      }
+      setMode('config')
     }
   }, [])
 
