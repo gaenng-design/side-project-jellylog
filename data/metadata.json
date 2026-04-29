@@ -32,11 +32,13 @@
         "기타"
       ]
     },
-    "startedMonths": [],
+    "startedMonths": [
+      "2026-04"
+    ],
     "settledMonths": [],
     "lastSavedByMonth": {},
     "householdName": null,
     "yearPickerMaxYear": 2026
   },
-  "lastUpdated": "2026-04-29T10:16:33.073Z"
+  "lastUpdated": "2026-04-29T12:05:02.436Z"
 }
