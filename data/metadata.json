@@ -16,7 +16,7 @@
         50
       ],
       "user1Color": "oklch(0.7044 0.1047 252 / 1)",
-      "user2Color": "oklch(0.7044 0.1047 330 / 1)",
+      "user2Color": "oklch(0.7044 0.1047 25 / 1)",
       "sharedColor": "oklch(0.7044 0.1047 175 / 1)",
       "fixedCategories": [
         "주거",
@@ -42,5 +42,5 @@
     "householdName": null,
     "yearPickerMaxYear": 2026
   },
-  "lastUpdated": "2026-04-29T14:59:27.045Z"
+  "lastUpdated": "2026-04-29T15:15:05.801Z"
 }
