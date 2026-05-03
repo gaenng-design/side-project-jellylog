@@ -1,0 +1,11 @@
+node_modules
+dist
+out
+dist-web
+electron
+resources
+figma
+docs
+*.md
+*.log
+.DS_Store
