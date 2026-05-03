@@ -14,3 +14,4 @@ couple-budget/coverage/
 couple-budget/*.log
 couple-budget/release/
 couple-budget/*.tsbuildinfo
+couple-budget/.claude/
