@@ -75,7 +75,12 @@ function AppShell() {
         expenses: {
           fixedTemplates: fixedState.templates,
           investTemplates: investState.templates,
-          planExtra: planState,
+          planExtra: {
+            extraRowsByMonth: planState.extraRowsByMonth,
+            separateExpenseRowsByMonth: planState.separateExpenseRowsByMonth,
+            templateSnapshotsByMonth: planState.templateSnapshotsByMonth,
+            defaultSalaryExcludedByMonth: planState.defaultSalaryExcludedByMonth,
+          },
         },
         incomes: {},
         settlements: {
