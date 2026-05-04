@@ -72,7 +72,11 @@ export interface AssetItem {
   id: string
   name: string
   category: string  // '저축' | '투자' | '부동산' | '주식' | '기타'
+  /** 명의 (없으면 공유) */
+  person?: 'A' | 'B'
   order: number
+  /** 초기 잔액 (처음 등록 시 이미 보유한 금액) */
+  initialAmount?: number
   /** 정기입금액(선택사항) */
   defaultAmount?: number
 }
