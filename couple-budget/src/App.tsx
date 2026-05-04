@@ -73,8 +73,16 @@ function AppShell() {
           entries: assetState.entries,
         },
         expenses: {
+          // 고정지출 템플릿 (전역 + 월별 데이터)
           fixedTemplates: fixedState.templates,
+          fixedExclusions: fixedState.exclusions,
+          fixedMonthlyAmounts: fixedState.monthlyAmounts,
+          fixedMonthlySeparations: fixedState.monthlySeparations,
+          // 투자 템플릿 (전역 + 월별 데이터)
           investTemplates: investState.templates,
+          investExclusions: investState.exclusions,
+          investMonthlyAmounts: investState.monthlyAmounts,
+          // 월별 추가/별도 지출 데이터
           planExtra: {
             extraRowsByMonth: planState.extraRowsByMonth,
             separateExpenseRowsByMonth: planState.separateExpenseRowsByMonth,
@@ -142,8 +150,16 @@ function AppShell() {
 
         if (result.data.expenses) {
           const expenseData = result.data.expenses as any
+          // 고정지출 템플릿 (전역 + 월별 데이터)
           if (expenseData.fixedTemplates) useFixedTemplateStore.setState({ templates: expenseData.fixedTemplates })
+          if (expenseData.fixedExclusions) useFixedTemplateStore.setState({ exclusions: expenseData.fixedExclusions })
+          if (expenseData.fixedMonthlyAmounts) useFixedTemplateStore.setState({ monthlyAmounts: expenseData.fixedMonthlyAmounts })
+          if (expenseData.fixedMonthlySeparations) useFixedTemplateStore.setState({ monthlySeparations: expenseData.fixedMonthlySeparations })
+          // 투자 템플릿 (전역 + 월별 데이터)
           if (expenseData.investTemplates) useInvestTemplateStore.setState({ templates: expenseData.investTemplates })
+          if (expenseData.investExclusions) useInvestTemplateStore.setState({ exclusions: expenseData.investExclusions })
+          if (expenseData.investMonthlyAmounts) useInvestTemplateStore.setState({ monthlyAmounts: expenseData.investMonthlyAmounts })
+          // 월별 추가/별도 지출 데이터
           if (expenseData.planExtra) usePlanExtraStore.setState(expenseData.planExtra)
         }
 
