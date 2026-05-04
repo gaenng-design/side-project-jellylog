@@ -67,6 +67,20 @@ function AppShell() {
       const settlementState = useSettlementStore.getState()
       const assetState = useAssetStore.getState()
 
+      // localStorage repository 데이터 (월별 실제 수입/지출 항목들)
+      const readRepo = (key: string): unknown[] => {
+        try {
+          const raw = localStorage.getItem(`couple-budget:repo:${key}`)
+          return raw ? JSON.parse(raw) : []
+        } catch {
+          return []
+        }
+      }
+      const incomeItems = readRepo('incomes')
+      const fixedExpenseItems = readRepo('fixed_expenses')
+      const investmentItems = readRepo('investments')
+      const separateItemList = readRepo('separate_items')
+
       const data = {
         assets: {
           items: assetState.items,
@@ -89,8 +103,15 @@ function AppShell() {
             templateSnapshotsByMonth: planState.templateSnapshotsByMonth,
             defaultSalaryExcludedByMonth: planState.defaultSalaryExcludedByMonth,
           },
+          // 월별 실제 항목 (repository localStorage 데이터)
+          fixedExpenseItems,
+          investmentItems,
+          separateItems: separateItemList,
         },
-        incomes: {},
+        incomes: {
+          // 월별 실제 수입 항목 (repository localStorage 데이터)
+          items: incomeItems,
+        },
         settlements: {
           settlements: settlementState.settlements,
           transfers: settlementState.transfers,
@@ -141,6 +162,16 @@ function AppShell() {
       const result = await sync.pull()
 
       if (result.ok && result.data) {
+        // localStorage repository에 직접 저장하는 헬퍼
+        const writeRepo = (key: string, items: unknown) => {
+          if (!Array.isArray(items)) return
+          try {
+            localStorage.setItem(`couple-budget:repo:${key}`, JSON.stringify(items))
+          } catch (e) {
+            console.warn(`Failed to write repo ${key}:`, e)
+          }
+        }
+
         // GitHub에서 가져온 데이터를 각 store에 로드
         if (result.data.assets) {
           const assetData = result.data.assets as any
@@ -161,6 +192,16 @@ function AppShell() {
           if (expenseData.investMonthlyAmounts) useInvestTemplateStore.setState({ monthlyAmounts: expenseData.investMonthlyAmounts })
           // 월별 추가/별도 지출 데이터
           if (expenseData.planExtra) usePlanExtraStore.setState(expenseData.planExtra)
+          // 월별 실제 항목 (repository localStorage 데이터)
+          if (expenseData.fixedExpenseItems) writeRepo('fixed_expenses', expenseData.fixedExpenseItems)
+          if (expenseData.investmentItems) writeRepo('investments', expenseData.investmentItems)
+          if (expenseData.separateItems) writeRepo('separate_items', expenseData.separateItems)
+        }
+
+        if (result.data.incomes) {
+          const incomeData = result.data.incomes as any
+          // 월별 실제 수입 항목 (repository localStorage 데이터)
+          if (incomeData.items) writeRepo('incomes', incomeData.items)
         }
 
         if (result.data.settlements) {
@@ -174,7 +215,11 @@ function AppShell() {
         }
 
         setSyncComplete(true)
-        setSaveMessage({ tone: 'ok', text: '동기화 완료' })
+        setSaveMessage({ tone: 'ok', text: '동기화 완료 - 페이지 새로고침 중...' })
+        // repository는 인스턴스화 시 localStorage를 읽기 때문에 새로고침이 필요
+        setTimeout(() => {
+          window.location.reload()
+        }, 800)
       } else {
         setSaveMessage({ tone: 'err', text: result.error || '동기화 실패' })
       }
