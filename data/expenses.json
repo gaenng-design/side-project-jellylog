@@ -219,6 +219,13 @@
       "personOrder": 6
     }
   ],
+  "fixedExclusions": [],
+  "fixedMonthlyAmounts": {
+    "ft-1777358483512::2026-04": 362810,
+    "ft-1777399537883::2026-04": 26716,
+    "ft-1777399537889::2026-04": 30000
+  },
+  "fixedMonthlySeparations": {},
   "investTemplates": [
     {
       "id": "inv-1777358483511",
@@ -300,6 +307,8 @@
       "personOrder": 4
     }
   ],
+  "investExclusions": [],
+  "investMonthlyAmounts": {},
   "planExtra": {
     "extraRowsByMonth": {
       "2026-04": {
