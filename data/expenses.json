@@ -219,6 +219,21 @@
       "personOrder": 6
     }
   ],
+  "fixedExclusions": [
+    {
+      "templateId": "ft-1777399537882",
+      "yearMonth": "2026-03"
+    }
+  ],
+  "fixedMonthlyAmounts": {
+    "ft-1777358483512::2026-04": 362810,
+    "ft-1777399537883::2026-04": 26716,
+    "ft-1777399537889::2026-04": 30000,
+    "ft-1777358483512::2026-03": 434540,
+    "ft-1777399537883::2026-03": 24132,
+    "ft-1777399537889::2026-03": 11500
+  },
+  "fixedMonthlySeparations": {},
   "investTemplates": [
     {
       "id": "inv-1777358483511",
@@ -300,6 +315,8 @@
       "personOrder": 4
     }
   ],
+  "investExclusions": [],
+  "investMonthlyAmounts": {},
   "planExtra": {
     "extraRowsByMonth": {
       "2026-04": {
@@ -999,5 +1016,8 @@
       }
     },
     "defaultSalaryExcludedByMonth": {}
-  }
+  },
+  "fixedExpenseItems": [],
+  "investmentItems": [],
+  "separateItems": []
 }

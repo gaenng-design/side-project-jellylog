@@ -1,1 +1,52 @@
-{}
+{
+  "items": [
+    {
+      "yearMonth": "2026-04",
+      "person": "A",
+      "category": "급여",
+      "description": "유저 1",
+      "amount": 5858000,
+      "id": "1777468268931-uekpt"
+    },
+    {
+      "yearMonth": "2026-04",
+      "person": "B",
+      "category": "급여",
+      "description": "유저 2",
+      "amount": 7597310,
+      "id": "1777468268933-qglfr"
+    },
+    {
+      "yearMonth": "2026-04",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 5220000,
+      "id": "1777474704238-ve1yq"
+    },
+    {
+      "yearMonth": "2026-04",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 5160000,
+      "id": "1777474704243-j16hi"
+    },
+    {
+      "yearMonth": "2026-03",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 5739412,
+      "id": "1777877172123-lptzf"
+    },
+    {
+      "yearMonth": "2026-03",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 6837227,
+      "id": "1777877174708-hyez7"
+    }
+  ]
+}
