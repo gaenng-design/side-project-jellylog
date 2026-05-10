@@ -1,4 +1,86 @@
 {
-  "items": [],
-  "entries": []
+  "items": [
+    {
+      "name": "청년도약계좌",
+      "category": "저축",
+      "defaultAmount": 700000,
+      "source": "manual",
+      "id": "asset-1777882542533",
+      "order": 0
+    }
+  ],
+  "entries": [
+    {
+      "id": "asset-1777882542534",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-03",
+      "amount": 17500000
+    },
+    {
+      "id": "asset-1777882542535",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-04",
+      "amount": 1400000
+    },
+    {
+      "id": "asset-1777882542536",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-05",
+      "amount": 2100000
+    },
+    {
+      "id": "asset-1777882542537",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-06",
+      "amount": 2800000
+    },
+    {
+      "id": "asset-1777882542538",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-07",
+      "amount": 3500000
+    },
+    {
+      "id": "asset-1777882542539",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-08",
+      "amount": 4200000
+    },
+    {
+      "id": "asset-1777882542540",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-09",
+      "amount": 4900000
+    },
+    {
+      "id": "asset-1777882542541",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-10",
+      "amount": 5600000
+    },
+    {
+      "id": "asset-1777882542542",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-11",
+      "amount": 6300000
+    },
+    {
+      "id": "asset-1777882542543",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-12",
+      "amount": 7000000
+    },
+    {
+      "id": "asset-1777882542544",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-01",
+      "amount": 16100000
+    },
+    {
+      "id": "asset-1778427055072",
+      "itemId": "asset-1777882542533",
+      "yearMonth": "2026-02",
+      "amount": 16800000
+    }
+  ]
 }
