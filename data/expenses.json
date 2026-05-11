@@ -457,6 +457,19 @@
           }
         ],
         "invest": []
+      },
+      "2026-05": {
+        "fixed": [
+          {
+            "person": "공금",
+            "category": "식비",
+            "description": "쿠팡 카드",
+            "amount": 658372,
+            "isSeparate": false,
+            "id": "1778485058089-u29qs"
+          }
+        ],
+        "invest": []
       }
     },
     "separateExpenseRowsByMonth": {
@@ -572,14 +585,6 @@
           "isSeparate": true,
           "separatePerson": "B",
           "id": "1778484778597-sktzc"
-        },
-        {
-          "person": "공금",
-          "category": "식비",
-          "description": "쿠팡 카드",
-          "amount": 658372,
-          "isSeparate": false,
-          "id": "1778484800023-ajmq6"
         }
       ]
     },
