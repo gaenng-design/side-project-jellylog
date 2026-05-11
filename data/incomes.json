@@ -79,6 +79,22 @@
       "description": "승윤",
       "amount": 5250000,
       "id": "1778483691041-na2dp"
+    },
+    {
+      "yearMonth": "2026-01",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 5973017,
+      "id": "1778484352159-h6z8q"
+    },
+    {
+      "yearMonth": "2026-01",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 5868000,
+      "id": "1778484355021-w1v4w"
     }
   ]
 }
