@@ -41,6 +41,44 @@
       "initialAmount": 150000000,
       "id": "asset-1778483629217",
       "order": 4
+    },
+    {
+      "name": "청약",
+      "category": "저축",
+      "person": "A",
+      "defaultAmount": 100000,
+      "id": "asset-1778483629219",
+      "order": 5
+    },
+    {
+      "name": "AIM",
+      "category": "저축",
+      "person": "A",
+      "id": "asset-1778483629236",
+      "order": 6
+    },
+    {
+      "name": "AIM",
+      "category": "저축",
+      "person": "B",
+      "id": "asset-1778483629237",
+      "order": 7
+    },
+    {
+      "name": "ISA",
+      "category": "투자",
+      "person": "A",
+      "defaultAmount": 1300000,
+      "id": "asset-1778483629248",
+      "order": 8
+    },
+    {
+      "name": "연금",
+      "category": "투자",
+      "person": "A",
+      "defaultAmount": 200000,
+      "id": "asset-1778483629249",
+      "order": 9
     }
   ],
   "entries": [
@@ -337,6 +375,258 @@
       "itemId": "asset-1778483629217",
       "yearMonth": "2026-05",
       "amount": 150000000
+    },
+    {
+      "id": "asset-1778483629220",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-05",
+      "amount": 10400000
+    },
+    {
+      "id": "asset-1778483629221",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-06",
+      "amount": 200000
+    },
+    {
+      "id": "asset-1778483629222",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-07",
+      "amount": 300000
+    },
+    {
+      "id": "asset-1778483629223",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-08",
+      "amount": 400000
+    },
+    {
+      "id": "asset-1778483629224",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-09",
+      "amount": 500000
+    },
+    {
+      "id": "asset-1778483629225",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-10",
+      "amount": 600000
+    },
+    {
+      "id": "asset-1778483629226",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-11",
+      "amount": 700000
+    },
+    {
+      "id": "asset-1778483629227",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-12",
+      "amount": 800000
+    },
+    {
+      "id": "asset-1778483629228",
+      "itemId": "asset-1778483629217",
+      "yearMonth": "2026-04",
+      "amount": 150000000
+    },
+    {
+      "id": "asset-1778483629229",
+      "itemId": "asset-1778483629217",
+      "yearMonth": "2026-03",
+      "amount": 150000000
+    },
+    {
+      "id": "asset-1778483629230",
+      "itemId": "asset-1778483629217",
+      "yearMonth": "2026-02",
+      "amount": 150000000
+    },
+    {
+      "id": "asset-1778483629231",
+      "itemId": "asset-1778483629217",
+      "yearMonth": "2026-01",
+      "amount": 150000000
+    },
+    {
+      "id": "asset-1778483629232",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-04",
+      "amount": 10300000
+    },
+    {
+      "id": "asset-1778483629233",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-03",
+      "amount": 10200000
+    },
+    {
+      "id": "asset-1778483629234",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-01",
+      "amount": 10000000
+    },
+    {
+      "id": "asset-1778483629235",
+      "itemId": "asset-1778483629219",
+      "yearMonth": "2026-02",
+      "amount": 10100000
+    },
+    {
+      "id": "asset-1778483629238",
+      "itemId": "asset-1778483629237",
+      "yearMonth": "2026-05",
+      "amount": 9693377
+    },
+    {
+      "id": "asset-1778483629239",
+      "itemId": "asset-1778483629237",
+      "yearMonth": "2026-04",
+      "amount": 9693377
+    },
+    {
+      "id": "asset-1778483629240",
+      "itemId": "asset-1778483629237",
+      "yearMonth": "2026-03",
+      "amount": 9974879
+    },
+    {
+      "id": "asset-1778483629241",
+      "itemId": "asset-1778483629237",
+      "yearMonth": "2026-02",
+      "amount": 9974879
+    },
+    {
+      "id": "asset-1778483629242",
+      "itemId": "asset-1778483629237",
+      "yearMonth": "2026-01",
+      "amount": 9792317
+    },
+    {
+      "id": "asset-1778483629243",
+      "itemId": "asset-1778483629236",
+      "yearMonth": "2026-04",
+      "amount": 8047863
+    },
+    {
+      "id": "asset-1778483629244",
+      "itemId": "asset-1778483629236",
+      "yearMonth": "2026-05",
+      "amount": 8047863
+    },
+    {
+      "id": "asset-1778483629245",
+      "itemId": "asset-1778483629236",
+      "yearMonth": "2026-03",
+      "amount": 8283979
+    },
+    {
+      "id": "asset-1778483629246",
+      "itemId": "asset-1778483629236",
+      "yearMonth": "2026-02",
+      "amount": 8282441
+    },
+    {
+      "id": "asset-1778483629247",
+      "itemId": "asset-1778483629236",
+      "yearMonth": "2026-01",
+      "amount": 7999720
+    },
+    {
+      "id": "asset-1778483629250",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-05",
+      "amount": 814725
+    },
+    {
+      "id": "asset-1778483629251",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-06",
+      "amount": 400000
+    },
+    {
+      "id": "asset-1778483629252",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-07",
+      "amount": 600000
+    },
+    {
+      "id": "asset-1778483629253",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-08",
+      "amount": 800000
+    },
+    {
+      "id": "asset-1778483629254",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-09",
+      "amount": 1000000
+    },
+    {
+      "id": "asset-1778483629255",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-10",
+      "amount": 1200000
+    },
+    {
+      "id": "asset-1778483629256",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-11",
+      "amount": 1400000
+    },
+    {
+      "id": "asset-1778483629257",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-12",
+      "amount": 1600000
+    },
+    {
+      "id": "asset-1778483629258",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-04",
+      "amount": 3914144
+    },
+    {
+      "id": "asset-1778483629259",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-03",
+      "amount": 2646120
+    },
+    {
+      "id": "asset-1778483629260",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-02",
+      "amount": 1320986
+    },
+    {
+      "id": "asset-1778483629261",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-01",
+      "amount": 1300000
+    },
+    {
+      "id": "asset-1778483629262",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-02",
+      "amount": 200000
+    },
+    {
+      "id": "asset-1778483629263",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-03",
+      "amount": 400000
+    },
+    {
+      "id": "asset-1778483629264",
+      "itemId": "asset-1778483629249",
+      "yearMonth": "2026-04",
+      "amount": 600000
+    },
+    {
+      "id": "asset-1778483629265",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-05",
+      "amount": 3914144
     }
   ]
 }
