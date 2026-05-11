@@ -223,6 +223,10 @@
     {
       "templateId": "ft-1777399537882",
       "yearMonth": "2026-03"
+    },
+    {
+      "templateId": "ft-1777399537882",
+      "yearMonth": "2026-02"
     }
   ],
   "fixedMonthlyAmounts": {
@@ -231,7 +235,11 @@
     "ft-1777399537889::2026-04": 30000,
     "ft-1777358483512::2026-03": 434540,
     "ft-1777399537883::2026-03": 24132,
-    "ft-1777399537889::2026-03": 11500
+    "ft-1777399537889::2026-03": 11500,
+    "ft-1777358483512::2026-02": 409710,
+    "ft-1777399537880::2026-02": 105766,
+    "ft-1777399537883::2026-02": 478101,
+    "ft-1777399537889::2026-02": 33323
   },
   "fixedMonthlySeparations": {},
   "investTemplates": [
@@ -315,8 +323,27 @@
       "personOrder": 4
     }
   ],
-  "investExclusions": [],
-  "investMonthlyAmounts": {},
+  "investExclusions": [
+    {
+      "templateId": "inv-1777358483511",
+      "yearMonth": "2026-02"
+    },
+    {
+      "templateId": "inv-1777358483512",
+      "yearMonth": "2026-02"
+    },
+    {
+      "templateId": "inv-1777399537876",
+      "yearMonth": "2026-02"
+    },
+    {
+      "templateId": "inv-1777399537879",
+      "yearMonth": "2026-02"
+    }
+  ],
+  "investMonthlyAmounts": {
+    "inv-1777399537877::2026-02": 500000
+  },
   "planExtra": {
     "extraRowsByMonth": {
       "2026-04": {
@@ -343,6 +370,29 @@
             "isSeparate": false,
             "payDay": 19,
             "id": "1777877219392-v8klf"
+          }
+        ],
+        "invest": []
+      },
+      "2026-02": {
+        "fixed": [
+          {
+            "person": "A",
+            "category": "구독",
+            "description": "비메오",
+            "amount": 18170,
+            "isSeparate": false,
+            "payDay": 10,
+            "id": "1778483916965-evdqc"
+          },
+          {
+            "person": "A",
+            "category": "구독",
+            "description": "어도비",
+            "amount": 26400,
+            "isSeparate": false,
+            "payDay": 19,
+            "id": "1778483933602-bhz8z"
           }
         ],
         "invest": []
@@ -404,6 +454,43 @@
           "isSeparate": true,
           "separatePerson": "B",
           "id": "1777877341974-5x1kr"
+        }
+      ],
+      "2026-02": [
+        {
+          "person": "공금",
+          "category": "기타",
+          "description": "승윤네 에어컨",
+          "amount": 1790000,
+          "isSeparate": true,
+          "id": "1778483770227-qwg7j"
+        },
+        {
+          "person": "공금",
+          "category": "식비",
+          "description": "와우카드",
+          "amount": 416719,
+          "isSeparate": true,
+          "separatePerson": "B",
+          "id": "1778483787251-o2g2s"
+        },
+        {
+          "person": "공금",
+          "category": "기타",
+          "description": "신혼여행 숙소 - 뉴욕",
+          "amount": 1464916,
+          "isSeparate": true,
+          "separatePerson": "B",
+          "id": "1778483831036-q05z7"
+        },
+        {
+          "person": "공금",
+          "category": "기타",
+          "description": "경은 AIM 이용료",
+          "amount": 110000,
+          "isSeparate": true,
+          "separatePerson": "B",
+          "id": "1778483843417-umroi"
         }
       ]
     },
@@ -871,6 +958,309 @@
             "defaultAmount": 32486,
             "defaultSeparate": false,
             "payDay": 11,
+            "id": "ft-1777399537889",
+            "order": 14,
+            "personOrder": 3
+          },
+          {
+            "person": "공금",
+            "category": "구독",
+            "description": "삼성 가전 구독",
+            "defaultAmount": 44700,
+            "defaultSeparate": false,
+            "payDay": 24,
+            "id": "ft-1777399537890",
+            "order": 15,
+            "personOrder": 6
+          },
+          {
+            "person": "B",
+            "category": "교육",
+            "description": "학자금 대출",
+            "defaultAmount": 25855,
+            "defaultSeparate": true,
+            "defaultSeparatePerson": "B",
+            "payDay": 25,
+            "id": "ft-1777399537883",
+            "order": 8,
+            "personOrder": 0
+          },
+          {
+            "person": "공금",
+            "category": "관리비",
+            "description": "넷플릭스",
+            "defaultAmount": 26000,
+            "defaultSeparate": false,
+            "payDay": 27,
+            "id": "ft-1777399537885",
+            "order": 10,
+            "personOrder": 1
+          },
+          {
+            "id": "ft-1777358483512",
+            "person": "공금",
+            "category": "관리비",
+            "description": "관리비",
+            "defaultAmount": 300000,
+            "payDay": 29,
+            "defaultSeparate": false,
+            "personOrder": 2
+          },
+          {
+            "person": "A",
+            "category": "기타",
+            "description": "부모님",
+            "defaultAmount": 380000,
+            "defaultSeparate": true,
+            "defaultSeparatePerson": "A",
+            "payDay": 25,
+            "id": "ft-1777399537877",
+            "order": 2,
+            "personOrder": 0
+          }
+        ],
+        "invest": [
+          {
+            "person": "A",
+            "category": "저축",
+            "description": "연금",
+            "defaultAmount": 200000,
+            "id": "inv-1777399537875",
+            "order": 1,
+            "personOrder": 1
+          },
+          {
+            "person": "B",
+            "category": "저축",
+            "description": "연금",
+            "defaultAmount": 200000,
+            "id": "inv-1777399537876",
+            "order": 2,
+            "personOrder": 1
+          },
+          {
+            "person": "A",
+            "category": "저축",
+            "description": "적금 (비상금)",
+            "defaultAmount": 1000000,
+            "id": "inv-1777399537877",
+            "order": 3,
+            "personOrder": 2
+          },
+          {
+            "person": "B",
+            "category": "저축",
+            "description": "청년지원 적금",
+            "defaultAmount": 700000,
+            "id": "inv-1777399537878",
+            "order": 4,
+            "personOrder": 2
+          },
+          {
+            "person": "B",
+            "category": "저축",
+            "description": "비상금",
+            "defaultAmount": 300000,
+            "id": "inv-1777399537879",
+            "order": 5,
+            "personOrder": 3
+          },
+          {
+            "person": "A",
+            "category": "저축",
+            "description": "청약",
+            "defaultAmount": 100000,
+            "id": "inv-1777399537880",
+            "order": 6,
+            "personOrder": 3
+          },
+          {
+            "person": "B",
+            "category": "저축",
+            "description": "청약 ",
+            "defaultAmount": 100000,
+            "id": "inv-1777399537881",
+            "order": 7,
+            "personOrder": 4
+          },
+          {
+            "id": "inv-1777358483511",
+            "person": "A",
+            "category": "투자",
+            "description": "ISA",
+            "defaultAmount": 1300000,
+            "personOrder": 0
+          },
+          {
+            "id": "inv-1777358483512",
+            "person": "B",
+            "category": "투자",
+            "description": "ISA",
+            "defaultAmount": 1300000,
+            "personOrder": 0
+          }
+        ]
+      },
+      "2026-02": {
+        "fixed": [
+          {
+            "id": "ft-1777358483511",
+            "person": "공금",
+            "category": "주거",
+            "description": "전세이자",
+            "defaultAmount": 970000,
+            "payDay": 27,
+            "defaultSeparate": true,
+            "personOrder": 0
+          },
+          {
+            "person": "공금",
+            "category": "통신",
+            "description": "인터넷 요금",
+            "defaultAmount": 34100,
+            "defaultSeparate": false,
+            "payDay": 11,
+            "id": "ft-1777398606346",
+            "order": 1,
+            "personOrder": 4
+          },
+          {
+            "id": "ft-1777358483513",
+            "person": "A",
+            "category": "통신",
+            "description": "휴대폰 요금",
+            "defaultAmount": 52300,
+            "payDay": 11,
+            "personOrder": 4
+          },
+          {
+            "id": "ft-1777358483514",
+            "person": "B",
+            "category": "통신",
+            "description": "휴대폰 요금",
+            "defaultAmount": 29620,
+            "payDay": 22,
+            "personOrder": 6
+          },
+          {
+            "person": "A",
+            "category": "보험",
+            "description": "실비 보험",
+            "defaultAmount": 35370,
+            "defaultSeparate": false,
+            "payDay": 10,
+            "id": "ft-1777399537881",
+            "order": 6,
+            "personOrder": 3
+          },
+          {
+            "person": "A",
+            "category": "보험",
+            "description": "KB 보험",
+            "defaultAmount": 178417,
+            "defaultSeparate": false,
+            "payDay": 23,
+            "id": "ft-1777399537882",
+            "order": 7,
+            "personOrder": 5
+          },
+          {
+            "person": "B",
+            "category": "보험",
+            "description": "KB 보험",
+            "defaultAmount": 160068,
+            "defaultSeparate": true,
+            "defaultSeparatePerson": "B",
+            "payDay": 25,
+            "id": "ft-1777399537884",
+            "order": 9,
+            "personOrder": 1
+          },
+          {
+            "person": "B",
+            "category": "보험",
+            "description": "한화 보험",
+            "defaultAmount": 99240,
+            "defaultSeparate": true,
+            "defaultSeparatePerson": "B",
+            "payDay": 21,
+            "id": "ft-1777399537891",
+            "order": 16,
+            "personOrder": 5
+          },
+          {
+            "person": "A",
+            "category": "구독",
+            "description": "유튜브",
+            "defaultAmount": 19500,
+            "defaultSeparate": false,
+            "payDay": 30,
+            "id": "ft-1777399537878",
+            "order": 3,
+            "personOrder": 1
+          },
+          {
+            "person": "A",
+            "category": "구독",
+            "description": "챗지피티",
+            "defaultAmount": 29000,
+            "defaultSeparate": false,
+            "payDay": 3,
+            "id": "ft-1777399537879",
+            "order": 4,
+            "personOrder": 2
+          },
+          {
+            "person": "공금",
+            "category": "구독",
+            "description": "피그마",
+            "defaultAmount": 65815,
+            "defaultSeparate": false,
+            "payDay": 8,
+            "id": "ft-1777399537880",
+            "order": 5,
+            "personOrder": 3
+          },
+          {
+            "person": "B",
+            "category": "구독",
+            "description": "애플 구독",
+            "defaultAmount": 11100,
+            "defaultSeparate": false,
+            "payDay": 1,
+            "id": "ft-1777399537886",
+            "order": 11,
+            "personOrder": 2
+          },
+          {
+            "person": "공금",
+            "category": "구독",
+            "description": "쿠팡",
+            "defaultAmount": 7890,
+            "defaultSeparate": false,
+            "payDay": 11,
+            "id": "ft-1777399537887",
+            "order": 12,
+            "personOrder": 5
+          },
+          {
+            "person": "B",
+            "category": "구독",
+            "description": "유튜브",
+            "defaultAmount": 19500,
+            "defaultSeparate": false,
+            "payDay": 12,
+            "id": "ft-1777399537888",
+            "order": 13,
+            "personOrder": 4
+          },
+          {
+            "person": "B",
+            "category": "구독",
+            "description": "챗지피티",
+            "defaultAmount": 32486,
+            "defaultSeparate": false,
+            "payDay": 7,
             "id": "ft-1777399537889",
             "order": 14,
             "personOrder": 3
