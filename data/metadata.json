@@ -1,6 +1,6 @@
 {
   "app": {
-    "currentYearMonth": "2026-02",
+    "currentYearMonth": "2026-05",
     "settings": {
       "personAName": "승윤",
       "personBName": "경은",
@@ -35,16 +35,18 @@
     "startedMonths": [
       "2026-04",
       "2026-03",
-      "2026-02"
+      "2026-02",
+      "2026-01"
     ],
     "settledMonths": [
       "2026-04",
       "2026-03",
-      "2026-02"
+      "2026-02",
+      "2026-01"
     ],
     "lastSavedByMonth": {},
     "householdName": null,
     "yearPickerMaxYear": 2026
   },
-  "lastUpdated": "2026-05-11T07:25:21.255Z"
+  "lastUpdated": "2026-05-11T07:31:24.599Z"
 }
