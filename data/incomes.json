@@ -47,6 +47,38 @@
       "description": "승윤",
       "amount": 6837227,
       "id": "1777877174708-hyez7"
+    },
+    {
+      "yearMonth": "2026-04",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 5220000,
+      "id": "1778483666546-b3qfl"
+    },
+    {
+      "yearMonth": "2026-04",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 5160000,
+      "id": "1778483666553-khohm"
+    },
+    {
+      "yearMonth": "2026-02",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 5027427,
+      "id": "1778483688496-upj99"
+    },
+    {
+      "yearMonth": "2026-02",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 5250000,
+      "id": "1778483691041-na2dp"
     }
   ]
 }
