@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react'
 import { jellyCardStyle, jellyPrimaryButton } from '@/styles/jellyGlass'
 
-const eyeOpenIcon = 'https://www.figma.com/api/mcp/asset/7cc8e223-a6b0-4c67-9fc6-736a9bf313e9'
-const eyeClosedIcon = 'https://www.figma.com/api/mcp/asset/35ae0e9c-6cce-46fb-82a4-9c7ce455e791'
-
 export function PasswordProtection({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
@@ -99,16 +96,20 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
                 height: 24,
               }}
               title={showPassword ? '숨기기' : '보기'}
+              aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
             >
-              <img
-                src={showPassword ? eyeOpenIcon : eyeClosedIcon}
-                alt={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+              <span
+                role="img"
+                aria-hidden
                 style={{
-                  width: 24,
-                  height: 24,
+                  fontSize: 20,
+                  lineHeight: 1,
                   display: 'block',
+                  userSelect: 'none',
                 }}
-              />
+              >
+                {showPassword ? '😐' : '🫥'}
+              </span>
             </button>
           </div>
 

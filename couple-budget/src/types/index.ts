@@ -88,3 +88,25 @@ export interface AssetEntry {
   yearMonth: string
   amount: number
 }
+
+/** 공동 생활비 항목 (식비, 공과금, 교통비 등) */
+export interface SharedExpenseItem {
+  id: string
+  name: string
+  category: string  // '식비' | '공과금' | '교통비' | '통신비' | '의료비' | '교육비' | '기타'
+  order: number
+  /** 메모 (선택) */
+  description?: string
+}
+
+/** 특정 월의 공동 생활비 사용 금액 (거래 단위) */
+export interface SharedExpenseEntry {
+  id: string
+  itemId: string
+  yearMonth: string
+  /** 결제일 (1-31, 선택) */
+  day?: number
+  amount: number
+  /** 결제 메모 (선택, 예: "주말 외식", "5월분 카드") */
+  memo?: string
+}

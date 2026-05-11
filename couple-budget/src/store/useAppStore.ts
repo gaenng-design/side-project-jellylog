@@ -41,6 +41,8 @@ export interface AppSettings {
   user2Color: string
   sharedColor: string
   fixedCategories: string[]
+  /** 고정지출 카테고리별 색상 인덱스 (lib/categoryColors.ts 참조) */
+  fixedCategoryColors?: Record<string, number>
 }
 
 interface AppState {

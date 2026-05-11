@@ -3,7 +3,7 @@ import { JELLY, jellyCardStyle, jellyInputSurface } from '@/styles/jellyGlass'
 import { SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
 
 /** 드롭다운 화살표 아이콘 */
-export const DROPDOWN_ARROW_ICON = 'https://www.figma.com/api/mcp/asset/610d14a8-b668-44ba-87a0-60aa25f1162b'
+export const DROPDOWN_ARROW_ICON = '▼'
 
 /** 화면 상단 메인 제목 — 지출 계획과 동일(크기·굵기·색) */
 export const pageTitleH1Style: CSSProperties = {

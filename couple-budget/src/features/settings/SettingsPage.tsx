@@ -471,123 +471,269 @@ function SharedLivingCostSettings() {
   )
 }
 
-function DragCategoryItem({ idx, cat, onRename, onDelete }: { idx: number; cat: string; onRename: (val: string) => void; onDelete: () => void }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({ id: `cat-${idx}` })
-
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition: isDragging ? 'none' : 'transform 200ms ease',
-    opacity: isDragging ? 0.5 : 1,
-  }
-
-  return (
-    <div ref={setNodeRef} style={style}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div {...attributes} {...listeners} style={{ padding: '4px 2px', cursor: isDragging ? 'grabbing' : 'grab', color: '#d1d5db', flexShrink: 0 }}>
-          ⋮
-        </div>
-        <input
-          value={cat}
-          onChange={(e) => onRename(e.target.value)}
-          style={{
-            flex: 1,
-            minWidth: 0,
-            height: SETTINGS_TEMPLATE_ROW_HEIGHT,
-            padding: '0 10px',
-            borderRadius: JELLY.radiusControl,
-            border: '1px solid #e5e7eb',
-            background: '#fff',
-            fontSize: 13,
-            outline: 'none',
-            boxSizing: 'border-box',
-            fontFamily: 'inherit',
-            color: JELLY.text,
-          }}
-        />
-        <button type="button" onClick={onDelete} style={settingsTemplateDeleteButtonStyle}>
-          ×
-        </button>
-      </div>
-    </div>
-  )
-}
-
 function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const updateSettings = useAppStore((s) => s.updateSettings)
   const categories = useAppStore((s) => s.settings.fixedCategories) ?? DEFAULT_FIXED_CATEGORIES
+
   const [newCat, setNewCat] = useState('')
-  const newCatInputRef = useRef<HTMLInputElement>(null)
-  const sensors = useSensors(useSensor(PointerSensor, { distance: 8 }))
+  const [editingIdx, setEditingIdx] = useState<number | null>(null)
+  const [editValue, setEditValue] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
-  const update = (next: string[]) => updateSettings({ fixedCategories: next })
+  // 드래그앤드롭 상태 (native HTML5)
+  const [draggingIdx, setDraggingIdx] = useState<number | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
 
-  const handleRename = (idx: number, val: string) => {
+  const updateCategories = (next: string[]) => updateSettings({ fixedCategories: next })
+
+  const handleAdd = () => {
+    const name = newCat.trim()
+    if (!name) return
+    if (categories.includes(name)) {
+      setError(`'${name}' 카테고리가 이미 존재합니다`)
+      return
+    }
+    updateCategories([...categories, name])
+    setError(null)
+    setNewCat('')
+  }
+
+  const startEdit = (idx: number) => {
+    setEditingIdx(idx)
+    setEditValue(categories[idx])
+    setError(null)
+  }
+
+  const commitEdit = () => {
+    if (editingIdx == null) return
+    const oldName = categories[editingIdx]
+    const newVal = editValue.trim()
+    if (!newVal || oldName === newVal) {
+      setEditingIdx(null)
+      return
+    }
+    if (categories.includes(newVal)) {
+      setError(`'${newVal}' 카테고리가 이미 존재합니다`)
+      return
+    }
     const next = [...categories]
-    next[idx] = val
-    update(next)
+    next[editingIdx] = newVal
+    updateCategories(next)
+    setError(null)
+    setEditingIdx(null)
   }
 
   const handleDelete = (idx: number) => {
-    update(categories.filter((_, i) => i !== idx))
+    const name = categories[idx]
+    if (!window.confirm(`'${name}' 카테고리를 삭제하시겠습니까?`)) return
+    updateCategories(categories.filter((_, i) => i !== idx))
   }
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-
-    const activeIdx = parseInt(active.id.split('-')[1])
-    const overIdx = parseInt(over.id.split('-')[1])
-
+  // 드래그앤드롭 핸들러 (native)
+  const handleDragStart = (idx: number) => (e: React.DragEvent) => {
+    setDraggingIdx(idx)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', String(idx))
+  }
+  const handleDragOver = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (draggingIdx == null || draggingIdx === idx) return
+    setDragOverIdx(idx)
+  }
+  const handleDragLeave = () => setDragOverIdx(null)
+  const handleDrop = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault()
+    if (draggingIdx == null || draggingIdx === idx) {
+      setDraggingIdx(null)
+      setDragOverIdx(null)
+      return
+    }
     const next = [...categories]
-    ;[next[activeIdx], next[overIdx]] = [next[overIdx], next[activeIdx]]
-    update(next)
+    const [moved] = next.splice(draggingIdx, 1)
+    next.splice(idx, 0, moved)
+    updateCategories(next)
+    setDraggingIdx(null)
+    setDragOverIdx(null)
   }
-
-  const handleAdd = () => {
-    const t = newCat.trim()
-    if (!t || categories.includes(t)) return
-    update([...categories, t])
-    setNewCat('')
-    newCatInputRef.current?.focus()
+  const handleDragEnd = () => {
+    setDraggingIdx(null)
+    setDragOverIdx(null)
   }
 
   return (
     <Modal open={open} title="카테고리 수정" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={categories.map((_, i) => `cat-${i}`)} strategy={verticalListSortingStrategy}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 320, overflowY: 'auto', marginBottom: 4 }}>
-              {categories.map((cat, idx) => (
-                <DragCategoryItem
-                  key={idx}
-                  idx={idx}
-                  cat={cat}
-                  onRename={(val) => handleRename(idx, val)}
-                  onDelete={() => handleDelete(idx)}
-                />
-              ))}
+        {/* 카테고리 리스트 (카드 형태) */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+            maxHeight: 400,
+            overflowY: 'auto',
+            padding: '2px',
+          }}
+        >
+          {categories.length === 0 ? (
+            <div
+              style={{
+                padding: 16,
+                textAlign: 'center',
+                color: '#9ca3af',
+                fontSize: 12,
+                background: '#fff',
+                borderRadius: 12,
+                border: '1px solid #e5e7eb',
+              }}
+            >
+              카테고리가 없습니다. 아래에서 추가해주세요.
             </div>
-          </SortableContext>
-        </DndContext>
-        <div style={{ display: 'flex', gap: 6 }}>
+          ) : (
+            categories.map((cat, idx) => {
+              const isEditing = editingIdx === idx
+              const isDragging = draggingIdx === idx
+              const isDragOver = dragOverIdx === idx
+              return (
+                <div key={`${cat}-${idx}`}>
+                  <div
+                    draggable={!isEditing}
+                    onDragStart={handleDragStart(idx)}
+                    onDragOver={handleDragOver(idx)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop(idx)}
+                    onDragEnd={handleDragEnd}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '12px 14px',
+                      background: isEditing
+                        ? 'rgba(79, 140, 255, 0.04)'
+                        : isDragOver
+                          ? 'rgba(79, 140, 255, 0.08)'
+                          : '#fff',
+                      opacity: isDragging ? 0.4 : 1,
+                      cursor: isEditing ? 'auto' : 'grab',
+                      transition: 'background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease',
+                      borderRadius: 12,
+                      border: `1px solid ${isDragOver ? PRIMARY : '#e5e7eb'}`,
+                      boxShadow: isDragging
+                        ? '0 4px 12px rgba(79, 140, 255, 0.15)'
+                        : '0 1px 2px rgba(0,0,0,0.03)',
+                    }}
+                  >
+                    {/* 드래그 핸들 */}
+                    <div
+                      role="button"
+                      aria-roledescription="sortable"
+                      title="드래그하여 순서 변경"
+                      aria-hidden
+                      style={{
+                        flexShrink: 0,
+                        padding: '4px 2px',
+                        cursor: isEditing ? 'auto' : 'grab',
+                        color: '#d1d5db',
+                        fontSize: 16,
+                        lineHeight: 1,
+                        userSelect: 'none',
+                        fontWeight: 700,
+                      }}
+                    >
+                      ⋮
+                    </div>
+
+                    {/* 카테고리 이름 (텍스트만 - 클릭 시 이름 수정) */}
+                    {!isEditing && (
+                      <div
+                        onClick={() => startEdit(idx)}
+                        title="클릭하여 이름 수정"
+                        style={{
+                          flexShrink: 0,
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: JELLY.text,
+                          padding: '4px 4px',
+                          whiteSpace: 'nowrap',
+                          maxWidth: 200,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {cat}
+                      </div>
+                    )}
+
+                    {/* 이름 편집 input (편집 중) 또는 spacer */}
+                    {isEditing ? (
+                      <input
+                        autoFocus
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onBlur={commitEdit}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') commitEdit()
+                          if (e.key === 'Escape') setEditingIdx(null)
+                        }}
+                        style={{
+                          flex: 1,
+                          height: 32,
+                          padding: '0 10px',
+                          borderRadius: 6,
+                          border: `1.5px solid ${PRIMARY}`,
+                          fontSize: 13,
+                          outline: 'none',
+                          background: '#fff',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                    ) : (
+                      <div style={{ flex: 1 }} />
+                    )}
+
+                    {/* 삭제 버튼 (항상 우측 끝) */}
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(idx)}
+                      style={{
+                        flexShrink: 0,
+                        padding: '4px 10px',
+                        borderRadius: 6,
+                        border: '1px solid #fca5a5',
+                        background: '#fff',
+                        color: '#ef4444',
+                        fontSize: 12,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
+        {/* 새 카테고리 추가 */}
+        <div style={{ display: 'flex', gap: 8 }}>
           <input
-            ref={newCatInputRef}
             value={newCat}
             onChange={(e) => setNewCat(e.target.value)}
-            placeholder="새 카테고리 입력"
+            placeholder="새 카테고리 이름 (예: 보험)"
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
             style={{
               flex: 1,
-              minWidth: 0,
-              height: SETTINGS_TEMPLATE_ROW_HEIGHT,
-              padding: '0 10px',
+              height: 40,
+              padding: '0 12px',
               borderRadius: JELLY.radiusControl,
               border: '1px solid #e5e7eb',
-              background: '#fff',
               fontSize: 13,
               outline: 'none',
               boxSizing: 'border-box',
               fontFamily: 'inherit',
+              background: '#fff',
               color: JELLY.text,
             }}
           />
@@ -595,15 +741,54 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
             type="button"
             onClick={handleAdd}
             style={{
-              ...settingsTemplateAddItemButtonBase,
-              background: newCat.trim() ? PRIMARY_LIGHT : '#f3f4f6',
-              color: newCat.trim() ? PRIMARY : '#9ca3af',
+              height: 40,
+              padding: '0 16px',
+              borderRadius: JELLY.radiusControl,
+              border: 'none',
+              background: newCat.trim() ? PRIMARY : '#e5e7eb',
+              color: newCat.trim() ? '#fff' : '#9ca3af',
+              fontSize: 13,
+              fontWeight: 600,
               cursor: newCat.trim() ? 'pointer' : 'default',
+              flexShrink: 0,
             }}
           >
             + 추가
           </button>
         </div>
+
+        {error && (
+          <div
+            style={{
+              padding: '8px 12px',
+              borderRadius: 6,
+              background: '#fee2e2',
+              color: '#991b1b',
+              fontSize: 12,
+              border: '1px solid #fca5a5',
+            }}
+          >
+            {error}
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18 }}>
+        <button
+          onClick={onClose}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 8,
+            border: 'none',
+            background: PRIMARY,
+            color: '#fff',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          완료
+        </button>
       </div>
     </Modal>
   )
@@ -1037,6 +1222,12 @@ function FixedTemplateSettings() {
           </button>
         </div>
       </Modal>
+
+      {/* 카테고리 수정 모달 */}
+      <CategorySettingsModal
+        open={categoryModalOpen}
+        onClose={() => setCategoryModalOpen(false)}
+      />
     </div>
   )
 }

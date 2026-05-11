@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback, type ReactNode, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
-import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT, DROPDOWN_PADDING_COMPACT, DROPDOWN_PADDING_REGULAR, DROPDOWN_CARET_COLOR, DROPDOWN_CARET_FONT_SIZE_COMPACT, DROPDOWN_CARET_FONT_SIZE_REGULAR, DROPDOWN_ITEM_PADDING_COMPACT, DROPDOWN_ITEM_PADDING_REGULAR, DROPDOWN_ARROW_ICON } from '@/styles/formControls'
+import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT, DROPDOWN_PADDING_COMPACT, DROPDOWN_PADDING_REGULAR, DROPDOWN_CARET_COLOR, DROPDOWN_CARET_FONT_SIZE_COMPACT, DROPDOWN_CARET_FONT_SIZE_REGULAR, DROPDOWN_ITEM_PADDING_COMPACT, DROPDOWN_ITEM_PADDING_REGULAR } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
+import { DropdownArrowIcon } from './DropdownArrowIcon'
 
 interface CustomSelectProps {
   options: string[]
@@ -67,7 +68,12 @@ export function CustomSelect({
   title,
 }: CustomSelectProps) {
   const [open, setOpen] = useState(false)
-  const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null)
+  const [dropdownRect, setDropdownRect] = useState<{
+    top: number
+    left: number
+    width: number
+    placement: 'top' | 'bottom'
+  } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
@@ -86,10 +92,23 @@ export function CustomSelect({
     const el = ref.current
     if (!el) return
     const rect = el.getBoundingClientRect()
+    /**
+     * 화면 하단에 가까울 때 드롭다운을 위로 펼침
+     * - dropdown 최대 높이는 220px (panel 자체의 maxHeight와 동일)
+     * - 아래 공간이 부족하고 위 공간이 더 많으면 위로
+     */
+    const DROPDOWN_MAX_HEIGHT = 220
+    const GAP = 4
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight
+    const spaceBelow = viewportHeight - rect.bottom
+    const spaceAbove = rect.top
+    const flipUp = spaceBelow < DROPDOWN_MAX_HEIGHT + GAP && spaceAbove > spaceBelow
+
     setDropdownRect({
-      top: rect.bottom + 4,
+      top: flipUp ? rect.top - GAP : rect.bottom + GAP,
       left: rect.left,
       width: compact ? Math.max(rect.width, 100) : rect.width,
+      placement: flipUp ? 'top' : 'bottom',
     })
   }, [compact])
 
@@ -211,7 +230,7 @@ export function CustomSelect({
               </>
             )}
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{value || placeholder}</span>
-            <img src={DROPDOWN_ARROW_ICON} alt="" style={{ flexShrink: 0, width: 10, height: 10, display: 'block' }} />
+            <DropdownArrowIcon style={{ width: 10, height: 10, color: caretColor }} />
           </button>
         </div>
         {open && dropdownRect && createPortal(
@@ -223,6 +242,7 @@ export function CustomSelect({
               left: dropdownRect.left,
               width: dropdownRect.width,
               minWidth: 100,
+              transform: dropdownRect.placement === 'top' ? 'translateY(-100%)' : undefined,
               ...dropdownStyle,
               maxHeight: 220,
               overflowY: 'auto',
@@ -301,7 +321,7 @@ export function CustomSelect({
           }}
         >
           <span>{value || placeholder}</span>
-          <img src={DROPDOWN_ARROW_ICON} alt="" style={{ flexShrink: 0, width: 10, height: 10, display: 'block' }} />
+          <DropdownArrowIcon style={{ width: 10, height: 10, color: DROPDOWN_CARET_COLOR }} />
         </button>
       </div>
       {open && dropdownRect && createPortal(
@@ -312,6 +332,7 @@ export function CustomSelect({
             top: dropdownRect.top,
             left: dropdownRect.left,
             width: dropdownRect.width,
+            transform: dropdownRect.placement === 'top' ? 'translateY(-100%)' : undefined,
             ...dropdownStyle,
             maxHeight: 220,
             overflowY: 'auto',

@@ -4,6 +4,7 @@ import { ExpensePlanPage } from '@/features/expense-plan/ExpensePlanPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { AssetPage } from '@/features/assets/AssetPage'
+import { SharedExpensePage } from '@/features/sharedExpense/SharedExpensePage'
 import { PasswordProtection } from '@/features/auth/PasswordProtection'
 import {
   JELLY,
@@ -21,16 +22,18 @@ import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { useSettlementStore } from '@/store/useSettlementStore'
 import { useAssetStore } from '@/store/useAssetStore'
+import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
 import { GitHubDataSync } from '@/services/github-sync'
 
-const saveIcon = 'https://www.figma.com/api/mcp/asset/b188b8fa-34c9-4b58-af6b-348b1eab3024'
-const syncIcon = 'https://www.figma.com/api/mcp/asset/8f0090bc-bb88-4c0d-91f7-5220e0b6aa80'
-const syncDoneIcon = 'https://www.figma.com/api/mcp/asset/9c973308-4cda-4e9b-a70a-136bfac65d5c'
+const saveIcon = '💾'
+const syncIcon = '🔄'
+const syncDoneIcon = '✅'
 
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', icon: '📊' },
   { to: '/expense-plan', label: '지출 계획', icon: '📋' },
   { to: '/assets', label: '자산', icon: '💰' },
+  { to: '/shared-expense', label: '공동 생활비', icon: '🏠' },
   { to: '/settings', label: '설정', icon: '⚙️' },
 ]
 
@@ -66,6 +69,7 @@ function AppShell() {
       const planState = usePlanExtraStore.getState()
       const settlementState = useSettlementStore.getState()
       const assetState = useAssetStore.getState()
+      const sharedExpenseState = useSharedExpenseStore.getState()
 
       // localStorage repository 데이터 (월별 실제 수입/지출 항목들)
       const readRepo = (key: string): unknown[] => {
@@ -85,6 +89,12 @@ function AppShell() {
         assets: {
           items: assetState.items,
           entries: assetState.entries,
+        },
+        sharedExpense: {
+          items: sharedExpenseState.items,
+          entries: sharedExpenseState.entries,
+          categories: sharedExpenseState.categories,
+          categoryColors: sharedExpenseState.categoryColors,
         },
         expenses: {
           // 고정지출 템플릿 (전역 + 월별 데이터)
@@ -177,6 +187,15 @@ function AppShell() {
           const assetData = result.data.assets as any
           if (assetData.items) useAssetStore.setState({ items: assetData.items })
           if (assetData.entries) useAssetStore.setState({ entries: assetData.entries })
+        }
+
+        // 공동 생활비 데이터 복원
+        if ((result.data as any).sharedExpense) {
+          const sharedData = (result.data as any).sharedExpense
+          if (sharedData.items) useSharedExpenseStore.setState({ items: sharedData.items })
+          if (sharedData.entries) useSharedExpenseStore.setState({ entries: sharedData.entries })
+          if (sharedData.categories) useSharedExpenseStore.setState({ categories: sharedData.categories })
+          if (sharedData.categoryColors) useSharedExpenseStore.setState({ categoryColors: sharedData.categoryColors })
         }
 
         if (result.data.expenses) {
@@ -394,17 +413,15 @@ function AppShell() {
                   minHeight: 44,
                 }}
               >
-                <img
-                  src={syncComplete ? syncDoneIcon : syncIcon}
-                  alt=""
+                <span
                   style={{
-                    width: 20,
-                    height: 20,
-                    display: 'block',
-                    filter: 'invert(1)',
+                    fontSize: 20,
+                    display: 'inline-block',
                     animation: syncing ? 'spin 1s linear infinite' : 'none',
                   }}
-                />
+                >
+                  {syncComplete ? syncDoneIcon : syncIcon}
+                </span>
               </button>
               <button
                 type="button"
@@ -430,7 +447,7 @@ function AppShell() {
                   minHeight: 44,
                 }}
               >
-                <img src={saveIcon} alt="" style={{ width: 20, height: 20, display: 'block', filter: 'invert(1)' }} />
+                <span style={{ fontSize: 20, display: 'inline-block' }}>{saveIcon}</span>
               </button>
             </div>
           </div>
@@ -534,17 +551,16 @@ function AppShell() {
                     transition: 'all 0.2s',
                   }}
                 >
-                  <img
-                    src={syncComplete ? syncDoneIcon : syncIcon}
-                    alt=""
+                  <span
                     style={{
-                      width: 16,
-                      height: 16,
-                      display: 'block',
-                      filter: 'invert(1)',
+                      fontSize: 16,
+                      display: 'inline-block',
+                      lineHeight: 1,
                       animation: syncing ? 'spin 1s linear infinite' : 'none',
                     }}
-                  />
+                  >
+                    {syncComplete ? syncDoneIcon : syncIcon}
+                  </span>
                   {!iconOnlyNav && <span>{syncing ? '중…' : '동기화'}</span>}
                 </button>
                 <button
@@ -570,7 +586,7 @@ function AppShell() {
                     transition: 'all 0.2s',
                   }}
                 >
-                  <img src={saveIcon} alt="" style={{ width: 16, height: 16, display: 'block', filter: 'invert(1)' }} />
+                  <span style={{ fontSize: 16, display: 'inline-block' }}>{saveIcon}</span>
                   {!iconOnlyNav && <span>{saving ? '중…' : '저장하기'}</span>}
                 </button>
               </div>
@@ -724,6 +740,7 @@ function AppShell() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/expense-plan" element={<ExpensePlanPage />} />
             <Route path="/assets" element={<AssetPage />} />
+            <Route path="/shared-expense" element={<SharedExpensePage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </div>

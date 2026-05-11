@@ -15,8 +15,8 @@ import {
   DROPDOWN_CARET_FONT_SIZE_REGULAR,
   DROPDOWN_ITEM_PADDING_COMPACT,
   DROPDOWN_ITEM_PADDING_REGULAR,
-  DROPDOWN_ARROW_ICON,
 } from '@/styles/formControls'
+import { DropdownArrowIcon } from './DropdownArrowIcon'
 
 const DAY_OPTIONS = [
   { value: undefined as number | undefined, label: '미정' },
@@ -49,7 +49,12 @@ interface DaySelectProps {
 
 export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELECT_TRIGGER_WIDTH }: DaySelectProps) {
   const [open, setOpen] = useState(false)
-  const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null)
+  const [dropdownRect, setDropdownRect] = useState<{
+    top: number
+    left: number
+    width: number
+    placement: 'top' | 'bottom'
+  } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
@@ -68,10 +73,19 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
     const el = ref.current
     if (!el) return
     const rect = el.getBoundingClientRect()
+    /** 화면 하단에 가까울 때 위로 펼침 */
+    const DROPDOWN_MAX_HEIGHT = 220
+    const GAP = 4
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight
+    const spaceBelow = viewportHeight - rect.bottom
+    const spaceAbove = rect.top
+    const flipUp = spaceBelow < DROPDOWN_MAX_HEIGHT + GAP && spaceAbove > spaceBelow
+
     setDropdownRect({
-      top: rect.bottom + 4,
+      top: flipUp ? rect.top - GAP : rect.bottom + GAP,
       left: rect.left,
       width: compact ? Math.max(rect.width, 100) : rect.width,
+      placement: flipUp ? 'top' : 'bottom',
     })
   }, [compact])
 
@@ -167,7 +181,7 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
           style={triggerStyle}
         >
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayValue || '미정'}</span>
-          <img src={DROPDOWN_ARROW_ICON} alt="" style={{ flexShrink: 0, width: 10, height: 10, display: 'block' }} />
+          <DropdownArrowIcon style={{ width: 10, height: 10, color: DROPDOWN_CARET_COLOR }} />
         </button>
       </div>
       {open &&
@@ -183,6 +197,7 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
               left: dropdownRect.left,
               width: dropdownRect.width,
               minWidth: compact ? 100 : undefined,
+              transform: dropdownRect.placement === 'top' ? 'translateY(-100%)' : undefined,
               ...dropdownStyle,
               maxHeight: 220,
               overflowY: 'auto',

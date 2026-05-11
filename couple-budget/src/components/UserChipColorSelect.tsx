@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { CHIP_COLOR_PRESETS } from '@/components/PersonUI'
 import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
-import { DROPDOWN_ARROW_ICON } from '@/styles/formControls'
+import { DROPDOWN_CARET_COLOR } from '@/styles/formControls'
+import { DropdownArrowIcon } from './DropdownArrowIcon'
 
 interface UserChipColorSelectProps {
   value: string
@@ -111,7 +112,7 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
           cursor: 'pointer',
         }}
       >
-        <img src={DROPDOWN_ARROW_ICON} alt="" style={{ width: 10, height: 10, display: 'block' }} />
+        <DropdownArrowIcon style={{ width: 10, height: 10, color: '#fff' }} />
       </button>
       {open &&
         rect &&
