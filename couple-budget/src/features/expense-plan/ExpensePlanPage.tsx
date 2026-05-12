@@ -1979,9 +1979,9 @@ export function ExpensePlanPage() {
   )
 
   const buildSettlementSummary = useCallback((): ReturnType<typeof calcSettlementSummary> => {
-    // 통장 입금액 계산은 "별도 정산" 표시된 고정지출 항목을 완전히 제외
+    // 고정지출 카드 전체 합 (별도 정산 포함). 1인당 기준 = 전체 ÷ 2
     const totalFixedRegular = fixedRows
-      .filter((r) => !r.isExcluded && !r.isSeparate)
+      .filter((r) => !r.isExcluded)
       .reduce((s, i) => s + i.amount, 0)
     const totalFixedSeparate = separateExpenseExtraRows.filter((r) => !r.isExcluded).reduce((s, i) => s + i.amount, 0)
     const activeInvest = investRows.filter((r) => !r.isExcluded)
@@ -2012,22 +2012,32 @@ export function ExpensePlanPage() {
       A: activeInvest.filter((r) => r.person === 'A').reduce((s, r) => s + r.amount, 0),
       B: activeInvest.filter((r) => r.person === 'B').reduce((s, r) => s + r.amount, 0),
     }
-    // 별도 정산 항목은 통장 입금액 계산에서 완전히 제외 (totalFixedRegular에 이미 빠짐)
+    // 통장 입금액 = 1인당 기준액(전체÷2) − 본인이 별도 정산한 금액
     const fixedDepositByUser = {
-      A: Math.round(totalFixedRegular / 2),
-      B: Math.round(totalFixedRegular / 2),
+      A: Math.round(totalFixedRegular / 2) - templateSepA,
+      B: Math.round(totalFixedRegular / 2) - templateSepB,
+    }
+    // 별도 정산 항목 목록 (유저별)
+    const templateSeparateItemsByUser = {
+      A: templateSeparateItems
+        .filter((i) => sepPersonTemplate(i) === 'A')
+        .map((i) => ({ description: i.description || i.category, amount: i.amount })),
+      B: templateSeparateItems
+        .filter((i) => sepPersonTemplate(i) === 'B')
+        .map((i) => ({ description: i.description || i.category, amount: i.amount })),
     }
     return calcSettlementSummary(
       {
         totalIncome,
         incomeByPerson,
-        // 통장 입금액 계산 기준은 별도지출을 제외한 순수 고정지출만 사용
+        // 통장 입금액 기준은 전체 고정지출 합 (별도 정산 포함)
         totalFixed: totalFixedRegular,
         fixedRegularTotal: totalFixedRegular,
         fixedSeparateTotal: totalFixedSeparate,
-        // 더보기 표시용: 별도 정산 포함 전체 합 + 유저별 별도 정산 금액
-        fixedTotalIncludingSeparate: totalFixedRegular + templateSepA + templateSepB,
+        // 더보기 표시용
+        fixedTotalIncludingSeparate: totalFixedRegular,
         fixedTemplateSeparateByUser: { A: templateSepA, B: templateSepB },
+        fixedTemplateSeparateItemsByUser: templateSeparateItemsByUser,
         fixedDepositByUser,
         totalInvest,
         investByPerson,

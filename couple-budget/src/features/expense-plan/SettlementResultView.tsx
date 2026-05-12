@@ -7,16 +7,20 @@ import { SUB_CHART_COLORS, SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/
 const CHART_COLORS = SUB_CHART_COLORS
 
 /** 고정/투자는 서브 OKLCH, 공동생활비는 포인트(버튼) 컬러 */
-const FIXED_EXPENSE_SUMMARY_COLOR = SUB_FIXED_ACCENT
-const INVEST_SUMMARY_COLOR = SUB_INVEST_ACCENT
+// 그룹 헤더 색상은 grayscale 톤으로 통일 (블루/엑센트 제거)
+const FIXED_EXPENSE_SUMMARY_COLOR = '#374151'
+const INVEST_SUMMARY_COLOR = '#374151'
+// 색상 변수 사용 표시 (lint 경고 방지)
+void SUB_FIXED_ACCENT
+void SUB_INVEST_ACCENT
 
 function compositionSegmentColor(c: { label: string; amount: number }): string {
-  if (c.label === '고정지출') return SUB_FIXED_ACCENT
-  if (c.label === '별도지출') return 'oklch(0.65 0.07 12)' // 주황 톤
-  if (c.label === '공동생활비') return PRIMARY
-  if (c.label === '투자·저축') return SUB_INVEST_ACCENT
-  if (c.label === '용돈') return allowanceValueColor(c.amount)
-  return 'oklch(0.75 0.04 250 / 1)'
+  if (c.label === '고정지출') return '#da5969'
+  if (c.label === '별도지출') return '#e88896'
+  if (c.label === '공동생활비') return '#737dea'
+  if (c.label === '투자·저축') return '#00a667'
+  if (c.label === '용돈') return '#6f6f78'
+  return '#9ca3af'
 }
 
 const incomeBarOuterStyle: CSSProperties = {
@@ -154,6 +158,12 @@ const checkboxStyle: CSSProperties = {
   cursor: 'pointer',
 }
 
+/** 정산 완료된 항목 행에 적용되는 비활성 스타일 */
+const settledRowStyle: CSSProperties = {
+  opacity: 0.4,
+  textDecoration: 'line-through',
+}
+
 type PersonKey = 'A' | 'B'
 
 /** 투자/저축 그룹: 헤더 + (세부 라인 | 투자·저축 구분 | 단일 합계) */
@@ -163,6 +173,11 @@ function UserInvestTreeRows(props: {
   totalInvest: number
   checks: Record<string, boolean>
   onToggle: (key: string, checked: boolean) => void
+  /**
+   * 'actions': 체크 가능한 항목 행만 (기본)
+   * 'info': 헤더 + 소계 행만
+   */
+  mode?: 'actions' | 'info'
   /** 사용자 컬러 기반 스타일 */
   userTdInvestGroupHeader?: CSSProperties
   userTdTreeChildLabel?: CSSProperties
@@ -170,7 +185,19 @@ function UserInvestTreeRows(props: {
   userTdCategorySubtotalLabel?: CSSProperties
   userTdCategorySubtotalAmount?: CSSProperties
 }) {
-  const { investDetail, investLineItems, totalInvest, checks, onToggle, userTdInvestGroupHeader: uTdInvestGroupHeader, userTdTreeChildLabel: uTdTreeChildLabel, userTdTreeChildAmount: uTdTreeChildAmount, userTdCategorySubtotalLabel: uTdCategorySubtotalLabel, userTdCategorySubtotalAmount: uTdCategorySubtotalAmount } = props
+  const {
+    investDetail,
+    investLineItems,
+    totalInvest,
+    checks,
+    onToggle,
+    mode = 'actions',
+    userTdInvestGroupHeader: uTdInvestGroupHeader,
+    userTdTreeChildLabel: uTdTreeChildLabel,
+    userTdTreeChildAmount: uTdTreeChildAmount,
+    userTdCategorySubtotalLabel: uTdCategorySubtotalLabel,
+    userTdCategorySubtotalAmount: uTdCategorySubtotalAmount,
+  } = props
   const inv = investLineItems?.투자 ?? []
   const sav = investLineItems?.저축 ?? []
   const hasLines = inv.length > 0 || sav.length > 0
@@ -182,24 +209,36 @@ function UserInvestTreeRows(props: {
   const finalTdCategorySubtotalLabel = uTdCategorySubtotalLabel ?? tdCategorySubtotalLabel
   const finalTdCategorySubtotalAmount = uTdCategorySubtotalAmount ?? tdCategorySubtotalAmount
 
-  const lineRow = (key: string, label: string, amount: number) => (
-    <tr key={key}>
-      <td style={finalTdTreeChildLabel}>
-        <label style={labelWithCheckboxStyle}>
-          <input
-            type="checkbox"
-            checked={checks[key] ?? false}
-            onChange={(e) => onToggle(key, e.target.checked)}
-            style={checkboxStyle}
-          />
-          <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, lineHeight: 1.4 }}>
-            {label}
-          </span>
-        </label>
-      </td>
-      <td style={finalTdTreeChildAmount}>{fmt(amount)}</td>
-    </tr>
-  )
+  const lineRow = (key: string, label: string, amount: number) => {
+    const checked = checks[key] ?? false
+    return (
+      <tr key={key}>
+        <td style={finalTdTreeChildLabel}>
+          <label style={labelWithCheckboxStyle}>
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) => onToggle(key, e.target.checked)}
+              style={checkboxStyle}
+            />
+            <span
+              style={{
+                display: 'block',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                minWidth: 0,
+                lineHeight: 1.4,
+                ...(checked && settledRowStyle),
+              }}
+            >
+              {label}
+            </span>
+          </label>
+        </td>
+        <td style={{ ...finalTdTreeChildAmount, ...(checked && settledRowStyle) }}>{fmt(amount)}</td>
+      </tr>
+    )
+  }
 
   let body: ReactNode = null
   if (hasLines) {
@@ -220,20 +259,24 @@ function UserInvestTreeRows(props: {
     body = lineRow('combined', '투자·저축', totalInvest)
   }
 
-  return (
-    <>
-      <tr>
-        <td colSpan={2} style={finalTdInvestGroupHeader}>
-          투자/저축
-        </td>
-      </tr>
-      {body}
-      <tr style={{ borderTop: '1px solid rgba(148, 163, 184, 0.2)' }}>
-        <td style={{ ...finalTdCategorySubtotalLabel, color: INVEST_SUMMARY_COLOR }}>투자/저축 소계</td>
-        <td style={{ ...finalTdCategorySubtotalAmount, color: INVEST_SUMMARY_COLOR }}>{fmt(totalInvest)}</td>
-      </tr>
-    </>
-  )
+  if (mode === 'info') {
+    // 정보 행만: 헤더 + 소계
+    return (
+      <>
+        <tr>
+          <td colSpan={2} style={finalTdInvestGroupHeader}>
+            투자/저축
+          </td>
+        </tr>
+        <tr style={{ borderTop: '1px solid rgba(148, 163, 184, 0.2)' }}>
+          <td style={{ ...finalTdCategorySubtotalLabel, color: INVEST_SUMMARY_COLOR }}>투자/저축 소계</td>
+          <td style={{ ...finalTdCategorySubtotalAmount, color: INVEST_SUMMARY_COLOR }}>{fmt(totalInvest)}</td>
+        </tr>
+      </>
+    )
+  }
+  // 액션 행만: 체크 가능한 lineRow
+  return <>{body}</>
 }
 
 function deriveFixedDepositBreakdown(summary: {
@@ -284,6 +327,10 @@ interface SettlementResultViewProps {
       separateByUser: { A: number; B: number }
       totalIncludingSeparate?: number
       templateSeparateByUser?: { A: number; B: number }
+      templateSeparateItemsByUser?: {
+        A: { description: string; amount: number }[]
+        B: { description: string; amount: number }[]
+      }
     }
     separateExpenseCard5090?: {
       total: number
@@ -364,6 +411,8 @@ export function SettlementResultView({
   const sep5090 = summary.separateExpenseCard5090
   const sepCardActive = sep5090 != null && sep5090.total > 0
   const [fixedDepositMoreOpen, setFixedDepositMoreOpen] = useState(false)
+  /** 카드별 「상세 정보」 더보기 토글 */
+  const [detailsOpen, setDetailsOpen] = useState<{ A: boolean; B: boolean }>({ A: false, B: false })
   /** 정산 화면에서만 쓰는 납부 확인용 체크(저장·계산 미반영) */
   const [userPayChecked, setUserPayChecked] = useState<{
     A: {
@@ -445,10 +494,7 @@ export function SettlementResultView({
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-            고정 지출 통장에 입금할 돈
-            <span style={{ fontSize: 11, fontWeight: 500, color: '#9ca3af' }}>(고정지출 중 「별도 정산」 표시된 항목 제외)</span>
-          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text }}>고정 지출 통장에 입금할 돈</div>
           <button
             type="button"
             onClick={() => setFixedDepositMoreOpen((o) => !o)}
@@ -496,30 +542,46 @@ export function SettlementResultView({
               gap: 8,
             }}
           >
-            <div>
-              · 고정지출 합계는{' '}
-              <strong style={{ color: '#374151' }}>
-                {fmt(fixedDepositBreakdown.totalIncludingSeparate ?? fixedDepositBreakdown.totalFixed)}
-              </strong>
-              입니다.
-            </div>
-            <div>
-              · 그 중 <strong style={{ color: '#374151' }}>{personAName}</strong>이{' '}
-              <strong style={{ color: '#374151' }}>
-                {fmt(fixedDepositBreakdown.templateSeparateByUser?.A ?? 0)}
-              </strong>
-              을 별도 정산했고,{' '}
-              <strong style={{ color: '#374151' }}>{personBName}</strong>가{' '}
-              <strong style={{ color: '#374151' }}>
-                {fmt(fixedDepositBreakdown.templateSeparateByUser?.B ?? 0)}
-              </strong>
-              을 별도 정산하였습니다.
-            </div>
-            <div>
-              · 공동 통장에는 절반씩 부담하므로, 1인당 입금액은{' '}
-              <strong style={{ color: PRIMARY }}>{fmt(fixedDepositBreakdown.halfEach)}</strong>
-              입니다.
-            </div>
+            {(() => {
+              const total = fixedDepositBreakdown.totalIncludingSeparate ?? fixedDepositBreakdown.totalFixed
+              const halfEach = fixedDepositBreakdown.halfEach
+              const sepA = fixedDepositBreakdown.templateSeparateByUser?.A ?? 0
+              const sepB = fixedDepositBreakdown.templateSeparateByUser?.B ?? 0
+              const itemsA = fixedDepositBreakdown.templateSeparateItemsByUser?.A ?? []
+              const itemsB = fixedDepositBreakdown.templateSeparateItemsByUser?.B ?? []
+              const depositA = fixedDepositByUser.A
+              const depositB = fixedDepositByUser.B
+              const renderItems = (items: { description: string; amount: number }[]) => {
+                if (items.length === 0) return '없음'
+                return items.map((it) => `${it.description}(${fmt(it.amount)})`).join(', ')
+              }
+              return (
+                <>
+                  <div>
+                    · 고정지출 합계는 <strong style={{ color: '#374151' }}>{fmt(total)}</strong>이며 절반씩 부담하므로, 1인당{' '}
+                    <strong style={{ color: '#374151' }}>{fmt(halfEach)}</strong>을 부담합니다.
+                  </div>
+                  <div>
+                    · <strong style={{ color: '#374151' }}>{personAName}</strong>이{' '}
+                    <strong style={{ color: '#374151' }}>{fmt(sepA)}</strong>을 별도 정산하여 공동 통장에는{' '}
+                    <strong style={{ color: PRIMARY }}>{fmt(depositA)}</strong>을{' '}
+                    {depositA > 0 ? '입금하면 됩니다.' : '입금하지 않아도 됩니다.'}
+                  </div>
+                  <div style={{ paddingLeft: 12, fontSize: 11, color: '#9ca3af' }}>
+                    * 별도 정산한 항목: {renderItems(itemsA)}
+                  </div>
+                  <div>
+                    · <strong style={{ color: '#374151' }}>{personBName}</strong>가{' '}
+                    <strong style={{ color: '#374151' }}>{fmt(sepB)}</strong>을 별도 정산하여 공동 통장에는{' '}
+                    <strong style={{ color: PRIMARY }}>{fmt(depositB)}</strong>을{' '}
+                    {depositB > 0 ? '부담합니다.' : '부담하지 않아도 됩니다.'}
+                  </div>
+                  <div style={{ paddingLeft: 12, fontSize: 11, color: '#9ca3af' }}>
+                    * 별도 정산한 항목: {renderItems(itemsB)}
+                  </div>
+                </>
+              )
+            })()}
           </div>
         ) : null}
       </div>
@@ -628,6 +690,19 @@ export function SettlementResultView({
           const userTdCategorySubtotalLabel: CSSProperties = { ...tdCategorySubtotalLabel, borderBottom: userDashStyle }
           const userTdCategorySubtotalAmount: CSSProperties = { ...tdCategorySubtotalAmount, borderBottom: userDashStyle }
 
+          /** 모든 행의 라벨/금액 통일 스타일 (글자 크기 통일) */
+          const userRowLabelStyle: CSSProperties = {
+            ...userTdLabelBase,
+            paddingLeft: 4,
+            fontSize: 13,
+            fontWeight: 500,
+          }
+          const userRowAmountStyle: CSSProperties = {
+            ...userTdAmountBase,
+            fontSize: 13,
+            fontWeight: 500,
+          }
+
           return (
             <div
               key={p}
@@ -660,14 +735,9 @@ export function SettlementResultView({
                   <col style={{ width: '42%' }} />
                 </colgroup>
                 <tbody>
+                  {/* ─── 액션 행 (항상 표시) ─── */}
                   <tr>
-                    <td style={userTdFixedGroupHeader}>고정지출 + 별도 지출</td>
-                    <td style={userTdFixedGroupHeaderAmount}>
-                      {fmt(u.fixedDeposit + fixedDepositBreakdown.separateByUser[p])}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style={userTdTreeChildLabel}>
+                    <td style={userRowLabelStyle}>
                       <label style={labelWithCheckboxStyle}>
                         <input
                           type="checkbox"
@@ -680,32 +750,18 @@ export function SettlementResultView({
                           }
                           style={checkboxStyle}
                         />
-                        <span style={{ minWidth: 0, lineHeight: 1.4 }}>고정지출 통장 입금</span>
+                        <span style={{ minWidth: 0, lineHeight: 1.4, ...(payChk.deposit && settledRowStyle) }}>
+                          고정지출 통장 입금
+                        </span>
                       </label>
                     </td>
-                    <td style={userTdTreeChildAmount}>{fmt(u.fixedDeposit)}</td>
-                  </tr>
-                  <tr>
-                    <td style={userTdTreeChildLabel}>
-                      <span style={{ display: 'block', minWidth: 0, lineHeight: 1.4 }}>별도/개별 부담</span>
+                    <td style={{ ...userRowAmountStyle, ...(payChk.deposit && settledRowStyle) }}>
+                      {fmt(u.fixedDeposit)}
                     </td>
-                    <td style={userTdTreeChildAmount}>{fmt(fixedDepositBreakdown.separateByUser[p])}</td>
                   </tr>
-                  <tr>
-                    <td style={userTdSepCardLabel}>
-                      <span style={{ lineHeight: 1.45 }}>별도 지출 카드 · 1인 부담(50%)</span>
-                    </td>
-                    <td style={userTdSepCardAmount}>{fmt(fairEach)}</td>
-                  </tr>
-                  <tr>
-                    <td style={userTdSepCardLabel}>
-                      <span style={{ lineHeight: 1.45 }}>별도 지출 카드 · 실제 낸 금액</span>
-                    </td>
-                    <td style={userTdSepCardAmount}>{fmt(paidOnSeparateCard)}</td>
-                  </tr>
-                  <tr>
-                    <td style={userTdSepCardLabel}>
-                      {sendSeparate > 0 ? (
+                  {sendSeparate > 0 && (
+                    <tr>
+                      <td style={userRowLabelStyle}>
                         <label style={labelWithCheckboxStyle}>
                           <input
                             type="checkbox"
@@ -716,24 +772,20 @@ export function SettlementResultView({
                                 [p]: { ...prev[p as PersonKey], transfer5090Send: e.target.checked },
                               }))
                             }
-                            style={{ ...checkboxStyle, marginTop: 1 }}
+                            style={checkboxStyle}
                           />
-                          <span style={{ lineHeight: 1.45 }}>별도 지출 · 송금할 돈</span>
+                          <span style={{ minWidth: 0, lineHeight: 1.4, ...(payChk.transfer5090Send && settledRowStyle) }}>
+                            별도 지출 · 송금할 돈
+                          </span>
                         </label>
-                      ) : (
-                        <span style={{ lineHeight: 1.45 }}>별도 지출 · 송금할 돈</span>
-                      )}
-                    </td>
-                    <td style={userTdSepCardAmount}>{fmt(sendSeparate)}</td>
-                  </tr>
+                      </td>
+                      <td style={{ ...userRowAmountStyle, ...(payChk.transfer5090Send && settledRowStyle) }}>
+                        {fmt(sendSeparate)}
+                      </td>
+                    </tr>
+                  )}
                   <tr>
-                    <td style={userTdSepCardLabel}>
-                      <span style={{ lineHeight: 1.45 }}>별도 지출 · 받을 돈</span>
-                    </td>
-                    <td style={userTdSepCardAmount}>{fmt(recvSeparate)}</td>
-                  </tr>
-                  <tr style={{ borderTop: '1px solid #f3f4f6' }}>
-                    <td style={{ ...userTdLabelBase, paddingLeft: 4 }}>
+                    <td style={userRowLabelStyle}>
                       <label style={labelWithCheckboxStyle}>
                         <input
                           type="checkbox"
@@ -746,16 +798,21 @@ export function SettlementResultView({
                           }
                           style={checkboxStyle}
                         />
-                        <span style={{ minWidth: 0, lineHeight: 1.4 }}>공동 생활비</span>
+                        <span style={{ minWidth: 0, lineHeight: 1.4, ...(payChk.sharedLiving && settledRowStyle) }}>
+                          공동 생활비
+                        </span>
                       </label>
                     </td>
-                    <td style={userTdAmountBase}>{fmt(u.sharedLiving)}</td>
+                    <td style={{ ...userRowAmountStyle, ...(payChk.sharedLiving && settledRowStyle) }}>
+                      {fmt(u.sharedLiving)}
+                    </td>
                   </tr>
                   <UserInvestTreeRows
                     investDetail={u.investDetail}
                     investLineItems={u.investLineItems}
                     totalInvest={u.invest}
                     checks={payChk.investChecks}
+                    mode="actions"
                     onToggle={(key, checked) =>
                       setUserPayChecked((prev) => ({
                         ...prev,
@@ -771,41 +828,41 @@ export function SettlementResultView({
                     userTdCategorySubtotalLabel={userTdCategorySubtotalLabel}
                     userTdCategorySubtotalAmount={userTdCategorySubtotalAmount}
                   />
+
+                  {/* ─── 합계 영역 ─── */}
                   <tr style={{ borderTop: `2px solid ${userColor}` }}>
                     <td
                       style={{
-                        ...userTdLabelBase,
+                        ...userRowLabelStyle,
                         borderBottom: 'none',
                         paddingTop: 12,
-                        paddingBottom: 12,
+                        paddingBottom: 8,
                         fontWeight: 700,
-                        fontSize: 15,
                         color: RECEIPT_TEXT,
                       }}
                     >
-                      총 납부/배분 결과
+                      총 내야할 돈
                     </td>
                     <td
                       style={{
-                        ...userTdAmountBase,
+                        ...userRowAmountStyle,
                         borderBottom: 'none',
                         paddingTop: 12,
-                        paddingBottom: 12,
+                        paddingBottom: 8,
                         fontWeight: 700,
-                        fontSize: 15,
                         color: RECEIPT_TEXT,
                       }}
                     >
                       {fmt(u.total)}
                     </td>
                   </tr>
-                  <tr style={{ borderTop: userDashStyle }}>
+                  <tr>
                     <td
                       style={{
-                        ...userTdLabelBase,
+                        ...userRowLabelStyle,
                         borderBottom: 'none',
-                        paddingTop: 12,
-                        paddingBottom: 8,
+                        paddingTop: 4,
+                        paddingBottom: 12,
                         color: RECEIPT_MUTED,
                       }}
                     >
@@ -813,10 +870,10 @@ export function SettlementResultView({
                     </td>
                     <td
                       style={{
-                        ...userTdAmountBase,
+                        ...userRowAmountStyle,
                         borderBottom: 'none',
-                        paddingTop: 12,
-                        paddingBottom: 8,
+                        paddingTop: 4,
+                        paddingBottom: 12,
                         fontWeight: 600,
                         color: allowanceValueColor(u.allowance),
                       }}
@@ -826,6 +883,117 @@ export function SettlementResultView({
                   </tr>
                 </tbody>
               </table>
+              {/* 더보기 / 접기 토글 */}
+              <button
+                type="button"
+                onClick={() =>
+                  setDetailsOpen((prev) => ({ ...prev, [p]: !prev[p] }))
+                }
+                style={{
+                  marginTop: 10,
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #e5e7eb',
+                  background: '#fafafa',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: '#6b7280',
+                  fontFamily: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                }}
+              >
+                <span>{detailsOpen[p] ? '상세 접기' : '상세 보기'}</span>
+                {detailsOpen[p] ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path
+                      d="M20.2959 15.7957C20.1914 15.9006 20.0672 15.9838 19.9304 16.0406C19.7937 16.0974 19.6471 16.1266 19.499 16.1266C19.351 16.1266 19.2043 16.0974 19.0676 16.0406C18.9309 15.9838 18.8067 15.9006 18.7021 15.7957L12 9.09354L5.2959 15.7957C5.08455 16.0071 4.79791 16.1258 4.49902 16.1258C4.20014 16.1258 3.91349 16.0071 3.70215 15.7957C3.4908 15.5844 3.37207 15.2977 3.37207 14.9989C3.37207 14.7 3.4908 14.4133 3.70215 14.202L11.2021 6.70198C11.3067 6.5971 11.4309 6.51388 11.5676 6.4571C11.7043 6.40032 11.851 6.37109 11.999 6.37109C12.1471 6.37109 12.2937 6.40032 12.4304 6.4571C12.5672 6.51388 12.6914 6.5971 12.7959 6.70198L20.2959 14.202C20.4008 14.3065 20.484 14.4307 20.5408 14.5674C20.5976 14.7042 20.6268 14.8508 20.6268 14.9989C20.6268 15.1469 20.5976 15.2935 20.5408 15.4303C20.484 15.567 20.4008 15.6912 20.2959 15.7957Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path
+                      d="M20.2959 9.79586L12.7959 17.2959C12.6914 17.4007 12.5672 17.484 12.4304 17.5407C12.2937 17.5975 12.1471 17.6267 11.999 17.6267C11.851 17.6267 11.7043 17.5975 11.5676 17.5407C11.4309 17.484 11.3067 17.4007 11.2021 17.2959L3.70215 9.79586C3.4908 9.58451 3.37207 9.29787 3.37207 8.99898C3.37207 8.7001 3.4908 8.41345 3.70215 8.20211C3.91349 7.99076 4.20014 7.87203 4.49902 7.87203C4.79791 7.87203 5.08455 7.99076 5.2959 8.20211L12 14.9062L18.704 8.20117C18.9154 7.98983 19.202 7.87109 19.5009 7.87109C19.7998 7.87109 20.0864 7.98983 20.2978 8.20117C20.5091 8.41252 20.6278 8.69916 20.6278 8.99805C20.6278 9.29693 20.5091 9.58358 20.2978 9.79492L20.2959 9.79586Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                )}
+              </button>
+              {/* 상세 박스 (글 형태 서술) */}
+              {detailsOpen[p] && (() => {
+                const totalFixed =
+                  fixedDepositBreakdown.totalIncludingSeparate ?? fixedDepositBreakdown.totalFixed
+                const halfFixed = fixedDepositBreakdown.halfEach
+                const ownSep = fixedDepositBreakdown.separateByUser[p]
+                const deposit = u.fixedDeposit
+                const sepCardTotal = sep5090?.total ?? 0
+                const sepDiff = paidOnSeparateCard - fairEach
+                return (
+                  <div
+                    style={{
+                      marginTop: 12,
+                      padding: '14px 16px',
+                      background: '#f9fafb',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 10,
+                      fontSize: 12,
+                      lineHeight: 1.7,
+                      color: '#374151',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 10,
+                    }}
+                  >
+                    <div>
+                      이번 달 고정 지출은 <strong>{fmt(totalFixed)}</strong>이고 1인당{' '}
+                      <strong>{fmt(halfFixed)}</strong>을 부담해야합니다.{' '}
+                      {ownSep > 0 ? (
+                        <>
+                          개별 부담한 금액이 <strong>{fmt(ownSep)}</strong>이기 때문에{' '}
+                          <strong style={{ color: PRIMARY }}>{fmt(deposit)}</strong>을 공동 지출 통장에 입금하면 됩니다.
+                        </>
+                      ) : (
+                        <>
+                          <strong style={{ color: PRIMARY }}>{fmt(deposit)}</strong>을 공동 지출 통장에 입금하면 됩니다.
+                        </>
+                      )}
+                    </div>
+                    {sepCardTotal > 0 && (
+                      <div>
+                        이번 달 별도 지출한 금액은 <strong>{fmt(sepCardTotal)}</strong>이고 1인당{' '}
+                        <strong>{fmt(fairEach)}</strong>을 부담해야합니다. 실제 낸 금액이{' '}
+                        <strong>{fmt(paidOnSeparateCard)}</strong>이기 때문에{' '}
+                        {sepDiff > 0 ? (
+                          <>
+                            상대방에게 <strong style={{ color: PRIMARY }}>{fmt(sepDiff)}</strong>을 받아야합니다.
+                          </>
+                        ) : sepDiff < 0 ? (
+                          <>
+                            상대방에게 <strong style={{ color: PRIMARY }}>{fmt(-sepDiff)}</strong>을 송금해야합니다.
+                          </>
+                        ) : (
+                          <>주고받을 금액이 없습니다.</>
+                        )}
+                      </div>
+                    )}
+                    {u.invest > 0 && (
+                      <div>
+                        이번 달 투자/저축은 총 <strong>{fmt(u.invest)}</strong>입니다.
+                      </div>
+                    )}
+                    <div style={{ paddingTop: 8, borderTop: '1px dashed #d1d5db' }}>
+                      이번 달 고정지출, 별도 지출, 공동 생활비, 투자/저축에 내는 돈은 총{' '}
+                      <strong>{fmt(u.total)}</strong>이므로 최종 용돈은{' '}
+                      <strong style={{ color: allowanceValueColor(u.allowance) }}>{fmt(u.allowance)}</strong>입니다.
+                    </div>
+                  </div>
+                )
+              })()}
               </div>
             </div>
           )

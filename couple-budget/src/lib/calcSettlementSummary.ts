@@ -30,6 +30,11 @@ export interface SettlementInputs {
   fixedTemplateSeparateByUser?: { A: number; B: number }
   /** 고정지출 카드 전체 합(별도 정산 포함). 미주입 시 fixedRegularTotal로 간주 */
   fixedTotalIncludingSeparate?: number
+  /** 「별도 정산」 표시된 항목 목록 (유저별) */
+  fixedTemplateSeparateItemsByUser?: {
+    A: { description: string; amount: number }[]
+    B: { description: string; amount: number }[]
+  }
   /** 별도 지출 카드 50:50 송금 안내(미주입 시 null) */
   separateExpenseCard5090?: {
     total: number
@@ -87,16 +92,21 @@ export interface SettlementSummary {
   fixedDepositByUser: { A: number; B: number }
   /** 고정지출 통장 입금액 내역 */
   fixedDepositBreakdown: {
-    /** 통장 입금 기준 합계 (별도 정산 표시된 항목 제외) */
+    /** 고정지출 카드 합계 (별도 정산 포함된 전체) */
     totalFixed: number
-    /** 1인당 입금액 = totalFixed ÷ 2 (반올림) */
+    /** 1인당 기준 입금액 = totalFixed ÷ 2 (반올림) */
     halfEach: number
-    /** [구버전 호환] 별도·개별 부담 합 */
+    /** 유저별 「별도 정산」 부담 합 (halfEach − fixedDepositByUser) */
     separateByUser: { A: number; B: number }
-    /** 고정지출 전체 합 (별도 정산 표시된 항목 포함) */
+    /** [동일] 전체 합 (호환용) */
     totalIncludingSeparate: number
     /** 「별도 정산」 표시된 고정지출 항목의 유저별 합 */
     templateSeparateByUser: { A: number; B: number }
+    /** 「별도 정산」 표시된 고정지출 항목 목록 (유저별) */
+    templateSeparateItemsByUser: {
+      A: { description: string; amount: number }[]
+      B: { description: string; amount: number }[]
+    }
   }
   /** 별도 지출 카드 50:50 송금 안내 */
   separateExpenseCard5090: NonNullable<SettlementInputs['separateExpenseCard5090']> | null
@@ -192,9 +202,9 @@ export function calcSettlementSummary(
     chartData.push({ label: '용돈', amount: totalAllowance, pct: (totalAllowance / totalIncome) * 100 })
   }
   const templateSeparateByUser = inputs.fixedTemplateSeparateByUser ?? { A: 0, B: 0 }
+  const templateSeparateItemsByUser = inputs.fixedTemplateSeparateItemsByUser ?? { A: [], B: [] }
   const totalIncludingSeparate =
-    inputs.fixedTotalIncludingSeparate ??
-    fixedRegularTotal + templateSeparateByUser.A + templateSeparateByUser.B
+    inputs.fixedTotalIncludingSeparate ?? fixedRegularTotal
   return {
     totalIncome,
     totalFixed,
@@ -216,6 +226,7 @@ export function calcSettlementSummary(
       },
       totalIncludingSeparate,
       templateSeparateByUser,
+      templateSeparateItemsByUser,
     },
     separateExpenseCard5090: inputs.separateExpenseCard5090 ?? null,
     userSummary,
