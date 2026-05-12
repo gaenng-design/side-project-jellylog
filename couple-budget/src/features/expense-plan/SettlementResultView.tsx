@@ -492,25 +492,14 @@ export function SettlementResultView({
             }}
           >
             <div>
-              · 이번 달 적용 고정지출 합계는 <strong style={{ color: '#374151' }}>{fmt(fixedDepositBreakdown.totalFixed)}</strong>
-              입니다.
+              · 통장 입금 기준 고정지출 합계는 <strong style={{ color: '#374151' }}>{fmt(fixedDepositBreakdown.totalFixed)}</strong>
+              입니다.{' '}
+              <span style={{ color: '#9ca3af' }}>(「별도·개별 부담」 항목은 계산에서 제외)</span>
             </div>
             <div>
-              · 공동 통장에는 절반씩 부담하므로 1인당 기준액은{' '}
-              <strong style={{ color: '#374151' }}>{fmt(fixedDepositBreakdown.halfEach)}</strong>
-              (합계 ÷ 2, 반올림)입니다.
-            </div>
-            <div>
-              · <strong style={{ color: '#374151' }}>{personAName}</strong>: 고정지출 중 「별도·개별 부담」으로 본인이 직접 낸 항목{' '}
-              <strong style={{ color: '#374151' }}>{fmt(fixedDepositBreakdown.separateByUser.A)}</strong>을 빼면 통장 입금액은{' '}
-              <strong style={{ color: PRIMARY }}>{fmt(fixedDepositByUser.A)}</strong>입니다.{' '}
-              <span style={{ color: '#9ca3af' }}>(기준액 − 별도 부담)</span>
-            </div>
-            <div>
-              · <strong style={{ color: '#374151' }}>{personBName}</strong>: 고정지출 중 「별도·개별 부담」으로 본인이 직접 낸 항목{' '}
-              <strong style={{ color: '#374151' }}>{fmt(fixedDepositBreakdown.separateByUser.B)}</strong>을 빼면 통장 입금액은{' '}
-              <strong style={{ color: PRIMARY }}>{fmt(fixedDepositByUser.B)}</strong>입니다.{' '}
-              <span style={{ color: '#9ca3af' }}>(기준액 − 별도 부담)</span>
+              · 공동 통장에는 절반씩 부담하므로 1인당 입금액은{' '}
+              <strong style={{ color: PRIMARY }}>{fmt(fixedDepositBreakdown.halfEach)}</strong>
+              {' '}<span style={{ color: '#9ca3af' }}>(합계 ÷ 2, 반올림)</span>입니다.
             </div>
           </div>
         ) : null}
