@@ -7,7 +7,8 @@
       "source": "manual",
       "id": "asset-1777882542533",
       "order": 0,
-      "person": "B"
+      "person": "B",
+      "locked": true
     },
     {
       "name": "청약",
@@ -40,7 +41,8 @@
       "person": "A",
       "initialAmount": 150000000,
       "id": "asset-1778483629217",
-      "order": 4
+      "order": 4,
+      "locked": true
     },
     {
       "name": "청약",
@@ -79,6 +81,14 @@
       "defaultAmount": 200000,
       "id": "asset-1778483629249",
       "order": 9
+    },
+    {
+      "name": "비상금",
+      "category": "저축",
+      "person": "A",
+      "defaultAmount": 3531301,
+      "id": "asset-1778552010606",
+      "order": 10
     }
   ],
   "entries": [
@@ -627,6 +637,54 @@
       "itemId": "asset-1778483629248",
       "yearMonth": "2026-05",
       "amount": 3914144
+    },
+    {
+      "id": "asset-1778552010607",
+      "itemId": "asset-1778552010606",
+      "yearMonth": "2026-05",
+      "amount": 3531301
+    },
+    {
+      "id": "asset-1778552010608",
+      "itemId": "asset-1778552010606",
+      "yearMonth": "2026-06",
+      "amount": 7062602
+    },
+    {
+      "id": "asset-1778552010609",
+      "itemId": "asset-1778552010606",
+      "yearMonth": "2026-07",
+      "amount": 10593903
+    },
+    {
+      "id": "asset-1778552010610",
+      "itemId": "asset-1778552010606",
+      "yearMonth": "2026-08",
+      "amount": 14125204
+    },
+    {
+      "id": "asset-1778552010611",
+      "itemId": "asset-1778552010606",
+      "yearMonth": "2026-09",
+      "amount": 17656505
+    },
+    {
+      "id": "asset-1778552010612",
+      "itemId": "asset-1778552010606",
+      "yearMonth": "2026-10",
+      "amount": 21187806
+    },
+    {
+      "id": "asset-1778552010613",
+      "itemId": "asset-1778552010606",
+      "yearMonth": "2026-11",
+      "amount": 24719107
+    },
+    {
+      "id": "asset-1778552010614",
+      "itemId": "asset-1778552010606",
+      "yearMonth": "2026-12",
+      "amount": 28250408
     }
   ]
 }
