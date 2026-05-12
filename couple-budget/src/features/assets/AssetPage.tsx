@@ -313,14 +313,13 @@ function YearTable({
                   <div
                     style={{
                       ...sumColStyleBase,
-                      padding: '6px 12px 0 12px',
+                      padding: '0 12px',
                       fontSize: 12,
                       fontWeight: 600,
                       color: JELLY.text,
                       background: '#f9fafb',
                       textAlign: 'center',
                       borderLeft: '2px solid #b3b8c1',
-                      borderRight: '1px solid #b3b8c1',
                       minHeight: 36,
                       display: 'flex',
                       alignItems: 'center',
@@ -378,7 +377,6 @@ function YearTable({
                       padding: '0 12px',
                       background: '#fafbfc',
                       borderLeft: '2px solid #b3b8c1',
-                      borderRight: '1px solid #b3b8c1',
                       minHeight: 36,
                       display: 'flex',
                       alignItems: 'center',
@@ -397,12 +395,13 @@ function YearTable({
               MONTHS.map((month, mi) => {
                 const editable = isMonthEditable(year, mi)
                 const isFuture = year === currentYear && mi > currentMonth
+                const isLastRow = mi === 11
                 return (
                   <div
                     key={month}
                     style={{
                       display: 'flex',
-                      borderBottom: '1px solid #d1d5db',
+                      borderBottom: isLastRow ? 'none' : '1px solid #d1d5db',
                       background: isFuture ? 'rgba(243,244,246,0.5)' : undefined,
                     }}
                   >
@@ -456,7 +455,6 @@ function YearTable({
                         fontWeight: 600,
                         color: monthTotals[mi] > 0 ? PRIMARY : '#d1d5db',
                         borderLeft: '2px solid #d1d5db',
-                        borderRight: '1px solid #d1d5db',
                         minHeight: 36,
                         background: isFuture ? 'rgba(243,244,246,0.95)' : '#ffffff',
                       }}
@@ -804,37 +802,157 @@ export function AssetPage() {
     <div style={{ paddingBottom: 40 }}>
       <h1 style={{ ...pageTitleH1Style, marginBottom: 16 }}>자산</h1>
 
-      {/* Current month summary: 총 합계 + 가용 금액 (묶이지 않은 돈) */}
+      {/* Current month summary: 총 합계 + 가용 금액 + 유저별 자산 */}
       {(() => {
         const currentYM = ym(currentYear, currentMonth)
         const monthTotal = currentYearMonthTotals[currentMonth]
+        const sumByPerson = (p?: 'A' | 'B') =>
+          sortedItems
+            .filter((item) => item.person === p)
+            .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
         const availableTotal = sortedItems
           .filter((item) => !item.locked)
           .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+        const personATotal = sumByPerson('A')
+        const personBTotal = sumByPerson('B')
+        const sharedTotal = sortedItems
+          .filter((item) => !item.person)
+          .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
         return (
-          <div
-            style={{
-              ...jellyCardStyle,
-              padding: '16px 20px',
-              marginBottom: 16,
-              display: 'flex',
-              gap: 24,
-              flexWrap: 'wrap',
-              alignItems: 'flex-end',
-            }}
-          >
-            <div style={{ flex: 1, minWidth: 160 }}>
-              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
-                {currentYear}년 {MONTHS[currentMonth]} · 총 합계
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+            {/* 상단: 총 합계 + 가용 금액 */}
+            <div
+              style={{
+                ...jellyCardStyle,
+                padding: '16px 20px',
+                display: 'flex',
+                gap: 24,
+                flexWrap: 'wrap',
+                alignItems: 'flex-end',
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 160 }}>
+                <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+                  {currentYear}년 {MONTHS[currentMonth]} · 총 합계
+                </div>
+                <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{fmtSum(monthTotal)}</div>
               </div>
-              <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{fmtSum(monthTotal)}</div>
+              <div style={{ flex: 1, minWidth: 160 }}>
+                <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+                  💰 가용 금액
+                  <span style={{ color: '#9ca3af', marginLeft: 4 }}>(묶이지 않은 돈)</span>
+                </div>
+                <div style={{ fontSize: 26, fontWeight: 700, color: JELLY.text }}>{fmtSum(availableTotal)}</div>
+              </div>
             </div>
-            <div style={{ flex: 1, minWidth: 160 }}>
-              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
-                💰 가용 금액
-                <span style={{ color: '#9ca3af', marginLeft: 4 }}>(묶이지 않은 돈)</span>
+
+            {/* 하단: 유저별 소유 자산 */}
+            <div
+              style={{
+                ...jellyCardStyle,
+                padding: '14px 20px',
+                display: 'flex',
+                gap: 16,
+                flexWrap: 'wrap',
+                alignItems: 'flex-end',
+              }}
+            >
+              <div
+                style={{
+                  flex: 1,
+                  minWidth: 140,
+                  padding: '10px 14px',
+                  borderRadius: 12,
+                  background: getItemColumnBg('A', 'header'),
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: personAColor,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ fontSize: 12, color: '#374151', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {personAName}
+                  </span>
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
+                  {fmtSum(personATotal)}
+                </div>
               </div>
-              <div style={{ fontSize: 26, fontWeight: 700, color: JELLY.text }}>{fmtSum(availableTotal)}</div>
+              <div
+                style={{
+                  flex: 1,
+                  minWidth: 140,
+                  padding: '10px 14px',
+                  borderRadius: 12,
+                  background: getItemColumnBg('B', 'header'),
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: personBColor,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span style={{ fontSize: 12, color: '#374151', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {personBName}
+                  </span>
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
+                  {fmtSum(personBTotal)}
+                </div>
+              </div>
+              {sharedTotal > 0 && (
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 140,
+                    padding: '10px 14px',
+                    borderRadius: 12,
+                    background: '#f3f4f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: '#9ca3af',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: 12, color: '#374151', fontWeight: 600 }}>공유</span>
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
+                    {fmtSum(sharedTotal)}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )

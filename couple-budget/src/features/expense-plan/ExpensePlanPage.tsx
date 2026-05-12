@@ -1979,7 +1979,10 @@ export function ExpensePlanPage() {
   )
 
   const buildSettlementSummary = useCallback((): ReturnType<typeof calcSettlementSummary> => {
-    const totalFixedRegular = fixedRows.filter((r) => !r.isExcluded).reduce((s, i) => s + i.amount, 0)
+    // 통장 입금액 계산은 "별도 정산" 표시된 고정지출 항목을 완전히 제외
+    const totalFixedRegular = fixedRows
+      .filter((r) => !r.isExcluded && !r.isSeparate)
+      .reduce((s, i) => s + i.amount, 0)
     const totalFixedSeparate = separateExpenseExtraRows.filter((r) => !r.isExcluded).reduce((s, i) => s + i.amount, 0)
     const activeInvest = investRows.filter((r) => !r.isExcluded)
     const sepPersonTemplate = (r: FixedRow) =>
@@ -2009,9 +2012,10 @@ export function ExpensePlanPage() {
       A: activeInvest.filter((r) => r.person === 'A').reduce((s, r) => s + r.amount, 0),
       B: activeInvest.filter((r) => r.person === 'B').reduce((s, r) => s + r.amount, 0),
     }
+    // 별도 정산 항목은 통장 입금액 계산에서 완전히 제외 (totalFixedRegular에 이미 빠짐)
     const fixedDepositByUser = {
-      A: Math.round(totalFixedRegular / 2) - templateSepA,
-      B: Math.round(totalFixedRegular / 2) - templateSepB,
+      A: Math.round(totalFixedRegular / 2),
+      B: Math.round(totalFixedRegular / 2),
     }
     return calcSettlementSummary(
       {
