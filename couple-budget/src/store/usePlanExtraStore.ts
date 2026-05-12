@@ -32,6 +32,10 @@ interface PlanExtraState {
   separateExpenseRowsByMonth: Record<string, FixedExtraRow[]>
   templateSnapshotsByMonth: Record<string, { fixed: FixedTemplate[]; invest: InvestTemplate[] }>
   defaultSalaryExcludedByMonth: Record<string, DefaultSalaryExcluded>
+  /** 월별 공동 생활비 (미설정 시 settings.sharedLivingCost 사용) */
+  sharedLivingCostByMonth: Record<string, number>
+  setSharedLivingCostForMonth: (ym: string, amount: number) => void
+  clearSharedLivingCostForMonth: (ym: string) => void
   setFixedForMonth: (ym: string, updater: (prev: FixedExtraRow[]) => FixedExtraRow[]) => void
   setInvestForMonth: (ym: string, updater: (prev: InvestExtraRow[]) => InvestExtraRow[]) => void
   setSeparateExpenseForMonth: (ym: string, updater: (prev: FixedExtraRow[]) => FixedExtraRow[]) => void
@@ -51,6 +55,17 @@ export const usePlanExtraStore = create<PlanExtraState>()(
       separateExpenseRowsByMonth: {},
       templateSnapshotsByMonth: {},
       defaultSalaryExcludedByMonth: {},
+      sharedLivingCostByMonth: {},
+      setSharedLivingCostForMonth: (ym, amount) =>
+        set((s) => ({
+          sharedLivingCostByMonth: { ...s.sharedLivingCostByMonth, [ym]: amount },
+        })),
+      clearSharedLivingCostForMonth: (ym) =>
+        set((s) => {
+          const next = { ...s.sharedLivingCostByMonth }
+          delete next[ym]
+          return { sharedLivingCostByMonth: next }
+        }),
       setFixedForMonth: (ym, updater) =>
         set((s) => ({
           extraRowsByMonth: {
@@ -158,11 +173,14 @@ export const usePlanExtraStore = create<PlanExtraState>()(
           delete nextSnapshots[ym]
           const nextEx = { ...s.defaultSalaryExcludedByMonth }
           delete nextEx[ym]
+          const nextShared = { ...s.sharedLivingCostByMonth }
+          delete nextShared[ym]
           return {
             extraRowsByMonth: next,
             separateExpenseRowsByMonth: nextSep,
             templateSnapshotsByMonth: nextSnapshots,
             defaultSalaryExcludedByMonth: nextEx,
+            sharedLivingCostByMonth: nextShared,
           }
         }),
     }),
@@ -173,6 +191,7 @@ export const usePlanExtraStore = create<PlanExtraState>()(
         separateExpenseRowsByMonth: s.separateExpenseRowsByMonth,
         templateSnapshotsByMonth: s.templateSnapshotsByMonth,
         defaultSalaryExcludedByMonth: s.defaultSalaryExcludedByMonth,
+        sharedLivingCostByMonth: s.sharedLivingCostByMonth,
       }),
     },
   ),

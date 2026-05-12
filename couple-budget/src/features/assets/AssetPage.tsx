@@ -61,10 +61,10 @@ function AmountCell({
         }}
         style={{
           width: '100%',
-          height: 32,
-          padding: '0 6px',
+          height: 36,
+          padding: '0 8px',
           border: `1.5px solid ${PRIMARY}`,
-          borderRadius: 6,
+          borderRadius: 0,
           fontSize: 12,
           textAlign: 'right',
           outline: 'none',
@@ -81,12 +81,13 @@ function AmountCell({
     <div
       onClick={() => !disabled && !projected && startEdit()}
       style={{
-        height: 32,
+        width: '100%',
+        minHeight: 36,
+        alignSelf: 'stretch',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        padding: '0 6px',
-        borderRadius: 6,
+        padding: '0 8px',
         fontSize: 12,
         color: projected
           ? (value === 0 ? '#d1d5db' : '#9ca3af')  // 예측값: 회색
@@ -95,10 +96,9 @@ function AmountCell({
         userSelect: 'none',
         background: projected
           ? (value > 0 ? 'rgba(156, 163, 175, 0.06)' : 'transparent')  // 예측값: 연회색 배경
-          : (value > 0 ? 'rgba(79, 140, 255, 0.04)' : 'transparent'),
+          : 'transparent',
         border: '1.5px solid transparent',
         boxSizing: 'border-box',
-        minWidth: 60,
         whiteSpace: 'nowrap',
         opacity: disabled ? 0.5 : 1,
         fontStyle: projected ? 'italic' : 'normal',  // 예측값: 이탤릭
@@ -125,9 +125,10 @@ function YearTable({
   onItemClick,
   getPersonColor,
   getPersonLabel,
+  getItemColumnBg,
   tableMinWidth,
-  ITEM_COLUMN_WIDTH,
-  COLLAPSED_COLUMN_WIDTH,
+  itemColWidths,
+  sumColWidth,
   MONTH_COLUMN_WIDTH,
 }: {
   year: number
@@ -144,28 +145,42 @@ function YearTable({
   onItemClick: (item: AssetItem) => void
   getPersonColor: (person?: 'A' | 'B') => string
   getPersonLabel: (person?: 'A' | 'B') => string
+  getItemColumnBg: (person?: 'A' | 'B', intensity?: 'header' | 'cell') => string
   tableMinWidth: number
-  ITEM_COLUMN_WIDTH: number
-  COLLAPSED_COLUMN_WIDTH: number
+  /** 각 항목별 동적 너비 (접힘 포함) */
+  itemColWidths: Record<string, number>
+  /** 합계 컬럼 동적 너비 */
+  sumColWidth: number
   MONTH_COLUMN_WIDTH: number
 }) {
   const [yearCollapsed, setYearCollapsed] = useState(year < currentYear)
 
   const monthHeaderStyle: React.CSSProperties = {
     flex: `0 0 ${MONTH_COLUMN_WIDTH}px`,
-    paddingLeft: 12,
-    paddingRight: 6,
-    borderRight: '1px solid #e5e7eb',
+    padding: '0 6px',
+    borderRight: '1px solid #b3b8c1',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     minHeight: 36,
     fontSize: 11,
     fontWeight: 600,
     color: '#6b7280',
     background: '#f9fafb',
+    position: 'sticky',
+    left: 0,
+    zIndex: 2,
+    textAlign: 'center',
   }
 
-  const yearTotal = monthTotals.reduce((a, b) => a + b, 0)
+  /** 합계 컬럼 sticky 기본 스타일 */
+  const sumColStyleBase: React.CSSProperties = {
+    flex: `0 0 ${sumColWidth}px`,
+    marginLeft: 'auto',
+    position: 'sticky',
+    right: 0,
+    zIndex: 2,
+  }
 
   return (
     <div style={{ ...jellyCardStyle, overflow: 'hidden', marginBottom: 16 }}>
@@ -177,9 +192,9 @@ function YearTable({
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '12px 16px',
-          background: year === currentYear ? PRIMARY_LIGHT : '#fafbfc',
+          background: year === currentYear ? 'rgba(79, 140, 255, 0.18)' : '#fafbfc',
           cursor: 'pointer',
-          borderBottom: yearCollapsed ? 'none' : '1px solid #e5e7eb',
+          borderBottom: yearCollapsed ? 'none' : '1px solid #b3b8c1',
           userSelect: 'none',
         }}
       >
@@ -205,9 +220,6 @@ function YearTable({
             </span>
           )}
         </div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: yearTotal > 0 ? JELLY.text : '#9ca3af' }}>
-          {yearTotal > 0 ? `합계 ${yearTotal.toLocaleString('ko-KR')}원` : '데이터 없음'}
-        </div>
       </div>
 
       {!yearCollapsed && (
@@ -216,11 +228,11 @@ function YearTable({
             {sortedItems.length > 0 && (
               <>
                 {/* 항목명 행 */}
-                <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
+                <div style={{ display: 'flex', borderBottom: '1px solid #b3b8c1', background: '#f9fafb' }}>
                   <div style={monthHeaderStyle}>월</div>
                   {sortedItems.map((item) => {
                     const isCollapsed = collapsedItems.has(item.id)
-                    const colWidth = isCollapsed ? COLLAPSED_COLUMN_WIDTH : ITEM_COLUMN_WIDTH
+                    const colWidth = itemColWidths[item.id] ?? 100
                     return (
                       <div
                         key={`name-${item.id}`}
@@ -230,9 +242,9 @@ function YearTable({
                           fontSize: 12,
                           fontWeight: 600,
                           color: JELLY.text,
-                          background: '#f9fafb',
+                          background: getItemColumnBg(item.person, 'header'),
                           textAlign: 'center',
-                          borderRight: '1px solid #e5e7eb',
+                          borderRight: '1px solid #b3b8c1',
                           overflow: 'hidden',
                           whiteSpace: 'nowrap',
                           position: 'relative',
@@ -240,11 +252,10 @@ function YearTable({
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: 2,
                         }}
                         title={isCollapsed ? `${item.name} (접힘) - 클릭하여 펼치기` : `${item.name} (${getPersonLabel(item.person)})`}
                       >
-                        {/* 접기/펼치기 토글 */}
+                        {/* 접기/펼치기 토글 (셀 좌측 끝 절대 위치) */}
                         <button
                           type="button"
                           onClick={(e) => {
@@ -253,45 +264,46 @@ function YearTable({
                           }}
                           title={isCollapsed ? '펼치기' : '접기'}
                           style={{
-                            width: 18,
+                            position: 'absolute',
+                            left: 4,
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            width: 16,
                             height: 18,
                             border: 'none',
                             background: 'transparent',
                             cursor: 'pointer',
-                            fontSize: 9,
-                            color: '#6b7280',
+                            fontSize: 12,
+                            lineHeight: 1,
+                            color: '#9ca3af',
                             padding: 0,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            flexShrink: 0,
+                            fontFamily: 'inherit',
                           }}
                         >
-                          {isCollapsed ? '▶' : '◀'}
+                          {isCollapsed ? '>' : '<'}
                         </button>
                         {!isCollapsed && (
                           <div
                             onClick={() => onItemClick(item)}
                             style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: 4,
                               cursor: 'pointer',
                               minWidth: 0,
                               overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              padding: '0 14px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
                             }}
                           >
-                            <span
-                              style={{
-                                display: 'inline-block',
-                                width: 7,
-                                height: 7,
-                                borderRadius: '50%',
-                                background: getPersonColor(item.person),
-                                flexShrink: 0,
-                              }}
-                            />
+                            {item.locked && (
+                              <span title="묶인 돈" style={{ fontSize: 11, flexShrink: 0 }}>
+                                🔒
+                              </span>
+                            )}
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
                           </div>
                         )}
@@ -300,16 +312,15 @@ function YearTable({
                   })}
                   <div
                     style={{
-                      flex: `0 0 ${ITEM_COLUMN_WIDTH}px`,
+                      ...sumColStyleBase,
                       padding: '6px 12px 0 12px',
                       fontSize: 12,
                       fontWeight: 600,
                       color: JELLY.text,
                       background: '#f9fafb',
                       textAlign: 'center',
-                      borderLeft: '2px solid #e5e7eb',
-                      borderRight: '1px solid #e5e7eb',
-                      marginLeft: 'auto',
+                      borderLeft: '2px solid #b3b8c1',
+                      borderRight: '1px solid #b3b8c1',
                       minHeight: 36,
                       display: 'flex',
                       alignItems: 'center',
@@ -321,11 +332,11 @@ function YearTable({
                 </div>
 
                 {/* 카테고리 행 */}
-                <div style={{ display: 'flex', borderBottom: '2px solid #e5e7eb', background: '#fafbfc' }}>
+                <div style={{ display: 'flex', borderBottom: '2px solid #b3b8c1', background: '#fafbfc' }}>
                   <div style={{ ...monthHeaderStyle, background: '#fafbfc' }} />
                   {sortedItems.map((item) => {
                     const isCollapsed = collapsedItems.has(item.id)
-                    const colWidth = isCollapsed ? COLLAPSED_COLUMN_WIDTH : ITEM_COLUMN_WIDTH
+                    const colWidth = itemColWidths[item.id] ?? 100
                     return (
                       <div
                         key={`cat-${item.id}`}
@@ -335,17 +346,15 @@ function YearTable({
                           padding: '4px 4px 6px 4px',
                           fontSize: 10,
                           color: '#9ca3af',
-                          background: '#fafbfc',
+                          background: getItemColumnBg(item.person, 'header'),
                           textAlign: 'center',
-                          borderRight: '1px solid #e5e7eb',
-                          borderTop: `3px solid ${getPersonColor(item.person)}`,
+                          borderRight: '1px solid #b3b8c1',
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'flex-end',
                           gap: 2,
                           cursor: isCollapsed ? 'default' : 'pointer',
-                          borderRadius: '0 0 6px 6px',
                           minHeight: 36,
                           overflow: 'hidden',
                         }}
@@ -365,12 +374,11 @@ function YearTable({
                   })}
                   <div
                     style={{
-                      flex: `0 0 ${ITEM_COLUMN_WIDTH}px`,
+                      ...sumColStyleBase,
                       padding: '0 12px',
                       background: '#fafbfc',
-                      borderLeft: '2px solid #e5e7eb',
-                      borderRight: '1px solid #e5e7eb',
-                      marginLeft: 'auto',
+                      borderLeft: '2px solid #b3b8c1',
+                      borderRight: '1px solid #b3b8c1',
                       minHeight: 36,
                       display: 'flex',
                       alignItems: 'center',
@@ -394,14 +402,14 @@ function YearTable({
                     key={month}
                     style={{
                       display: 'flex',
-                      borderBottom: '1px solid #f3f4f6',
+                      borderBottom: '1px solid #d1d5db',
                       background: isFuture ? 'rgba(243,244,246,0.5)' : undefined,
                     }}
                   >
                     <div style={{ ...monthHeaderStyle, color: isFuture ? '#9ca3af' : undefined }}>{month}</div>
                     {sortedItems.map((item) => {
                       const isCollapsed = collapsedItems.has(item.id)
-                      const colWidth = isCollapsed ? COLLAPSED_COLUMN_WIDTH : ITEM_COLUMN_WIDTH
+                      const colWidth = itemColWidths[item.id] ?? 100
                       const displayValue = isFuture
                         ? getProjectedValue(year, item, mi)
                         : getEntry(item.id, ym(year, mi))
@@ -410,9 +418,11 @@ function YearTable({
                           key={`${item.id}-${mi}`}
                           style={{
                             flex: `0 0 ${colWidth}px`,
-                            padding: isCollapsed ? '0 4px' : '0 8px',
-                            borderRight: '1px solid #f3f4f6',
-                            background: isCollapsed ? '#fafbfc' : undefined,
+                            padding: 0,
+                            borderRight: '1px solid #d1d5db',
+                            background: isCollapsed
+                              ? '#fafbfc'
+                              : getItemColumnBg(item.person, 'cell'),
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -434,10 +444,10 @@ function YearTable({
                         </div>
                       )
                     })}
-                    {/* 월 합계 */}
+                    {/* 월 합계 (오른쪽 sticky) */}
                     <div
                       style={{
-                        flex: `0 0 ${ITEM_COLUMN_WIDTH}px`,
+                        ...sumColStyleBase,
                         padding: '0 12px',
                         display: 'flex',
                         alignItems: 'center',
@@ -445,10 +455,10 @@ function YearTable({
                         fontSize: 12,
                         fontWeight: 600,
                         color: monthTotals[mi] > 0 ? PRIMARY : '#d1d5db',
-                        borderLeft: '2px solid #f3f4f6',
-                        borderRight: '1px solid #f3f4f6',
-                        marginLeft: 'auto',
+                        borderLeft: '2px solid #d1d5db',
+                        borderRight: '1px solid #d1d5db',
                         minHeight: 36,
+                        background: isFuture ? 'rgba(243,244,246,0.95)' : '#ffffff',
                       }}
                     >
                       {monthTotals[mi] > 0 ? monthTotals[mi].toLocaleString('ko-KR') : '—'}
@@ -465,31 +475,28 @@ function YearTable({
 }
 
 function AddItemRow({ onAdd, personAName, personBName }: {
-  onAdd: (name: string, category: string, defaultAmount: number, person: 'A' | 'B' | undefined, initialAmount: number) => void
+  onAdd: (name: string, category: string, defaultAmount: number, person: 'A' | 'B' | undefined, locked: boolean) => void
   personAName: string
   personBName: string
 }) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState('저축')
   const [person, setPerson] = useState<'A' | 'B'>('A')
-  const [hasInitial, setHasInitial] = useState(false)
-  const [initialAmount, setInitialAmount] = useState('')
   const [hasDefault, setHasDefault] = useState(false)
   const [defaultAmount, setDefaultAmount] = useState('')
+  const [locked, setLocked] = useState(false)
 
   const handleAdd = () => {
     const t = name.trim()
     if (!t) return
     const defAmt = hasDefault && defaultAmount ? parseInt(defaultAmount.replace(/,/g, ''), 10) : 0
-    const initAmt = hasInitial && initialAmount ? parseInt(initialAmount.replace(/,/g, ''), 10) : 0
-    onAdd(t, category, defAmt, person, initAmt)
+    onAdd(t, category, defAmt, person, locked)
     setName('')
     setCategory('저축')
     setPerson('A')
-    setHasInitial(false)
-    setInitialAmount('')
     setHasDefault(false)
     setDefaultAmount('')
+    setLocked(false)
   }
 
   const personOptions = [
@@ -545,27 +552,6 @@ function AddItemRow({ onAdd, personAName, personBName }: {
         />
       </div>
 
-      {/* 초기 잔액 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, paddingTop: 12 }}>
-        <input
-          type="checkbox"
-          checked={hasInitial}
-          onChange={(e) => {
-            setHasInitial(e.target.checked)
-            if (!e.target.checked) setInitialAmount('')
-          }}
-          style={{ width: 16, height: 16, cursor: 'pointer', accentColor: PRIMARY }}
-        />
-        <label style={{ fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }}>
-          초기잔액
-        </label>
-      </div>
-      {hasInitial && (
-        <div style={{ minWidth: 130, flexShrink: 0 }}>
-          <AmountInput value={initialAmount} onChange={setInitialAmount} placeholder="0" height={40} />
-        </div>
-      )}
-
       {/* 정기입금액 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, paddingTop: 12 }}>
         <input
@@ -586,6 +572,31 @@ function AddItemRow({ onAdd, personAName, personBName }: {
           <AmountInput value={defaultAmount} onChange={setDefaultAmount} placeholder="0" height={40} />
         </div>
       )}
+
+      {/* 묶인 돈 토글 */}
+      <button
+        type="button"
+        onClick={() => setLocked((v) => !v)}
+        title={locked ? '묶인 돈 (클릭하여 해제)' : '묶인 돈 표시'}
+        style={{
+          flexShrink: 0,
+          height: 40,
+          padding: '0 12px',
+          borderRadius: INPUT_BORDER_RADIUS,
+          border: `1px solid ${locked ? PRIMARY : '#e5e7eb'}`,
+          background: locked ? 'rgba(79, 140, 255, 0.1)' : '#fff',
+          fontSize: 14,
+          cursor: 'pointer',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          color: locked ? PRIMARY : '#9ca3af',
+          fontWeight: 500,
+        }}
+      >
+        <span style={{ fontSize: 16, filter: locked ? 'none' : 'grayscale(1) opacity(0.6)' }}>🔒</span>
+        <span style={{ fontSize: 12 }}>{locked ? 'on' : 'off'}</span>
+      </button>
 
       <button
         type="button"
@@ -639,7 +650,7 @@ export function AssetPage() {
   const getProjectedValue = (yr: number, item: AssetItem, monthIdx: number): number => {
     if (yr !== currentYear) return getEntry(item.id, ym(yr, monthIdx))
     const baseYM = ym(currentYear, currentMonth)
-    const base = getEntry(item.id, baseYM) || (item.initialAmount ?? 0)
+    const base = getEntry(item.id, baseYM)
     const gap = monthIdx - currentMonth
     if (item.defaultAmount && item.defaultAmount > 0) {
       return base + item.defaultAmount * gap
@@ -662,6 +673,17 @@ export function AssetPage() {
     if (person === 'B') return personBName
     return '공유'
   }
+  /**
+   * 항목 컬럼 배경 (person 색의 연한 톤)
+   * - header: 헤더 행용 (조금 더 진함)
+   * - cell: 데이터 셀용 (아주 연함)
+   */
+  const getItemColumnBg = (person?: 'A' | 'B', intensity: 'header' | 'cell' = 'cell') => {
+    if (!person) return intensity === 'header' ? '#f9fafb' : 'transparent'
+    const color = person === 'A' ? personAColor : personBColor
+    const pct = intensity === 'header' ? 18 : 7
+    return `color-mix(in srgb, ${color} ${pct}%, white)`
+  }
 
   const items = useAssetStore((s) => s.items)
   // entries를 subscribe해야 setEntry 후 컴포넌트가 re-render됨 (이전달 수정 시 화면 갱신용)
@@ -677,9 +699,16 @@ export function AssetPage() {
 
   // 항목 수정 모달
   const [editingItem, setEditingItem] = useState<AssetItem | null>(null)
-  const [editForm, setEditForm] = useState({ name: '', defaultAmount: '', initialAmount: '', person: '공유' as 'A' | 'B' | '공유' })
+  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false })
 
-  const sortedItems = [...items].sort((a, b) => a.order - b.order)
+  /** 명의 순(A → B → 공유) → 그 안에서 order 순으로 정렬 */
+  const personRank = (p?: 'A' | 'B'): number => (p === 'A' ? 0 : p === 'B' ? 1 : 2)
+  const sortedItems = [...items].sort((a, b) => {
+    const ra = personRank(a.person)
+    const rb = personRank(b.person)
+    if (ra !== rb) return ra - rb
+    return a.order - b.order
+  })
 
   /** 특정 연도의 월별 합계 계산 (모든 항목 - 접힘 여부와 무관) */
   const calcMonthTotals = (yr: number) =>
@@ -696,13 +725,56 @@ export function AssetPage() {
 
   // 테이블 너비
   const MONTH_COLUMN_WIDTH = 50
-  const ITEM_COLUMN_WIDTH = 120
+  const BASE_ITEM_COLUMN_WIDTH = 100 // 기본 항목 컬럼 너비
   const COLLAPSED_COLUMN_WIDTH = 40 // 접힌 항목 너비
+
+  /** 항목별 동적 컬럼 너비 계산 (전체 연도의 최대 자릿수 기준) */
+  const itemColWidths = useMemo(() => {
+    const result: Record<string, number> = {}
+    for (const item of sortedItems) {
+      if (collapsedItems.has(item.id)) {
+        result[item.id] = COLLAPSED_COLUMN_WIDTH
+        continue
+      }
+      let maxStrLen = 0
+      for (const yr of years) {
+        for (let mi = 0; mi < 12; mi++) {
+          const isFuture = yr === currentYear && mi > currentMonth
+          const val = isFuture ? getProjectedValue(yr, item, mi) : getEntry(item.id, ym(yr, mi))
+          if (val === 0) continue
+          const len = val.toLocaleString('ko-KR').length
+          if (len > maxStrLen) maxStrLen = len
+        }
+      }
+      // 자릿수 기반(12px 폰트 가정) + padding 여유
+      const calculated = maxStrLen * 4 + 12
+      result[item.id] = Math.max(BASE_ITEM_COLUMN_WIDTH, calculated)
+    }
+    return result
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortedItems, collapsedItems, entries, years, currentYear, currentMonth])
+
+  /** 합계 컬럼 동적 너비 (전체 연도/월의 최대 합계 자릿수) */
+  const sumColWidth = useMemo(() => {
+    let maxStrLen = 0
+    for (const yr of years) {
+      const totals = calcMonthTotals(yr)
+      for (const t of totals) {
+        if (t === 0) continue
+        const len = t.toLocaleString('ko-KR').length
+        if (len > maxStrLen) maxStrLen = len
+      }
+    }
+    const calculated = maxStrLen * 4 + 12
+    return Math.max(BASE_ITEM_COLUMN_WIDTH, calculated)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortedItems, entries, years, currentYear, currentMonth])
+
   const visibleColumnsWidth = sortedItems.reduce(
-    (sum, item) => sum + (collapsedItems.has(item.id) ? COLLAPSED_COLUMN_WIDTH : ITEM_COLUMN_WIDTH),
+    (sum, item) => sum + (itemColWidths[item.id] ?? BASE_ITEM_COLUMN_WIDTH),
     0,
   )
-  const tableMinWidth = MONTH_COLUMN_WIDTH + Math.max(visibleColumnsWidth, 200) + ITEM_COLUMN_WIDTH
+  const tableMinWidth = MONTH_COLUMN_WIDTH + Math.max(visibleColumnsWidth, 200) + sumColWidth
 
   const headerCellStyle: React.CSSProperties = {
     padding: '0 6px',
@@ -721,7 +793,7 @@ export function AssetPage() {
     flex: `0 0 ${MONTH_COLUMN_WIDTH}px`,
     paddingLeft: 12,
     paddingRight: 6,
-    borderRight: '1px solid #e5e7eb',
+    borderRight: '1px solid #b3b8c1',
     display: 'flex',
     alignItems: 'center',
     minHeight: 36,
@@ -732,11 +804,41 @@ export function AssetPage() {
     <div style={{ paddingBottom: 40 }}>
       <h1 style={{ ...pageTitleH1Style, marginBottom: 16 }}>자산</h1>
 
-      {/* Current month summary */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>{currentYear}년 {MONTHS[currentMonth]}</div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{fmtSum(currentYearMonthTotals[currentMonth])}</div>
-      </div>
+      {/* Current month summary: 총 합계 + 가용 금액 (묶이지 않은 돈) */}
+      {(() => {
+        const currentYM = ym(currentYear, currentMonth)
+        const monthTotal = currentYearMonthTotals[currentMonth]
+        const availableTotal = sortedItems
+          .filter((item) => !item.locked)
+          .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+        return (
+          <div
+            style={{
+              ...jellyCardStyle,
+              padding: '16px 20px',
+              marginBottom: 16,
+              display: 'flex',
+              gap: 24,
+              flexWrap: 'wrap',
+              alignItems: 'flex-end',
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 160 }}>
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+                {currentYear}년 {MONTHS[currentMonth]} · 총 합계
+              </div>
+              <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{fmtSum(monthTotal)}</div>
+            </div>
+            <div style={{ flex: 1, minWidth: 160 }}>
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+                💰 가용 금액
+                <span style={{ color: '#9ca3af', marginLeft: 4 }}>(묶이지 않은 돈)</span>
+              </div>
+              <div style={{ fontSize: 26, fontWeight: 700, color: JELLY.text }}>{fmtSum(availableTotal)}</div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* 항목 접기 안내 */}
       {sortedItems.length > 0 && collapsedItems.size > 0 && (
@@ -749,7 +851,7 @@ export function AssetPage() {
               marginLeft: 8,
               padding: '2px 8px',
               fontSize: 11,
-              border: '1px solid #e5e7eb',
+              border: '1px solid #b3b8c1',
               background: '#fff',
               borderRadius: 6,
               cursor: 'pointer',
@@ -782,16 +884,18 @@ export function AssetPage() {
               setEditingItem(item)
               setEditForm({
                 name: item.name,
+                category: item.category || '저축',
                 defaultAmount: item.defaultAmount ? String(item.defaultAmount) : '',
-                initialAmount: item.initialAmount ? String(item.initialAmount) : '',
                 person: item.person ?? '공유',
+                locked: !!item.locked,
               })
             }}
             getPersonColor={getPersonColor}
             getPersonLabel={getPersonLabel}
+            getItemColumnBg={getItemColumnBg}
             tableMinWidth={tableMinWidth}
-            ITEM_COLUMN_WIDTH={ITEM_COLUMN_WIDTH}
-            COLLAPSED_COLUMN_WIDTH={COLLAPSED_COLUMN_WIDTH}
+            itemColWidths={itemColWidths}
+            sumColWidth={sumColWidth}
             MONTH_COLUMN_WIDTH={MONTH_COLUMN_WIDTH}
           />
         )
@@ -802,25 +906,20 @@ export function AssetPage() {
         <AddItemRow
           personAName={personAName}
           personBName={personBName}
-          onAdd={(name, category, defaultAmount, person, initialAmount) => {
+          onAdd={(name, category, defaultAmount, person, locked) => {
             const newItemId = addItem({
               name,
               category,
               person,
-              initialAmount: initialAmount > 0 ? initialAmount : undefined,
               defaultAmount: defaultAmount > 0 ? defaultAmount : undefined,
+              locked: locked || undefined,
             })
 
-            // 정기입금액이나 초기잔액이 설정되면 현재 월부터 자동 채우기
-            if (defaultAmount > 0 || initialAmount > 0) {
+            // 정기입금액이 설정되면 현재 월부터 자동 채우기 (누적)
+            if (defaultAmount > 0) {
               for (let mi = currentMonth; mi < 12; mi++) {
-                const base = initialAmount > 0 ? initialAmount : 0
-                if (defaultAmount > 0) {
-                  const cumulativeAmount = base + defaultAmount * (mi - currentMonth + 1)
-                  setEntry(newItemId, ym(currentYear, mi), cumulativeAmount)
-                } else if (mi === currentMonth && base > 0) {
-                  setEntry(newItemId, ym(currentYear, mi), base)
-                }
+                const cumulativeAmount = defaultAmount * (mi - currentMonth + 1)
+                setEntry(newItemId, ym(currentYear, mi), cumulativeAmount)
               }
             }
           }}
@@ -856,29 +955,32 @@ export function AssetPage() {
             />
           </div>
 
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>명의</div>
-            <CustomSelect
-              options={['공유', personAName, personBName]}
-              value={editForm.person === 'A' ? personAName : editForm.person === 'B' ? personBName : '공유'}
-              onChange={(label) => {
-                const p = label === personAName ? 'A' : label === personBName ? 'B' : '공유'
-                setEditForm({ ...editForm, person: p as 'A' | 'B' | '공유' })
-              }}
-              compact
-              compactFill
-              compactHeight={40}
-            />
-          </div>
-
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>초기 잔액 (선택)</div>
-            <AmountInput
-              value={editForm.initialAmount}
-              onChange={(v) => setEditForm({ ...editForm, initialAmount: v })}
-              placeholder="현재 보유 금액"
-              height={40}
-            />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+              <CustomSelect
+                options={ASSET_CATEGORIES}
+                value={editForm.category}
+                onChange={(v) => setEditForm({ ...editForm, category: v })}
+                compact
+                compactFill
+                compactHeight={40}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>명의</div>
+              <CustomSelect
+                options={['공유', personAName, personBName]}
+                value={editForm.person === 'A' ? personAName : editForm.person === 'B' ? personBName : '공유'}
+                onChange={(label) => {
+                  const p = label === personAName ? 'A' : label === personBName ? 'B' : '공유'
+                  setEditForm({ ...editForm, person: p as 'A' | 'B' | '공유' })
+                }}
+                compact
+                compactFill
+                compactHeight={40}
+              />
+            </div>
           </div>
 
           <div>
@@ -889,6 +991,33 @@ export function AssetPage() {
               placeholder="매월 추가되는 금액"
               height={40}
             />
+          </div>
+
+          {/* 묶인 돈 토글 */}
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>묶인 돈</div>
+            <button
+              type="button"
+              onClick={() => setEditForm({ ...editForm, locked: !editForm.locked })}
+              style={{
+                width: '100%',
+                height: 40,
+                padding: '0 12px',
+                borderRadius: INPUT_BORDER_RADIUS,
+                border: `1px solid ${editForm.locked ? PRIMARY : '#e5e7eb'}`,
+                background: editForm.locked ? 'rgba(79, 140, 255, 0.1)' : '#fff',
+                fontSize: 13,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                color: editForm.locked ? PRIMARY : '#9ca3af',
+                fontFamily: 'inherit',
+              }}
+            >
+              <span style={{ fontSize: 16, filter: editForm.locked ? 'none' : 'grayscale(1) opacity(0.6)' }}>🔒</span>
+              <span>{editForm.locked ? 'on (만기까지 묶인 자산)' : 'off'}</span>
+            </button>
           </div>
         </div>
 
@@ -920,7 +1049,7 @@ export function AssetPage() {
               style={{
                 padding: '8px 14px',
                 borderRadius: JELLY.radiusControl,
-                border: '1px solid #e5e7eb',
+                border: '1px solid #b3b8c1',
                 background: '#fff',
                 fontSize: 13,
                 cursor: 'pointer',
@@ -933,24 +1062,22 @@ export function AssetPage() {
               onClick={() => {
                 if (editingItem && editForm.name.trim()) {
                   const newDefaultAmount = editForm.defaultAmount ? parseInt(editForm.defaultAmount.replace(/,/g, ''), 10) : undefined
-                  const newInitialAmount = editForm.initialAmount ? parseInt(editForm.initialAmount.replace(/,/g, ''), 10) : undefined
                   const newPerson = editForm.person === '공유' ? undefined : editForm.person as 'A' | 'B'
                   const oldDefaultAmount = editingItem.defaultAmount
 
                   updateItem(editingItem.id, {
                     name: editForm.name.trim(),
+                    category: editForm.category || '저축',
                     person: newPerson,
-                    initialAmount: newInitialAmount,
                     defaultAmount: newDefaultAmount,
+                    locked: editForm.locked || undefined,
                   })
 
-                  // 정기입금액 변경 시 다음 달부터 누적 업데이트
+                  // 정기입금액 변경 시 현재 연도의 다음 달부터 누적 업데이트
                   if (newDefaultAmount && newDefaultAmount > 0 && newDefaultAmount !== oldDefaultAmount) {
-                    if (year === currentYear) {
-                      for (let mi = currentMonth + 1; mi < 12; mi++) {
-                        const prevMonthAmount = getEntry(editingItem.id, ym(currentYear, mi - 1))
-                        setEntry(editingItem.id, ym(currentYear, mi), prevMonthAmount + newDefaultAmount)
-                      }
+                    for (let mi = currentMonth + 1; mi < 12; mi++) {
+                      const prevMonthAmount = getEntry(editingItem.id, ym(currentYear, mi - 1))
+                      setEntry(editingItem.id, ym(currentYear, mi), prevMonthAmount + newDefaultAmount)
                     }
                   }
 

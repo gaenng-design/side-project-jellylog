@@ -79,6 +79,8 @@ export interface AssetItem {
   initialAmount?: number
   /** 정기입금액(선택사항) */
   defaultAmount?: number
+  /** 묶인 돈 표시 (예: 적금/예금처럼 만기까지 묶여 있는 자산) */
+  locked?: boolean
 }
 
 /** 특정 월의 자산 항목에 적립된 금액 */

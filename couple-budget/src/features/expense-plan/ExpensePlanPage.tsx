@@ -510,6 +510,8 @@ type FixedCardProps = {
   hidePayDayInModal?: boolean
   /** 별도 지출 카드: 구분은 항상 공금(모달·행에서 유저 전환 없음) */
   forcePersonPublicFund?: boolean
+  /** 공금 옵션을 제거하고 A/B 중에서만 선택 (별도 지출 카드용) */
+  excludePublicFund?: boolean
   /** 고정지출: 행에서 공금/유저 태그 숨김(그룹 헤더로만 구분) */
   hideRowPersonTags?: boolean
 }
@@ -533,6 +535,7 @@ function FixedExpenseCard(props: FixedCardProps) {
     showPayDayOnRows = true,
     hidePayDayInModal = false,
     forcePersonPublicFund = false,
+    excludePublicFund = false,
     hideRowPersonTags = false,
   } = props
   const narrow = useNarrowLayout()
@@ -542,7 +545,7 @@ function FixedExpenseCard(props: FixedCardProps) {
   const personBName = settings.personBName || '유저2'
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState<{ person: Person; category: string; description: string; amount: string; isSeparate: boolean; separatePerson: 'A' | 'B'; payDay?: number }>({
-    person: '공금',
+    person: excludePublicFund ? 'A' : '공금',
     category: fixedCategories[0] ?? '관리비',
     description: '',
     amount: '',
@@ -590,7 +593,14 @@ function FixedExpenseCard(props: FixedCardProps) {
       separatePerson: form.isSeparate ? separatePerson : undefined,
       payDay: hidePayDayInModal ? undefined : form.payDay,
     })
-    setForm({ person: '공금', category: '관리비', description: '', amount: '', isSeparate: false, separatePerson: 'A' })
+    setForm({
+      person: excludePublicFund ? 'A' : '공금',
+      category: '관리비',
+      description: '',
+      amount: '',
+      isSeparate: false,
+      separatePerson: 'A',
+    })
     setOpen(false)
   }
 
@@ -763,7 +773,11 @@ function FixedExpenseCard(props: FixedCardProps) {
           {!forcePersonPublicFund && (
             <div>
               <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
-              <PersonToggle value={form.person} onChange={(p) => setForm({ ...form, person: p as Person })} />
+              <PersonToggle
+                value={form.person}
+                onChange={(p) => setForm({ ...form, person: p as Person })}
+                options={excludePublicFund ? ['A', 'B'] : undefined}
+              />
             </div>
           )}
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
@@ -1668,6 +1682,9 @@ export function ExpensePlanPage() {
   const removeFixedTemplateFromSnapshot = usePlanExtraStore((s) => s.removeFixedTemplateFromSnapshot)
   const removeInvestTemplateFromSnapshot = usePlanExtraStore((s) => s.removeInvestTemplateFromSnapshot)
   const clearMonth = usePlanExtraStore((s) => s.clearMonth)
+  const sharedLivingCostByMonth = usePlanExtraStore((s) => s.sharedLivingCostByMonth)
+  const setSharedLivingCostForMonth = usePlanExtraStore((s) => s.setSharedLivingCostForMonth)
+  const clearSharedLivingCostForMonth = usePlanExtraStore((s) => s.clearSharedLivingCostForMonth)
   const toggleDefaultSalaryExcluded = usePlanExtraStore((s) => s.toggleDefaultSalaryExcluded)
   const defaultSalaryExcludedMap = usePlanExtraStore((s) => {
     const m = s.defaultSalaryExcludedByMonth[currentYearMonth]
@@ -2000,7 +2017,8 @@ export function ExpensePlanPage() {
       {
         totalIncome,
         incomeByPerson,
-        totalFixed,
+        // 통장 입금액 계산 기준은 별도지출을 제외한 순수 고정지출만 사용
+        totalFixed: totalFixedRegular,
         fixedRegularTotal: totalFixedRegular,
         fixedSeparateTotal: totalFixedSeparate,
         fixedDepositByUser,
@@ -2457,6 +2475,66 @@ export function ExpensePlanPage() {
             }}
           useTextFields={planFieldsEditable}
         />
+        {/* 공동 생활비 (월별, 설정값 fallback) */}
+        {(() => {
+          const defaultShared = settings.sharedLivingCost ?? 0
+          const monthlyValue = sharedLivingCostByMonth[currentYearMonth]
+          const currentValue = monthlyValue ?? defaultShared
+          const isCustomized = monthlyValue != null && monthlyValue !== defaultShared
+          return (
+            <SectionCard
+              emoji="🏠"
+              title="공동 생활비"
+              total={currentValue}
+              right={
+                isCustomized ? (
+                  <button
+                    type="button"
+                    onClick={() => clearSharedLivingCostForMonth(currentYearMonth)}
+                    style={{
+                      fontSize: 11,
+                      padding: '6px 10px',
+                      borderRadius: JELLY.radiusControl,
+                      border: '1px solid #e5e7eb',
+                      background: '#f9fafb',
+                      color: '#6b7280',
+                      cursor: 'pointer',
+                    }}
+                    title="설정 페이지의 기본값으로 되돌리기"
+                  >
+                    기본값으로
+                  </button>
+                ) : null
+              }
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '12px 14px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div style={{ fontSize: 13, color: '#6b7280', flexShrink: 0 }}>이번 달 공동 생활비</div>
+                <div style={{ flex: 1, minWidth: 160, maxWidth: 240 }}>
+                  <AmountInput
+                    value={currentValue ? String(currentValue) : ''}
+                    onChange={(v) => {
+                      const amt = Number(v.replace(/,/g, '')) || 0
+                      setSharedLivingCostForMonth(currentYearMonth, amt)
+                    }}
+                    placeholder={defaultShared ? defaultShared.toLocaleString('ko-KR') : '0'}
+                    disabled={!planFieldsEditable}
+                  />
+                </div>
+                <div style={{ fontSize: 11, color: '#9ca3af', marginLeft: 'auto' }}>
+                  기본값: {defaultShared.toLocaleString('ko-KR')}원 (설정 페이지)
+                </div>
+              </div>
+            </SectionCard>
+          )
+        })()}
         <FixedExpenseCard
           rows={fixedRows}
           onAdd={(row) => setFixedExtraRows((prev) => [...prev, { ...row, id: newId() }])}
@@ -2507,8 +2585,7 @@ export function ExpensePlanPage() {
           addModalTitle="별도지출 추가"
           showPayDayOnRows={false}
           hidePayDayInModal
-          hideRowPersonTags
-          forcePersonPublicFund
+          excludePublicFund
         />
         <InvestCard
           rows={investRows}
