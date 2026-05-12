@@ -26,6 +26,10 @@ export interface SettlementInputs {
   fixedRegularTotal?: number
   /** 용돈 차감: 별도 지출 카드 합(÷2). 미주입 시 0 */
   fixedSeparateTotal?: number
+  /** 고정지출 카드 안에서 「별도 정산」 표시된 항목의 유저별 합 */
+  fixedTemplateSeparateByUser?: { A: number; B: number }
+  /** 고정지출 카드 전체 합(별도 정산 포함). 미주입 시 fixedRegularTotal로 간주 */
+  fixedTotalIncludingSeparate?: number
   /** 별도 지출 카드 50:50 송금 안내(미주입 시 null) */
   separateExpenseCard5090?: {
     total: number
@@ -81,11 +85,18 @@ export interface SettlementSummary {
   investByPerson: { A: number; B: number }
   allowanceByPerson: { A: number; B: number }
   fixedDepositByUser: { A: number; B: number }
-  /** 고정지출 통장 입금액 = 반올림(합계÷2) − 해당 인원 별도·개별 부담 합 */
+  /** 고정지출 통장 입금액 내역 */
   fixedDepositBreakdown: {
+    /** 통장 입금 기준 합계 (별도 정산 표시된 항목 제외) */
     totalFixed: number
+    /** 1인당 입금액 = totalFixed ÷ 2 (반올림) */
     halfEach: number
+    /** [구버전 호환] 별도·개별 부담 합 */
     separateByUser: { A: number; B: number }
+    /** 고정지출 전체 합 (별도 정산 표시된 항목 포함) */
+    totalIncludingSeparate: number
+    /** 「별도 정산」 표시된 고정지출 항목의 유저별 합 */
+    templateSeparateByUser: { A: number; B: number }
   }
   /** 별도 지출 카드 50:50 송금 안내 */
   separateExpenseCard5090: NonNullable<SettlementInputs['separateExpenseCard5090']> | null
@@ -180,6 +191,10 @@ export function calcSettlementSummary(
     chartData.push({ label: '투자·저축', amount: totalInvest, pct: (totalInvest / totalIncome) * 100 })
     chartData.push({ label: '용돈', amount: totalAllowance, pct: (totalAllowance / totalIncome) * 100 })
   }
+  const templateSeparateByUser = inputs.fixedTemplateSeparateByUser ?? { A: 0, B: 0 }
+  const totalIncludingSeparate =
+    inputs.fixedTotalIncludingSeparate ??
+    fixedRegularTotal + templateSeparateByUser.A + templateSeparateByUser.B
   return {
     totalIncome,
     totalFixed,
@@ -191,14 +206,16 @@ export function calcSettlementSummary(
     allowanceByPerson: { A: allowanceA, B: allowanceB },
     fixedDepositByUser,
     fixedDepositBreakdown: {
-      // 별도지출 제외한 순수 고정지출 합계
+      // 통장 입금 기준: 별도 정산 제외 고정지출 합
       totalFixed: fixedRegularTotal,
       halfEach,
-      // 고정지출 절반에서 각자 별도 부담한 고정지출 항목을 뺀 것 (=통장 입금액)
+      // [구버전 호환]
       separateByUser: {
         A: halfEach - fixedDepositByUser.A,
         B: halfEach - fixedDepositByUser.B,
       },
+      totalIncludingSeparate,
+      templateSeparateByUser,
     },
     separateExpenseCard5090: inputs.separateExpenseCard5090 ?? null,
     userSummary,

@@ -2025,6 +2025,9 @@ export function ExpensePlanPage() {
         totalFixed: totalFixedRegular,
         fixedRegularTotal: totalFixedRegular,
         fixedSeparateTotal: totalFixedSeparate,
+        // 더보기 표시용: 별도 정산 포함 전체 합 + 유저별 별도 정산 금액
+        fixedTotalIncludingSeparate: totalFixedRegular + templateSepA + templateSepB,
+        fixedTemplateSeparateByUser: { A: templateSepA, B: templateSepB },
         fixedDepositByUser,
         totalInvest,
         investByPerson,

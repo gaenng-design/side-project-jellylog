@@ -282,6 +282,8 @@ interface SettlementResultViewProps {
       totalFixed: number
       halfEach: number
       separateByUser: { A: number; B: number }
+      totalIncludingSeparate?: number
+      templateSeparateByUser?: { A: number; B: number }
     }
     separateExpenseCard5090?: {
       total: number
@@ -443,7 +445,10 @@ export function SettlementResultView({
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text }}>고정 지출 통장에 입금할 돈</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+            고정 지출 통장에 입금할 돈
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#9ca3af' }}>(고정지출 중 「별도 정산」 표시된 항목 제외)</span>
+          </div>
           <button
             type="button"
             onClick={() => setFixedDepositMoreOpen((o) => !o)}
@@ -492,14 +497,28 @@ export function SettlementResultView({
             }}
           >
             <div>
-              · 통장 입금 기준 고정지출 합계는 <strong style={{ color: '#374151' }}>{fmt(fixedDepositBreakdown.totalFixed)}</strong>
-              입니다.{' '}
-              <span style={{ color: '#9ca3af' }}>(「별도·개별 부담」 항목은 계산에서 제외)</span>
+              · 고정지출 합계는{' '}
+              <strong style={{ color: '#374151' }}>
+                {fmt(fixedDepositBreakdown.totalIncludingSeparate ?? fixedDepositBreakdown.totalFixed)}
+              </strong>
+              입니다.
             </div>
             <div>
-              · 공동 통장에는 절반씩 부담하므로 1인당 입금액은{' '}
+              · 그 중 <strong style={{ color: '#374151' }}>{personAName}</strong>이{' '}
+              <strong style={{ color: '#374151' }}>
+                {fmt(fixedDepositBreakdown.templateSeparateByUser?.A ?? 0)}
+              </strong>
+              을 별도 정산했고,{' '}
+              <strong style={{ color: '#374151' }}>{personBName}</strong>가{' '}
+              <strong style={{ color: '#374151' }}>
+                {fmt(fixedDepositBreakdown.templateSeparateByUser?.B ?? 0)}
+              </strong>
+              을 별도 정산하였습니다.
+            </div>
+            <div>
+              · 공동 통장에는 절반씩 부담하므로, 1인당 입금액은{' '}
               <strong style={{ color: PRIMARY }}>{fmt(fixedDepositBreakdown.halfEach)}</strong>
-              {' '}<span style={{ color: '#9ca3af' }}>(합계 ÷ 2, 반올림)</span>입니다.
+              입니다.
             </div>
           </div>
         ) : null}
