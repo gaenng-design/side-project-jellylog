@@ -423,6 +423,8 @@ export function SettlementResultView({
       transfer5090Send: boolean
       /** 별도지출 반반 정산 (공금 결제 항목 절반 부담) */
       sharedFundExpense: boolean
+      /** 고정지출 별도 정산 항목별 체크 (index 기반) */
+      separateItemChecks: Record<number, boolean>
       /** 투자/저축 트리: inv-0, sav-0 | cat-inv, cat-sav | combined */
       investChecks: Record<string, boolean>
     }
@@ -431,6 +433,7 @@ export function SettlementResultView({
       sharedLiving: boolean
       transfer5090Send: boolean
       sharedFundExpense: boolean
+      separateItemChecks: Record<number, boolean>
       investChecks: Record<string, boolean>
     }
   }>({
@@ -439,6 +442,7 @@ export function SettlementResultView({
       sharedLiving: false,
       transfer5090Send: false,
       sharedFundExpense: false,
+      separateItemChecks: {},
       investChecks: {},
     },
     B: {
@@ -446,6 +450,7 @@ export function SettlementResultView({
       sharedLiving: false,
       transfer5090Send: false,
       sharedFundExpense: false,
+      separateItemChecks: {},
       investChecks: {},
     },
   })
@@ -827,6 +832,42 @@ export function SettlementResultView({
                       {fmt(u.sharedLiving)}
                     </td>
                   </tr>
+                  {/* 고정지출 「별도 정산」 항목: 본인이 직접 부담한 항목 표시 */}
+                  {(fixedDepositBreakdown.templateSeparateItemsByUser?.[p] ?? []).map((item, itemIdx) => {
+                    const checked = payChk.separateItemChecks[itemIdx] ?? false
+                    return (
+                      <tr key={`sep-item-${itemIdx}`}>
+                        <td style={userRowLabelStyle}>
+                          <label style={labelWithCheckboxStyle}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={(e) =>
+                                setUserPayChecked((prev) => ({
+                                  ...prev,
+                                  [p]: {
+                                    ...prev[p as PersonKey],
+                                    separateItemChecks: {
+                                      ...prev[p as PersonKey].separateItemChecks,
+                                      [itemIdx]: e.target.checked,
+                                    },
+                                  },
+                                }))
+                              }
+                              style={checkboxStyle}
+                            />
+                            <span style={{ minWidth: 0, lineHeight: 1.4, ...(checked && settledRowStyle) }}>
+                              {item.description}{' '}
+                              <span style={{ fontSize: 10, color: '#9ca3af' }}>(별도 정산)</span>
+                            </span>
+                          </label>
+                        </td>
+                        <td style={{ ...userRowAmountStyle, ...(checked && settledRowStyle) }}>
+                          {fmt(item.amount)}
+                        </td>
+                      </tr>
+                    )
+                  })}
                   {summary.sharedFundExpense && summary.sharedFundExpense.halfEach > 0 && (
                     <tr>
                       <td style={userRowLabelStyle}>
