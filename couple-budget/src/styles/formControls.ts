@@ -48,10 +48,10 @@ export const INPUT_BORDER = '1px solid #E5E7EB'
 export const AMOUNT_INPUT_MIN_WIDTH = 100
 
 /** 카테고리명 `CustomSelect` 트리거 너비(설정·지출 계획·행 컴포넌트 통일) */
-export const CATEGORY_SELECT_TRIGGER_WIDTH = 80
+export const CATEGORY_SELECT_TRIGGER_WIDTH = 90
 
 /** 입금일 `DaySelect` 트리거 너비(항목 행·모달·유저 설정 통일) */
-export const DAY_SELECT_TRIGGER_WIDTH = 80
+export const DAY_SELECT_TRIGGER_WIDTH = 90
 
 /** 지출 계획 행: 삭제 / 이번달만 제외 / 이번달 포함 동일 너비 */
 export const PLAN_ROW_ACTION_MIN_WIDTH = 80

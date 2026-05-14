@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ReactNode } from 'react'
+import { useState, useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { PRIMARY, allowanceValueColor, settingsSectionCardStyle } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
@@ -166,6 +166,159 @@ const settledRowStyle: CSSProperties = {
 
 type PersonKey = 'A' | 'B'
 
+/** 계좌번호 안내용 info 아이콘 + 툴팁 (클릭/탭 토글, 복사 버튼 포함) */
+function AccountTooltip({ account, label }: { account: string; label?: string }) {
+  const [open, setOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const wrapRef = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [open])
+
+  const copyAccount = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(account)
+      } else {
+        // 폴백: textarea + execCommand
+        const ta = document.createElement('textarea')
+        ta.value = account
+        ta.style.position = 'fixed'
+        ta.style.opacity = '0'
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        document.body.removeChild(ta)
+      }
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1500)
+    } catch {
+      // 복사 실패 시 무시
+    }
+  }
+
+  return (
+    <span
+      ref={wrapRef}
+      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 2 }}
+    >
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setOpen((o) => !o)
+        }}
+        title="계좌번호 보기"
+        aria-label="계좌번호 보기"
+        style={{
+          width: 16,
+          height: 16,
+          border: 'none',
+          background: 'transparent',
+          cursor: 'pointer',
+          padding: 0,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#6b7280',
+        }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path
+            d="M10.125 7.875C10.125 7.57833 10.213 7.28832 10.3778 7.04164C10.5426 6.79497 10.7769 6.60271 11.051 6.48918C11.3251 6.37565 11.6267 6.34594 11.9176 6.40382C12.2086 6.4617 12.4759 6.60456 12.6857 6.81434C12.8954 7.02412 13.0383 7.29139 13.0962 7.58236C13.1541 7.87334 13.1244 8.17494 13.0108 8.44902C12.8973 8.72311 12.705 8.95738 12.4584 9.1222C12.2117 9.28703 11.9217 9.375 11.625 9.375C11.2272 9.375 10.8456 9.21696 10.5643 8.93566C10.283 8.65436 10.125 8.27282 10.125 7.875ZM22.125 12C22.125 14.0025 21.5312 15.9601 20.4186 17.6251C19.3061 19.2902 17.7248 20.5879 15.8747 21.3543C14.0246 22.1206 11.9888 22.3211 10.0247 21.9305C8.06066 21.5398 6.25656 20.5755 4.84055 19.1595C3.42454 17.7435 2.46023 15.9393 2.06955 13.9753C1.67888 12.0112 1.87939 9.97543 2.64572 8.12533C3.41206 6.27523 4.70981 4.69392 6.37486 3.58137C8.0399 2.46882 9.99747 1.875 12 1.875C14.6844 1.87798 17.258 2.94567 19.1562 4.84383C21.0543 6.74199 22.122 9.3156 22.125 12ZM19.875 12C19.875 10.4425 19.4131 8.91992 18.5478 7.62488C17.6825 6.32985 16.4526 5.32049 15.0136 4.72445C13.5747 4.12841 11.9913 3.97246 10.4637 4.27632C8.93607 4.58017 7.53288 5.3302 6.43154 6.43153C5.3302 7.53287 4.58018 8.93606 4.27632 10.4637C3.97246 11.9913 4.12841 13.5747 4.72445 15.0136C5.32049 16.4526 6.32985 17.6825 7.62489 18.5478C8.91993 19.4131 10.4425 19.875 12 19.875C14.0879 19.8728 16.0896 19.0424 17.566 17.566C19.0424 16.0896 19.8728 14.0879 19.875 12ZM13.125 15.4387V12.375C13.125 11.8777 12.9275 11.4008 12.5758 11.0492C12.2242 10.6975 11.7473 10.5 11.25 10.5C10.9843 10.4996 10.7271 10.5932 10.5238 10.7643C10.3206 10.9354 10.1844 11.173 10.1395 11.4348C10.0946 11.6967 10.1438 11.966 10.2784 12.195C10.413 12.4241 10.6244 12.5981 10.875 12.6863V15.75C10.875 16.2473 11.0725 16.7242 11.4242 17.0758C11.7758 17.4275 12.2527 17.625 12.75 17.625C13.0157 17.6254 13.2729 17.5318 13.4762 17.3607C13.6794 17.1896 13.8156 16.952 13.8605 16.6902C13.9054 16.4283 13.8562 16.159 13.7216 15.93C13.587 15.7009 13.3756 15.5269 13.125 15.4387Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      {open && (
+        <span
+          role="tooltip"
+          style={{
+            position: 'absolute',
+            bottom: 'calc(100% + 6px)',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: '#1f2937',
+            color: '#fff',
+            padding: '10px 12px',
+            borderRadius: 8,
+            fontSize: 11,
+            fontWeight: 500,
+            lineHeight: 1.5,
+            whiteSpace: 'nowrap',
+            zIndex: 100,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+            cursor: 'text',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {label && <div style={{ color: '#9ca3af', fontSize: 10 }}>{label}</div>}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span
+              style={{
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                userSelect: 'text',
+              }}
+            >
+              {account}
+            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                void copyAccount()
+              }}
+              title="계좌번호 복사"
+              aria-label="계좌번호 복사"
+              style={{
+                flexShrink: 0,
+                padding: '3px 8px',
+                fontSize: 10,
+                fontWeight: 600,
+                border: '1px solid rgba(255,255,255,0.25)',
+                background: copied ? '#10b981' : 'rgba(255,255,255,0.12)',
+                color: '#fff',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                transition: 'background 0.2s ease',
+              }}
+            >
+              {copied ? '✓ 복사됨' : '📋 복사'}
+            </button>
+          </div>
+          {/* 화살표 */}
+          <span
+            aria-hidden
+            style={{
+              position: 'absolute',
+              bottom: -4,
+              left: '50%',
+              transform: 'translateX(-50%) rotate(45deg)',
+              width: 8,
+              height: 8,
+              background: '#1f2937',
+            }}
+          />
+        </span>
+      )}
+    </span>
+  )
+}
+
 /** 투자/저축 그룹: 헤더 + (세부 라인 | 투자·저축 구분 | 단일 합계) */
 function UserInvestTreeRows(props: {
   investDetail?: { 투자: number; 저축: number }
@@ -328,8 +481,8 @@ interface SettlementResultViewProps {
       totalIncludingSeparate?: number
       templateSeparateByUser?: { A: number; B: number }
       templateSeparateItemsByUser?: {
-        A: { description: string; amount: number }[]
-        B: { description: string; amount: number }[]
+        A: { description: string; amount: number; accountNumber?: string }[]
+        B: { description: string; amount: number; accountNumber?: string }[]
       }
     }
     separateExpenseCard5090?: {
@@ -856,9 +1009,21 @@ export function SettlementResultView({
                               }
                               style={checkboxStyle}
                             />
-                            <span style={{ minWidth: 0, lineHeight: 1.4, ...(checked && settledRowStyle) }}>
+                            <span
+                              style={{
+                                minWidth: 0,
+                                lineHeight: 1.4,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                ...(checked && settledRowStyle),
+                              }}
+                            >
                               {item.description}{' '}
                               <span style={{ fontSize: 10, color: '#9ca3af' }}>(별도 정산)</span>
+                              {item.accountNumber && (
+                                <AccountTooltip account={item.accountNumber} label={item.description} />
+                              )}
                             </span>
                           </label>
                         </td>

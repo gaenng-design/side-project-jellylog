@@ -32,8 +32,8 @@ export interface SettlementInputs {
   fixedTotalIncludingSeparate?: number
   /** 「별도 정산」 표시된 항목 목록 (유저별) */
   fixedTemplateSeparateItemsByUser?: {
-    A: { description: string; amount: number }[]
-    B: { description: string; amount: number }[]
+    A: { description: string; amount: number; accountNumber?: string }[]
+    B: { description: string; amount: number; accountNumber?: string }[]
   }
   /** 별도지출 카드 안에서 「공금」 항목(개인 지불 토글 OFF) 합계 - 50:50 자동 부담 */
   sharedFundExpenseTotal?: number
@@ -107,8 +107,8 @@ export interface SettlementSummary {
     templateSeparateByUser: { A: number; B: number }
     /** 「별도 정산」 표시된 고정지출 항목 목록 (유저별) */
     templateSeparateItemsByUser: {
-      A: { description: string; amount: number }[]
-      B: { description: string; amount: number }[]
+      A: { description: string; amount: number; accountNumber?: string }[]
+      B: { description: string; amount: number; accountNumber?: string }[]
     }
   }
   /** 별도 지출 카드 50:50 송금 안내 */

@@ -59,7 +59,7 @@ function formatInvestMaturityLabel(ymd: string) {
 }
 
 type IncomeRow = { id: string; person: Exclude<Person, '공금'>; category: string; description: string; amount: number }
-type FixedRow = { id: string; person: Person; category: string; description: string; amount: number; isSeparate?: boolean; separatePerson?: 'A' | 'B'; payDay?: number; isExcluded?: boolean; order?: number; personOrder?: number }
+type FixedRow = { id: string; person: Person; category: string; description: string; amount: number; isSeparate?: boolean; separatePerson?: 'A' | 'B'; payDay?: number; isExcluded?: boolean; order?: number; personOrder?: number; accountNumber?: string }
 type InvestRow = {
   id: string
   person: Person
@@ -544,13 +544,23 @@ function FixedExpenseCard(props: FixedCardProps) {
   const personAName = settings.personAName || '유저1'
   const personBName = settings.personBName || '유저2'
   const [open, setOpen] = useState(false)
-  const [form, setForm] = useState<{ person: Person; category: string; description: string; amount: string; isSeparate: boolean; separatePerson: 'A' | 'B'; payDay?: number }>({
+  const [form, setForm] = useState<{
+    person: Person
+    category: string
+    description: string
+    amount: string
+    isSeparate: boolean
+    separatePerson: 'A' | 'B'
+    payDay?: number
+    accountNumber?: string
+  }>({
     person: excludePublicFund ? 'A' : '공금',
     category: fixedCategories[0] ?? '관리비',
     description: '',
     amount: '',
     isSeparate: false,
     separatePerson: 'A',
+    accountNumber: '',
   })
 
   const total = rows.filter((r) => !r.isExcluded).reduce((s, r) => s + r.amount, 0)
@@ -592,6 +602,7 @@ function FixedExpenseCard(props: FixedCardProps) {
       isSeparate: form.isSeparate,
       separatePerson: form.isSeparate ? separatePerson : undefined,
       payDay: hidePayDayInModal ? undefined : form.payDay,
+      accountNumber: form.accountNumber?.trim() || undefined,
     })
     setForm({
       person: excludePublicFund ? 'A' : '공금',
@@ -600,6 +611,7 @@ function FixedExpenseCard(props: FixedCardProps) {
       amount: '',
       isSeparate: false,
       separatePerson: 'A',
+      accountNumber: '',
     })
     setOpen(false)
   }
@@ -815,6 +827,19 @@ function FixedExpenseCard(props: FixedCardProps) {
             <div>
               <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
               <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
+            </div>
+          )}
+          {!excludePublicFund && !forcePersonPublicFund && (
+            <div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>
+                계좌번호 <span style={{ color: '#9ca3af' }}>(선택)</span>
+              </div>
+              <input
+                value={form.accountNumber ?? ''}
+                onChange={(e) => setForm({ ...form, accountNumber: e.target.value })}
+                placeholder="예: 우리 1002-123-456789"
+                style={{ width: '100%', ...inputBaseStyle }}
+              />
             </div>
           )}
           {(() => {
@@ -1921,6 +1946,7 @@ export function ExpensePlanPage() {
         isSeparate,
         separatePerson,
         payDay: tpl.payDay,
+        accountNumber: tpl.accountNumber,
         isExcluded: excluded,
         order: tpl.order,
         personOrder: tpl.personOrder,
@@ -2033,10 +2059,10 @@ export function ExpensePlanPage() {
     const templateSeparateItemsByUser = {
       A: templateSeparateItems
         .filter((i) => sepPersonTemplate(i) === 'A')
-        .map((i) => ({ description: i.description || i.category, amount: i.amount })),
+        .map((i) => ({ description: i.description || i.category, amount: i.amount, accountNumber: i.accountNumber })),
       B: templateSeparateItems
         .filter((i) => sepPersonTemplate(i) === 'B')
-        .map((i) => ({ description: i.description || i.category, amount: i.amount })),
+        .map((i) => ({ description: i.description || i.category, amount: i.amount, accountNumber: i.accountNumber })),
     }
     return calcSettlementSummary(
       {

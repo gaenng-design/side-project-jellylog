@@ -838,6 +838,7 @@ function FixedTemplateSettings() {
     isSeparate: boolean
     separatePerson: 'A' | 'B'
     payDay?: number
+    accountNumber?: string
   }>({
     person: '공금',
     category: '관리비',
@@ -845,6 +846,7 @@ function FixedTemplateSettings() {
     amount: '',
     isSeparate: false,
     separatePerson: 'A',
+    accountNumber: '',
   })
   const [addFixedOpen, setAddFixedOpen] = useState(false)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
@@ -858,11 +860,12 @@ function FixedTemplateSettings() {
       isSeparate: false,
       separatePerson: 'A',
       payDay: undefined,
+      accountNumber: '',
     })
   }
 
   const handleFixedAdd = () => {
-    const { person: planPerson, description, amount, category, isSeparate, separatePerson, payDay } = fixedAddForm
+    const { person: planPerson, description, amount, category, isSeparate, separatePerson, payDay, accountNumber } = fixedAddForm
     if (!description || !amount) return
     const sepPersonResolved =
       isSeparate && planPerson === '공금'
@@ -878,6 +881,7 @@ function FixedTemplateSettings() {
       defaultSeparate: isSeparate,
       defaultSeparatePerson: isSeparate ? sepPersonResolved : undefined,
       payDay,
+      accountNumber: accountNumber?.trim() || undefined,
     })
     resetFixedAddForm()
     setAddFixedOpen(false)
@@ -1050,12 +1054,12 @@ function FixedTemplateSettings() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-            <div style={{ flex: 0, width: 80 }}>
+            <div style={{ flex: 0, width: 90 }}>
               <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
               <DaySelect
                 value={fixedAddForm.payDay}
                 onChange={(v) => setFixedAddForm((f) => ({ ...f, payDay: v }))}
-                width={80}
+                width={90}
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -1065,6 +1069,17 @@ function FixedTemplateSettings() {
                 onChange={(v) => setFixedAddForm((f) => ({ ...f, amount: v }))}
               />
             </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>
+              계좌번호 <span style={{ color: '#9ca3af' }}>(선택)</span>
+            </div>
+            <input
+              value={fixedAddForm.accountNumber ?? ''}
+              onChange={(e) => setFixedAddForm((f) => ({ ...f, accountNumber: e.target.value }))}
+              placeholder="예: 우리 1002-123-456789"
+              style={{ width: '100%', ...inputBaseStyle }}
+            />
           </div>
           {(() => {
             const sepSlot = fixedAddForm.separatePerson ?? 'A'

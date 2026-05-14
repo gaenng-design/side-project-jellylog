@@ -13,6 +13,8 @@ interface FixedExtraRow {
   isSeparate?: boolean
   separatePerson?: 'A' | 'B'
   payDay?: number
+  /** 계좌번호 (선택). 별도 정산 시 송금 안내용 */
+  accountNumber?: string
 }
 
 interface InvestExtraRow {

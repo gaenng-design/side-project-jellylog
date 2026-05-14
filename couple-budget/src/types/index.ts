@@ -53,6 +53,8 @@ export interface FixedTemplate {
   payDay?: number
   defaultSeparate?: boolean
   defaultSeparatePerson?: 'A' | 'B'
+  /** 계좌번호 (선택). 별도 정산 시 송금받을 계좌 안내용 */
+  accountNumber?: string
 }
 
 export interface InvestTemplate {
