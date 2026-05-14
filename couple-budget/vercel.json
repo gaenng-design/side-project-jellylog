@@ -4,7 +4,7 @@
   "public": true,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!assets|api|sw\\.js|workbox-|manifest\\.webmanifest|robots\\.txt|favicon|pwa-icon|.*\\.(?:js|css|svg|png|jpg|jpeg|gif|webp|ico|json|webmanifest|map|woff|woff2|ttf|otf)).*)",
       "destination": "/index.html"
     }
   ],

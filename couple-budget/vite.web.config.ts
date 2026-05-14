@@ -39,10 +39,22 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // SPA fallback
+        // SPA fallback (navigation request만)
         navigateFallback: '/index.html',
+        // 정적 자산(assets/*) + 파일 확장자 있는 요청은 fallback 제외 (JS/CSS MIME 에러 방지)
+        navigateFallbackDenylist: [
+          /^\/assets\//,
+          /^\/sw\.js$/,
+          /^\/workbox-/,
+          /\.(?:js|css|svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|otf|map|json|ico)$/,
+        ],
         // 정적 자산 + index 캐시 (앱 셸)
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // 캐시 정리 (구버전 SW 제거)
+        cleanupOutdatedCaches: true,
+        // SW 즉시 활성화
+        skipWaiting: true,
+        clientsClaim: true,
         // GitHub API 응답은 캐시하지 않음 (실시간 동기화 필요)
         runtimeCaching: [
           {
