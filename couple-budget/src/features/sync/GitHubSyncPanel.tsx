@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react'
 import { GitHubDataSync, type GitHubConfig } from '@/services/github-sync'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
-
-const eyeOpenIcon = 'https://www.figma.com/api/mcp/asset/7cc8e223-a6b0-4c67-9fc6-736a9bf313e9'
-const eyeClosedIcon = 'https://www.figma.com/api/mcp/asset/35ae0e9c-6cce-46fb-82a4-9c7ce455e791'
 import {
   JELLY,
   jellyCardStyle,
@@ -152,16 +149,20 @@ export function GitHubSyncPanel() {
                   opacity: verifying ? 0.5 : 1,
                 }}
                 title={showToken ? '숨기기' : '보기'}
+                aria-label={showToken ? 'token 숨기기' : 'token 보기'}
               >
-                <img
-                  src={showToken ? eyeOpenIcon : eyeClosedIcon}
-                  alt={showToken ? 'token 숨기기' : 'token 보기'}
+                <span
+                  role="img"
+                  aria-hidden
                   style={{
-                    width: 24,
-                    height: 24,
+                    fontSize: 18,
+                    lineHeight: 1,
                     display: 'block',
+                    userSelect: 'none',
                   }}
-                />
+                >
+                  {showToken ? '😐' : '🫥'}
+                </span>
               </button>
             </div>
           </div>

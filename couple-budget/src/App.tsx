@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { HashRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
 import { ExpensePlanPage } from '@/features/expense-plan/ExpensePlanPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
@@ -252,6 +252,17 @@ function AppShell() {
       setSyncing(false)
     }
   }
+
+  /** 앱 시작 시 자동 동기화 (GitHub Token이 저장되어 있을 때만, 1회) */
+  const autoSyncRanRef = useRef(false)
+  useEffect(() => {
+    if (autoSyncRanRef.current) return
+    const config = GitHubDataSync.loadConfig()
+    if (!config) return
+    autoSyncRanRef.current = true
+    void handleSync()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     setMobileMenuOpen(false)
