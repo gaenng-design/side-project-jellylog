@@ -15,26 +15,17 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// PWA Service Worker 등록 (web 빌드 환경에서만 동작 — Electron에서는 자동 skip)
-if ('serviceWorker' in navigator) {
-  // vite-plugin-pwa가 주입한 virtual 모듈. Electron dev에서는 모듈이 없으므로 @vite-ignore로 정적 분석 회피
-  const pwaRegisterModule = 'virtual:pwa-register'
-  import(/* @vite-ignore */ pwaRegisterModule)
-    .then((mod: { registerSW: (opts: Record<string, unknown>) => void }) => {
-      mod.registerSW({
-        immediate: true,
-        onRegistered(reg: ServiceWorkerRegistration | undefined) {
-          console.log('[PWA] Service Worker registered', reg)
-        },
-        onOfflineReady() {
-          console.log('[PWA] App ready to work offline')
-        },
-        onNeedRefresh() {
-          console.log('[PWA] New version available')
-        },
+// PWA Service Worker 등록 (production 빌드에서만, virtual 모듈 의존 없이 직접 /sw.js 등록)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js', { scope: '/' })
+      .then((reg) => {
+        console.log('[PWA] Service Worker registered', reg.scope)
       })
-    })
-    .catch(() => {
-      // Electron dev나 PWA 플러그인이 없는 빌드에서는 무시
-    })
+      .catch((err) => {
+        // /sw.js 가 없는 환경(Electron 등)에서는 조용히 무시
+        console.warn('[PWA] SW registration skipped:', err?.message ?? err)
+      })
+  })
 }

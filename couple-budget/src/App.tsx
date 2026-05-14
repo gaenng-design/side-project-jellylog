@@ -253,13 +253,27 @@ function AppShell() {
     }
   }
 
-  /** 앱 시작 시 자동 동기화 (GitHub Token이 저장되어 있을 때만, 1회) */
+  /**
+   * 앱 시작 시 자동 동기화 (세션당 1회).
+   * - sessionStorage로 마크하여 reload 후 무한 루프 방지
+   * - 사용자가 동기화 버튼을 누르면 reload 발생 → 그 뒤로는 자동 sync 안 함
+   */
   const autoSyncRanRef = useRef(false)
   useEffect(() => {
     if (autoSyncRanRef.current) return
+    autoSyncRanRef.current = true
+    try {
+      if (sessionStorage.getItem('couple-budget:autoSyncDone') === 'true') return
+    } catch {
+      /* sessionStorage 차단된 환경 */
+    }
     const config = GitHubDataSync.loadConfig()
     if (!config) return
-    autoSyncRanRef.current = true
+    try {
+      sessionStorage.setItem('couple-budget:autoSyncDone', 'true')
+    } catch {
+      /* ignore */
+    }
     void handleSync()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

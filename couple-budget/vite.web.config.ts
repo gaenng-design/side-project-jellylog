@@ -53,8 +53,7 @@ export default defineConfig({
         ],
       },
       devOptions: {
-        enabled: true, // 개발 모드에서도 PWA 활성화 (확인용)
-        type: 'module',
+        enabled: false, // 개발 모드에서는 비활성화 (production 빌드에서만 SW 활성)
       },
     }),
   ],
