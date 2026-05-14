@@ -35,6 +35,9 @@ export interface SettlementInputs {
     A: { description: string; amount: number }[]
     B: { description: string; amount: number }[]
   }
+  /** 별도지출 카드 안에서 「공금」 항목(개인 지불 토글 OFF) 합계 - 50:50 자동 부담 */
+  sharedFundExpenseTotal?: number
+  sharedFundExpenseHalf?: number
   /** 별도 지출 카드 50:50 송금 안내(미주입 시 null) */
   separateExpenseCard5090?: {
     total: number
@@ -110,6 +113,8 @@ export interface SettlementSummary {
   }
   /** 별도 지출 카드 50:50 송금 안내 */
   separateExpenseCard5090: NonNullable<SettlementInputs['separateExpenseCard5090']> | null
+  /** 별도지출 카드 안에서 「공금」 항목 50:50 부담 정보 */
+  sharedFundExpense: { total: number; halfEach: number } | null
   userSummary: {
     A: {
       fixedDeposit: number
@@ -150,6 +155,9 @@ export function calcSettlementSummary(
     investLinesByCategoryByPerson,
   } = inputs
   const separateByUser = inputs.separateByUser ?? { A: 0, B: 0 }
+  const sharedFundExpenseHalf =
+    inputs.sharedFundExpenseHalf ??
+    (inputs.sharedFundExpenseTotal ? Math.round(inputs.sharedFundExpenseTotal / 2) : 0)
   const sharedLivingCost = settings.sharedLivingCost ?? 0
   const sharedLivingByPerson = getSharedLivingByPerson(sharedLivingCost, settings, incomeByPerson)
   const sharedLivingCostPerPerson = Math.round((sharedLivingByPerson.A + sharedLivingByPerson.B) / 2)
@@ -172,7 +180,8 @@ export function calcSettlementSummary(
         fixedDepositByUser.A +
         sharedLivingByPerson.A +
         separateByUser.A +
-        investByPerson.A,
+        investByPerson.A +
+        sharedFundExpenseHalf,
     },
     B: {
       fixedDeposit: fixedDepositByUser.B,
@@ -185,7 +194,8 @@ export function calcSettlementSummary(
         fixedDepositByUser.B +
         sharedLivingByPerson.B +
         separateByUser.B +
-        investByPerson.B,
+        investByPerson.B +
+        sharedFundExpenseHalf,
     },
   }
   const totalAllowance = allowanceA + allowanceB
@@ -229,6 +239,13 @@ export function calcSettlementSummary(
       templateSeparateItemsByUser,
     },
     separateExpenseCard5090: inputs.separateExpenseCard5090 ?? null,
+    sharedFundExpense:
+      inputs.sharedFundExpenseTotal != null && inputs.sharedFundExpenseTotal > 0
+        ? {
+            total: inputs.sharedFundExpenseTotal,
+            halfEach: inputs.sharedFundExpenseHalf ?? Math.round(inputs.sharedFundExpenseTotal / 2),
+          }
+        : null,
     userSummary,
     chartData,
   }

@@ -18,7 +18,7 @@ function compositionSegmentColor(c: { label: string; amount: number }): string {
   if (c.label === '고정지출') return '#da5969'
   if (c.label === '별도지출') return '#e88896'
   if (c.label === '공동생활비') return '#737dea'
-  if (c.label === '투자·저축') return '#00a667'
+  if (c.label === '투자·저축') return '#3b82f6'
   if (c.label === '용돈') return '#6f6f78'
   return '#9ca3af'
 }
@@ -341,6 +341,7 @@ interface SettlementResultViewProps {
       transferFrom: 'A' | 'B' | null
       transferTo: 'A' | 'B' | null
     } | null
+    sharedFundExpense?: { total: number; halfEach: number } | null
   }
   personAName: string
   personBName: string
@@ -420,6 +421,8 @@ export function SettlementResultView({
       sharedLiving: boolean
       /** 별도 지출 카드 50:50 송금액 — 보내는 쪽만 체크 UI 표시 */
       transfer5090Send: boolean
+      /** 별도지출 반반 정산 (공금 결제 항목 절반 부담) */
+      sharedFundExpense: boolean
       /** 투자/저축 트리: inv-0, sav-0 | cat-inv, cat-sav | combined */
       investChecks: Record<string, boolean>
     }
@@ -427,6 +430,7 @@ export function SettlementResultView({
       deposit: boolean
       sharedLiving: boolean
       transfer5090Send: boolean
+      sharedFundExpense: boolean
       investChecks: Record<string, boolean>
     }
   }>({
@@ -434,12 +438,14 @@ export function SettlementResultView({
       deposit: false,
       sharedLiving: false,
       transfer5090Send: false,
+      sharedFundExpense: false,
       investChecks: {},
     },
     B: {
       deposit: false,
       sharedLiving: false,
       transfer5090Send: false,
+      sharedFundExpense: false,
       investChecks: {},
     },
   })
@@ -588,7 +594,7 @@ export function SettlementResultView({
 
       {summary.separateExpenseCard5090 && summary.separateExpenseCard5090.total > 0 ? (
         <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 10 }}>별도 지출 (50:50 정산)</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 10 }}>별도지출 - 송금 정산</div>
           <div style={{ fontSize: 12, color: JELLY.textMuted, lineHeight: 1.65, marginBottom: 8 }}>
             별도 지출 카드 합계 <strong style={{ color: '#374151' }}>{fmt(summary.separateExpenseCard5090.total)}</strong>
             은 두 사람이 동일하게{' '}
@@ -650,6 +656,20 @@ export function SettlementResultView({
           ) : (
             <div style={{ fontSize: 12, color: JELLY.textMuted }}>실지출이 같아 추가 송금이 없습니다.</div>
           )}
+        </div>
+      ) : null}
+
+      {summary.sharedFundExpense && summary.sharedFundExpense.total > 0 ? (
+        <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 10 }}>
+            별도지출 - 반반 정산
+          </div>
+          <div style={{ fontSize: 12, color: JELLY.textMuted, lineHeight: 1.65 }}>
+            공금으로 결제한 별도 지출 합계 <strong style={{ color: '#374151' }}>{fmt(summary.sharedFundExpense.total)}</strong>은
+            공동 통장에서 빠지므로 두 사람이 자동으로{' '}
+            <strong style={{ color: PRIMARY }}>{fmt(summary.sharedFundExpense.halfEach)}</strong>씩 부담합니다.
+            <span style={{ display: 'block', marginTop: 4, color: '#9ca3af' }}>(개별 송금 없음)</span>
+          </div>
         </div>
       ) : null}
 
@@ -807,6 +827,31 @@ export function SettlementResultView({
                       {fmt(u.sharedLiving)}
                     </td>
                   </tr>
+                  {summary.sharedFundExpense && summary.sharedFundExpense.halfEach > 0 && (
+                    <tr>
+                      <td style={userRowLabelStyle}>
+                        <label style={labelWithCheckboxStyle}>
+                          <input
+                            type="checkbox"
+                            checked={payChk.sharedFundExpense}
+                            onChange={(e) =>
+                              setUserPayChecked((prev) => ({
+                                ...prev,
+                                [p]: { ...prev[p as PersonKey], sharedFundExpense: e.target.checked },
+                              }))
+                            }
+                            style={checkboxStyle}
+                          />
+                          <span style={{ minWidth: 0, lineHeight: 1.4, ...(payChk.sharedFundExpense && settledRowStyle) }}>
+                            별도지출 반반 정산
+                          </span>
+                        </label>
+                      </td>
+                      <td style={{ ...userRowAmountStyle, ...(payChk.sharedFundExpense && settledRowStyle) }}>
+                        {fmt(summary.sharedFundExpense.halfEach)}
+                      </td>
+                    </tr>
+                  )}
                   <UserInvestTreeRows
                     investDetail={u.investDetail}
                     investLineItems={u.investLineItems}

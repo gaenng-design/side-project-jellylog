@@ -674,7 +674,7 @@ function FixedExpenseCard(props: FixedCardProps) {
             personKey === '공금' ? '공금' : personKey === 'A' ? personAName : personBName
           return (
           <div key={personKey} style={{ marginBottom: 12 }}>
-            {(() => {
+            {!excludePublicFund && (() => {
               const groupTotal = list.filter((r) => !r.isExcluded).reduce((s, r) => s + r.amount, 0)
               return (
                 <div style={narrow ? stickyPlanSectionGroupHeaderStyle : { paddingTop: 2, paddingBottom: 2 }}>
@@ -770,13 +770,12 @@ function FixedExpenseCard(props: FixedCardProps) {
 
       <Modal open={open} title={addModalTitle} onClose={() => setOpen(false)}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {!forcePersonPublicFund && (
+          {!forcePersonPublicFund && !excludePublicFund && (
             <div>
               <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
               <PersonToggle
                 value={form.person}
                 onChange={(p) => setForm({ ...form, person: p as Person })}
-                options={excludePublicFund ? ['A', 'B'] : undefined}
               />
             </div>
           )}
@@ -842,7 +841,9 @@ function FixedExpenseCard(props: FixedCardProps) {
             }
             const separateCaption = (
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: JELLY.text }}>별도 정산으로 등록</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: JELLY.text }}>
+                  {excludePublicFund ? '개인이 지불' : '별도 정산으로 등록'}
+                </div>
                 <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>최종 정산에서만 반영됩니다.</div>
               </div>
             )
@@ -1427,7 +1428,10 @@ function computeAllowanceBreakdown(
   const incomeB = incomes.filter((i) => i.person === 'B').reduce((s, i) => s + i.amount, 0)
   const halfFixedRegular = Math.round(totalFixedRegular / 2)
   const halfFixedSeparate = Math.round(totalFixedSeparate / 2)
-  const separateExpenseCard5090 = computeSeparateExpenseCard5090(fixedSeparate)
+  // 50:50 정산은 「별도 정산」으로 등록된 항목만 포함
+  const separateExpenseCard5090 = computeSeparateExpenseCard5090(
+    fixedSeparate.filter((r) => r.isSeparate),
+  )
   const sharedLivingByPerson = getSharedLivingByPerson(sharedLivingCost, settings, { A: incomeA, B: incomeB })
   const allowanceA = incomeA - halfFixedRegular - halfFixedSeparate - sharedLivingByPerson.A - investA
   const allowanceB = incomeB - halfFixedRegular - halfFixedSeparate - sharedLivingByPerson.B - investB
@@ -2003,7 +2007,15 @@ export function ExpensePlanPage() {
       .reduce((s, r) => s + r.amount, 0)
     const separateByUserA = templateSepA + cardPaidA
     const separateByUserB = templateSepB + cardPaidB
-    const separateExpenseCard5090 = computeSeparateExpenseCard5090(separateExpenseExtraRows)
+    // 50:50 송금 정산: 「개인이 지불」 토글된 항목 (한 명이 직접 지불 → 절반 송금)
+    const separateExpenseCard5090 = computeSeparateExpenseCard5090(
+      separateExpenseExtraRows.filter((r) => r.isSeparate),
+    )
+    // 공금(공동 통장) 별도지출 합계: 토글 OFF 항목 → 자동 50:50 부담
+    const sharedFundExpenseTotal = separateExpenseExtraRows
+      .filter((r) => !r.isExcluded && !r.isSeparate)
+      .reduce((s, r) => s + r.amount, 0)
+    const sharedFundExpenseHalf = Math.round(sharedFundExpenseTotal / 2)
     const incomeByPerson = {
       A: incomeRowsEffective.filter((r) => r.person === 'A').reduce((s, r) => s + r.amount, 0),
       B: incomeRowsEffective.filter((r) => r.person === 'B').reduce((s, r) => s + r.amount, 0),
@@ -2051,6 +2063,8 @@ export function ExpensePlanPage() {
         },
         separateByUser: { A: separateByUserA, B: separateByUserB },
         separateExpenseCard5090,
+        sharedFundExpenseTotal,
+        sharedFundExpenseHalf,
       },
       settings,
     )
