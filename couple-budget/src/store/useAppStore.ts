@@ -37,6 +37,12 @@ export interface AppSettings {
   sharedLivingCost: number
   sharedLivingCostRatioMode: '50:50' | 'custom' | 'income'
   sharedLivingCostRatio: [number, number]
+  /**
+   * 공동 생활비 정산 사이클 시작일 (1-31).
+   * 예: 25 → 매월 25일부터 다음 달 24일까지가 한 사이클.
+   * 미설정 시 1 (일반 달력 월 기준).
+   */
+  sharedExpenseCycleStartDay?: number
   user1Color: string
   user2Color: string
   sharedColor: string

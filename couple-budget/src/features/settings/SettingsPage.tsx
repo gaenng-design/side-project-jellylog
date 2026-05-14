@@ -332,6 +332,29 @@ function SharedLivingCostSettings() {
           />
         </div>
         <div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: JELLY.textMuted }}>
+            공동 생활비 정산 사이클 시작일
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ minWidth: 100 }}>
+              <DaySelect
+                value={settings.sharedExpenseCycleStartDay ?? 1}
+                onChange={(v) => updateSettings({ sharedExpenseCycleStartDay: v ?? 1 })}
+              />
+            </div>
+            <div style={{ fontSize: 12, color: '#6b7280' }}>
+              매월 <strong>{settings.sharedExpenseCycleStartDay ?? 1}일</strong>부터 다음 달{' '}
+              <strong>
+                {(() => {
+                  const sd = settings.sharedExpenseCycleStartDay ?? 1
+                  return sd <= 1 ? '말일' : `${sd - 1}일`
+                })()}
+              </strong>
+              까지가 한 사이클
+            </div>
+          </div>
+        </div>
+        <div>
           <div style={{ fontSize: 12, marginBottom: 8, color: JELLY.textMuted }}>분담 비율</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {RATIO_OPTIONS.map((opt) => {

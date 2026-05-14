@@ -9,6 +9,7 @@ import { pageTitleH1Style, PRIMARY, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, PRIMAR
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { downloadSharedExpenseCSV } from '@/lib/sharedExpenseExport'
 import { resolveCategoryColor } from '@/lib/categoryColors'
+import { getCycleRange, getCycleKeyForDate, getEntryDisplayDate } from '@/lib/sharedExpenseCycle'
 import { CategoryManagerModal } from './CategoryManagerModal'
 import type { SharedExpenseEntry } from '@/types'
 
@@ -372,15 +373,22 @@ export function SharedExpensePage() {
   const currentYearMonth = useAppStore((s) => s.currentYearMonth)
   const setYearMonth = useAppStore((s) => s.setYearMonth)
   const sharedLivingCostTarget = useAppStore((s) => s.settings.sharedLivingCost ?? 0)
+  const cycleStartDay = useAppStore((s) => s.settings.sharedExpenseCycleStartDay ?? 1)
   const [yearStr, monthStr] = currentYearMonth.split('-')
   const year = parseInt(yearStr, 10)
   const monthIdx = parseInt(monthStr, 10) - 1
-  const monthLabel = `${year}년 ${monthIdx + 1}월`
+  const cycleRange = useMemo(
+    () => getCycleRange(currentYearMonth, cycleStartDay),
+    [currentYearMonth, cycleStartDay],
+  )
+  const monthLabel =
+    cycleStartDay > 1
+      ? `${year}년 ${monthIdx + 1}월 (${cycleRange.startLabel} ~ ${cycleRange.endLabel})`
+      : `${year}년 ${monthIdx + 1}월`
 
-  // 미래 월 (오늘 기준) → 입력 불가
+  // 미래 사이클 (오늘 기준 사이클 종료일이 미래) → 입력 불가
   const today = new Date()
-  const todayYearMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
-  const isFutureMonth = currentYearMonth > todayYearMonth
+  const isFutureMonth = cycleRange.startDate > today
 
   const items = useSharedExpenseStore((s) => s.items)
   const entries = useSharedExpenseStore((s) => s.entries)
@@ -409,10 +417,21 @@ export function SharedExpensePage() {
 
   const itemMap = useMemo(() => new Map(items.map((it) => [it.id, it])), [items])
 
-  // 현재 월의 entries
+  // 현재 사이클의 entries (cycleStartDay 적용)
   const monthEntries = useMemo(() => {
-    return entries.filter((e) => e.yearMonth === currentYearMonth)
-  }, [entries, currentYearMonth])
+    if (cycleStartDay <= 1) {
+      return entries.filter((e) => e.yearMonth === currentYearMonth)
+    }
+    // 사이클 기반: entry.yearMonth + entry.day가 현재 사이클에 속하는지 판별
+    return entries.filter((e) => {
+      if (e.day == null) return e.yearMonth === currentYearMonth
+      const [yStr, mStr] = e.yearMonth.split('-')
+      const ey = parseInt(yStr, 10)
+      const em = parseInt(mStr, 10) - 1
+      const cycleKey = getCycleKeyForDate(ey, em, e.day, cycleStartDay)
+      return cycleKey === currentYearMonth
+    })
+  }, [entries, currentYearMonth, cycleStartDay])
 
   // 필터/정렬 적용
   const filteredEntries = useMemo(() => {
@@ -471,12 +490,13 @@ export function SharedExpensePage() {
     return result
   }, [items])
 
-  // entry 정보 헬퍼
+  // entry 정보 헬퍼 (사이클 적용: 실제 날짜로 표시)
   const formatDay = (e: SharedExpenseEntry): string => {
     if (e.day == null) return '-'
-    const date = new Date(year, monthIdx, e.day)
+    const display = getEntryDisplayDate(e.yearMonth, e.day, cycleStartDay)
+    const date = new Date(display.year, display.monthIdx, display.day)
     const dow = DAY_OF_WEEK[date.getDay()]
-    return `${monthIdx + 1}/${e.day} (${dow})`
+    return `${display.monthIdx + 1}/${display.day} (${dow})`
   }
 
   const handleEditOpen = (e: SharedExpenseEntry) => {
