@@ -182,24 +182,43 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
   }, [open])
 
   const copyAccount = async () => {
+    let ok = false
+    // 1차: navigator.clipboard (HTTPS/localhost/Electron)
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(account)
-      } else {
-        // 폴백: textarea + execCommand
+        ok = true
+      }
+    } catch (err) {
+      console.warn('[AccountTooltip] clipboard API failed, falling back:', err)
+    }
+    // 2차: textarea + execCommand 폴백 (비보안 컨텍스트/구형 브라우저)
+    if (!ok) {
+      try {
         const ta = document.createElement('textarea')
         ta.value = account
+        ta.setAttribute('readonly', '')
         ta.style.position = 'fixed'
+        ta.style.top = '0'
+        ta.style.left = '0'
         ta.style.opacity = '0'
+        ta.style.pointerEvents = 'none'
         document.body.appendChild(ta)
+        ta.focus()
         ta.select()
-        document.execCommand('copy')
+        ta.setSelectionRange(0, account.length)
+        ok = document.execCommand('copy')
         document.body.removeChild(ta)
+      } catch (err) {
+        console.warn('[AccountTooltip] execCommand fallback failed:', err)
       }
+    }
+    if (ok) {
       setCopied(true)
       window.setTimeout(() => setCopied(false), 1500)
-    } catch {
-      // 복사 실패 시 무시
+    } else {
+      // 최종 실패 시 사용자에게 알림 — 직접 선택해 복사할 수 있게 안내
+      window.alert(`복사에 실패했습니다. 계좌번호를 직접 복사해 주세요:\n${account}`)
     }
   }
 
@@ -297,7 +316,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
                 transition: 'background 0.2s ease',
               }}
             >
-              {copied ? '✓ 복사됨' : '📋 복사'}
+              {copied ? '✓ 복사됨' : '복사'}
             </button>
           </div>
           {/* 화살표 */}

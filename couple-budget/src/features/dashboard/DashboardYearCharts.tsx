@@ -225,19 +225,25 @@ function MonthlyIncomeBarChart({ values }: { values: number[] }) {
   )
 }
 
-function InvestCumulativeChart({ cumulative }: { cumulative: number[] }) {
+function InvestCumulativeChart({ cumulative, lastMonthIdx }: { cumulative: number[]; lastMonthIdx: number }) {
   const maxV = Math.max(1, ...cumulative)
   const innerW = VB_W - PAD_L - PAD_R
   const innerH = VB_H - PAD_T - PAD_B
   const stepX = innerW / 11
 
-  const pts = cumulative.map((v, i) => ({
-    x: PAD_L + i * stepX,
-    y: PAD_T + innerH - (v / maxV) * innerH,
-  }))
+  const visibleEnd = Math.max(-1, Math.min(11, lastMonthIdx))
+  const pts = cumulative
+    .slice(0, visibleEnd + 1)
+    .map((v, i) => ({
+      x: PAD_L + i * stepX,
+      y: PAD_T + innerH - (v / maxV) * innerH,
+    }))
   const linePts = pts.map((p) => `${p.x},${p.y}`).join(' ')
   const baseY = PAD_T + innerH
-  const areaD = [`M ${PAD_L},${baseY}`, ...pts.map((p) => `L ${p.x},${p.y}`), `L ${PAD_L + innerW},${baseY}`, 'Z'].join(' ')
+  const areaD =
+    pts.length > 0
+      ? [`M ${PAD_L},${baseY}`, ...pts.map((p) => `L ${p.x},${p.y}`), `L ${pts[pts.length - 1].x},${baseY}`, 'Z'].join(' ')
+      : ''
 
   return (
     <svg
@@ -330,12 +336,22 @@ export function DashboardYearCharts() {
 
   const { incomeMonthly, investCumulative, fixedCategoryBreakdown } = useDashboardYearSeries(year)
 
+  const lastMonthIdx = useMemo(() => {
+    const [yStr, mStr] = String(currentYearMonth).split('-')
+    const curY = parseInt(yStr, 10)
+    const curM = parseInt(mStr, 10) - 1
+    if (year < curY) return 11
+    if (year > curY) return -1
+    return curM
+  }, [currentYearMonth, year])
+
   const yearEndNote = useMemo(() => {
     const totalIncome = incomeMonthly.reduce((a, b) => a + b, 0)
-    const endCum = investCumulative[11] ?? 0
+    const endIdx = lastMonthIdx >= 0 ? lastMonthIdx : 0
+    const endCum = investCumulative[endIdx] ?? 0
     const totalFixed = fixedCategoryBreakdown.reduce((a, r) => a + r.amount, 0)
-    return { totalIncome, endCum, totalFixed }
-  }, [incomeMonthly, investCumulative, fixedCategoryBreakdown])
+    return { totalIncome, endCum, totalFixed, endIdx }
+  }, [incomeMonthly, investCumulative, fixedCategoryBreakdown, lastMonthIdx])
 
   return (
     <div
@@ -474,7 +490,7 @@ export function DashboardYearCharts() {
         <div style={{ fontSize: DS.font.caption.size, color: DS.color.text.secondary, marginBottom: DS.space[4], lineHeight: 1.5 }}>
           지출 계획에서 시작한 달만 월 납부액에 포함합니다. 누적은 해당 연 1월~각 월까지의 합입니다. 정산 스냅샷이 있으면 그 투자 템플릿을 사용합니다.
         </div>
-        <InvestCumulativeChart cumulative={investCumulative} />
+        <InvestCumulativeChart cumulative={investCumulative} lastMonthIdx={lastMonthIdx} />
         <div
           style={{
             fontSize: DS.font.caption.size,
@@ -483,7 +499,7 @@ export function DashboardYearCharts() {
             ...tabularNums,
           }}
         >
-          12월 말 기준 누적 {fmt(yearEndNote.endCum)}
+          {yearEndNote.endIdx + 1}월 말 기준 누적 {fmt(yearEndNote.endCum)}
         </div>
       </Card>
     </div>

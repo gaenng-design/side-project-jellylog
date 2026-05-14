@@ -28,19 +28,19 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
   const currentMonth = parseInt(curMStr, 10) - 1
   void entries
 
-  const { totalSeries, availableSeries, max } = useMemo(() => {
-    const total: number[] = []
-    const avail: number[] = []
+  const { totalSeries, availableSeries, max, lastIdx } = useMemo(() => {
+    const total: (number | null)[] = []
+    const avail: (number | null)[] = []
+    let last = 11
+    if (year > currentYear) last = -1
+    else if (year === currentYear) last = currentMonth
     for (let mi = 0; mi < 12; mi++) {
-      const monthYM = ym(year, mi)
-      // 미래 월은 미입력 데이터로 간주 (0 또는 직전 월값 유지)
-      const isFuture = year === currentYear && mi > currentMonth
-      if (isFuture) {
-        // 직전 값 유지 (예측)
-        total.push(total[mi - 1] ?? 0)
-        avail.push(avail[mi - 1] ?? 0)
+      if (mi > last) {
+        total.push(null)
+        avail.push(null)
         continue
       }
+      const monthYM = ym(year, mi)
       const t = items.reduce((sum, item) => sum + getEntry(item.id, monthYM), 0)
       const a = items
         .filter((item) => !item.locked)
@@ -48,11 +48,11 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
       total.push(t)
       avail.push(a)
     }
-    const maxVal = Math.max(...total, 1)
-    return { totalSeries: total, availableSeries: avail, max: maxVal }
+    const maxVal = Math.max(...total.map((v) => v ?? 0), 1)
+    return { totalSeries: total, availableSeries: avail, max: maxVal, lastIdx: last }
   }, [items, getEntry, year, currentYear, currentMonth])
 
-  const allZero = totalSeries.every((v) => v === 0)
+  const allZero = totalSeries.every((v) => v === null || v === 0)
 
   // SVG 차트
   const W = 720
@@ -68,11 +68,17 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
   const pointY = (v: number) => padT + innerH - (v / max) * innerH
 
   const totalPath = totalSeries
-    .map((v, i) => `${i === 0 ? 'M' : 'L'} ${pointX(i)} ${pointY(v)}`)
+    .map((v, i) => (v === null ? '' : `${i === 0 ? 'M' : 'L'} ${pointX(i)} ${pointY(v)}`))
+    .filter(Boolean)
     .join(' ')
-  const availArea = `M ${pointX(0)} ${padT + innerH} ${availableSeries
-    .map((v, i) => `L ${pointX(i)} ${pointY(v)}`)
-    .join(' ')} L ${pointX(11)} ${padT + innerH} Z`
+    .replace(/^L/, 'M')
+  const availArea =
+    lastIdx >= 0
+      ? `M ${pointX(0)} ${padT + innerH} ${availableSeries
+          .slice(0, lastIdx + 1)
+          .map((v, i) => `L ${pointX(i)} ${pointY(v ?? 0)}`)
+          .join(' ')} L ${pointX(lastIdx)} ${padT + innerH} Z`
+      : ''
 
   // y축 라벨 (4단)
   const yTicks = [0, 0.25, 0.5, 0.75, 1].map((p) => ({
@@ -121,7 +127,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
               <path d={totalPath} fill="none" stroke={PRIMARY} strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round" />
               {/* 데이터 포인트 */}
               {totalSeries.map((v, i) => {
-                if (v === 0) return null
+                if (v === null || v === 0) return null
                 const isCurrent = year === currentYear && i === currentMonth
                 return (
                   <g key={i}>
