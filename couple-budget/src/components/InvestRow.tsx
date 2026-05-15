@@ -34,6 +34,8 @@ interface InvestRowProps {
   compactMaturityDate?: boolean
   /** true면 행 앞에 A/B 구분 토글 (설정 템플릿 등) */
   showPersonToggle?: boolean
+  /** 행 컨테이너(회색 pill) 내부 하단에 렌더 — 계좌번호 등 보조 컨트롤 */
+  footerSlot?: React.ReactNode
 }
 
 export function InvestRow({
@@ -44,6 +46,7 @@ export function InvestRow({
   dragHandle,
   compactMaturityDate,
   showPersonToggle = false,
+  footerSlot,
 }: InvestRowProps) {
   const narrow = useNarrowLayout()
   const dateInputRef = useRef<HTMLInputElement>(null)
@@ -177,6 +180,7 @@ export function InvestRow({
           <div style={{ flexShrink: 0 }}>{maturityBlock}</div>
           <div style={{ flexShrink: 0, alignSelf: 'center' }}>{actionSlot}</div>
         </div>
+        {footerSlot}
       </div>
     )
   }
@@ -185,13 +189,21 @@ export function InvestRow({
     <div
       style={{
         display: 'flex',
-        alignItems: 'center',
-        gap: 8,
+        flexDirection: 'column',
+        gap: 4,
         padding: '10px 12px',
         borderRadius: JELLY.radiusControl,
         background: '#f9fafb',
         minWidth: 0,
         opacity: disabled ? 0.6 : 1,
+      }}
+    >
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        minWidth: 0,
       }}
     >
       {dragHandle && (
@@ -231,6 +243,8 @@ export function InvestRow({
       </div>
       {maturityBlock}
       {actionSlot}
+    </div>
+    {footerSlot}
     </div>
   )
 }

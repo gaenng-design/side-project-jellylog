@@ -880,14 +880,11 @@ export function SettlementResultView({
           const userTdFixedGroupHeader: CSSProperties = { ...tdFixedGroupHeader, borderBottom: userDashStyle }
           const userTdFixedGroupHeaderAmount: CSSProperties = { ...tdFixedGroupHeaderAmount, borderBottom: userDashStyle }
           const userTdInvestGroupHeader: CSSProperties = { ...tdInvestGroupHeader, borderBottom: userDashStyle }
-          const userTdTreeChildLabel: CSSProperties = { ...tdTreeChildLabel, borderBottom: userDashStyle }
-          const userTdTreeChildAmount: CSSProperties = { ...tdTreeChildAmount, borderBottom: userDashStyle }
-          const userTdSepCardLabel: CSSProperties = { ...tdSepCardLabel, borderBottom: userDashStyle }
           const userTdSepCardAmount: CSSProperties = { ...tdSepCardAmount, borderBottom: userDashStyle }
           const userTdCategorySubtotalLabel: CSSProperties = { ...tdCategorySubtotalLabel, borderBottom: userDashStyle }
           const userTdCategorySubtotalAmount: CSSProperties = { ...tdCategorySubtotalAmount, borderBottom: userDashStyle }
 
-          /** 모든 행의 라벨/금액 통일 스타일 (글자 크기 통일) */
+          /** 모든 행의 라벨/금액 통일 스타일 (글자 크기·들여쓰기 통일) */
           const userRowLabelStyle: CSSProperties = {
             ...userTdLabelBase,
             paddingLeft: 4,
@@ -899,6 +896,11 @@ export function SettlementResultView({
             fontSize: 13,
             fontWeight: 500,
           }
+
+          /** 트리 자식 행 · 별도지출 50:50 보조행도 동일 들여쓰기/크기로 정렬 */
+          const userTdTreeChildLabel: CSSProperties = { ...userRowLabelStyle }
+          const userTdTreeChildAmount: CSSProperties = { ...userRowAmountStyle }
+          const userTdSepCardLabel: CSSProperties = { ...userRowLabelStyle, color: RECEIPT_MUTED }
 
           return (
             <div

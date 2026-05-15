@@ -35,6 +35,7 @@ import { CustomSelect } from '@/components/CustomSelect'
 import { FixedExpenseRow, type FixedExpenseRowData } from '@/components/FixedExpenseRow'
 import { GroupHeaderChip } from '@/components/GroupHeaderChip'
 import { InvestRow } from '@/components/InvestRow'
+import { AccountNumberInline } from '@/components/AccountNumberInline'
 import { DaySelect } from '@/components/DaySelect'
 import { calcSettlementSummary, getSharedLivingByPerson } from '@/lib/calcSettlementSummary'
 import { computeSeparateExpenseCard5090, payerForSeparateExpenseRow } from '@/lib/separateExpenseSettlement'
@@ -70,6 +71,7 @@ type InvestRow = {
   isExcluded?: boolean
   maturityDate?: string
   personOrder?: number
+  accountNumber?: string
 }
 
 /** 정산 결과에서 유저별 투자/저축 행 분리 표시용 (공금 등은 해당 인원에 합산하지 않음) */
@@ -770,6 +772,13 @@ function FixedExpenseCard(props: FixedCardProps) {
                       planPerson={row.person}
                       categoryViewLeadUserFirst
                       hideRowPersonTags={hideRowPersonTags}
+                      footerSlot={
+                        <AccountNumberInline
+                          value={row.accountNumber}
+                          disabled={excluded}
+                          onCommit={(next) => updateRow(row.id, { accountNumber: next })}
+                        />
+                      }
                     />
                   </div>
                 )
@@ -1262,10 +1271,18 @@ function InvestCard(props: InvestCardProps) {
                             if ('description' in patch) updateRow(row.id, { description: patch.description! })
                             if ('amount' in patch) updateRow(row.id, { amount: patch.amount! })
                             if ('maturityDate' in patch) updateRow(row.id, { maturityDate: patch.maturityDate })
+                            if ('accountNumber' in patch) updateRow(row.id, { accountNumber: patch.accountNumber })
                           }
                         }}
                         actionSlot={actionSlot}
                         disabled={excluded}
+                        footerSlot={
+                          <AccountNumberInline
+                            value={row.accountNumber}
+                            disabled={excluded}
+                            onCommit={(next) => updateRow(row.id, { accountNumber: next })}
+                          />
+                        }
                       />
                     </div>
                   )
@@ -1667,6 +1684,7 @@ export function ExpensePlanPage() {
   const toggleFixedExclusion = useFixedTemplateStore((s) => s.toggleExclusion)
   const isFixedSeparated = useFixedTemplateStore((s) => s.isSeparated)
   const toggleFixedSeparation = useFixedTemplateStore((s) => s.toggleSeparation)
+  const updateFixedTemplate = useFixedTemplateStore((s) => s.updateTemplate)
   const monthlySeparations = useFixedTemplateStore((s) => s.monthlySeparations)
   const getSortedInvestTemplates = useInvestTemplateStore((s) => s.getSortedTemplates)
   const investTemplates = useMemo(() => getSortedInvestTemplates(), [getSortedInvestTemplates])
@@ -1677,6 +1695,7 @@ export function ExpensePlanPage() {
   const getInvestMonthlyAmount = useInvestTemplateStore((s) => s.getMonthlyAmount)
   const setInvestMonthlyAmount = useInvestTemplateStore((s) => s.setMonthlyAmount)
   const toggleInvestExclusion = useInvestTemplateStore((s) => s.toggleExclusion)
+  const updateInvestTemplate = useInvestTemplateStore((s) => s.updateTemplate)
   const {
     items: incomeItems,
     hasLoaded: incomesLoaded,
@@ -1973,6 +1992,7 @@ export function ExpensePlanPage() {
         isExcluded: excluded,
         maturityDate: tpl.maturityDate,
         personOrder: tpl.personOrder,
+        accountNumber: tpl.accountNumber,
       }
     })
     return [...fromTemplates, ...investExtraRows]
@@ -2619,6 +2639,10 @@ export function ExpensePlanPage() {
               const current = isFixedSeparated(templateId, currentYearMonth)
               if (current !== patch.isSeparate) toggleFixedSeparation(templateId, currentYearMonth)
             }
+            // 계좌번호는 월별 스냅샷이 아닌 글로벌 템플릿에 저장 (단순 메타 정보)
+            if ('accountNumber' in patch) {
+              updateFixedTemplate(templateId, { accountNumber: patch.accountNumber })
+            }
           }}
           useTextFields={planFieldsEditable}
           hideRowPersonTags
@@ -2667,6 +2691,10 @@ export function ExpensePlanPage() {
                 setTemplateSnapshot(currentYearMonth, { fixed: [...fixedTemplates], invest: [...investTemplates] })
               }
               updateInvestTemplateInSnapshot(currentYearMonth, templateId, patch as Partial<InvestTemplate>)
+            }
+            // 계좌번호는 월별 스냅샷이 아닌 글로벌 템플릿에 저장 (단순 메타 정보)
+            if ('accountNumber' in patch) {
+              updateInvestTemplate(templateId, { accountNumber: patch.accountNumber })
             }
           }}
         />

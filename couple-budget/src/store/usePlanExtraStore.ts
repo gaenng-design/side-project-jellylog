@@ -23,6 +23,8 @@ interface InvestExtraRow {
   category: string
   description: string
   amount: number
+  /** 계좌번호 (선택). 적금/투자 통장 안내용 */
+  accountNumber?: string
 }
 
 /** 해당 월 기본 급여(유저1·2 템플릿)를 합계·정산에서 제외 */

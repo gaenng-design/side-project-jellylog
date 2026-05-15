@@ -67,6 +67,8 @@ export interface InvestTemplate {
   personOrder?: number
   payDay?: number
   maturityDate?: string
+  /** 계좌번호 (선택). 적금/투자 통장 안내용 */
+  accountNumber?: string
 }
 
 /** 자산 항목 (저축, 투자, 부동산, 주식 등) */

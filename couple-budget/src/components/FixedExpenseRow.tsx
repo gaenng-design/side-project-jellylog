@@ -62,6 +62,8 @@ interface FixedExpenseRowProps {
   categoryViewLeadUserFirst?: boolean
   /** true면 공금/A/B 태그·토글 숨김(고정지출 등 그룹 헤더로 구분할 때) */
   hideRowPersonTags?: boolean
+  /** 행 컨테이너(회색 pill) 내부 하단에 렌더 — 계좌번호 등 보조 컨트롤 */
+  footerSlot?: React.ReactNode
 }
 
 export function FixedExpenseRow({
@@ -77,6 +79,7 @@ export function FixedExpenseRow({
   planPerson = '공금',
   categoryViewLeadUserFirst = false,
   hideRowPersonTags = false,
+  footerSlot,
 }: FixedExpenseRowProps) {
   const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
@@ -208,14 +211,22 @@ export function FixedExpenseRow({
     <div
       style={{
         display: 'flex',
-        alignItems: narrow ? 'flex-start' : 'center',
-        flexWrap: narrow ? 'wrap' : 'nowrap',
-        gap: 8,
+        flexDirection: 'column',
+        gap: 4,
         padding: '10px 12px',
         borderRadius: JELLY.radiusControl,
         background: '#f9fafb',
         minWidth: 0,
         opacity: disabled ? 0.6 : 1,
+      }}
+    >
+    <div
+      style={{
+        display: 'flex',
+        alignItems: narrow ? 'flex-start' : 'center',
+        flexWrap: narrow ? 'wrap' : 'nowrap',
+        gap: 8,
+        minWidth: 0,
       }}
     >
       {dragHandle && !narrow && (
@@ -390,6 +401,8 @@ export function FixedExpenseRow({
       <FlexRowCell narrow={narrow} mobileStyle={{ flex: '0 0 auto', alignSelf: 'center' }}>
         {actionSlot}
       </FlexRowCell>
+    </div>
+    {footerSlot}
     </div>
   )
 }

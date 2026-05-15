@@ -13,6 +13,7 @@ import { CustomSelect } from '@/components/CustomSelect'
 import { YearSelectDropdown } from '@/components/YearSelectDropdown'
 import { FixedExpenseRow } from '@/components/FixedExpenseRow'
 import { InvestRow } from '@/components/InvestRow'
+import { AccountNumberInline } from '@/components/AccountNumberInline'
 import { GroupHeaderChip } from '@/components/GroupHeaderChip'
 import { Modal } from '@/components/Modal'
 import { MobileSnackbar } from '@/components/MobileSnackbar'
@@ -48,7 +49,7 @@ function formatInvestMaturityLabel(ymd: string) {
   return `${y}.${m}.${d}`
 }
 
-type TemplateUpdatePatch = Partial<{ category: string; description: string; defaultAmount: number; payDay?: number; defaultSeparate?: boolean; defaultSeparatePerson?: 'A' | 'B' }>
+type TemplateUpdatePatch = Partial<{ category: string; description: string; defaultAmount: number; payDay?: number; defaultSeparate?: boolean; defaultSeparatePerson?: 'A' | 'B'; accountNumber?: string }>
 
 function SortableTemplateRow(props: {
   tpl: FixedTemplate
@@ -114,6 +115,12 @@ function SortableTemplateRow(props: {
             ⋮
           </div>
         }
+        footerSlot={
+          <AccountNumberInline
+            value={props.tpl.accountNumber}
+            onCommit={(next) => props.onUpdate({ accountNumber: next })}
+          />
+        }
       />
     </div>
   )
@@ -121,7 +128,7 @@ function SortableTemplateRow(props: {
 
 function SortableInvestRow(props: {
   tpl: InvestTemplate
-  onUpdate: (patch: Partial<{ category: string; description: string; defaultAmount: number; maturityDate?: string }>) => void
+  onUpdate: (patch: Partial<{ category: string; description: string; defaultAmount: number; maturityDate?: string; accountNumber?: string }>) => void
   onRemove: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: props.tpl.id })
@@ -163,6 +170,12 @@ function SortableInvestRow(props: {
           </div>
         }
         compactMaturityDate
+        footerSlot={
+          <AccountNumberInline
+            value={props.tpl.accountNumber}
+            onCommit={(next) => props.onUpdate({ accountNumber: next })}
+          />
+        }
       />
     </div>
   )
@@ -1290,6 +1303,7 @@ function InvestTemplateSettings() {
   const [desc, setDesc] = useState('')
   const [amount, setAmount] = useState('')
   const [maturityDate, setMaturityDate] = useState('')
+  const [accountNumber, setAccountNumber] = useState('')
   const addFormDateRef = useRef<HTMLInputElement>(null)
   const [addInvestOpen, setAddInvestOpen] = useState(false)
 
@@ -1299,6 +1313,7 @@ function InvestTemplateSettings() {
     setDesc('')
     setAmount('')
     setMaturityDate('')
+    setAccountNumber('')
   }
 
   const handleInvestAdd = () => {
@@ -1310,6 +1325,7 @@ function InvestTemplateSettings() {
       description: desc,
       defaultAmount: Number(amount.replace(/,/g, '')) || 0,
       maturityDate: maturityDate || undefined,
+      accountNumber: accountNumber.trim() || undefined,
     })
     resetInvestAddForm()
     setAddInvestOpen(false)
@@ -1396,6 +1412,7 @@ function InvestTemplateSettings() {
                         if ('description' in patch) updateTemplate(tpl.id, { description: patch.description! })
                         if ('amount' in patch) updateTemplate(tpl.id, { defaultAmount: patch.amount! })
                         if ('maturityDate' in patch) updateTemplate(tpl.id, { maturityDate: patch.maturityDate })
+                        if ('accountNumber' in patch) updateTemplate(tpl.id, { accountNumber: patch.accountNumber })
                       }}
                       onRemove={() => removeTemplate(tpl.id)}
                     />
@@ -1508,6 +1525,17 @@ function InvestTemplateSettings() {
               <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
               <AmountInput value={amount} onChange={(v) => setAmount(v)} />
             </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>
+              계좌번호 <span style={{ color: '#9ca3af' }}>(선택)</span>
+            </div>
+            <input
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
+              placeholder="예: 우리 1002-123-456789"
+              style={{ width: '100%', ...inputBaseStyle }}
+            />
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
