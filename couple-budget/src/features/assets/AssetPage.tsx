@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react'
 import { useAssetStore, ASSET_CATEGORIES } from '@/store/useAssetStore'
-import { useAppStore, getYearPickerYearOptions } from '@/store/useAppStore'
+import { useAppStore } from '@/store/useAppStore'
 import { CustomSelect } from '@/components/CustomSelect'
 import { AmountInput } from '@/components/AmountInput'
 import { InlineEdit } from '@/components/InlineEdit'
@@ -109,9 +109,9 @@ function AmountCell({
   )
 }
 
-/** 연도별 자산 테이블 */
-function YearTable({
-  year,
+/** 자산 테이블 — 여러 연·월을 하나의 표로 표시 */
+function MonthsTable({
+  months,
   currentYear,
   currentMonth,
   sortedItems,
@@ -123,7 +123,6 @@ function YearTable({
   setEntry,
   monthTotals,
   onItemClick,
-  getPersonColor,
   getPersonLabel,
   getItemColumnBg,
   tableMinWidth,
@@ -131,7 +130,7 @@ function YearTable({
   sumColWidth,
   MONTH_COLUMN_WIDTH,
 }: {
-  year: number
+  months: { year: number; monthIdx: number }[]
   currentYear: number
   currentMonth: number
   sortedItems: AssetItem[]
@@ -141,9 +140,9 @@ function YearTable({
   getProjectedValue: (yr: number, item: AssetItem, monthIdx: number) => number
   getEntry: (itemId: string, yearMonth: string) => number
   setEntry: (itemId: string, yearMonth: string, amount: number) => void
+  /** months 와 동일 길이 · 동일 순서의 월 합계 배열 */
   monthTotals: number[]
   onItemClick: (item: AssetItem) => void
-  getPersonColor: (person?: 'A' | 'B') => string
   getPersonLabel: (person?: 'A' | 'B') => string
   getItemColumnBg: (person?: 'A' | 'B', intensity?: 'header' | 'cell') => string
   tableMinWidth: number
@@ -153,7 +152,6 @@ function YearTable({
   sumColWidth: number
   MONTH_COLUMN_WIDTH: number
 }) {
-  const [yearCollapsed, setYearCollapsed] = useState(year < currentYear)
 
   const monthHeaderStyle: React.CSSProperties = {
     flex: `0 0 ${MONTH_COLUMN_WIDTH}px`,
@@ -184,46 +182,7 @@ function YearTable({
 
   return (
     <div style={{ ...jellyCardStyle, overflow: 'hidden', marginBottom: 16 }}>
-      {/* 연도 헤더 (접기 토글) */}
-      <div
-        onClick={() => setYearCollapsed((v) => !v)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 16px',
-          background: year === currentYear ? 'rgba(79, 140, 255, 0.18)' : '#fafbfc',
-          cursor: 'pointer',
-          borderBottom: yearCollapsed ? 'none' : '1px solid #b3b8c1',
-          userSelect: 'none',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 12, color: year === currentYear ? PRIMARY : '#6b7280' }}>
-            {yearCollapsed ? '▶' : '▼'}
-          </span>
-          <span style={{ fontSize: 15, fontWeight: 700, color: year === currentYear ? PRIMARY : JELLY.text }}>
-            {year}년
-          </span>
-          {year === currentYear && (
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                color: '#fff',
-                background: PRIMARY,
-                padding: '2px 8px',
-                borderRadius: 999,
-              }}
-            >
-              현재
-            </span>
-          )}
-        </div>
-      </div>
-
-      {!yearCollapsed && (
-        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           <div style={{ minWidth: tableMinWidth }}>
             {sortedItems.length > 0 && (
               <>
@@ -351,7 +310,7 @@ function YearTable({
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
-                          justifyContent: 'flex-end',
+                          justifyContent: 'flex-start',
                           gap: 2,
                           cursor: isCollapsed ? 'default' : 'pointer',
                           minHeight: 36,
@@ -386,35 +345,64 @@ function YearTable({
               </>
             )}
 
-            {/* 월별 행 */}
+            {/* 월별 행 (다년도 통합) */}
             {sortedItems.length === 0 ? (
               <div style={{ padding: '32px 16px', textAlign: 'center', color: '#9ca3af', fontSize: 14 }}>
                 아래 '+ 추가' 버튼으로 자산 항목을 추가해주세요.
               </div>
             ) : (
-              MONTHS.map((month, mi) => {
-                const editable = isMonthEditable(year, mi)
-                const isFuture = year === currentYear && mi > currentMonth
-                const isLastRow = mi === 11
+              months.map(({ year: yr, monthIdx: mi }, idx) => {
+                const editable = isMonthEditable(yr, mi)
+                const isFuture = yr > currentYear || (yr === currentYear && mi > currentMonth)
+                const isCurrent = yr === currentYear && mi === currentMonth
+                const isLastRow = idx === months.length - 1
+                const prev = idx > 0 ? months[idx - 1] : null
+                const isYearChange = !!prev && prev.year !== yr
+                const monthLabel = MONTHS[mi]
+                const showYearPrefix = !prev || prev.year !== yr
+                const total = monthTotals[idx] ?? 0
                 return (
                   <div
-                    key={month}
+                    key={`${yr}-${mi}`}
                     style={{
                       display: 'flex',
+                      borderTop: isYearChange ? '2px solid #b3b8c1' : 'none',
                       borderBottom: isLastRow ? 'none' : '1px solid #d1d5db',
-                      background: isFuture ? 'rgba(243,244,246,0.5)' : undefined,
+                      background: isCurrent
+                        ? 'rgba(79, 140, 255, 0.06)'
+                        : isFuture
+                          ? 'rgba(243,244,246,0.5)'
+                          : undefined,
                     }}
                   >
-                    <div style={{ ...monthHeaderStyle, color: isFuture ? '#9ca3af' : undefined }}>{month}</div>
+                    <div
+                      style={{
+                        ...monthHeaderStyle,
+                        color: isCurrent ? PRIMARY : isFuture ? '#9ca3af' : undefined,
+                        fontWeight: isCurrent ? 700 : 600,
+                        background: isCurrent ? 'rgba(79, 140, 255, 0.10)' : monthHeaderStyle.background,
+                        flexDirection: 'column',
+                        gap: 1,
+                        padding: '4px 6px',
+                        lineHeight: 1.1,
+                      }}
+                    >
+                      {showYearPrefix && (
+                        <span style={{ fontSize: 9, color: isCurrent ? PRIMARY : '#9ca3af' }}>
+                          {yr}
+                        </span>
+                      )}
+                      <span>{monthLabel}</span>
+                    </div>
                     {sortedItems.map((item) => {
                       const isCollapsed = collapsedItems.has(item.id)
                       const colWidth = itemColWidths[item.id] ?? 100
                       const displayValue = isFuture
-                        ? getProjectedValue(year, item, mi)
-                        : getEntry(item.id, ym(year, mi))
+                        ? getProjectedValue(yr, item, mi)
+                        : getEntry(item.id, ym(yr, mi))
                       return (
                         <div
-                          key={`${item.id}-${mi}`}
+                          key={`${item.id}-${yr}-${mi}`}
                           style={{
                             flex: `0 0 ${colWidth}px`,
                             padding: 0,
@@ -434,7 +422,7 @@ function YearTable({
                               value={displayValue}
                               onChange={(v) => {
                                 const amount = v ? parseInt(v.replace(/,/g, ''), 10) : 0
-                                setEntry(item.id, ym(year, mi), amount)
+                                setEntry(item.id, ym(yr, mi), amount)
                               }}
                               disabled={!editable}
                               projected={isFuture}
@@ -453,13 +441,17 @@ function YearTable({
                         justifyContent: 'flex-end',
                         fontSize: 12,
                         fontWeight: 600,
-                        color: monthTotals[mi] > 0 ? PRIMARY : '#d1d5db',
+                        color: total > 0 ? PRIMARY : '#d1d5db',
                         borderLeft: '2px solid #d1d5db',
                         minHeight: 36,
-                        background: isFuture ? 'rgba(243,244,246,0.95)' : '#ffffff',
+                        background: isCurrent
+                          ? 'rgba(79, 140, 255, 0.10)'
+                          : isFuture
+                            ? 'rgba(243,244,246,0.95)'
+                            : '#ffffff',
                       }}
                     >
-                      {monthTotals[mi] > 0 ? monthTotals[mi].toLocaleString('ko-KR') : '—'}
+                      {total > 0 ? total.toLocaleString('ko-KR') : '—'}
                     </div>
                   </div>
                 )
@@ -467,7 +459,6 @@ function YearTable({
             )}
           </div>
         </div>
-      )}
     </div>
   )
 }
@@ -618,13 +609,12 @@ function AddItemRow({ onAdd, personAName, personBName }: {
 export function AssetPage() {
   const narrow = useNarrowLayout()
   const currentYearMonth = useAppStore((s) => s.currentYearMonth)
-  const yearPickerMaxYear = useAppStore((s) => s.yearPickerMaxYear)
   const settings = useAppStore((s) => s.settings)
   const currentYear = parseInt(currentYearMonth.split('-')[0], 10)
   const currentMonth = parseInt(currentYearMonth.split('-')[1], 10) - 1 // 0-based
 
-  // 표시할 연도 목록 (오래된 → 최신순)
-  const years = useMemo(() => getYearPickerYearOptions(yearPickerMaxYear, currentYear), [yearPickerMaxYear, currentYear])
+  // 표시할 연도 목록: 현재달 기준 앞으로의 2년치 (올해 · 내년, 오래된 → 최신순)
+  const years = useMemo(() => [currentYear, currentYear + 1], [currentYear])
 
   /** 항목 접기 상태 (모든 연도 공통) */
   const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set())
@@ -981,13 +971,25 @@ export function AssetPage() {
         </div>
       )}
 
-      {/* 연도별 테이블 (최신순으로 정렬) */}
-      {[...years].reverse().map((yr) => {
-        const monthTotals = calcMonthTotals(yr)
+      {/* 통합 자산 테이블 — 2년치 월별 데이터를 하나의 표로 (최신 월이 아래) */}
+      {(() => {
+        // 오래된 → 최신 순으로 월 리스트 구성 (최신 월이 표 하단)
+        const monthList: { year: number; monthIdx: number }[] = []
+        for (const yr of years) {
+          for (let mi = 0; mi < 12; mi++) {
+            monthList.push({ year: yr, monthIdx: mi })
+          }
+        }
+        const flatMonthTotals = monthList.map(({ year: yr, monthIdx: mi }) => {
+          const isFuture = yr > currentYear || (yr === currentYear && mi > currentMonth)
+          return sortedItems.reduce((sum, item) => {
+            const v = isFuture ? getProjectedValue(yr, item, mi) : getEntry(item.id, ym(yr, mi))
+            return sum + v
+          }, 0)
+        })
         return (
-          <YearTable
-            key={yr}
-            year={yr}
+          <MonthsTable
+            months={monthList}
             currentYear={currentYear}
             currentMonth={currentMonth}
             sortedItems={sortedItems}
@@ -997,7 +999,7 @@ export function AssetPage() {
             getProjectedValue={getProjectedValue}
             getEntry={getEntry}
             setEntry={setEntry}
-            monthTotals={monthTotals}
+            monthTotals={flatMonthTotals}
             onItemClick={(item) => {
               setEditingItem(item)
               setEditForm({
@@ -1008,7 +1010,6 @@ export function AssetPage() {
                 locked: !!item.locked,
               })
             }}
-            getPersonColor={getPersonColor}
             getPersonLabel={getPersonLabel}
             getItemColumnBg={getItemColumnBg}
             tableMinWidth={tableMinWidth}
@@ -1017,7 +1018,7 @@ export function AssetPage() {
             MONTH_COLUMN_WIDTH={MONTH_COLUMN_WIDTH}
           />
         )
-      })}
+      })()}
 
       {/* Add row (별도 카드) */}
       <div style={{ ...jellyCardStyle, padding: '12px 16px', marginTop: 16 }}>
