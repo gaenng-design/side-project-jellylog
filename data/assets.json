@@ -89,6 +89,27 @@
       "defaultAmount": 3531301,
       "id": "asset-1778552010606",
       "order": 10
+    },
+    {
+      "name": "부모님",
+      "category": "기타",
+      "person": "A",
+      "id": "asset-1779085520147",
+      "order": 11
+    },
+    {
+      "name": "축의금",
+      "category": "기타",
+      "person": "A",
+      "id": "asset-1779085520149",
+      "order": 12
+    },
+    {
+      "name": "축의금",
+      "category": "기타",
+      "person": "B",
+      "id": "asset-1779085520151",
+      "order": 13
     }
   ],
   "entries": [
@@ -685,6 +706,24 @@
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-12",
       "amount": 28250408
+    },
+    {
+      "id": "asset-1779085520148",
+      "itemId": "asset-1779085520147",
+      "yearMonth": "2026-05",
+      "amount": 10000000
+    },
+    {
+      "id": "asset-1779085520150",
+      "itemId": "asset-1779085520149",
+      "yearMonth": "2026-05",
+      "amount": 15810000
+    },
+    {
+      "id": "asset-1779085520152",
+      "itemId": "asset-1779085520151",
+      "yearMonth": "2026-05",
+      "amount": 13527550
     }
   ]
 }
