@@ -86,7 +86,7 @@
       "name": "비상금",
       "category": "저축",
       "person": "A",
-      "defaultAmount": 3531301,
+      "defaultAmount": 700000,
       "id": "asset-1778552010606",
       "order": 10
     },
@@ -669,43 +669,43 @@
       "id": "asset-1778552010608",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-06",
-      "amount": 7062602
+      "amount": 4231301
     },
     {
       "id": "asset-1778552010609",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-07",
-      "amount": 10593903
+      "amount": 4931301
     },
     {
       "id": "asset-1778552010610",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-08",
-      "amount": 14125204
+      "amount": 5631301
     },
     {
       "id": "asset-1778552010611",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-09",
-      "amount": 17656505
+      "amount": 6331301
     },
     {
       "id": "asset-1778552010612",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-10",
-      "amount": 21187806
+      "amount": 7031301
     },
     {
       "id": "asset-1778552010613",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-11",
-      "amount": 24719107
+      "amount": 7731301
     },
     {
       "id": "asset-1778552010614",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-12",
-      "amount": 28250408
+      "amount": 8431301
     },
     {
       "id": "asset-1779085520148",
