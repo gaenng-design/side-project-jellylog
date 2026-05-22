@@ -2348,7 +2348,7 @@
           {
             "person": "A",
             "category": "저축",
-            "description": "적금 (비상금)",
+            "description": "적금",
             "defaultAmount": 1000000,
             "id": "inv-1777399537877",
             "order": 3,
