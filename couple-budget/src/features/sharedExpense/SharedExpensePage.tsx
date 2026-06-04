@@ -700,6 +700,11 @@ export function SharedExpensePage() {
                     ⚠️ 목표를 {fmtSum(monthTotal - sharedLivingCostTarget)} 초과했습니다
                   </div>
                 )}
+                {!overBudget && sharedLivingCostTarget > 0 && (
+                  <div style={{ fontSize: 12, color: '#0d9488', fontWeight: 600, marginTop: 4 }}>
+                    남은 금액 {fmtSum(sharedLivingCostTarget - monthTotal)}
+                  </div>
+                )}
                 {sharedLivingCostTarget === 0 && (
                   <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>
                     설정 페이지에서 월 공동 생활비를 설정하면 목표 대비 사용량을 볼 수 있습니다

@@ -12,6 +12,7 @@ export interface GitHubConfig {
 
 export interface AppData {
   assets: unknown
+  sharedExpense: unknown
   expenses: unknown
   incomes: unknown
   settlements: unknown

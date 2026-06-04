@@ -1,5 +1,6 @@
 interface AppData {
   assets: unknown
+  sharedExpense: unknown
   expenses: unknown
   incomes: unknown
   settlements: unknown
@@ -36,6 +37,7 @@ export default async function handler(req: any, res: any) {
     try {
       const files = [
         { name: 'assets.json', key: 'assets' },
+        { name: 'shared-expense.json', key: 'sharedExpense' },
         { name: 'expenses.json', key: 'expenses' },
         { name: 'incomes.json', key: 'incomes' },
         { name: 'settlements.json', key: 'settlements' },

@@ -1,5 +1,6 @@
 interface AppData {
   assets: unknown
+  sharedExpense: unknown
   expenses: unknown
   incomes: unknown
   settlements: unknown
@@ -30,19 +31,20 @@ export default async function handler(req: any, res: any) {
   try {
     const data: Partial<AppData> = {}
 
-    // List of data files to pull
-    const files = [
-      'assets.json',
-      'expenses.json',
-      'incomes.json',
-      'settlements.json',
-      'metadata.json',
+    // List of data files to pull (filename → state key)
+    const files: { name: string; key: keyof AppData }[] = [
+      { name: 'assets.json', key: 'assets' },
+      { name: 'shared-expense.json', key: 'sharedExpense' },
+      { name: 'expenses.json', key: 'expenses' },
+      { name: 'incomes.json', key: 'incomes' },
+      { name: 'settlements.json', key: 'settlements' },
+      { name: 'metadata.json', key: 'metadata' },
     ]
 
     for (const file of files) {
       try {
         const fileResponse = await fetch(
-          `https://api.github.com/repos/${owner}/${repo}/contents/data/${file}?ref=${branch}`,
+          `https://api.github.com/repos/${owner}/${repo}/contents/data/${file.name}?ref=${branch}`,
           {
             headers: {
               'Authorization': `token ${token}`,
@@ -57,7 +59,7 @@ export default async function handler(req: any, res: any) {
         }
 
         if (!fileResponse.ok) {
-          console.warn(`Failed to get file ${file}: ${fileResponse.statusText}`)
+          console.warn(`Failed to get file ${file.name}: ${fileResponse.statusText}`)
           continue
         }
 
@@ -77,10 +79,9 @@ export default async function handler(req: any, res: any) {
             .join('')
         )
 
-        const key = file.replace('.json', '') as keyof AppData
-        data[key] = JSON.parse(content)
+        data[file.key] = JSON.parse(content)
       } catch (error) {
-        console.warn(`Failed to load ${file}:`, error)
+        console.warn(`Failed to load ${file.name}:`, error)
         // Continue loading other files even if one fails
       }
     }
