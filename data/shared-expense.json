@@ -47,6 +47,12 @@
       "name": "할머니 선물",
       "category": "경조사",
       "order": 7
+    },
+    {
+      "id": "shared-expense-1780552380465",
+      "name": "할아버지 선물",
+      "category": "경조사",
+      "order": 8
     }
   ],
   "entries": [
@@ -109,6 +115,13 @@
       "day": 4,
       "amount": 104207,
       "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1780552380466",
+      "itemId": "shared-expense-1780552380465",
+      "yearMonth": "2026-06",
+      "day": 4,
+      "amount": 99500
     }
   ],
   "categories": [
