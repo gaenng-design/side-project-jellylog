@@ -134,7 +134,8 @@
       "itemId": "shared-expense-1780612475113",
       "yearMonth": "2026-06",
       "day": 5,
-      "amount": 60600
+      "amount": 60600,
+      "memo": "쿠팡카드"
     }
   ],
   "categories": [
