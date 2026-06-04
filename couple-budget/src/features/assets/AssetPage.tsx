@@ -386,14 +386,10 @@ function MonthsTable({
                 const isCurrentYearGroup = group.year === currentYear
                 return (
                   <div key={`yg-${group.year}`}>
-                    {/* 연도 헤더 (접기 토글) */}
+                    {/* 연도 헤더 (접기 토글) — 행 자체는 표 전체 너비를 점유하되, 표시 영역은 sticky 로 좌측 고정 */}
                     <div
                       onClick={() => toggleYear(group.year)}
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '8px 12px',
                         background: isCurrentYearGroup ? 'rgba(79, 140, 255, 0.14)' : '#f3f4f6',
                         cursor: 'pointer',
                         userSelect: 'none',
@@ -403,12 +399,20 @@ function MonthsTable({
                             ? 'none'
                             : '1px solid #d1d5db'
                           : '1px solid #b3b8c1',
-                        position: 'sticky',
-                        left: 0,
-                        zIndex: 3,
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div
+                        style={{
+                          position: 'sticky',
+                          left: 0,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '8px 12px',
+                          zIndex: 3,
+                          // 외부 행이 이미 동일 배경을 가지므로 중복 적용하면 반투명 색이 겹쳐 짙어짐 → 투명 유지
+                        }}
+                      >
                         <span style={{ fontSize: 11, color: isCurrentYearGroup ? PRIMARY : '#6b7280' }}>
                           {isCollapsed ? '▶' : '▼'}
                         </span>
@@ -448,10 +452,11 @@ function MonthsTable({
                           style={{
                             display: 'flex',
                             borderBottom: isLastRow ? 'none' : '1px solid #d1d5db',
+                            // 반투명 색 아래에 흰색 베이스를 깔아 다른 컬럼이 비치지 않도록 처리
                             background: isCurrent
-                              ? 'rgba(79, 140, 255, 0.06)'
+                              ? 'linear-gradient(rgba(79, 140, 255, 0.06), rgba(79, 140, 255, 0.06)), #fff'
                               : isFuture
-                                ? 'rgba(243,244,246,0.5)'
+                                ? 'linear-gradient(rgba(243,244,246,0.5), rgba(243,244,246,0.5)), #fff'
                                 : undefined,
                           }}
                         >
@@ -460,7 +465,9 @@ function MonthsTable({
                               ...monthHeaderStyle,
                               color: isCurrent ? PRIMARY : isFuture ? '#9ca3af' : undefined,
                               fontWeight: isCurrent ? 700 : 600,
-                              background: isCurrent ? 'rgba(79, 140, 255, 0.10)' : monthHeaderStyle.background,
+                              background: isCurrent
+                                ? 'linear-gradient(rgba(79, 140, 255, 0.10), rgba(79, 140, 255, 0.10)), #fff'
+                                : monthHeaderStyle.background,
                               padding: '4px 6px',
                               lineHeight: 1.1,
                             }}
@@ -535,61 +542,65 @@ function MonthsTable({
               })
             )}
 
-            {/* 다음 연도 추가 / 마지막 추가 연도 제거 */}
+            {/* 다음 연도 추가 / 마지막 추가 연도 제거 — 가로 스크롤과 무관하게 좌측 고정 */}
             {sortedItems.length > 0 && (onAddYear || (onRemoveLastYear && extraFutureYears > 0)) && (
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  padding: '10px 12px',
                   borderTop: '1px solid #d1d5db',
                   background: '#fafbfc',
-                  position: 'sticky',
-                  left: 0,
-                  zIndex: 3,
                 }}
               >
-                {onAddYear && (
-                  <button
-                    type="button"
-                    onClick={onAddYear}
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 600,
-                      padding: '6px 14px',
-                      borderRadius: 999,
-                      border: `1px dashed ${PRIMARY}`,
-                      background: 'rgba(79, 140, 255, 0.08)',
-                      color: PRIMARY,
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
-                    + 다음 연도 추가
-                  </button>
-                )}
-                {onRemoveLastYear && extraFutureYears > 0 && (
-                  <button
-                    type="button"
-                    onClick={onRemoveLastYear}
-                    title="마지막에 추가된 연도를 제거"
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 500,
-                      padding: '6px 12px',
-                      borderRadius: 999,
-                      border: '1px solid #e5e7eb',
-                      background: '#fff',
-                      color: '#6b7280',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
-                    − 연도 제거
-                  </button>
-                )}
+                <div
+                  style={{
+                    position: 'sticky',
+                    left: 0,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '10px 12px',
+                    zIndex: 3,
+                  }}
+                >
+                  {onAddYear && (
+                    <button
+                      type="button"
+                      onClick={onAddYear}
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        padding: '6px 14px',
+                        borderRadius: 999,
+                        border: `1px dashed ${PRIMARY}`,
+                        background: 'rgba(79, 140, 255, 0.08)',
+                        color: PRIMARY,
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      + 다음 연도 추가
+                    </button>
+                  )}
+                  {onRemoveLastYear && extraFutureYears > 0 && (
+                    <button
+                      type="button"
+                      onClick={onRemoveLastYear}
+                      title="마지막에 추가된 연도를 제거"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        padding: '6px 12px',
+                        borderRadius: 999,
+                        border: '1px solid #e5e7eb',
+                        background: '#fff',
+                        color: '#6b7280',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      − 연도 제거
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>
