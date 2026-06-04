@@ -1,0 +1,114 @@
+{
+  "items": [
+    {
+      "id": "shared-expense-1780546297990",
+      "name": "공항버스",
+      "category": "교통",
+      "order": 0
+    },
+    {
+      "id": "shared-expense-1780546297992",
+      "name": "택시",
+      "category": "교통",
+      "order": 1
+    },
+    {
+      "id": "shared-expense-1780546297994",
+      "name": "김치돼지찌개",
+      "category": "외식비",
+      "order": 2
+    },
+    {
+      "id": "shared-expense-1780546297996",
+      "name": "쓰레기봉투",
+      "category": "외식비",
+      "order": 3
+    },
+    {
+      "id": "shared-expense-1780546297998",
+      "name": "민의, 상우 술값",
+      "category": "식비",
+      "order": 4
+    },
+    {
+      "id": "shared-expense-1780546298000",
+      "name": "민의, 상우 술값",
+      "category": "외식비",
+      "order": 5
+    },
+    {
+      "id": "shared-expense-1780546298002",
+      "name": "두피영양제",
+      "category": "생활 용품",
+      "order": 6
+    }
+  ],
+  "entries": [
+    {
+      "id": "shared-expense-1780546297991",
+      "itemId": "shared-expense-1780546297990",
+      "yearMonth": "2026-06",
+      "day": 2,
+      "amount": 21400
+    },
+    {
+      "id": "shared-expense-1780546297993",
+      "itemId": "shared-expense-1780546297992",
+      "yearMonth": "2026-06",
+      "day": 2,
+      "amount": 5400
+    },
+    {
+      "id": "shared-expense-1780546297995",
+      "itemId": "shared-expense-1780546297994",
+      "yearMonth": "2026-06",
+      "day": 2,
+      "amount": 34000
+    },
+    {
+      "id": "shared-expense-1780546297997",
+      "itemId": "shared-expense-1780546297996",
+      "yearMonth": "2026-06",
+      "day": 2,
+      "amount": 13200
+    },
+    {
+      "id": "shared-expense-1780546297999",
+      "itemId": "shared-expense-1780546298000",
+      "yearMonth": "2026-06",
+      "day": 2,
+      "amount": 134500,
+      "memo": "더막창스90,000+범수산104,000+엔엠에프75,000 = 269,000/4 * 2 = 135,500"
+    },
+    {
+      "id": "shared-expense-1780546298001",
+      "itemId": "shared-expense-1780546297992",
+      "yearMonth": "2026-06",
+      "day": 2,
+      "amount": 30500,
+      "memo": "2일 새벽이라 3일로 찍힘"
+    },
+    {
+      "id": "shared-expense-1780546298003",
+      "itemId": "shared-expense-1780546298002",
+      "yearMonth": "2026-06",
+      "day": 2,
+      "amount": 12900,
+      "memo": "쿠팡카드"
+    }
+  ],
+  "categories": [
+    "외식비",
+    "공과금",
+    "교통",
+    "생활 용품",
+    "의료",
+    "식료품",
+    "기타"
+  ],
+  "categoryColors": {
+    "외식비": 0,
+    "기타": 10,
+    "생활 용품": 5
+  }
+}
