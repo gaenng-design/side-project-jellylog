@@ -113,36 +113,20 @@
       "id": "1778484716431-bkgu0"
     },
     {
-      "yearMonth": "2026-05",
+      "yearMonth": "2026-06",
       "person": "A",
       "category": "급여",
       "description": "승윤",
       "amount": 5220000,
-      "id": "1779428207721-uhmkt"
+      "id": "1780536136109-l3b8k"
     },
     {
-      "yearMonth": "2026-05",
+      "yearMonth": "2026-06",
       "person": "B",
       "category": "급여",
       "description": "경은",
       "amount": 5160000,
-      "id": "1779428207725-5rsvr"
-    },
-    {
-      "yearMonth": "2026-06",
-      "person": "B",
-      "category": "급여",
-      "description": "경은",
-      "amount": 5226894,
-      "id": "1779428219920-4lvjn"
-    },
-    {
-      "yearMonth": "2026-06",
-      "person": "A",
-      "category": "급여",
-      "description": "승윤",
-      "amount": 5200000,
-      "id": "1779428242144-4tb2w"
+      "id": "1780536136113-vjjry"
     }
   ]
 }
