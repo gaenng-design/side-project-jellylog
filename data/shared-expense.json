@@ -41,6 +41,12 @@
       "name": "두피영양제",
       "category": "생활 용품",
       "order": 6
+    },
+    {
+      "id": "shared-expense-1780552380463",
+      "name": "할머니 선물",
+      "category": "경조사",
+      "order": 7
     }
   ],
   "entries": [
@@ -95,6 +101,14 @@
       "day": 2,
       "amount": 12900,
       "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1780552380464",
+      "itemId": "shared-expense-1780552380463",
+      "yearMonth": "2026-06",
+      "day": 4,
+      "amount": 104207,
+      "memo": "쿠팡카드"
     }
   ],
   "categories": [
@@ -104,11 +118,13 @@
     "생활 용품",
     "의료",
     "식료품",
+    "경조사",
     "기타"
   ],
   "categoryColors": {
     "외식비": 0,
     "기타": 10,
-    "생활 용품": 5
+    "생활 용품": 5,
+    "경조사": 1
   }
 }
