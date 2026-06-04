@@ -205,17 +205,40 @@ export class GitHubDataSync {
   }
 
   /**
-   * Load GitHub config from localStorage
+   * Load GitHub config — localStorage 우선, 없으면 빌드 시 주입된 환경변수 fallback.
+   * 환경변수에서 token 이 제공되면 자동으로 localStorage 에도 저장하여 다음 부팅을 가속.
    */
   static loadConfig(): GitHubConfig | null {
+    // 1) localStorage
     const stored = localStorage.getItem('couple-budget:github-config')
-    if (!stored) return null
-
-    try {
-      return JSON.parse(stored)
-    } catch {
-      return null
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {
+        // fall through to env
+      }
     }
+
+    // 2) Vite 빌드 환경변수 fallback (웹 배포 시 token 을 자동 주입)
+    const envToken = (import.meta.env.VITE_GITHUB_TOKEN as string | undefined) ?? ''
+    if (!envToken.trim()) return null
+    const envOwner = ((import.meta.env.VITE_GITHUB_OWNER as string | undefined) ?? 'gaenng-design').trim()
+    const envRepo = ((import.meta.env.VITE_GITHUB_REPO as string | undefined) ?? 'side-project-jellylog').trim()
+    const envBranch = (import.meta.env.VITE_GITHUB_BRANCH as string | undefined)?.trim() || undefined
+
+    const config: GitHubConfig = {
+      token: envToken.trim(),
+      owner: envOwner,
+      repo: envRepo,
+      ...(envBranch ? { branch: envBranch } : {}),
+    }
+    // 다음 부팅을 위해 localStorage 에 캐시
+    try {
+      localStorage.setItem('couple-budget:github-config', JSON.stringify(config))
+    } catch {
+      /* localStorage 차단 환경 무시 */
+    }
+    return config
   }
 
   /**

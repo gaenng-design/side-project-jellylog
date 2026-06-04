@@ -9,7 +9,7 @@ import { pageTitleH1Style, PRIMARY, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, PRIMAR
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { downloadSharedExpenseCSV } from '@/lib/sharedExpenseExport'
 import { resolveCategoryColor } from '@/lib/categoryColors'
-import { getCycleRange, getCycleKeyForDate, getEntryDisplayDate } from '@/lib/sharedExpenseCycle'
+import { getCycleRange, getEntryDisplayDate } from '@/lib/sharedExpenseCycle'
 import { CategoryManagerModal } from './CategoryManagerModal'
 import type { SharedExpenseEntry } from '@/types'
 
@@ -417,21 +417,11 @@ export function SharedExpensePage() {
 
   const itemMap = useMemo(() => new Map(items.map((it) => [it.id, it])), [items])
 
-  // 현재 사이클의 entries (cycleStartDay 적용)
-  const monthEntries = useMemo(() => {
-    if (cycleStartDay <= 1) {
-      return entries.filter((e) => e.yearMonth === currentYearMonth)
-    }
-    // 사이클 기반: entry.yearMonth + entry.day가 현재 사이클에 속하는지 판별
-    return entries.filter((e) => {
-      if (e.day == null) return e.yearMonth === currentYearMonth
-      const [yStr, mStr] = e.yearMonth.split('-')
-      const ey = parseInt(yStr, 10)
-      const em = parseInt(mStr, 10) - 1
-      const cycleKey = getCycleKeyForDate(ey, em, e.day, cycleStartDay)
-      return cycleKey === currentYearMonth
-    })
-  }, [entries, currentYearMonth, cycleStartDay])
+  // 현재 사이클의 entries — entry.yearMonth 가 곧 cycle key 이므로 직접 비교
+  const monthEntries = useMemo(
+    () => entries.filter((e) => e.yearMonth === currentYearMonth),
+    [entries, currentYearMonth],
+  )
 
   // 필터/정렬 적용
   const filteredEntries = useMemo(() => {

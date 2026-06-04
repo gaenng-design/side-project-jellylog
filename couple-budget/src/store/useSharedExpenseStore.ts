@@ -234,6 +234,40 @@ export const useSharedExpenseStore = create<SharedExpenseState>()(
     }),
     {
       name: 'couple-budget:shared-expense',
+      version: 1,
+      /**
+       * v0 → v1: 사이클 키 컨벤션이 "시작 월" → "종료 월"로 바뀜.
+       * startDay > 1 이면 기존 entry 의 yearMonth 를 +1 개월 이동 (앱 설정에서 startDay 읽음).
+       * startDay <= 1 이면 두 컨벤션이 동일 → 변환 불필요.
+       */
+      migrate: (persisted, version) => {
+        const state = (persisted ?? {}) as Partial<SharedExpenseState>
+        if (version < 1) {
+          let startDay = 1
+          try {
+            const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('couple-budget:app') : null
+            if (raw) {
+              const parsed = JSON.parse(raw) as { state?: { settings?: { sharedExpenseCycleStartDay?: number } } }
+              startDay = parsed?.state?.settings?.sharedExpenseCycleStartDay ?? 1
+            }
+          } catch {
+            startDay = 1
+          }
+          if (startDay > 1 && Array.isArray(state.entries)) {
+            state.entries = state.entries.map((e) => {
+              if (!e?.yearMonth) return e
+              const m = /^(\d{4})-(\d{2})$/.exec(e.yearMonth)
+              if (!m) return e
+              const y = parseInt(m[1], 10)
+              const mi = parseInt(m[2], 10) - 1
+              const nextY = mi === 11 ? y + 1 : y
+              const nextM = mi === 11 ? 0 : mi + 1
+              return { ...e, yearMonth: `${nextY}-${String(nextM + 1).padStart(2, '0')}` }
+            })
+          }
+        }
+        return state as SharedExpenseState
+      },
       // 마이그레이션: categories가 없는 기존 사용자에게 default 적용
       onRehydrateStorage: () => (state) => {
         if (state && (!state.categories || state.categories.length === 0)) {

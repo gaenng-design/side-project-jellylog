@@ -364,6 +364,12 @@ function SharedLivingCostSettings() {
                 })()}
               </strong>
               까지가 한 사이클
+              {(settings.sharedExpenseCycleStartDay ?? 1) > 1 && (
+                <span style={{ color: '#9ca3af' }}>
+                  {' '}
+                  (사이클이 끝나는 달 탭에 표시됨)
+                </span>
+              )}
             </div>
           </div>
         </div>

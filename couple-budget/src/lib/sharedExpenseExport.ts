@@ -1,4 +1,6 @@
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
+import { useAppStore } from '@/store/useAppStore'
+import { getEntryDisplayDate } from '@/lib/sharedExpenseCycle'
 import type { SharedExpenseItem, SharedExpenseEntry } from '@/types'
 
 /** 브라우저에서 파일 다운로드 트리거 */
@@ -30,15 +32,28 @@ function csvCell(v: string | number | undefined): string {
  */
 export function downloadSharedExpenseCSV(year: number) {
   const { items, entries } = useSharedExpenseStore.getState()
+  const cycleStartDay = useAppStore.getState().settings.sharedExpenseCycleStartDay ?? 1
   const itemMap = new Map(items.map((it) => [it.id, it]))
 
-  // 해당 연도 entries만 필터링 + 날짜순 정렬
+  // entry → 실제 표시 날짜(YYYY-MM-DD) 계산 (cycle key + startDay 기준)
+  const entryDateOf = (e: SharedExpenseEntry): string => {
+    if (e.day == null) return e.yearMonth
+    const d = getEntryDisplayDate(e.yearMonth, e.day, cycleStartDay)
+    return `${d.year}-${String(d.monthIdx + 1).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`
+  }
+
+  // 해당 연도 entries만 필터링 + 실제 날짜순 정렬
+  // ※ 사이클 시작일이 1보다 크면 cycle key 의 직전 달 entry 가 있을 수 있으므로
+  //   `entry.yearMonth` 또는 실제 표시 연도가 일치하는 경우 모두 포함
+  const yearStr = String(year)
   const yearEntries = entries
-    .filter((e) => e.yearMonth.startsWith(String(year)))
-    .sort((a, b) => {
-      if (a.yearMonth !== b.yearMonth) return a.yearMonth.localeCompare(b.yearMonth)
-      return (a.day ?? 99) - (b.day ?? 99)
+    .filter((e) => {
+      if (e.yearMonth.startsWith(yearStr)) return true
+      // cycleKey 가 다음 연 1월일 때 12월 entry 가 포함되는 케이스
+      const dateStr = entryDateOf(e)
+      return dateStr.startsWith(yearStr)
     })
+    .sort((a, b) => entryDateOf(a).localeCompare(entryDateOf(b)))
 
   // CSV 헤더
   const headers = ['날짜', '카테고리', '항목명', '금액', '메모']
@@ -47,7 +62,7 @@ export function downloadSharedExpenseCSV(year: number) {
   let total = 0
   for (const e of yearEntries) {
     const item = itemMap.get(e.itemId)
-    const date = e.day != null ? `${e.yearMonth}-${String(e.day).padStart(2, '0')}` : e.yearMonth
+    const date = entryDateOf(e)
     const cat = item?.category ?? ''
     const name = item?.name ?? ''
     rows.push([csvCell(date), csvCell(cat), csvCell(name), csvCell(e.amount), csvCell(e.memo ?? '')].join(','))

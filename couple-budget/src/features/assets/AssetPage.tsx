@@ -129,6 +129,9 @@ function MonthsTable({
   itemColWidths,
   sumColWidth,
   MONTH_COLUMN_WIDTH,
+  onAddYear,
+  onRemoveLastYear,
+  extraFutureYears = 0,
 }: {
   months: { year: number; monthIdx: number }[]
   currentYear: number
@@ -151,7 +154,33 @@ function MonthsTable({
   /** 합계 컬럼 동적 너비 */
   sumColWidth: number
   MONTH_COLUMN_WIDTH: number
+  /** 다음 연도 추가 핸들러 (표 하단 버튼) */
+  onAddYear?: () => void
+  /** 추가된 마지막 연도(가장 미래)를 되돌리는 핸들러 — 0이면 미표시 */
+  onRemoveLastYear?: () => void
+  /** 사용자가 추가한 미래 연도 수 (제거 버튼 표시 조건) */
+  extraFutureYears?: number
 }) {
+  // 연도별 접기 (기본: 펼침)
+  const [collapsedYears, setCollapsedYears] = useState<Set<number>>(new Set())
+  const toggleYear = (yr: number) =>
+    setCollapsedYears((prev) => {
+      const next = new Set(prev)
+      if (next.has(yr)) next.delete(yr)
+      else next.add(yr)
+      return next
+    })
+
+  // 연도별로 월 인덱스를 그룹화 (months 배열 순서 유지)
+  const yearGroups = useMemo(() => {
+    const groups: { year: number; entries: { monthIdx: number; flatIdx: number }[] }[] = []
+    months.forEach((m, flatIdx) => {
+      const last = groups[groups.length - 1]
+      if (last && last.year === m.year) last.entries.push({ monthIdx: m.monthIdx, flatIdx })
+      else groups.push({ year: m.year, entries: [{ monthIdx: m.monthIdx, flatIdx }] })
+    })
+    return groups
+  }, [months])
 
   const monthHeaderStyle: React.CSSProperties = {
     flex: `0 0 ${MONTH_COLUMN_WIDTH}px`,
@@ -345,55 +374,99 @@ function MonthsTable({
               </>
             )}
 
-            {/* 월별 행 (다년도 통합) */}
+            {/* 월별 행 (다년도 통합 · 연도별 접기) */}
             {sortedItems.length === 0 ? (
               <div style={{ padding: '32px 16px', textAlign: 'center', color: '#9ca3af', fontSize: 14 }}>
                 아래 '+ 추가' 버튼으로 자산 항목을 추가해주세요.
               </div>
             ) : (
-              months.map(({ year: yr, monthIdx: mi }, idx) => {
-                const editable = isMonthEditable(yr, mi)
-                const isFuture = yr > currentYear || (yr === currentYear && mi > currentMonth)
-                const isCurrent = yr === currentYear && mi === currentMonth
-                const isLastRow = idx === months.length - 1
-                const prev = idx > 0 ? months[idx - 1] : null
-                const isYearChange = !!prev && prev.year !== yr
-                const monthLabel = MONTHS[mi]
-                const showYearPrefix = !prev || prev.year !== yr
-                const total = monthTotals[idx] ?? 0
+              yearGroups.map((group, groupIdx) => {
+                const isCollapsed = collapsedYears.has(group.year)
+                const isLastGroup = groupIdx === yearGroups.length - 1
+                const isCurrentYearGroup = group.year === currentYear
                 return (
-                  <div
-                    key={`${yr}-${mi}`}
-                    style={{
-                      display: 'flex',
-                      borderTop: isYearChange ? '2px solid #b3b8c1' : 'none',
-                      borderBottom: isLastRow ? 'none' : '1px solid #d1d5db',
-                      background: isCurrent
-                        ? 'rgba(79, 140, 255, 0.06)'
-                        : isFuture
-                          ? 'rgba(243,244,246,0.5)'
-                          : undefined,
-                    }}
-                  >
+                  <div key={`yg-${group.year}`}>
+                    {/* 연도 헤더 (접기 토글) */}
                     <div
+                      onClick={() => toggleYear(group.year)}
                       style={{
-                        ...monthHeaderStyle,
-                        color: isCurrent ? PRIMARY : isFuture ? '#9ca3af' : undefined,
-                        fontWeight: isCurrent ? 700 : 600,
-                        background: isCurrent ? 'rgba(79, 140, 255, 0.10)' : monthHeaderStyle.background,
-                        flexDirection: 'column',
-                        gap: 1,
-                        padding: '4px 6px',
-                        lineHeight: 1.1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 12px',
+                        background: isCurrentYearGroup ? 'rgba(79, 140, 255, 0.14)' : '#f3f4f6',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        borderTop: groupIdx === 0 ? 'none' : '2px solid #b3b8c1',
+                        borderBottom: isCollapsed
+                          ? isLastGroup
+                            ? 'none'
+                            : '1px solid #d1d5db'
+                          : '1px solid #b3b8c1',
+                        position: 'sticky',
+                        left: 0,
+                        zIndex: 3,
                       }}
                     >
-                      {showYearPrefix && (
-                        <span style={{ fontSize: 9, color: isCurrent ? PRIMARY : '#9ca3af' }}>
-                          {yr}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 11, color: isCurrentYearGroup ? PRIMARY : '#6b7280' }}>
+                          {isCollapsed ? '▶' : '▼'}
                         </span>
-                      )}
-                      <span>{monthLabel}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: isCurrentYearGroup ? PRIMARY : JELLY.text }}>
+                          {group.year}년
+                        </span>
+                        {isCurrentYearGroup && (
+                          <span
+                            style={{
+                              fontSize: 9,
+                              fontWeight: 600,
+                              color: '#fff',
+                              background: PRIMARY,
+                              padding: '1px 6px',
+                              borderRadius: 999,
+                            }}
+                          >
+                            현재
+                          </span>
+                        )}
+                      </div>
                     </div>
+
+                    {/* 월 행 (접힌 경우 숨김) */}
+                    {!isCollapsed && group.entries.map(({ monthIdx: mi, flatIdx: idx }, withinGroupIdx) => {
+                      const yr = group.year
+                      const editable = isMonthEditable(yr, mi)
+                      const isFuture = yr > currentYear || (yr === currentYear && mi > currentMonth)
+                      const isCurrent = yr === currentYear && mi === currentMonth
+                      const isLastRowInGroup = withinGroupIdx === group.entries.length - 1
+                      const isLastRow = isLastGroup && isLastRowInGroup
+                      const monthLabel = MONTHS[mi]
+                      const total = monthTotals[idx] ?? 0
+                      return (
+                        <div
+                          key={`${yr}-${mi}`}
+                          style={{
+                            display: 'flex',
+                            borderBottom: isLastRow ? 'none' : '1px solid #d1d5db',
+                            background: isCurrent
+                              ? 'rgba(79, 140, 255, 0.06)'
+                              : isFuture
+                                ? 'rgba(243,244,246,0.5)'
+                                : undefined,
+                          }}
+                        >
+                          <div
+                            style={{
+                              ...monthHeaderStyle,
+                              color: isCurrent ? PRIMARY : isFuture ? '#9ca3af' : undefined,
+                              fontWeight: isCurrent ? 700 : 600,
+                              background: isCurrent ? 'rgba(79, 140, 255, 0.10)' : monthHeaderStyle.background,
+                              padding: '4px 6px',
+                              lineHeight: 1.1,
+                            }}
+                          >
+                            <span>{monthLabel}</span>
+                          </div>
                     {sortedItems.map((item) => {
                       const isCollapsed = collapsedItems.has(item.id)
                       const colWidth = itemColWidths[item.id] ?? 100
@@ -431,7 +504,7 @@ function MonthsTable({
                         </div>
                       )
                     })}
-                    {/* 월 합계 (오른쪽 sticky) */}
+                    {/* 월 합계 (오른쪽 sticky) — 좌측 구분선·너비를 헤더와 통일, 반투명 배경 아래에 white 깔기 */}
                     <div
                       style={{
                         ...sumColStyleBase,
@@ -442,20 +515,82 @@ function MonthsTable({
                         fontSize: 12,
                         fontWeight: 600,
                         color: total > 0 ? PRIMARY : '#d1d5db',
-                        borderLeft: '2px solid #d1d5db',
+                        borderLeft: '2px solid #b3b8c1',
                         minHeight: 36,
+                        // 반투명 배경의 sticky 셀에서 뒤쪽 컬럼이 비치지 않도록 항상 white를 베이스로 깔고 위에 색을 얹음
                         background: isCurrent
-                          ? 'rgba(79, 140, 255, 0.10)'
+                          ? 'linear-gradient(rgba(79, 140, 255, 0.10), rgba(79, 140, 255, 0.10)), #fff'
                           : isFuture
-                            ? 'rgba(243,244,246,0.95)'
+                            ? 'linear-gradient(rgba(243,244,246,0.95), rgba(243,244,246,0.95)), #fff'
                             : '#ffffff',
                       }}
                     >
-                      {total > 0 ? total.toLocaleString('ko-KR') : '—'}
-                    </div>
+                            {total > 0 ? total.toLocaleString('ko-KR') : '—'}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 )
               })
+            )}
+
+            {/* 다음 연도 추가 / 마지막 추가 연도 제거 */}
+            {sortedItems.length > 0 && (onAddYear || (onRemoveLastYear && extraFutureYears > 0)) && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '10px 12px',
+                  borderTop: '1px solid #d1d5db',
+                  background: '#fafbfc',
+                  position: 'sticky',
+                  left: 0,
+                  zIndex: 3,
+                }}
+              >
+                {onAddYear && (
+                  <button
+                    type="button"
+                    onClick={onAddYear}
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      padding: '6px 14px',
+                      borderRadius: 999,
+                      border: `1px dashed ${PRIMARY}`,
+                      background: 'rgba(79, 140, 255, 0.08)',
+                      color: PRIMARY,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    + 다음 연도 추가
+                  </button>
+                )}
+                {onRemoveLastYear && extraFutureYears > 0 && (
+                  <button
+                    type="button"
+                    onClick={onRemoveLastYear}
+                    title="마지막에 추가된 연도를 제거"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 500,
+                      padding: '6px 12px',
+                      borderRadius: 999,
+                      border: '1px solid #e5e7eb',
+                      background: '#fff',
+                      color: '#6b7280',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    − 연도 제거
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -614,7 +749,13 @@ export function AssetPage() {
   const currentMonth = parseInt(currentYearMonth.split('-')[1], 10) - 1 // 0-based
 
   // 표시할 연도 목록: 현재달 기준 앞으로의 2년치 (올해 · 내년, 오래된 → 최신순)
-  const years = useMemo(() => [currentYear, currentYear + 1], [currentYear])
+  // 추가로 보고 싶은 미래 연도 수 (기본 2년치 + 사용자가 추가한 만큼)
+  const [extraFutureYears, setExtraFutureYears] = useState(0)
+  const years = useMemo(() => {
+    const arr: number[] = []
+    for (let i = 0; i <= 1 + extraFutureYears; i++) arr.push(currentYear + i)
+    return arr
+  }, [currentYear, extraFutureYears])
 
   /** 항목 접기 상태 (모든 연도 공통) */
   const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set())
@@ -634,12 +775,16 @@ export function AssetPage() {
     return monthIdx <= currentMonth
   }
 
-  /** 미래 월의 예측값 계산 (특정 연도/월 기준) */
+  /** 미래 월의 예측값 계산 — 현재 달 이후의 모든 월(다음 연도 포함)에 동일한 정책 적용 */
   const getProjectedValue = (yr: number, item: AssetItem, monthIdx: number): number => {
-    if (yr !== currentYear) return getEntry(item.id, ym(yr, monthIdx))
+    // 과거 또는 현재 달까지는 실제 입력값
+    if (yr < currentYear || (yr === currentYear && monthIdx <= currentMonth)) {
+      return getEntry(item.id, ym(yr, monthIdx))
+    }
+    // 미래(이번 달 이후): 현재 달 잔액을 베이스로 defaultAmount * 경과개월 적용
     const baseYM = ym(currentYear, currentMonth)
     const base = getEntry(item.id, baseYM)
-    const gap = monthIdx - currentMonth
+    const gap = (yr - currentYear) * 12 + (monthIdx - currentMonth)
     if (item.defaultAmount && item.defaultAmount > 0) {
       return base + item.defaultAmount * gap
     }
@@ -1016,6 +1161,9 @@ export function AssetPage() {
             itemColWidths={itemColWidths}
             sumColWidth={sumColWidth}
             MONTH_COLUMN_WIDTH={MONTH_COLUMN_WIDTH}
+            extraFutureYears={extraFutureYears}
+            onAddYear={() => setExtraFutureYears((n) => n + 1)}
+            onRemoveLastYear={() => setExtraFutureYears((n) => Math.max(0, n - 1))}
           />
         )
       })()}
