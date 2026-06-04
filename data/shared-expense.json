@@ -59,6 +59,12 @@
       "name": "커피캡슐 10팩",
       "category": "식료품",
       "order": 9
+    },
+    {
+      "id": "shared-expense-1780615469071",
+      "name": "식세기 세제",
+      "category": "생활 용품",
+      "order": 10
     }
   ],
   "entries": [
@@ -135,6 +141,14 @@
       "yearMonth": "2026-06",
       "day": 5,
       "amount": 60600,
+      "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1780615469072",
+      "itemId": "shared-expense-1780615469071",
+      "yearMonth": "2026-06",
+      "day": 5,
+      "amount": 18910,
       "memo": "쿠팡카드"
     }
   ],
