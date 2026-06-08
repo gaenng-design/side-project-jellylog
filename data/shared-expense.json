@@ -65,6 +65,12 @@
       "name": "식세기 세제",
       "category": "생활 용품",
       "order": 10
+    },
+    {
+      "id": "shared-expense-1780877127017",
+      "name": "음식",
+      "category": "식료품",
+      "order": 11
     }
   ],
   "entries": [
@@ -125,7 +131,7 @@
       "itemId": "shared-expense-1780552380463",
       "yearMonth": "2026-06",
       "day": 4,
-      "amount": 104207,
+      "amount": 137060,
       "memo": "쿠팡카드"
     },
     {
@@ -150,6 +156,14 @@
       "day": 5,
       "amount": 18910,
       "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1780877127018",
+      "itemId": "shared-expense-1780877127017",
+      "yearMonth": "2026-06",
+      "day": 7,
+      "amount": 106387,
+      "memo": "쿠팡카드 : 사골 액기스, 쪽파, 우유, 1분링, 오징어링, 후지 슬라이스, 닭다리살"
     }
   ],
   "categories": [
