@@ -1740,11 +1740,16 @@ export function ExpensePlanPage() {
   })
 
   const cancelSettlement = useSettlementStore((s) => s.cancelSettlement)
+  const setSettlementMemo = useSettlementStore((s) => s.setMemo)
+  const existingSettlementMemo = useSettlementStore((s) => s.memoByMonth[currentYearMonth] ?? '')
 
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
   const [pendingSwitchYm, setPendingSwitchYm] = useState<string | null>(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [otherMonthModalOpen, setOtherMonthModalOpen] = useState(false)
+  /** 정산 메모 입력 모달 */
+  const [settleMemoModalOpen, setSettleMemoModalOpen] = useState(false)
+  const [settleMemoDraft, setSettleMemoDraft] = useState('')
   const [otherMonthSelected, setOtherMonthSelected] = useState<string>(() => {
     const n = new Date()
     const y = Math.max(YEAR_PICKER_MIN, n.getFullYear())
@@ -2134,9 +2139,19 @@ export function ExpensePlanPage() {
     setViewMode('result')
   }, [planState, currentYearMonth, incomesLoaded, buildSettlementSummary])
 
+  /** 「이달 정산하기」 버튼 클릭 시 호출 — 메모 입력 모달부터 표시 */
+  const openSettleMemoModal = () => {
+    if (!currentYearMonth) return
+    setSettleMemoDraft(existingSettlementMemo)
+    setSettleMemoModalOpen(true)
+  }
+
+  /** 메모 모달에서 「정산하기」 클릭 시 실제 정산 진행 */
   const handleSettle = async () => {
     if (!currentYearMonth) return
     const ym = currentYearMonth
+    setSettlementMemo(ym, settleMemoDraft)
+    setSettleMemoModalOpen(false)
     setTemplateSnapshot(ym, {
       fixed: structuredClone(effectiveFixedTemplates),
       invest: structuredClone(effectiveInvestTemplates),
@@ -2213,7 +2228,7 @@ export function ExpensePlanPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => void handleSettle()}
+                  onClick={openSettleMemoModal}
                   style={{ ...jellyPrimaryButton, fontSize: 13 }}
                 >
                   이달 정산하기
@@ -2301,6 +2316,50 @@ export function ExpensePlanPage() {
             style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: 'none', background: '#dc2626', color: '#fff', fontSize: 13, cursor: 'pointer' }}
           >
             삭제
+          </button>
+        </div>
+      </Modal>
+
+      {/* 정산 메모 입력 모달 — 「이달 정산하기」 클릭 시 표시 */}
+      <Modal open={settleMemoModalOpen} title="정산 메모 (선택)" onClose={() => setSettleMemoModalOpen(false)}>
+        <p style={{ fontSize: 13, color: '#6b7280', margin: '0 0 12px', lineHeight: 1.5 }}>
+          이번 달 정산에 대해 남기고 싶은 메모가 있다면 입력해주세요. 정산 결과 상단에 표시됩니다.
+        </p>
+        <textarea
+          value={settleMemoDraft}
+          onChange={(e) => setSettleMemoDraft(e.target.value)}
+          placeholder="예: 보너스 반영, 휴가비 지출 등"
+          rows={4}
+          autoFocus
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            borderRadius: JELLY.radiusControl,
+            border: '1px solid #e5e7eb',
+            background: '#fff',
+            fontSize: 13,
+            outline: 'none',
+            boxSizing: 'border-box',
+            fontFamily: 'inherit',
+            resize: 'vertical',
+            minHeight: 80,
+            marginBottom: 16,
+          }}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => setSettleMemoModalOpen(false)}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: '1px solid #e5e7eb', background: '#fff', fontSize: 13, cursor: 'pointer' }}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleSettle()}
+            style={{ ...jellyPrimaryButton, fontSize: 13 }}
+          >
+            정산하기
           </button>
         </div>
       </Modal>
@@ -2402,6 +2461,7 @@ export function ExpensePlanPage() {
               summary={settlementSummary}
               personAName={fallbackPersonAName || '유저 1'}
               personBName={fallbackPersonBName || '유저 2'}
+              yearMonth={currentYearMonth}
             />
           </div>
         ) : (

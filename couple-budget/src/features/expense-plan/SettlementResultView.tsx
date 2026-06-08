@@ -3,6 +3,7 @@ import { PRIMARY, allowanceValueColor, settingsSectionCardStyle } from '@/styles
 import { JELLY } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { SUB_CHART_COLORS, SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
+import { useSettlementStore, makeEmptyUserPayChecks, type UserPayChecks } from '@/store/useSettlementStore'
 
 const CHART_COLORS = SUB_CHART_COLORS
 
@@ -517,6 +518,8 @@ interface SettlementResultViewProps {
   }
   personAName: string
   personBName: string
+  /** 정산 결과의 체크박스 상태를 월별로 저장하기 위한 키 */
+  yearMonth: string
 }
 
 function IncomeStackedBar(props: { chartData: { label: string; amount: number; pct: number }[]; totalIncome: number }) {
@@ -577,6 +580,7 @@ export function SettlementResultView({
   summary,
   personAName,
   personBName,
+  yearMonth,
 }: SettlementResultViewProps) {
   const narrow = useNarrowLayout()
   const { userSummary, chartData, fixedDepositByUser, totalIncome } = summary
@@ -586,50 +590,131 @@ export function SettlementResultView({
   const [fixedDepositMoreOpen, setFixedDepositMoreOpen] = useState(false)
   /** 카드별 「상세 정보」 더보기 토글 */
   const [detailsOpen, setDetailsOpen] = useState<{ A: boolean; B: boolean }>({ A: false, B: false })
-  /** 정산 화면에서만 쓰는 납부 확인용 체크(저장·계산 미반영) */
-  const [userPayChecked, setUserPayChecked] = useState<{
-    A: {
-      deposit: boolean
-      sharedLiving: boolean
-      /** 별도 지출 카드 50:50 송금액 — 보내는 쪽만 체크 UI 표시 */
-      transfer5090Send: boolean
-      /** 별도지출 반반 정산 (공금 결제 항목 절반 부담) */
-      sharedFundExpense: boolean
-      /** 고정지출 별도 정산 항목별 체크 (index 기반) */
-      separateItemChecks: Record<number, boolean>
-      /** 투자/저축 트리: inv-0, sav-0 | cat-inv, cat-sav | combined */
-      investChecks: Record<string, boolean>
-    }
-    B: {
-      deposit: boolean
-      sharedLiving: boolean
-      transfer5090Send: boolean
-      sharedFundExpense: boolean
-      separateItemChecks: Record<number, boolean>
-      investChecks: Record<string, boolean>
-    }
-  }>({
-    A: {
-      deposit: false,
-      sharedLiving: false,
-      transfer5090Send: false,
-      sharedFundExpense: false,
-      separateItemChecks: {},
-      investChecks: {},
-    },
-    B: {
-      deposit: false,
-      sharedLiving: false,
-      transfer5090Send: false,
-      sharedFundExpense: false,
-      separateItemChecks: {},
-      investChecks: {},
-    },
-  })
+  /** 정산 화면 납부 확인 체크박스 — useSettlementStore 에 월별 영속화 */
+  const userPayChecked = useSettlementStore(
+    (s) => s.payChecksByMonth[yearMonth] ?? makeEmptyUserPayChecks(),
+  )
+  const setPayChecks = useSettlementStore((s) => s.setPayChecks)
+  const setUserPayChecked = (updater: (prev: UserPayChecks) => UserPayChecks) =>
+    setPayChecks(yearMonth, updater)
+
+  // 정산 메모 (월별 저장됨, 수정 가능)
+  const settlementMemo = useSettlementStore((s) => s.memoByMonth[yearMonth] ?? '')
+  const updateSettlementMemo = useSettlementStore((s) => s.setMemo)
+  const [memoEditing, setMemoEditing] = useState(false)
+  const [memoDraft, setMemoDraft] = useState(settlementMemo)
+  useEffect(() => {
+    if (!memoEditing) setMemoDraft(settlementMemo)
+  }, [settlementMemo, memoEditing])
 
   return (
     <div style={{ paddingBottom: 40 }}>
       <h2 style={{ fontSize: 18, fontWeight: 700, color: JELLY.text, margin: '0 0 20px' }}>정산 결과</h2>
+
+      {/* 정산 메모 카드 — 비어있을 때도 「+ 메모 추가」 버튼으로 노출 */}
+      <div
+        style={{
+          marginBottom: 20,
+          ...settingsSectionCardStyle,
+          background: settlementMemo || memoEditing ? '#fffbeb' : settingsSectionCardStyle.background,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: memoEditing || settlementMemo ? 8 : 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: JELLY.text, display: 'flex', alignItems: 'center', gap: 6 }}>
+            📝 정산 메모
+          </div>
+          {!memoEditing && (
+            <button
+              type="button"
+              onClick={() => {
+                setMemoDraft(settlementMemo)
+                setMemoEditing(true)
+              }}
+              style={{
+                fontSize: 11,
+                padding: '4px 10px',
+                borderRadius: 999,
+                border: '1px solid #e5e7eb',
+                background: '#fff',
+                color: '#6b7280',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              {settlementMemo ? '수정' : '+ 메모 추가'}
+            </button>
+          )}
+        </div>
+        {memoEditing ? (
+          <>
+            <textarea
+              value={memoDraft}
+              onChange={(e) => setMemoDraft(e.target.value)}
+              placeholder="이번 달 정산에 대한 메모를 남겨두세요"
+              rows={3}
+              autoFocus
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: 8,
+                border: '1px solid #e5e7eb',
+                background: '#fff',
+                fontSize: 13,
+                outline: 'none',
+                boxSizing: 'border-box',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                minHeight: 70,
+                marginBottom: 8,
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setMemoDraft(settlementMemo)
+                  setMemoEditing(false)
+                }}
+                style={{
+                  fontSize: 12,
+                  padding: '6px 12px',
+                  borderRadius: 8,
+                  border: '1px solid #e5e7eb',
+                  background: '#fff',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  updateSettlementMemo(yearMonth, memoDraft)
+                  setMemoEditing(false)
+                }}
+                style={{
+                  fontSize: 12,
+                  padding: '6px 12px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: PRIMARY,
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontWeight: 600,
+                }}
+              >
+                저장
+              </button>
+            </div>
+          </>
+        ) : settlementMemo ? (
+          <div style={{ fontSize: 13, color: '#374151', whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>
+            {settlementMemo}
+          </div>
+        ) : null}
+      </div>
 
       <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 8 }}>이번 달 수입 구성</div>

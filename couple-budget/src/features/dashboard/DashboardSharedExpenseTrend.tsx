@@ -6,6 +6,7 @@ import { useAppStore } from '@/store/useAppStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { PRIMARY } from '@/styles/formControls'
 import { resolveCategoryColor } from '@/lib/categoryColors'
+import { useChartTooltip } from './useChartTooltip'
 
 const fmt = (n: number) => n.toLocaleString('ko-KR')
 const tabularNums: React.CSSProperties = { fontVariantNumeric: 'tabular-nums' }
@@ -67,6 +68,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
   }, [entries, items, year, sharedByMonth, sharedLivingCostTarget])
 
   const allZero = monthly.every((v) => v === 0)
+  const { activeIdx, svgRef, setHover, setClick } = useChartTooltip()
 
   // SVG 막대 + 목표 라인
   const W = 720
@@ -109,7 +111,13 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
       ) : (
         <>
           <div style={{ overflowX: 'auto' }}>
-            <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', minWidth: 480 }}>
+            <svg
+              ref={svgRef}
+              width={W}
+              height={H}
+              viewBox={`0 0 ${W} ${H}`}
+              style={{ display: 'block', minWidth: 480 }}
+            >
               {/* 가로 그리드 */}
               {[0, 0.5, 1].map((p, i) => {
                 const yPos = padT + innerH * (1 - p)
@@ -150,6 +158,65 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                   {i + 1}월
                 </text>
               ))}
+              {/* 투명 hit 영역 */}
+              {monthly.map((_, i) => {
+                const colW = innerW / 12
+                return (
+                  <rect
+                    key={`hit-${i}`}
+                    x={pointX(i) - colW / 2}
+                    y={padT}
+                    width={colW}
+                    height={innerH}
+                    fill="transparent"
+                    style={{ cursor: 'pointer' }}
+                    onMouseEnter={() => setHover(i)}
+                    onMouseLeave={() => setHover(null)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setClick(i)
+                    }}
+                  />
+                )
+              })}
+              {/* 툴팁 */}
+              {activeIdx !== null && (() => {
+                const i = activeIdx
+                const used = monthly[i] ?? 0
+                const tgt = target[i] ?? 0
+                const lines = [
+                  `${i + 1}월`,
+                  `사용 ${fmt(used)}원`,
+                  ...(tgt > 0 ? [`목표 ${fmt(tgt)}원`] : []),
+                ]
+                const lineH = 13
+                const padX = 8
+                const padY = 6
+                const maxLineLen = Math.max(...lines.map((l) => l.length))
+                const boxW = Math.max(90, maxLineLen * 7 + padX * 2)
+                const boxH = lines.length * lineH + padY * 2
+                let tx = pointX(i) + 8
+                if (tx + boxW > W - padR) tx = pointX(i) - boxW - 8
+                if (tx < padL) tx = padL
+                const ty = Math.max(padT, pointY(Math.max(used, tgt)) - boxH - 6)
+                return (
+                  <g pointerEvents="none">
+                    <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill="#111827" opacity={0.92} />
+                    {lines.map((l, li) => (
+                      <text
+                        key={li}
+                        x={tx + padX}
+                        y={ty + padY + (li + 1) * lineH - 3}
+                        fontSize="10.5"
+                        fill={li === 0 ? '#9ca3af' : '#fff'}
+                        style={tabularNums}
+                      >
+                        {l}
+                      </text>
+                    ))}
+                  </g>
+                )
+              })()}
             </svg>
           </div>
           <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: DS.color.text.secondary, flexWrap: 'wrap' }}>

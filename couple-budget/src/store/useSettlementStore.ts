@@ -24,9 +24,43 @@ export interface MonthlySettlement {
   separateItems: SettledItem[]
 }
 
+/** 정산 결과 화면의 유저별 납부 확인 체크박스 상태 */
+export interface PayChecks {
+  deposit: boolean
+  sharedLiving: boolean
+  /** 별도 지출 카드 50:50 송금액 — 보내는 쪽만 표시 */
+  transfer5090Send: boolean
+  /** 별도지출 반반 정산 (공금 결제 항목 절반 부담) */
+  sharedFundExpense: boolean
+  /** 고정지출 별도 정산 항목별 체크 (index 기반) */
+  separateItemChecks: Record<number, boolean>
+  /** 투자/저축 트리: inv-0, sav-0 | cat-inv, cat-sav | combined */
+  investChecks: Record<string, boolean>
+}
+
+export type UserPayChecks = { A: PayChecks; B: PayChecks }
+
+const makeEmptyChecks = (): PayChecks => ({
+  deposit: false,
+  sharedLiving: false,
+  transfer5090Send: false,
+  sharedFundExpense: false,
+  separateItemChecks: {},
+  investChecks: {},
+})
+
+export const makeEmptyUserPayChecks = (): UserPayChecks => ({
+  A: makeEmptyChecks(),
+  B: makeEmptyChecks(),
+})
+
 interface SettlementState {
   settlements: MonthlySettlement[]
   transfers: Record<string, boolean>
+  /** 월별 정산 결과의 납부 확인 체크박스 상태 */
+  payChecksByMonth: Record<string, UserPayChecks>
+  /** 월별 정산 메모 (정산 시 작성, 선택) */
+  memoByMonth: Record<string, string>
   isSettled: (yearMonth: string) => boolean
   getSettlement: (yearMonth: string) => MonthlySettlement | undefined
   settle: (data: MonthlySettlement) => void
@@ -34,6 +68,11 @@ interface SettlementState {
   clearTransfersForMonth: (yearMonth: string) => void
   toggleTransfer: (yearMonth: string, itemId: string) => void
   isTransferred: (yearMonth: string, itemId: string) => boolean
+  getPayChecks: (yearMonth: string) => UserPayChecks
+  setPayChecks: (yearMonth: string, updater: (prev: UserPayChecks) => UserPayChecks) => void
+  clearPayChecksForMonth: (yearMonth: string) => void
+  getMemo: (yearMonth: string) => string
+  setMemo: (yearMonth: string, memo: string) => void
 }
 
 export const useSettlementStore = create<SettlementState>()(
@@ -41,6 +80,8 @@ export const useSettlementStore = create<SettlementState>()(
     (set, get) => ({
       settlements: [],
       transfers: {},
+      payChecksByMonth: {},
+      memoByMonth: {},
 
       isSettled: (yearMonth) =>
         get().settlements.some((s) => s.yearMonth === yearMonth),
@@ -57,9 +98,17 @@ export const useSettlementStore = create<SettlementState>()(
         })),
 
       cancelSettlement: (yearMonth) =>
-        set((state) => ({
-          settlements: state.settlements.filter((s) => s.yearMonth !== yearMonth),
-        })),
+        set((state) => {
+          const nextChecks = { ...state.payChecksByMonth }
+          delete nextChecks[yearMonth]
+          const nextMemos = { ...state.memoByMonth }
+          delete nextMemos[yearMonth]
+          return {
+            settlements: state.settlements.filter((s) => s.yearMonth !== yearMonth),
+            payChecksByMonth: nextChecks,
+            memoByMonth: nextMemos,
+          }
+        }),
 
       clearTransfersForMonth: (yearMonth) =>
         set((state) => {
@@ -79,12 +128,45 @@ export const useSettlementStore = create<SettlementState>()(
 
       isTransferred: (yearMonth, itemId) =>
         !!get().transfers[`${yearMonth}::${itemId}`],
+
+      getPayChecks: (yearMonth) =>
+        get().payChecksByMonth[yearMonth] ?? makeEmptyUserPayChecks(),
+
+      setPayChecks: (yearMonth, updater) =>
+        set((state) => {
+          const prev = state.payChecksByMonth[yearMonth] ?? makeEmptyUserPayChecks()
+          const next = updater(prev)
+          return {
+            payChecksByMonth: { ...state.payChecksByMonth, [yearMonth]: next },
+          }
+        }),
+
+      clearPayChecksForMonth: (yearMonth) =>
+        set((state) => {
+          if (!state.payChecksByMonth[yearMonth]) return state
+          const next = { ...state.payChecksByMonth }
+          delete next[yearMonth]
+          return { payChecksByMonth: next }
+        }),
+
+      getMemo: (yearMonth) => get().memoByMonth[yearMonth] ?? '',
+
+      setMemo: (yearMonth, memo) =>
+        set((state) => {
+          const trimmed = memo.trim()
+          const next = { ...state.memoByMonth }
+          if (trimmed) next[yearMonth] = trimmed
+          else delete next[yearMonth]
+          return { memoByMonth: next }
+        }),
     }),
     {
       name: 'couple-budget:settlements',
       partialize: (s) => ({
         settlements: s.settlements,
         transfers: s.transfers,
+        payChecksByMonth: s.payChecksByMonth,
+        memoByMonth: s.memoByMonth,
       }),
     },
   ),

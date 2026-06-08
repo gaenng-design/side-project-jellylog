@@ -15,6 +15,10 @@ import {
 import { YearSelectDropdown } from '@/components/YearSelectDropdown'
 import { Card } from '@/design-system/components/Card'
 import { SpendingDonut } from '@/design-system/components/SpendingDonut'
+import { useChartTooltip } from './useChartTooltip'
+
+/** 그래프 툴팁 공통 라벨 포맷 */
+const fmtFull = (n: number) => `${n.toLocaleString('ko-KR')}원`
 
 const MONTH_LABELS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
@@ -147,9 +151,11 @@ function MonthlyIncomeBarChart({ values }: { values: number[] }) {
   const gap = 6
   const n = 12
   const barW = (innerW - gap * (n - 1)) / n
+  const { activeIdx, svgRef, setHover, setClick } = useChartTooltip()
 
   return (
     <svg
+      ref={svgRef}
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       width="100%"
       height={240}
@@ -208,6 +214,21 @@ function MonthlyIncomeBarChart({ values }: { values: number[] }) {
               rx={6}
               fill="url(#dashIncomeBar)"
             />
+            {/* 투명 hit 영역 (전체 컬럼) */}
+            <rect
+              x={x}
+              y={PAD_T}
+              width={barW}
+              height={innerH}
+              fill="transparent"
+              style={{ cursor: 'pointer' }}
+              onMouseEnter={() => setHover(i)}
+              onMouseLeave={() => setHover(null)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setClick(i)
+              }}
+            />
             <text
               x={x + barW / 2}
               y={VB_H - 10}
@@ -221,6 +242,28 @@ function MonthlyIncomeBarChart({ values }: { values: number[] }) {
           </g>
         )
       })}
+      {/* 툴팁 */}
+      {activeIdx !== null && (() => {
+        const i = activeIdx
+        const v = values[i] ?? 0
+        const x = PAD_L + i * (barW + gap) + barW / 2
+        const valueLabel = fmtFull(v)
+        const monthLabel = `${MONTH_LABELS[i]}월`
+        const w = Math.max(72, Math.max(valueLabel.length, monthLabel.length) * 7 + 16)
+        const h = 36
+        let tx = x - w / 2
+        if (tx < PAD_L) tx = PAD_L
+        if (tx + w > VB_W - PAD_R) tx = VB_W - PAD_R - w
+        const y = PAD_T + innerH - (v / maxV) * innerH
+        const ty = Math.max(PAD_T, y - h - 6)
+        return (
+          <g pointerEvents="none">
+            <rect x={tx} y={ty} width={w} height={h} rx={6} fill="#111827" opacity={0.92} />
+            <text x={tx + 8} y={ty + 14} fontSize={10.5} fill="#9ca3af" style={tabularNums}>{monthLabel}</text>
+            <text x={tx + 8} y={ty + 28} fontSize={11} fill="#fff" style={{ ...tabularNums, fontWeight: 600 }}>{valueLabel}</text>
+          </g>
+        )
+      })()}
     </svg>
   )
 }
@@ -244,9 +287,11 @@ function InvestCumulativeChart({ cumulative, lastMonthIdx }: { cumulative: numbe
     pts.length > 0
       ? [`M ${PAD_L},${baseY}`, ...pts.map((p) => `L ${p.x},${p.y}`), `L ${pts[pts.length - 1].x},${baseY}`, 'Z'].join(' ')
       : ''
+  const { activeIdx, svgRef, setHover, setClick } = useChartTooltip()
 
   return (
     <svg
+      ref={svgRef}
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       width="100%"
       height={240}
@@ -318,6 +363,49 @@ function InvestCumulativeChart({ cumulative, lastMonthIdx }: { cumulative: numbe
           </text>
         )
       })}
+      {/* hit 영역 (전체 12개월 컬럼) */}
+      {MONTH_LABELS.map((_, i) => {
+        if (i > visibleEnd) return null
+        const cx = PAD_L + i * stepX
+        return (
+          <rect
+            key={`hit-${i}`}
+            x={cx - stepX / 2}
+            y={PAD_T}
+            width={stepX}
+            height={innerH}
+            fill="transparent"
+            style={{ cursor: 'pointer' }}
+            onMouseEnter={() => setHover(i)}
+            onMouseLeave={() => setHover(null)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setClick(i)
+            }}
+          />
+        )
+      })}
+      {/* 툴팁 */}
+      {activeIdx !== null && activeIdx <= visibleEnd && (() => {
+        const i = activeIdx
+        const v = cumulative[i] ?? 0
+        const cx = PAD_L + i * stepX
+        const cy = PAD_T + innerH - (v / maxV) * innerH
+        const monthLabel = `${MONTH_LABELS[i]}월`
+        const valueLabel = fmtFull(v)
+        const w = Math.max(72, Math.max(valueLabel.length, monthLabel.length + 6) * 7 + 16)
+        const h = 36
+        let tx = cx + 8
+        if (tx + w > VB_W - PAD_R) tx = cx - w - 8
+        const ty = Math.max(PAD_T, cy - h - 6)
+        return (
+          <g pointerEvents="none">
+            <rect x={tx} y={ty} width={w} height={h} rx={6} fill="#111827" opacity={0.92} />
+            <text x={tx + 8} y={ty + 14} fontSize={10.5} fill="#9ca3af" style={tabularNums}>{`${monthLabel} 누적`}</text>
+            <text x={tx + 8} y={ty + 28} fontSize={11} fill="#fff" style={{ ...tabularNums, fontWeight: 600 }}>{valueLabel}</text>
+          </g>
+        )
+      })()}
     </svg>
   )
 }

@@ -125,6 +125,8 @@ function AppShell() {
         settlements: {
           settlements: settlementState.settlements,
           transfers: settlementState.transfers,
+          payChecksByMonth: settlementState.payChecksByMonth,
+          memoByMonth: settlementState.memoByMonth,
         },
         metadata: {
           app: appState,
@@ -227,6 +229,10 @@ function AppShell() {
           const settlementData = result.data.settlements as any
           if (settlementData.settlements) useSettlementStore.setState({ settlements: settlementData.settlements })
           if (settlementData.transfers) useSettlementStore.setState({ transfers: settlementData.transfers })
+          if (settlementData.payChecksByMonth)
+            useSettlementStore.setState({ payChecksByMonth: settlementData.payChecksByMonth })
+          if (settlementData.memoByMonth)
+            useSettlementStore.setState({ memoByMonth: settlementData.memoByMonth })
         }
 
         if (result.data.metadata && result.data.metadata.app) {

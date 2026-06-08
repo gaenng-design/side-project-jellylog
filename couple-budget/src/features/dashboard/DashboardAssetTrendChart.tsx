@@ -4,8 +4,32 @@ import { Card } from '@/design-system/components/Card'
 import { useAssetStore } from '@/store/useAssetStore'
 import { useAppStore } from '@/store/useAppStore'
 import { PRIMARY } from '@/styles/formControls'
+import { useChartTooltip } from './useChartTooltip'
 
 const fmt = (n: number) => n.toLocaleString('ko-KR')
+
+/**
+ * Y축 라벨용 한국어 단위 표기.
+ * - 1억 이상: "X억 Y천만" / "X억 Y만" (만 단위가 0이면 "X억")
+ * - 1만 이상: "Y만"
+ * - 그 외: 천 단위 컴마
+ */
+function formatKRShort(n: number): string {
+  if (n < 0) return '-' + formatKRShort(-n)
+  if (n >= 100000000) {
+    const eok = Math.floor(n / 100000000)
+    const rest = n - eok * 100000000
+    if (rest === 0) return `${eok}억`
+    const man = Math.round(rest / 10000)
+    if (man === 0) return `${eok}억`
+    return `${eok}억 ${man.toLocaleString('ko-KR')}만`
+  }
+  if (n >= 10000) {
+    const man = Math.round(n / 10000)
+    return `${man.toLocaleString('ko-KR')}만`
+  }
+  return n.toLocaleString('ko-KR')
+}
 const tabularNums: React.CSSProperties = { fontVariantNumeric: 'tabular-nums' }
 const MONTHS_LABEL = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
@@ -53,6 +77,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
   }, [items, getEntry, year, currentYear, currentMonth])
 
   const allZero = totalSeries.every((v) => v === null || v === 0)
+  const { activeIdx, svgRef, setHover, setClick } = useChartTooltip()
 
   // SVG 차트
   const W = 720
@@ -111,13 +136,19 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
       ) : (
         <>
           <div style={{ overflowX: 'auto' }}>
-            <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', minWidth: 480 }}>
+            <svg
+              ref={svgRef}
+              width={W}
+              height={H}
+              viewBox={`0 0 ${W} ${H}`}
+              style={{ display: 'block', minWidth: 480 }}
+            >
               {/* 가로 그리드 */}
               {yTicks.map((t, i) => (
                 <g key={i}>
                   <line x1={padL} x2={W - padR} y1={t.y} y2={t.y} stroke="#e5e7eb" strokeDasharray={i === 0 ? '0' : '3 3'} />
                   <text x={padL - 6} y={t.y + 4} fontSize="10" fill="#9ca3af" textAnchor="end" style={tabularNums}>
-                    {t.value >= 10000 ? `${Math.round(t.value / 10000)}만` : fmt(t.value)}
+                    {formatKRShort(t.value)}
                   </text>
                 </g>
               ))}
@@ -148,6 +179,61 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
                   {m}월
                 </text>
               ))}
+              {/* 투명 hit 영역 — hover / click 으로 툴팁 표시 */}
+              {totalSeries.map((v, i) => {
+                if (v === null) return null
+                const colW = innerW / 11
+                return (
+                  <rect
+                    key={`hit-${i}`}
+                    x={pointX(i) - colW / 2}
+                    y={padT}
+                    width={colW}
+                    height={innerH}
+                    fill="transparent"
+                    style={{ cursor: 'pointer' }}
+                    onMouseEnter={() => setHover(i)}
+                    onMouseLeave={() => setHover(null)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setClick(i)
+                    }}
+                  />
+                )
+              })}
+              {/* 툴팁 */}
+              {activeIdx !== null && totalSeries[activeIdx] !== null && (() => {
+                const i = activeIdx
+                const total = totalSeries[i] ?? 0
+                const avail = availableSeries[i] ?? 0
+                const lines = [`${i + 1}월`, `총 자산 ${formatKRShort(total)}`, `가용 ${formatKRShort(avail)}`]
+                const lineH = 13
+                const padX = 8
+                const padY = 6
+                const maxLineLen = Math.max(...lines.map((l) => l.length))
+                const boxW = Math.max(80, maxLineLen * 7 + padX * 2)
+                const boxH = lines.length * lineH + padY * 2
+                let tx = pointX(i) + 8
+                if (tx + boxW > W - padR) tx = pointX(i) - boxW - 8
+                const ty = Math.max(padT, pointY(total) - boxH - 6)
+                return (
+                  <g pointerEvents="none">
+                    <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill="#111827" opacity={0.92} />
+                    {lines.map((l, li) => (
+                      <text
+                        key={li}
+                        x={tx + padX}
+                        y={ty + padY + (li + 1) * lineH - 3}
+                        fontSize="10.5"
+                        fill={li === 0 ? '#9ca3af' : '#fff'}
+                        style={tabularNums}
+                      >
+                        {l}
+                      </text>
+                    ))}
+                  </g>
+                )
+              })()}
             </svg>
           </div>
           <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: DS.color.text.secondary }}>
