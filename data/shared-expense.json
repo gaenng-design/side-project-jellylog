@@ -164,6 +164,13 @@
       "day": 7,
       "amount": 106387,
       "memo": "쿠팡카드 : 사골 액기스, 쪽파, 우유, 1분링, 오징어링, 후지 슬라이스, 닭다리살"
+    },
+    {
+      "id": "shared-expense-1780877127019",
+      "itemId": "shared-expense-1780546297992",
+      "yearMonth": "2026-06",
+      "day": 6,
+      "amount": 25500
     }
   ],
   "categories": [
