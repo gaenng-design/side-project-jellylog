@@ -77,6 +77,12 @@
       "name": "카페이 답례품",
       "category": "외식비",
       "order": 12
+    },
+    {
+      "id": "shared-expense-1780877127022",
+      "name": "카페이 답례품",
+      "category": "경조사",
+      "order": 13
     }
   ],
   "entries": [
@@ -180,7 +186,7 @@
     },
     {
       "id": "shared-expense-1780877127021",
-      "itemId": "shared-expense-1780877127020",
+      "itemId": "shared-expense-1780877127022",
       "yearMonth": "2026-06",
       "day": 5,
       "amount": 95200
