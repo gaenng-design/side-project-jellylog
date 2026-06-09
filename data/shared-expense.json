@@ -101,6 +101,24 @@
       "name": "위즈웰 커피포트",
       "category": "외식비",
       "order": 16
+    },
+    {
+      "id": "shared-expense-1781015745050",
+      "name": "위즈웰 커피포트",
+      "category": "생활 용품",
+      "order": 17
+    },
+    {
+      "id": "shared-expense-1781015745051",
+      "name": "쓰레기봉투",
+      "category": "생활 용품",
+      "order": 18
+    },
+    {
+      "id": "shared-expense-1781015745052",
+      "name": "SD카드",
+      "category": "쇼핑",
+      "order": 19
     }
   ],
   "entries": [
@@ -127,7 +145,7 @@
     },
     {
       "id": "shared-expense-1780546297997",
-      "itemId": "shared-expense-1780546297996",
+      "itemId": "shared-expense-1781015745051",
       "yearMonth": "2026-06",
       "day": 2,
       "amount": 13200
@@ -219,7 +237,7 @@
     },
     {
       "id": "shared-expense-1781003557330",
-      "itemId": "shared-expense-1781003557329",
+      "itemId": "shared-expense-1781015745052",
       "yearMonth": "2026-06",
       "day": 9,
       "amount": 60120,
@@ -227,7 +245,7 @@
     },
     {
       "id": "shared-expense-1781003557332",
-      "itemId": "shared-expense-1781003557331",
+      "itemId": "shared-expense-1781015745050",
       "yearMonth": "2026-06",
       "day": 9,
       "amount": 46410,
@@ -236,12 +254,12 @@
   ],
   "categories": [
     "외식비",
-    "공과금",
-    "교통",
-    "생활 용품",
-    "의료",
     "식료품",
+    "생활 용품",
+    "쇼핑",
+    "교통",
     "경조사",
+    "의료",
     "기타"
   ],
   "categoryColors": {
