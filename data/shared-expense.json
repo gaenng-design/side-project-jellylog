@@ -89,6 +89,18 @@
       "name": "회",
       "category": "외식비",
       "order": 14
+    },
+    {
+      "id": "shared-expense-1781003557329",
+      "name": "SD카드",
+      "category": "기타",
+      "order": 15
+    },
+    {
+      "id": "shared-expense-1781003557331",
+      "name": "위즈웰 커피포트",
+      "category": "외식비",
+      "order": 16
     }
   ],
   "entries": [
@@ -204,6 +216,22 @@
       "day": 8,
       "amount": 40000,
       "memo": "쿠팡이츠"
+    },
+    {
+      "id": "shared-expense-1781003557330",
+      "itemId": "shared-expense-1781003557329",
+      "yearMonth": "2026-06",
+      "day": 9,
+      "amount": 60120,
+      "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1781003557332",
+      "itemId": "shared-expense-1781003557331",
+      "yearMonth": "2026-06",
+      "day": 9,
+      "amount": 46410,
+      "memo": "쿠팡카드"
     }
   ],
   "categories": [
