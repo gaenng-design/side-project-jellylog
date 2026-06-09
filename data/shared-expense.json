@@ -83,6 +83,12 @@
       "name": "카페이 답례품",
       "category": "경조사",
       "order": 13
+    },
+    {
+      "id": "shared-expense-1780987911524",
+      "name": "회",
+      "category": "외식비",
+      "order": 14
     }
   ],
   "entries": [
@@ -190,6 +196,14 @@
       "yearMonth": "2026-06",
       "day": 5,
       "amount": 95200
+    },
+    {
+      "id": "shared-expense-1780987911525",
+      "itemId": "shared-expense-1780987911524",
+      "yearMonth": "2026-06",
+      "day": 8,
+      "amount": 40000,
+      "memo": "쿠팡이츠"
     }
   ],
   "categories": [
