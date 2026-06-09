@@ -1,4 +1,6 @@
 {
   "settlements": [],
-  "transfers": {}
+  "transfers": {},
+  "payChecksByMonth": {},
+  "memoByMonth": {}
 }
