@@ -31,8 +31,8 @@ const syncDoneIcon = '✅'
 
 const NAV_ITEMS = [
   { to: '/', label: '대시보드', icon: '📊' },
-  { to: '/expense-plan', label: '지출 계획', icon: '📋' },
   { to: '/assets', label: '자산', icon: '💰' },
+  { to: '/expense-plan', label: '지출 계획', icon: '📋' },
   { to: '/shared-expense', label: '공동 생활비', icon: '🏠' },
   { to: '/settings', label: '설정', icon: '⚙️' },
 ]
