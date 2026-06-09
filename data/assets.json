@@ -91,11 +91,12 @@
       "order": 10
     },
     {
-      "name": "부모님",
-      "category": "기타",
+      "name": "부모님 예금",
+      "category": "저축",
       "person": "A",
       "id": "asset-1779085520147",
-      "order": 11
+      "order": 11,
+      "locked": true
     },
     {
       "name": "축의금",
@@ -765,7 +766,7 @@
       "id": "asset-1780552380468",
       "itemId": "asset-1779085520151",
       "yearMonth": "2026-06",
-      "amount": 12171338
+      "amount": 5968225
     }
   ]
 }
