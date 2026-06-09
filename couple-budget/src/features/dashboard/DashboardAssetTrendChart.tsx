@@ -9,26 +9,26 @@ import { useChartTooltip } from './useChartTooltip'
 const fmt = (n: number) => n.toLocaleString('ko-KR')
 
 /**
- * Y축 라벨용 한국어 단위 표기.
- * - 1억 이상: "X억 Y천만" / "X억 Y만" (만 단위가 0이면 "X억")
- * - 1만 이상: "Y만"
+ * Y축 라벨용 한국어 단위 표기 — 천만(1,000만)을 최소 단위로 반올림.
+ * - 1억 이상: "X억" / "X억 Y천" (Y는 1~9, 천만 단위)
+ * - 1천만 이상 ~ 1억 미만: "Y천"
+ * - 1만 이상 ~ 1천만 미만: "Y만"
  * - 그 외: 천 단위 컴마
  */
 function formatKRShort(n: number): string {
   if (n < 0) return '-' + formatKRShort(-n)
-  if (n >= 100000000) {
-    const eok = Math.floor(n / 100000000)
-    const rest = n - eok * 100000000
-    if (rest === 0) return `${eok}억`
-    const man = Math.round(rest / 10000)
-    if (man === 0) return `${eok}억`
-    return `${eok}억 ${man.toLocaleString('ko-KR')}만`
+  if (n === 0) return '0'
+  if (n < 10000000) {
+    if (n >= 10000) return `${Math.round(n / 10000)}만`
+    return n.toLocaleString('ko-KR')
   }
-  if (n >= 10000) {
-    const man = Math.round(n / 10000)
-    return `${man.toLocaleString('ko-KR')}만`
-  }
-  return n.toLocaleString('ko-KR')
+  // 천만 단위로 반올림 (1 = 1천만, 10 = 1억, 25 = 2억 5천)
+  const cheonmanUnits = Math.round(n / 10000000)
+  const eok = Math.floor(cheonmanUnits / 10)
+  const cheonman = cheonmanUnits % 10
+  if (eok === 0) return `${cheonman}천`
+  if (cheonman === 0) return `${eok}억`
+  return `${eok}억 ${cheonman}천`
 }
 const tabularNums: React.CSSProperties = { fontVariantNumeric: 'tabular-nums' }
 const MONTHS_LABEL = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
