@@ -54,6 +54,29 @@ export const makeEmptyUserPayChecks = (): UserPayChecks => ({
   B: makeEmptyChecks(),
 })
 
+/**
+ * 셀렉터에서 fallback 으로 안전하게 쓰는 동결된 빈 상태.
+ * 매 렌더마다 새 객체를 만들면 zustand 가 변경으로 판단해 무한 리렌더가 발생함.
+ */
+export const EMPTY_USER_PAY_CHECKS: UserPayChecks = Object.freeze({
+  A: Object.freeze({
+    deposit: false,
+    sharedLiving: false,
+    transfer5090Send: false,
+    sharedFundExpense: false,
+    separateItemChecks: Object.freeze({}) as Record<number, boolean>,
+    investChecks: Object.freeze({}) as Record<string, boolean>,
+  }) as PayChecks,
+  B: Object.freeze({
+    deposit: false,
+    sharedLiving: false,
+    transfer5090Send: false,
+    sharedFundExpense: false,
+    separateItemChecks: Object.freeze({}) as Record<number, boolean>,
+    investChecks: Object.freeze({}) as Record<string, boolean>,
+  }) as PayChecks,
+}) as UserPayChecks
+
 interface SettlementState {
   settlements: MonthlySettlement[]
   transfers: Record<string, boolean>
@@ -130,7 +153,7 @@ export const useSettlementStore = create<SettlementState>()(
         !!get().transfers[`${yearMonth}::${itemId}`],
 
       getPayChecks: (yearMonth) =>
-        get().payChecksByMonth[yearMonth] ?? makeEmptyUserPayChecks(),
+        get().payChecksByMonth[yearMonth] ?? EMPTY_USER_PAY_CHECKS,
 
       setPayChecks: (yearMonth, updater) =>
         set((state) => {

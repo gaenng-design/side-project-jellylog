@@ -3,7 +3,7 @@ import { PRIMARY, allowanceValueColor, settingsSectionCardStyle } from '@/styles
 import { JELLY } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { SUB_CHART_COLORS, SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
-import { useSettlementStore, makeEmptyUserPayChecks, type UserPayChecks } from '@/store/useSettlementStore'
+import { useSettlementStore, EMPTY_USER_PAY_CHECKS, type UserPayChecks } from '@/store/useSettlementStore'
 
 const CHART_COLORS = SUB_CHART_COLORS
 
@@ -592,7 +592,7 @@ export function SettlementResultView({
   const [detailsOpen, setDetailsOpen] = useState<{ A: boolean; B: boolean }>({ A: false, B: false })
   /** 정산 화면 납부 확인 체크박스 — useSettlementStore 에 월별 영속화 */
   const userPayChecked = useSettlementStore(
-    (s) => s.payChecksByMonth[yearMonth] ?? makeEmptyUserPayChecks(),
+    (s) => s.payChecksByMonth[yearMonth] ?? EMPTY_USER_PAY_CHECKS,
   )
   const setPayChecks = useSettlementStore((s) => s.setPayChecks)
   const setUserPayChecked = (updater: (prev: UserPayChecks) => UserPayChecks) =>
