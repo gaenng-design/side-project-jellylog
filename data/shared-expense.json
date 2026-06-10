@@ -119,6 +119,12 @@
       "name": "SD카드",
       "category": "쇼핑",
       "order": 19
+    },
+    {
+      "id": "shared-expense-1781092207840",
+      "name": "마라탕",
+      "category": "외식비",
+      "order": 20
     }
   ],
   "entries": [
@@ -249,6 +255,14 @@
       "yearMonth": "2026-06",
       "day": 9,
       "amount": 46410,
+      "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1781092207841",
+      "itemId": "shared-expense-1781092207840",
+      "yearMonth": "2026-06",
+      "day": 10,
+      "amount": 16900,
       "memo": "쿠팡카드"
     }
   ],
