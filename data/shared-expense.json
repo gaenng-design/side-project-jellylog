@@ -191,6 +191,12 @@
       "name": "커피 - 휴즐리",
       "category": "외식비",
       "order": 31
+    },
+    {
+      "id": "shared-expense-1781404791986",
+      "name": "낭구 회사 - 제빙기",
+      "category": "경조사",
+      "order": 32
     }
   ],
   "entries": [
@@ -408,6 +414,14 @@
       "yearMonth": "2026-06",
       "day": 14,
       "amount": 12500
+    },
+    {
+      "id": "shared-expense-1781404791987",
+      "itemId": "shared-expense-1781404791986",
+      "yearMonth": "2026-06",
+      "day": 13,
+      "amount": 93900,
+      "memo": "쿠팡카드"
     }
   ],
   "categories": [
