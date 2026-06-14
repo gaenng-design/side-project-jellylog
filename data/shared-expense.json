@@ -125,6 +125,72 @@
       "name": "마라탕",
       "category": "외식비",
       "order": 20
+    },
+    {
+      "id": "shared-expense-1781404791964",
+      "name": "비자림",
+      "category": "여행",
+      "order": 21
+    },
+    {
+      "id": "shared-expense-1781404791966",
+      "name": "커피",
+      "category": "외식비",
+      "order": 22
+    },
+    {
+      "id": "shared-expense-1781404791968",
+      "name": "올영 바디워시 공",
+      "category": "생활 용품",
+      "order": 23
+    },
+    {
+      "id": "shared-expense-1781404791970",
+      "name": "모던 돔베",
+      "category": "외식비",
+      "order": 24
+    },
+    {
+      "id": "shared-expense-1781404791972",
+      "name": "하나로마트",
+      "category": "외식비",
+      "order": 25
+    },
+    {
+      "id": "shared-expense-1781404791974",
+      "name": "주유소",
+      "category": "교통",
+      "order": 26
+    },
+    {
+      "id": "shared-expense-1781404791976",
+      "name": "커피 - 머문",
+      "category": "외식비",
+      "order": 27
+    },
+    {
+      "id": "shared-expense-1781404791978",
+      "name": "숙소",
+      "category": "여행",
+      "order": 28
+    },
+    {
+      "id": "shared-expense-1781404791980",
+      "name": "일통이반",
+      "category": "외식비",
+      "order": 29
+    },
+    {
+      "id": "shared-expense-1781404791982",
+      "name": "모이세",
+      "category": "외식비",
+      "order": 30
+    },
+    {
+      "id": "shared-expense-1781404791984",
+      "name": "커피 - 휴즐리",
+      "category": "외식비",
+      "order": 31
     }
   ],
   "entries": [
@@ -264,6 +330,84 @@
       "day": 10,
       "amount": 16900,
       "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1781404791965",
+      "itemId": "shared-expense-1781404791964",
+      "yearMonth": "2026-06",
+      "day": 13,
+      "amount": 6000,
+      "memo": "승윤 카드"
+    },
+    {
+      "id": "shared-expense-1781404791967",
+      "itemId": "shared-expense-1781404791966",
+      "yearMonth": "2026-06",
+      "day": 11,
+      "amount": 5900
+    },
+    {
+      "id": "shared-expense-1781404791969",
+      "itemId": "shared-expense-1781404791968",
+      "yearMonth": "2026-06",
+      "day": 11,
+      "amount": 1000
+    },
+    {
+      "id": "shared-expense-1781404791971",
+      "itemId": "shared-expense-1781404791970",
+      "yearMonth": "2026-06",
+      "day": 12,
+      "amount": 35000
+    },
+    {
+      "id": "shared-expense-1781404791973",
+      "itemId": "shared-expense-1781404791972",
+      "yearMonth": "2026-06",
+      "day": 12,
+      "amount": 91780
+    },
+    {
+      "id": "shared-expense-1781404791975",
+      "itemId": "shared-expense-1781404791974",
+      "yearMonth": "2026-06",
+      "day": 12,
+      "amount": 30000
+    },
+    {
+      "id": "shared-expense-1781404791977",
+      "itemId": "shared-expense-1781404791976",
+      "yearMonth": "2026-06",
+      "day": 13,
+      "amount": 14000
+    },
+    {
+      "id": "shared-expense-1781404791979",
+      "itemId": "shared-expense-1781404791978",
+      "yearMonth": "2026-06",
+      "day": 13,
+      "amount": 43842
+    },
+    {
+      "id": "shared-expense-1781404791981",
+      "itemId": "shared-expense-1781404791980",
+      "yearMonth": "2026-06",
+      "day": 13,
+      "amount": 100000
+    },
+    {
+      "id": "shared-expense-1781404791983",
+      "itemId": "shared-expense-1781404791982",
+      "yearMonth": "2026-06",
+      "day": 13,
+      "amount": 22000
+    },
+    {
+      "id": "shared-expense-1781404791985",
+      "itemId": "shared-expense-1781404791984",
+      "yearMonth": "2026-06",
+      "day": 14,
+      "amount": 12500
     }
   ],
   "categories": [
@@ -274,12 +418,14 @@
     "교통",
     "경조사",
     "의료",
-    "기타"
+    "기타",
+    "여행"
   ],
   "categoryColors": {
     "외식비": 0,
     "기타": 10,
     "생활 용품": 5,
-    "경조사": 1
+    "경조사": 1,
+    "여행": 8
   }
 }
