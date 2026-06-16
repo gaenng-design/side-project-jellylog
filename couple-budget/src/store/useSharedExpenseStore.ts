@@ -46,6 +46,7 @@ interface SharedExpenseState {
     day?: number
     amount: number
     memo?: string
+    excluded?: boolean
   }) => string
   updateEntry: (id: string, patch: Partial<Omit<SharedExpenseEntry, 'id'>>) => void
   removeEntry: (id: string) => void
@@ -176,10 +177,13 @@ export const useSharedExpenseStore = create<SharedExpenseState>()(
       },
 
       // ── 거래 (Entry) ──────────────────
-      addEntry: ({ itemId, yearMonth, day, amount, memo }) => {
+      addEntry: ({ itemId, yearMonth, day, amount, memo, excluded }) => {
         const id = uid()
         set((s) => ({
-          entries: [...s.entries, { id, itemId, yearMonth, day, amount, memo }],
+          entries: [
+            ...s.entries,
+            { id, itemId, yearMonth, day, amount, memo, ...(excluded ? { excluded: true } : {}) },
+          ],
         }))
         return id
       },

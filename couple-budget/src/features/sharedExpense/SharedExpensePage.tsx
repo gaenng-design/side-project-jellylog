@@ -61,21 +61,6 @@ function EntryRow({
         background: excluded ? 'rgba(243, 244, 246, 0.5)' : undefined,
       }}
     >
-      {/* 제외 체크박스 */}
-      <input
-        type="checkbox"
-        checked={excluded}
-        onChange={(e) => onToggleExclude(entry.id, e.target.checked)}
-        title={excluded ? '제외됨 — 클릭하여 다시 합계에 포함' : '생활비 합계에서 제외'}
-        style={{
-          flex: '0 0 auto',
-          width: 16,
-          height: 16,
-          cursor: 'pointer',
-          margin: 0,
-        }}
-        onClick={(e) => e.stopPropagation()}
-      />
       {/* 날짜 */}
       <div
         style={{
@@ -202,6 +187,29 @@ function EntryRow({
       >
         🗑
       </button>
+
+      {/* 제외 토글 (텍스트 버튼) */}
+      <button
+        type="button"
+        onClick={() => onToggleExclude(entry.id, !excluded)}
+        title={excluded ? '클릭하여 다시 합계에 포함' : '생활비 합계에서 제외'}
+        style={{
+          flex: '0 0 auto',
+          height: 28,
+          padding: '0 10px',
+          borderRadius: 6,
+          border: excluded ? '1px solid #6b7280' : '1px solid #e5e7eb',
+          background: excluded ? '#374151' : '#fff',
+          color: excluded ? '#fff' : '#6b7280',
+          fontSize: 11,
+          fontWeight: 600,
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {excluded ? '✓ 제외됨' : '제외'}
+      </button>
     </div>
   )
 }
@@ -221,7 +229,7 @@ function AddEntryForm({
   monthLabel: string
   categories: string[]
   recentItems: { name: string; category: string }[]
-  onAdd: (params: { name: string; category: string; day?: number; amount: number; memo?: string }) => void
+  onAdd: (params: { name: string; category: string; day?: number; amount: number; memo?: string; excluded?: boolean }) => void
   disabled?: boolean
 }) {
   const [name, setName] = useState('')
@@ -229,6 +237,7 @@ function AddEntryForm({
   const [day, setDay] = useState('')
   const [amount, setAmount] = useState('')
   const [memo, setMemo] = useState('')
+  const [excluded, setExcluded] = useState(false)
   const submittingRef = useRef(false)
 
   const handleAdd = () => {
@@ -252,12 +261,14 @@ function AddEntryForm({
       day: dayNum,
       amount: amt,
       memo: memo.trim() || undefined,
+      excluded: excluded || undefined,
     })
 
     setName('')
     setDay('')
     setAmount('')
     setMemo('')
+    setExcluded(false)
     setCategory(categories[0] ?? '기타')
 
     // 빠른 시간 안에 다시 호출되지 않도록
@@ -388,25 +399,51 @@ function AddEntryForm({
         </button>
       </div>
 
-      <input
-        value={memo}
-        onChange={(e) => setMemo(e.target.value)}
-        placeholder="메모 (선택)"
-        onKeyDown={(e) => e.key === 'Enter' && !disabled && handleAdd()}
-        disabled={disabled}
-        style={{
-          width: '100%',
-          height: 36,
-          padding: '0 12px',
-          borderRadius: INPUT_BORDER_RADIUS,
-          fontSize: 12,
-          fontFamily: 'inherit',
-          outline: 'none',
-          boxSizing: 'border-box',
-          ...jellyInputSurface,
-          color: '#232d3c',
-        }}
-      />
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          placeholder="메모 (선택)"
+          onKeyDown={(e) => e.key === 'Enter' && !disabled && handleAdd()}
+          disabled={disabled}
+          style={{
+            flex: 1,
+            minWidth: 0,
+            height: 36,
+            padding: '0 12px',
+            borderRadius: INPUT_BORDER_RADIUS,
+            fontSize: 12,
+            fontFamily: 'inherit',
+            outline: 'none',
+            boxSizing: 'border-box',
+            ...jellyInputSurface,
+            color: '#232d3c',
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => !disabled && setExcluded((v) => !v)}
+          disabled={disabled}
+          title={excluded ? '클릭하여 다시 합계에 포함' : '생활비 합계에서 제외'}
+          style={{
+            flexShrink: 0,
+            height: 36,
+            padding: '0 14px',
+            borderRadius: INPUT_BORDER_RADIUS,
+            border: excluded ? '1px solid #6b7280' : '1px solid #e5e7eb',
+            background: excluded ? '#374151' : '#fff',
+            color: excluded ? '#fff' : '#6b7280',
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: 'inherit',
+            cursor: disabled ? 'default' : 'pointer',
+            opacity: disabled ? 0.5 : 1,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {excluded ? '✓ 제외됨' : '제외'}
+        </button>
+      </div>
     </div>
   )
 }
@@ -456,6 +493,7 @@ export function SharedExpensePage() {
     day: '',
     amount: '',
     memo: '',
+    excluded: false,
   })
 
   const itemMap = useMemo(() => new Map(items.map((it) => [it.id, it])), [items])
@@ -543,6 +581,7 @@ export function SharedExpensePage() {
       day: e.day != null ? String(e.day) : '',
       amount: e.amount > 0 ? e.amount.toLocaleString('ko-KR') : '',
       memo: e.memo ?? '',
+      excluded: !!e.excluded,
     })
   }
 
@@ -566,6 +605,7 @@ export function SharedExpensePage() {
       day: dayNum,
       amount: newAmount,
       memo: editForm.memo.trim() || undefined,
+      excluded: editForm.excluded || undefined,
     })
     setEditingEntry(null)
   }
@@ -1046,9 +1086,9 @@ export function SharedExpensePage() {
         categories={categories.length > 0 ? categories : ['기타']}
         recentItems={recentItems}
         disabled={isFutureMonth}
-        onAdd={({ name, category, day, amount, memo }) => {
+        onAdd={({ name, category, day, amount, memo, excluded }) => {
           const itemId = findOrCreateItem(name, category)
-          addEntry({ itemId, yearMonth: currentYearMonth, day, amount, memo })
+          addEntry({ itemId, yearMonth: currentYearMonth, day, amount, memo, excluded })
         }}
       />
 
@@ -1130,6 +1170,27 @@ export function SharedExpensePage() {
               placeholder="예: 주말 외식"
               style={modalInputStyle}
             />
+          </div>
+
+          <div>
+            <button
+              type="button"
+              onClick={() => setEditForm({ ...editForm, excluded: !editForm.excluded })}
+              style={{
+                height: 36,
+                padding: '0 14px',
+                borderRadius: JELLY.radiusControl,
+                border: editForm.excluded ? '1px solid #6b7280' : '1px solid #e5e7eb',
+                background: editForm.excluded ? '#374151' : '#fff',
+                color: editForm.excluded ? '#fff' : '#6b7280',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              {editForm.excluded ? '✓ 생활비 합계에서 제외됨' : '생활비 합계에서 제외'}
+            </button>
           </div>
         </div>
 
