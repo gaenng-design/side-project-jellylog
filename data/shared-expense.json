@@ -258,14 +258,16 @@
       "yearMonth": "2026-06",
       "day": 4,
       "amount": 137060,
-      "memo": "쿠팡카드"
+      "memo": "쿠팡카드",
+      "excluded": true
     },
     {
       "id": "shared-expense-1780552380466",
       "itemId": "shared-expense-1780552380465",
       "yearMonth": "2026-06",
       "day": 4,
-      "amount": 99500
+      "amount": 99500,
+      "excluded": true
     },
     {
       "id": "shared-expense-1780612475114",
@@ -303,7 +305,8 @@
       "itemId": "shared-expense-1780877127022",
       "yearMonth": "2026-06",
       "day": 5,
-      "amount": 95200
+      "amount": 95200,
+      "excluded": true
     },
     {
       "id": "shared-expense-1780987911525",
@@ -421,7 +424,8 @@
       "yearMonth": "2026-06",
       "day": 13,
       "amount": 93900,
-      "memo": "쿠팡카드"
+      "memo": "쿠팡카드",
+      "excluded": true
     }
   ],
   "categories": [
