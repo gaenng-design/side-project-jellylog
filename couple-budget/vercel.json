@@ -1,16 +1,11 @@
 {
   "buildCommand": "npm run build:web",
   "outputDirectory": "dist-web",
+  "public": true,
   "rewrites": [
     {
       "source": "/((?!assets|api|sw\\.js|workbox-|manifest\\.webmanifest|robots\\.txt|favicon|pwa-icon|.*\\.(?:js|css|svg|png|jpg|jpeg|gif|webp|ico|json|webmanifest|map|woff|woff2|ttf|otf)).*)",
       "destination": "/index.html"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/github/(.*)",
-      "dest": "/api/github/$1.ts"
     }
   ]
 }
