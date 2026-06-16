@@ -49,6 +49,27 @@ export interface AppSettings {
   fixedCategories: string[]
   /** 고정지출 카테고리별 색상 인덱스 (lib/categoryColors.ts 참조) */
   fixedCategoryColors?: Record<string, number>
+  /**
+   * @deprecated `goals` 로 마이그레이션됨. 호환성 유지용
+   */
+  assetGoal?: {
+    description: string
+    targetAmount: number
+  }
+  /**
+   * 자산 목표 리스트. 여러 개 등록 가능.
+   * 예: { metric: 'total', targetAmount: 500000000, action: '모아', purpose: '집' }
+   *     → "총자산을 5억원 모아 집을 하고 싶어요"
+   */
+  goals?: Array<{
+    id: string
+    metric: 'total' | 'living' | 'savings'
+    targetAmount: number
+    action: string
+    purpose: string
+    /** 목표 달성 희망일 (YYYY-MM-DD). 빈 값이면 미설정 */
+    deadline?: string
+  }>
 }
 
 interface AppState {

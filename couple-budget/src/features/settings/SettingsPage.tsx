@@ -325,6 +325,255 @@ const RATIO_OPTIONS = [
   { value: 'custom' as const, label: '사용자 설정에 따라' },
 ]
 
+type GoalEntry = NonNullable<ReturnType<typeof useAppStore.getState>['settings']['goals']>[number]
+
+const METRIC_OPTIONS: { value: GoalEntry['metric']; label: string }[] = [
+  { value: 'total', label: '총자산' },
+  { value: 'living', label: '생활비' },
+  { value: 'savings', label: '저축/투자' },
+]
+const METRIC_LABEL: Record<GoalEntry['metric'], string> = {
+  total: '총자산',
+  living: '생활비',
+  savings: '저축/투자',
+}
+const ACTION_OPTIONS = ['모아', '아껴']
+
+function goalId() {
+  return `goal-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+}
+
+/** 자산 목표 카드(한 칸) — 문장형 입력 UI */
+function GoalCard({
+  goal,
+  onChange,
+  onRemove,
+}: {
+  goal: GoalEntry
+  onChange: (patch: Partial<GoalEntry>) => void
+  onRemove: () => void
+}) {
+  const [amountDraft, setAmountDraft] = useState(goal.targetAmount > 0 ? String(goal.targetAmount) : '')
+  useEffect(() => {
+    setAmountDraft(goal.targetAmount > 0 ? String(goal.targetAmount) : '')
+  }, [goal.targetAmount])
+
+  const commitAmount = (v: string) => {
+    setAmountDraft(v)
+    const amt = Number(v.replace(/,/g, '')) || 0
+    if (amt !== goal.targetAmount) onChange({ targetAmount: amt })
+  }
+
+  return (
+    <div
+      style={{
+        padding: 14,
+        borderRadius: JELLY.radiusControl,
+        border: '1px solid #e5e7eb',
+        background: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+      }}
+    >
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, fontSize: 13, color: JELLY.text, lineHeight: 1.8 }}>
+        <div style={{ width: 110 }}>
+          <CustomSelect
+            options={METRIC_OPTIONS.map((o) => o.label)}
+            value={METRIC_LABEL[goal.metric]}
+            onChange={(label) => {
+              const next = METRIC_OPTIONS.find((o) => o.label === label)
+              if (next) onChange({ metric: next.value })
+            }}
+            compact
+            compactFill
+          />
+        </div>
+        <span style={{ color: JELLY.textMuted }}>을</span>
+        <div style={{ flex: '1 1 160px', minWidth: 140 }}>
+          <AmountInput value={amountDraft} onChange={commitAmount} />
+        </div>
+        <span style={{ color: JELLY.textMuted }}>원을</span>
+        <input
+          type="date"
+          value={goal.deadline ?? ''}
+          onChange={(e) => onChange({ deadline: e.target.value || undefined })}
+          title="언제까지"
+          style={{
+            flex: '0 0 auto',
+            minWidth: 130,
+            ...inputBaseStyle,
+            colorScheme: 'light',
+          }}
+        />
+        <span style={{ color: JELLY.textMuted }}>까지</span>
+        <div style={{ width: 90 }}>
+          <CustomSelect
+            options={ACTION_OPTIONS}
+            value={goal.action || '모아'}
+            onChange={(v) => onChange({ action: v })}
+            compact
+            compactFill
+          />
+        </div>
+        <input
+          value={goal.purpose}
+          onChange={(e) => onChange({ purpose: e.target.value })}
+          placeholder="예: 집, 결혼 자금, 차"
+          style={{ flex: '1 1 160px', minWidth: 140, ...inputBaseStyle }}
+        />
+        <span style={{ color: JELLY.textMuted }}>을/를 하고 싶어요.</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <button
+          type="button"
+          onClick={onRemove}
+          style={{
+            fontSize: 12,
+            padding: '4px 12px',
+            borderRadius: JELLY.radiusControl,
+            border: '1px solid #fecaca',
+            background: '#fff',
+            color: '#b91c1c',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          삭제
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/** 목표 설정 — 여러 개의 자산 목표를 문장형 카드로 관리 */
+function AssetGoalSettings() {
+  const narrow = useNarrowLayout()
+  const settings = useAppStore((s) => s.settings)
+  const updateSettings = useAppStore((s) => s.updateSettings)
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
+
+  // 레거시 assetGoal 을 goals 의 첫 항목으로 자동 마이그레이션
+  const goals: GoalEntry[] = useMemo(() => {
+    if (settings.goals && settings.goals.length > 0) return settings.goals
+    if (settings.assetGoal && settings.assetGoal.targetAmount > 0) {
+      return [
+        {
+          id: goalId(),
+          metric: 'total',
+          targetAmount: settings.assetGoal.targetAmount,
+          action: '모아',
+          purpose: settings.assetGoal.description,
+        },
+      ]
+    }
+    return []
+  }, [settings.goals, settings.assetGoal])
+
+  const saveGoals = (next: GoalEntry[]) => {
+    updateSettings({ goals: next, assetGoal: undefined })
+  }
+
+  const addGoal = () => {
+    saveGoals([
+      ...goals,
+      { id: goalId(), metric: 'total', targetAmount: 0, action: '모아', purpose: '', deadline: undefined },
+    ])
+  }
+
+  const updateGoal = (id: string, patch: Partial<GoalEntry>) => {
+    saveGoals(goals.map((g) => (g.id === id ? { ...g, ...patch } : g)))
+  }
+
+  const removeGoal = (id: string) => {
+    saveGoals(goals.filter((g) => g.id !== id))
+    setToastMsg('목표를 삭제했습니다.')
+  }
+
+  useEffect(() => {
+    if (!toastMsg || narrow) return
+    const t = setTimeout(() => setToastMsg(null), 2000)
+    return () => clearTimeout(t)
+  }, [toastMsg, narrow])
+
+  return (
+    <>
+      <div style={settingsSectionCardWithBleedTitleStyle}>
+        <div style={settingsSectionTitleWrapForViewport(narrow)}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text }}>🎯 목표</div>
+            <button
+              type="button"
+              onClick={addGoal}
+              style={{
+                fontSize: 12,
+                padding: '6px 12px',
+                borderRadius: JELLY.radiusControl,
+                border: '1px solid #e5e7eb',
+                background: '#f9fafb',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              + 목표 추가
+            </button>
+          </div>
+        </div>
+        {goals.length === 0 ? (
+          <div
+            style={{
+              padding: '24px 16px',
+              textAlign: 'center',
+              fontSize: 13,
+              color: '#9ca3af',
+              border: '1px dashed #e5e7eb',
+              borderRadius: JELLY.radiusControl,
+            }}
+          >
+            아직 등록된 목표가 없습니다. 「+ 목표 추가」 버튼을 눌러 시작해보세요.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {goals.map((g) => (
+              <GoalCard
+                key={g.id}
+                goal={g}
+                onChange={(patch) => updateGoal(g.id, patch)}
+                onRemove={() => removeGoal(g.id)}
+              />
+            ))}
+          </div>
+        )}
+        <p style={{ fontSize: 11, color: '#9ca3af', margin: '12px 0 0', lineHeight: 1.5 }}>
+          대시보드 상단에 각 목표의 진행률이 카드로 표시됩니다.
+        </p>
+      </div>
+      {narrow && toastMsg ? (
+        <MobileSnackbar open tone="ok" text={toastMsg} durationMs={2400} onClose={() => setToastMsg(null)} />
+      ) : !narrow && toastMsg ? (
+        <div
+          style={{
+            position: 'fixed',
+            top: 24,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            padding: '12px 20px',
+            background: '#111827',
+            color: '#fff',
+            borderRadius: JELLY.radiusControl,
+            fontSize: 14,
+            fontWeight: 500,
+            zIndex: 2000,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          }}
+        >
+          {toastMsg}
+        </div>
+      ) : null}
+    </>
+  )
+}
+
 function SharedLivingCostSettings() {
   const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
@@ -1660,6 +1909,7 @@ export function SettingsPage() {
       <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>설정</h1>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <UserSettings />
+        <AssetGoalSettings />
         <SharedLivingCostSettings />
         <FixedTemplateSettings />
         <InvestTemplateSettings />

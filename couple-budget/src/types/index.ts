@@ -115,4 +115,6 @@ export interface SharedExpenseEntry {
   amount: number
   /** 결제 메모 (선택, 예: "주말 외식", "5월분 카드") */
   memo?: string
+  /** 생활비 합계에서 제외 (예: 환급 예정, 다른 사람 부담분) */
+  excluded?: boolean
 }

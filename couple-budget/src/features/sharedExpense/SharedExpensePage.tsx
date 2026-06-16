@@ -26,6 +26,7 @@ function EntryRow({
   formatDay,
   onEdit,
   onDelete,
+  onToggleExclude,
 }: {
   entry: import('@/types').SharedExpenseEntry
   item: import('@/types').SharedExpenseItem | undefined
@@ -36,10 +37,15 @@ function EntryRow({
   formatDay: (e: import('@/types').SharedExpenseEntry) => string
   onEdit: (e: import('@/types').SharedExpenseEntry) => void
   onDelete: (id: string) => void
+  onToggleExclude: (id: string, next: boolean) => void
 }) {
   const colorMap = useSharedExpenseStore((s) => s.categoryColors)
   const cat = item?.category ?? '미분류'
   const { bg, fg } = resolveCategoryColor(cat, colorMap)
+  const excluded = !!entry.excluded
+  const fadedStyle: React.CSSProperties = excluded
+    ? { opacity: 0.55, textDecoration: 'line-through' }
+    : {}
   return (
     <div
       style={{
@@ -52,8 +58,24 @@ function EntryRow({
             ? '1px solid #d1d5db'
             : '1px solid #f3f4f6'
           : 'none',
+        background: excluded ? 'rgba(243, 244, 246, 0.5)' : undefined,
       }}
     >
+      {/* 제외 체크박스 */}
+      <input
+        type="checkbox"
+        checked={excluded}
+        onChange={(e) => onToggleExclude(entry.id, e.target.checked)}
+        title={excluded ? '제외됨 — 클릭하여 다시 합계에 포함' : '생활비 합계에서 제외'}
+        style={{
+          flex: '0 0 auto',
+          width: 16,
+          height: 16,
+          cursor: 'pointer',
+          margin: 0,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      />
       {/* 날짜 */}
       <div
         style={{
@@ -63,6 +85,7 @@ function EntryRow({
           fontWeight: 500,
           color: entry.day == null ? '#9ca3af' : JELLY.text,
           textAlign: 'center',
+          ...fadedStyle,
         }}
       >
         {formatDay(entry)}
@@ -100,9 +123,27 @@ function EntryRow({
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            ...fadedStyle,
           }}
         >
           {item?.name ?? '(이름 없음)'}
+          {excluded && (
+            <span
+              style={{
+                marginLeft: 6,
+                fontSize: 10,
+                fontWeight: 600,
+                color: '#6b7280',
+                background: '#e5e7eb',
+                padding: '1px 6px',
+                borderRadius: 999,
+                textDecoration: 'none',
+                verticalAlign: 'middle',
+              }}
+            >
+              제외
+            </span>
+          )}
         </div>
         {entry.memo && (
           <div
@@ -113,6 +154,7 @@ function EntryRow({
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              ...fadedStyle,
             }}
           >
             {entry.memo}
@@ -130,6 +172,7 @@ function EntryRow({
           color: JELLY.text,
           cursor: 'pointer',
           whiteSpace: 'nowrap',
+          ...fadedStyle,
         }}
       >
         {entry.amount.toLocaleString('ko-KR')}원
@@ -455,8 +498,10 @@ export function SharedExpensePage() {
   }, [monthEntries, itemMap, filterCategory, searchQuery, sortOption, categories])
 
   // 합계 (현재 월 전체, 필터와 무관)
-  const monthTotal = monthEntries.reduce((sum, e) => sum + e.amount, 0)
-  const filteredTotal = filteredEntries.reduce((sum, e) => sum + e.amount, 0)
+  // 합계 — `excluded` 표시된 항목은 제외
+  const monthTotal = monthEntries.reduce((sum, e) => sum + (e.excluded ? 0 : e.amount), 0)
+  const monthExcludedTotal = monthEntries.reduce((sum, e) => sum + (e.excluded ? e.amount : 0), 0)
+  const filteredTotal = filteredEntries.reduce((sum, e) => sum + (e.excluded ? 0 : e.amount), 0)
 
   // 카테고리 옵션 (필터용)
   const filterCategoryOptions = useMemo(() => {
@@ -710,6 +755,11 @@ export function SharedExpensePage() {
                     설정 페이지에서 월 공동 생활비를 설정하면 목표 대비 사용량을 볼 수 있습니다
                   </div>
                 )}
+                {monthExcludedTotal > 0 && (
+                  <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>
+                    제외 {fmtSum(monthExcludedTotal)} (합계에 미반영)
+                  </div>
+                )}
               </div>
               {isFutureMonth && (
                 <div style={{ fontSize: 12, color: '#9ca3af' }}>미래 월은 입력할 수 없습니다</div>
@@ -941,6 +991,7 @@ export function SharedExpensePage() {
                         formatDay={formatDay}
                         onEdit={handleEditOpen}
                         onDelete={removeEntry}
+                        onToggleExclude={(id, next) => updateEntry(id, { excluded: next || undefined })}
                       />
                     ))}
                 </div>
@@ -979,6 +1030,7 @@ export function SharedExpensePage() {
                     formatDay={formatDay}
                     onEdit={handleEditOpen}
                     onDelete={removeEntry}
+                    onToggleExclude={(id, next) => updateEntry(id, { excluded: next || undefined })}
                   />
                 ))}
               </div>

@@ -36,6 +36,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
     const monthlyArr: number[] = Array.from({ length: 12 }, () => 0)
     for (const e of entries) {
       if (!e.yearMonth.startsWith(String(year))) continue
+      if (e.excluded) continue
       const mi = parseInt(e.yearMonth.split('-')[1], 10) - 1
       if (mi >= 0 && mi < 12) monthlyArr[mi] += e.amount
     }
@@ -43,6 +44,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
     const catMap = new Map<string, number>()
     for (const e of entries) {
       if (!e.yearMonth.startsWith(String(year))) continue
+      if (e.excluded) continue
       const cat = itemCategoryMap.get(e.itemId) ?? '기타'
       catMap.set(cat, (catMap.get(cat) ?? 0) + e.amount)
     }
