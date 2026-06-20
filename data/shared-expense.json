@@ -197,6 +197,60 @@
       "name": "낭구 회사 - 제빙기",
       "category": "경조사",
       "order": 32
+    },
+    {
+      "id": "shared-expense-1781940824832",
+      "name": "커피",
+      "category": "여행",
+      "order": 33
+    },
+    {
+      "id": "shared-expense-1781940824833",
+      "name": "올영 바디워시 공",
+      "category": "여행",
+      "order": 34
+    },
+    {
+      "id": "shared-expense-1781940824834",
+      "name": "모던 돔베",
+      "category": "여행",
+      "order": 35
+    },
+    {
+      "id": "shared-expense-1781940824835",
+      "name": "하나로마트",
+      "category": "여행",
+      "order": 36
+    },
+    {
+      "id": "shared-expense-1781940824836",
+      "name": "주유소",
+      "category": "여행",
+      "order": 37
+    },
+    {
+      "id": "shared-expense-1781940824837",
+      "name": "커피 - 머문",
+      "category": "여행",
+      "order": 38
+    },
+    {
+      "id": "shared-expense-1781940824838",
+      "name": "일통이반",
+      "category": "여행",
+      "order": 39
+    },
+    {
+      "id": "shared-expense-1781940824839",
+      "name": "모이세",
+      "category": "여행",
+      "order": 40
+    },
+    {
+      "id": "shared-expense-1781940824840",
+      "name": "커피 - 휴즐리",
+      "category": "여행",
+      "order": 41
     }
   ],
   "entries": [
@@ -350,42 +404,42 @@
     },
     {
       "id": "shared-expense-1781404791967",
-      "itemId": "shared-expense-1781404791966",
+      "itemId": "shared-expense-1781940824832",
       "yearMonth": "2026-06",
       "day": 11,
       "amount": 5900
     },
     {
       "id": "shared-expense-1781404791969",
-      "itemId": "shared-expense-1781404791968",
+      "itemId": "shared-expense-1781940824833",
       "yearMonth": "2026-06",
       "day": 11,
       "amount": 1000
     },
     {
       "id": "shared-expense-1781404791971",
-      "itemId": "shared-expense-1781404791970",
+      "itemId": "shared-expense-1781940824834",
       "yearMonth": "2026-06",
       "day": 12,
       "amount": 35000
     },
     {
       "id": "shared-expense-1781404791973",
-      "itemId": "shared-expense-1781404791972",
+      "itemId": "shared-expense-1781940824835",
       "yearMonth": "2026-06",
       "day": 12,
       "amount": 91780
     },
     {
       "id": "shared-expense-1781404791975",
-      "itemId": "shared-expense-1781404791974",
+      "itemId": "shared-expense-1781940824836",
       "yearMonth": "2026-06",
       "day": 12,
       "amount": 30000
     },
     {
       "id": "shared-expense-1781404791977",
-      "itemId": "shared-expense-1781404791976",
+      "itemId": "shared-expense-1781940824837",
       "yearMonth": "2026-06",
       "day": 13,
       "amount": 14000
@@ -399,21 +453,21 @@
     },
     {
       "id": "shared-expense-1781404791981",
-      "itemId": "shared-expense-1781404791980",
+      "itemId": "shared-expense-1781940824838",
       "yearMonth": "2026-06",
       "day": 13,
       "amount": 100000
     },
     {
       "id": "shared-expense-1781404791983",
-      "itemId": "shared-expense-1781404791982",
+      "itemId": "shared-expense-1781940824839",
       "yearMonth": "2026-06",
       "day": 13,
       "amount": 22000
     },
     {
       "id": "shared-expense-1781404791985",
-      "itemId": "shared-expense-1781404791984",
+      "itemId": "shared-expense-1781940824840",
       "yearMonth": "2026-06",
       "day": 14,
       "amount": 12500
