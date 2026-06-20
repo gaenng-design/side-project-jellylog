@@ -32,7 +32,17 @@
         "문화",
         "기타"
       ],
-      "sharedExpenseCycleStartDay": 25
+      "sharedExpenseCycleStartDay": 25,
+      "goals": [
+        {
+          "id": "goal-1781945134837-ej39u",
+          "metric": "total",
+          "targetAmount": 350000000,
+          "action": "모아",
+          "purpose": "집",
+          "deadline": "2027-07-31"
+        }
+      ]
     },
     "startedMonths": [
       "2026-04",
@@ -54,5 +64,5 @@
     "householdName": null,
     "yearPickerMaxYear": 2026
   },
-  "lastUpdated": "2026-06-20T08:44:19.162Z"
+  "lastUpdated": "2026-06-20T08:47:16.408Z"
 }
