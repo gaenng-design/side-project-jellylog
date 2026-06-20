@@ -251,6 +251,30 @@
       "name": "커피 - 휴즐리",
       "category": "여행",
       "order": 41
+    },
+    {
+      "id": "shared-expense-1781940824841",
+      "name": "경은 택시비",
+      "category": "교통",
+      "order": 42
+    },
+    {
+      "id": "shared-expense-1781940824843",
+      "name": "언니네랑 커피",
+      "category": "외식비",
+      "order": 43
+    },
+    {
+      "id": "shared-expense-1781940824845",
+      "name": "크로스핏 체험",
+      "category": "기타",
+      "order": 44
+    },
+    {
+      "id": "shared-expense-1781940824847",
+      "name": "쿠팡플레이",
+      "category": "기타",
+      "order": 45
     }
   ],
   "entries": [
@@ -400,77 +424,88 @@
       "yearMonth": "2026-06",
       "day": 13,
       "amount": 6000,
-      "memo": "승윤 카드"
+      "memo": "승윤 카드",
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791967",
       "itemId": "shared-expense-1781940824832",
       "yearMonth": "2026-06",
       "day": 11,
-      "amount": 5900
+      "amount": 5900,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791969",
       "itemId": "shared-expense-1781940824833",
       "yearMonth": "2026-06",
       "day": 11,
-      "amount": 1000
+      "amount": 1000,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791971",
       "itemId": "shared-expense-1781940824834",
       "yearMonth": "2026-06",
       "day": 12,
-      "amount": 35000
+      "amount": 35000,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791973",
       "itemId": "shared-expense-1781940824835",
       "yearMonth": "2026-06",
       "day": 12,
-      "amount": 91780
+      "amount": 91780,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791975",
       "itemId": "shared-expense-1781940824836",
       "yearMonth": "2026-06",
       "day": 12,
-      "amount": 30000
+      "amount": 30000,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791977",
       "itemId": "shared-expense-1781940824837",
       "yearMonth": "2026-06",
       "day": 13,
-      "amount": 14000
+      "amount": 14000,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791979",
       "itemId": "shared-expense-1781404791978",
       "yearMonth": "2026-06",
       "day": 13,
-      "amount": 43842
+      "amount": 43842,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791981",
       "itemId": "shared-expense-1781940824838",
       "yearMonth": "2026-06",
       "day": 13,
-      "amount": 100000
+      "amount": 100000,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791983",
       "itemId": "shared-expense-1781940824839",
       "yearMonth": "2026-06",
       "day": 13,
-      "amount": 22000
+      "amount": 22000,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791985",
       "itemId": "shared-expense-1781940824840",
       "yearMonth": "2026-06",
       "day": 14,
-      "amount": 12500
+      "amount": 12500,
+      "excluded": true
     },
     {
       "id": "shared-expense-1781404791987",
@@ -480,6 +515,35 @@
       "amount": 93900,
       "memo": "쿠팡카드",
       "excluded": true
+    },
+    {
+      "id": "shared-expense-1781940824842",
+      "itemId": "shared-expense-1781940824841",
+      "yearMonth": "2026-06",
+      "day": 19,
+      "amount": 31900
+    },
+    {
+      "id": "shared-expense-1781940824844",
+      "itemId": "shared-expense-1781940824843",
+      "yearMonth": "2026-06",
+      "day": 19,
+      "amount": 29900
+    },
+    {
+      "id": "shared-expense-1781940824846",
+      "itemId": "shared-expense-1781940824845",
+      "yearMonth": "2026-06",
+      "day": 20,
+      "amount": 44754
+    },
+    {
+      "id": "shared-expense-1781940824848",
+      "itemId": "shared-expense-1781940824847",
+      "yearMonth": "2026-06",
+      "day": 19,
+      "amount": 9900,
+      "memo": "쿠팡카드"
     }
   ],
   "categories": [
