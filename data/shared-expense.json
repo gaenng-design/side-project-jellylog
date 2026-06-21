@@ -281,6 +281,18 @@
       "name": "김치, 소금, 그라인더, 와사비, 양파, 맥주, 파라필름",
       "category": "식료품",
       "order": 46
+    },
+    {
+      "id": "shared-expense-1782027344438",
+      "name": "계란",
+      "category": "외식비",
+      "order": 47
+    },
+    {
+      "id": "shared-expense-1782027344440",
+      "name": "계란",
+      "category": "식료품",
+      "order": 48
     }
   ],
   "entries": [
@@ -558,6 +570,13 @@
       "day": 21,
       "amount": 84808,
       "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1782027344439",
+      "itemId": "shared-expense-1782027344440",
+      "yearMonth": "2026-06",
+      "day": 21,
+      "amount": 9980
     }
   ],
   "categories": [
