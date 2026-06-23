@@ -275,6 +275,42 @@
       "name": "쿠팡플레이",
       "category": "기타",
       "order": 45
+    },
+    {
+      "id": "shared-expense-1782213953629",
+      "name": "계란",
+      "category": "식료품",
+      "order": 46
+    },
+    {
+      "id": "shared-expense-1782213953631",
+      "name": "홈플러스 - 한치",
+      "category": "식료품",
+      "order": 47
+    },
+    {
+      "id": "shared-expense-1782213953633",
+      "name": "씨유 - 맥주",
+      "category": "식료품",
+      "order": 48
+    },
+    {
+      "id": "shared-expense-1782213953635",
+      "name": "지에스더프레시 - 계란",
+      "category": "식료품",
+      "order": 49
+    },
+    {
+      "id": "shared-expense-1782213953636",
+      "name": "판교집 - 점심",
+      "category": "외식비",
+      "order": 50
+    },
+    {
+      "id": "shared-expense-1782213953638",
+      "name": "다이소 - 김치통, 건전지, 양념통, 쌀통",
+      "category": "생활 용품",
+      "order": 51
     }
   ],
   "entries": [
@@ -544,6 +580,41 @@
       "day": 19,
       "amount": 9900,
       "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1782213953630",
+      "itemId": "shared-expense-1782213953635",
+      "yearMonth": "2026-06",
+      "day": 21,
+      "amount": 9980
+    },
+    {
+      "id": "shared-expense-1782213953632",
+      "itemId": "shared-expense-1782213953631",
+      "yearMonth": "2026-06",
+      "day": 21,
+      "amount": 17900
+    },
+    {
+      "id": "shared-expense-1782213953634",
+      "itemId": "shared-expense-1782213953633",
+      "yearMonth": "2026-06",
+      "day": 21,
+      "amount": 13000
+    },
+    {
+      "id": "shared-expense-1782213953637",
+      "itemId": "shared-expense-1782213953636",
+      "yearMonth": "2026-06",
+      "day": 22,
+      "amount": 26000
+    },
+    {
+      "id": "shared-expense-1782213953639",
+      "itemId": "shared-expense-1782213953638",
+      "yearMonth": "2026-06",
+      "day": 23,
+      "amount": 9000
     }
   ],
   "categories": [
