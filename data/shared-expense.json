@@ -311,6 +311,24 @@
       "name": "다이소 - 김치통, 건전지, 양념통, 쌀통",
       "category": "생활 용품",
       "order": 51
+    },
+    {
+      "id": "shared-expense-1782310838368",
+      "name": "마트 - 오징어, 순두부, 애호박",
+      "category": "외식비",
+      "order": 52
+    },
+    {
+      "id": "shared-expense-1782310838370",
+      "name": "마트 - 오징어, 순두부, 애호박",
+      "category": "식료품",
+      "order": 53
+    },
+    {
+      "id": "shared-expense-1782310838371",
+      "name": "칵테일 쉐이커",
+      "category": "쇼핑",
+      "order": 54
     }
   ],
   "entries": [
@@ -615,6 +633,21 @@
       "yearMonth": "2026-06",
       "day": 23,
       "amount": 9000
+    },
+    {
+      "id": "shared-expense-1782310838369",
+      "itemId": "shared-expense-1782310838370",
+      "yearMonth": "2026-06",
+      "day": 24,
+      "amount": 12850
+    },
+    {
+      "id": "shared-expense-1782310838372",
+      "itemId": "shared-expense-1782310838371",
+      "yearMonth": "2026-06",
+      "day": 24,
+      "amount": 35900,
+      "memo": "쿠팡카드"
     }
   ],
   "categories": [
