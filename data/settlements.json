@@ -62,12 +62,15 @@
         "sharedFundExpense": false,
         "separateItemChecks": {
           "0": true,
+          "1": true,
           "2": true
         },
         "investChecks": {
           "inv-0": true,
           "sav-0": true,
-          "sav-2": true
+          "sav-2": true,
+          "sav-1": true,
+          "sav-3": true
         }
       }
     }
