@@ -377,6 +377,30 @@
       "name": "스벅",
       "category": "외식비",
       "order": 62
+    },
+    {
+      "id": "shared-expense-1782661271019",
+      "name": "함흥냉면",
+      "category": "외식비",
+      "order": 63
+    },
+    {
+      "id": "shared-expense-1782661271021",
+      "name": "칵테일 매트 중",
+      "category": "쇼핑",
+      "order": 64
+    },
+    {
+      "id": "shared-expense-1782661271023",
+      "name": "쿠팡이츠 - 회",
+      "category": "외식비",
+      "order": 65
+    },
+    {
+      "id": "shared-expense-1782661271025",
+      "name": "칵테일 지거 세트, 매트 소",
+      "category": "쇼핑",
+      "order": 66
     }
   ],
   "entries": [
@@ -716,7 +740,7 @@
       "id": "shared-expense-1782628034311",
       "itemId": "shared-expense-1781404791966",
       "yearMonth": "2026-06",
-      "day": 25,
+      "day": 24,
       "amount": 4500
     },
     {
@@ -728,10 +752,11 @@
     },
     {
       "id": "shared-expense-1782628034316",
-      "itemId": "shared-expense-1782628034315",
+      "itemId": "shared-expense-1782661271025",
       "yearMonth": "2026-06",
-      "day": 25,
-      "amount": 52650
+      "day": 24,
+      "amount": 42400,
+      "memo": "쿠팡카드"
     },
     {
       "id": "shared-expense-1782628034318",
@@ -753,6 +778,29 @@
       "yearMonth": "2026-07",
       "day": 28,
       "amount": 800
+    },
+    {
+      "id": "shared-expense-1782661271020",
+      "itemId": "shared-expense-1782661271019",
+      "yearMonth": "2026-07",
+      "day": 29,
+      "amount": 29500
+    },
+    {
+      "id": "shared-expense-1782661271022",
+      "itemId": "shared-expense-1782661271021",
+      "yearMonth": "2026-07",
+      "day": 25,
+      "amount": 10250,
+      "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1782661271024",
+      "itemId": "shared-expense-1782661271023",
+      "yearMonth": "2026-07",
+      "day": 29,
+      "amount": 23099,
+      "memo": "쿠팡카드"
     }
   ],
   "categories": [
