@@ -40,22 +40,35 @@
     },
     "2026-07": {
       "A": {
-        "deposit": false,
+        "deposit": true,
         "sharedLiving": true,
         "transfer5090Send": false,
         "sharedFundExpense": false,
         "separateItemChecks": {
+          "0": true,
           "1": true
         },
-        "investChecks": {}
+        "investChecks": {
+          "sav-1": true,
+          "sav-2": true,
+          "sav-0": true,
+          "inv-0": true
+        }
       },
       "B": {
         "deposit": true,
         "sharedLiving": true,
         "transfer5090Send": false,
         "sharedFundExpense": false,
-        "separateItemChecks": {},
-        "investChecks": {}
+        "separateItemChecks": {
+          "0": true,
+          "2": true
+        },
+        "investChecks": {
+          "inv-0": true,
+          "sav-0": true,
+          "sav-2": true
+        }
       }
     }
   },
