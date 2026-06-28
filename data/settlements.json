@@ -37,7 +37,29 @@
           "sav-3": true
         }
       }
+    },
+    "2026-07": {
+      "A": {
+        "deposit": false,
+        "sharedLiving": true,
+        "transfer5090Send": false,
+        "sharedFundExpense": false,
+        "separateItemChecks": {
+          "1": true
+        },
+        "investChecks": {}
+      },
+      "B": {
+        "deposit": true,
+        "sharedLiving": true,
+        "transfer5090Send": false,
+        "sharedFundExpense": false,
+        "separateItemChecks": {},
+        "investChecks": {}
+      }
     }
   },
-  "memoByMonth": {}
+  "memoByMonth": {
+    "2026-07": "경은 주식 보너스 : 125만원 받음 (세후 약 100만원)"
+  }
 }
