@@ -359,6 +359,24 @@
       "name": "칵테일 지거 세트, 매트 소, 매트 중",
       "category": "쇼핑",
       "order": 59
+    },
+    {
+      "id": "shared-expense-1782628034317",
+      "name": "불티꼼장어",
+      "category": "외식비",
+      "order": 60
+    },
+    {
+      "id": "shared-expense-1782628034319",
+      "name": "정진네 집들이 후 택시비",
+      "category": "교통",
+      "order": 61
+    },
+    {
+      "id": "shared-expense-1782628034321",
+      "name": "스벅",
+      "category": "외식비",
+      "order": 62
     }
   ],
   "entries": [
@@ -714,6 +732,27 @@
       "yearMonth": "2026-06",
       "day": 25,
       "amount": 52650
+    },
+    {
+      "id": "shared-expense-1782628034318",
+      "itemId": "shared-expense-1782628034317",
+      "yearMonth": "2026-07",
+      "day": 26,
+      "amount": 66000
+    },
+    {
+      "id": "shared-expense-1782628034320",
+      "itemId": "shared-expense-1782628034319",
+      "yearMonth": "2026-07",
+      "day": 28,
+      "amount": 44500
+    },
+    {
+      "id": "shared-expense-1782628034322",
+      "itemId": "shared-expense-1782628034321",
+      "yearMonth": "2026-07",
+      "day": 28,
+      "amount": 800
     }
   ],
   "categories": [
