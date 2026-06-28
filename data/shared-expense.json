@@ -311,6 +311,24 @@
       "name": "다이소 - 김치통, 건전지, 양념통, 쌀통",
       "category": "생활 용품",
       "order": 51
+    },
+    {
+      "id": "shared-expense-1782628034302",
+      "name": "지에스",
+      "category": "여행",
+      "order": 52
+    },
+    {
+      "id": "shared-expense-1782628034304",
+      "name": "고슬고슬제주 - 라면, 김밥",
+      "category": "여행",
+      "order": 53
+    },
+    {
+      "id": "shared-expense-1782628034306",
+      "name": "아쿠아뷰티크 바베큐",
+      "category": "여행",
+      "order": 54
     }
   ],
   "entries": [
@@ -615,6 +633,30 @@
       "yearMonth": "2026-06",
       "day": 23,
       "amount": 9000
+    },
+    {
+      "id": "shared-expense-1782628034303",
+      "itemId": "shared-expense-1782628034302",
+      "yearMonth": "2026-06",
+      "day": 14,
+      "amount": 3700,
+      "excluded": true
+    },
+    {
+      "id": "shared-expense-1782628034305",
+      "itemId": "shared-expense-1782628034304",
+      "yearMonth": "2026-06",
+      "day": 13,
+      "amount": 21500,
+      "excluded": true
+    },
+    {
+      "id": "shared-expense-1782628034307",
+      "itemId": "shared-expense-1782628034306",
+      "yearMonth": "2026-06",
+      "day": 12,
+      "amount": 30000,
+      "excluded": true
     }
   ],
   "categories": [
