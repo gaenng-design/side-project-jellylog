@@ -23,7 +23,7 @@
       "category": "투자",
       "person": "B",
       "initialAmount": 10060025,
-      "defaultAmount": 1300000,
+      "defaultAmount": 1550000,
       "id": "asset-1778483629191",
       "order": 2
     },
@@ -70,7 +70,7 @@
       "name": "ISA",
       "category": "투자",
       "person": "A",
-      "defaultAmount": 1300000,
+      "defaultAmount": 1550000,
       "id": "asset-1778483629248",
       "order": 8
     },
@@ -83,10 +83,10 @@
       "order": 9
     },
     {
-      "name": "비상금",
+      "name": "신한 저축",
       "category": "저축",
       "person": "A",
-      "defaultAmount": 700000,
+      "defaultAmount": 1000000,
       "id": "asset-1778552010606",
       "order": 10
     },
@@ -142,7 +142,7 @@
       "id": "asset-1777882542538",
       "itemId": "asset-1777882542533",
       "yearMonth": "2026-07",
-      "amount": 3500000
+      "amount": 20300000
     },
     {
       "id": "asset-1777882542539",
@@ -202,7 +202,7 @@
       "id": "asset-1778483629181",
       "itemId": "asset-1778483629178",
       "yearMonth": "2026-07",
-      "amount": 300000
+      "amount": 6260000
     },
     {
       "id": "asset-1778483629182",
@@ -274,37 +274,37 @@
       "id": "asset-1778483629194",
       "itemId": "asset-1778483629191",
       "yearMonth": "2026-07",
-      "amount": 13960025
+      "amount": 13166519
     },
     {
       "id": "asset-1778483629195",
       "itemId": "asset-1778483629191",
       "yearMonth": "2026-08",
-      "amount": 15260025
+      "amount": 14716519
     },
     {
       "id": "asset-1778483629196",
       "itemId": "asset-1778483629191",
       "yearMonth": "2026-09",
-      "amount": 16560025
+      "amount": 16266519
     },
     {
       "id": "asset-1778483629197",
       "itemId": "asset-1778483629191",
       "yearMonth": "2026-10",
-      "amount": 17860025
+      "amount": 17816519
     },
     {
       "id": "asset-1778483629198",
       "itemId": "asset-1778483629191",
       "yearMonth": "2026-11",
-      "amount": 19160025
+      "amount": 19366519
     },
     {
       "id": "asset-1778483629199",
       "itemId": "asset-1778483629191",
       "yearMonth": "2026-12",
-      "amount": 20460025
+      "amount": 20916519
     },
     {
       "id": "asset-1778483629200",
@@ -346,7 +346,7 @@
       "id": "asset-1778483629207",
       "itemId": "asset-1778483629204",
       "yearMonth": "2026-07",
-      "amount": 600000
+      "amount": 1225484
     },
     {
       "id": "asset-1778483629208",
@@ -424,7 +424,7 @@
       "id": "asset-1778483629222",
       "itemId": "asset-1778483629219",
       "yearMonth": "2026-07",
-      "amount": 300000
+      "amount": 10600000
     },
     {
       "id": "asset-1778483629223",
@@ -580,7 +580,7 @@
       "id": "asset-1778483629252",
       "itemId": "asset-1778483629249",
       "yearMonth": "2026-07",
-      "amount": 600000
+      "amount": 1287676
     },
     {
       "id": "asset-1778483629253",
@@ -676,37 +676,37 @@
       "id": "asset-1778552010609",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-07",
-      "amount": 4931301
+      "amount": 4000000
     },
     {
       "id": "asset-1778552010610",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-08",
-      "amount": 5631301
+      "amount": 5931301
     },
     {
       "id": "asset-1778552010611",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-09",
-      "amount": 6331301
+      "amount": 6931301
     },
     {
       "id": "asset-1778552010612",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-10",
-      "amount": 7031301
+      "amount": 7931301
     },
     {
       "id": "asset-1778552010613",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-11",
-      "amount": 7731301
+      "amount": 8931301
     },
     {
       "id": "asset-1778552010614",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-12",
-      "amount": 8431301
+      "amount": 9931301
     },
     {
       "id": "asset-1779085520148",
@@ -767,6 +767,78 @@
       "itemId": "asset-1779085520151",
       "yearMonth": "2026-06",
       "amount": 5968225
+    },
+    {
+      "id": "asset-1782628034302",
+      "itemId": "asset-1778483629217",
+      "yearMonth": "2026-07",
+      "amount": 150000000
+    },
+    {
+      "id": "asset-1782628034303",
+      "itemId": "asset-1778483629236",
+      "yearMonth": "2026-07",
+      "amount": 9017686
+    },
+    {
+      "id": "asset-1782628034304",
+      "itemId": "asset-1779085520149",
+      "yearMonth": "2026-07",
+      "amount": 14956233
+    },
+    {
+      "id": "asset-1782628034305",
+      "itemId": "asset-1779085520147",
+      "yearMonth": "2026-07",
+      "amount": 10000000
+    },
+    {
+      "id": "asset-1782628034306",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-07",
+      "amount": 6884215
+    },
+    {
+      "id": "asset-1782628034307",
+      "itemId": "asset-1778483629237",
+      "yearMonth": "2026-07",
+      "amount": 10856060
+    },
+    {
+      "id": "asset-1782628034308",
+      "itemId": "asset-1779085520151",
+      "yearMonth": "2026-07",
+      "amount": 5968225
+    },
+    {
+      "id": "asset-1782628034309",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-08",
+      "amount": 8434215
+    },
+    {
+      "id": "asset-1782628034310",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-09",
+      "amount": 9984215
+    },
+    {
+      "id": "asset-1782628034311",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-10",
+      "amount": 11534215
+    },
+    {
+      "id": "asset-1782628034312",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-11",
+      "amount": 13084215
+    },
+    {
+      "id": "asset-1782628034313",
+      "itemId": "asset-1778483629248",
+      "yearMonth": "2026-12",
+      "amount": 14634215
     }
   ]
 }
