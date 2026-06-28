@@ -143,6 +143,38 @@
       "description": "경은",
       "amount": 5160000,
       "id": "1782213876110-8x2ta"
+    },
+    {
+      "yearMonth": "2026-06",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 5220000,
+      "id": "1782225007170-cdrmm"
+    },
+    {
+      "yearMonth": "2026-06",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 5160000,
+      "id": "1782225007175-84akr"
+    },
+    {
+      "yearMonth": "2026-07",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 6156274,
+      "id": "1782628098976-umawi"
+    },
+    {
+      "yearMonth": "2026-07",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 5220000,
+      "id": "1782629021161-67by5"
     }
   ]
 }
