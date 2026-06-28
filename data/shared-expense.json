@@ -329,6 +329,36 @@
       "name": "아쿠아뷰티크 바베큐",
       "category": "여행",
       "order": 54
+    },
+    {
+      "id": "shared-expense-1782628034308",
+      "name": "지에스더프레시 - 오징어",
+      "category": "외식비",
+      "order": 55
+    },
+    {
+      "id": "shared-expense-1782628034310",
+      "name": "지에스더프레시 - 오징어",
+      "category": "식료품",
+      "order": 56
+    },
+    {
+      "id": "shared-expense-1782628034312",
+      "name": "죽력고 배송비",
+      "category": "외식비",
+      "order": 57
+    },
+    {
+      "id": "shared-expense-1782628034314",
+      "name": "죽력고 배송비",
+      "category": "식료품",
+      "order": 58
+    },
+    {
+      "id": "shared-expense-1782628034315",
+      "name": "칵테일 지거 세트, 매트 소, 매트 중",
+      "category": "쇼핑",
+      "order": 59
     }
   ],
   "entries": [
@@ -567,8 +597,7 @@
       "yearMonth": "2026-06",
       "day": 13,
       "amount": 93900,
-      "memo": "쿠팡카드",
-      "excluded": true
+      "memo": "쿠팡카드"
     },
     {
       "id": "shared-expense-1781940824842",
@@ -657,6 +686,34 @@
       "day": 12,
       "amount": 30000,
       "excluded": true
+    },
+    {
+      "id": "shared-expense-1782628034309",
+      "itemId": "shared-expense-1782628034310",
+      "yearMonth": "2026-06",
+      "day": 24,
+      "amount": 12850
+    },
+    {
+      "id": "shared-expense-1782628034311",
+      "itemId": "shared-expense-1781404791966",
+      "yearMonth": "2026-06",
+      "day": 25,
+      "amount": 4500
+    },
+    {
+      "id": "shared-expense-1782628034313",
+      "itemId": "shared-expense-1782628034314",
+      "yearMonth": "2026-06",
+      "day": 24,
+      "amount": 12000
+    },
+    {
+      "id": "shared-expense-1782628034316",
+      "itemId": "shared-expense-1782628034315",
+      "yearMonth": "2026-06",
+      "day": 25,
+      "amount": 52650
     }
   ],
   "categories": [
