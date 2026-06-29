@@ -407,6 +407,30 @@
       "name": "닭목살, 오징어링, 샐러드",
       "category": "식료품",
       "order": 67
+    },
+    {
+      "id": "shared-expense-1782731606861",
+      "name": "데일리샷",
+      "category": "유흥",
+      "order": 68
+    },
+    {
+      "id": "shared-expense-1782731606863",
+      "name": "느티나무마트 - 술 3병",
+      "category": "유흥",
+      "order": 69
+    },
+    {
+      "id": "shared-expense-1782731606865",
+      "name": "느티나무마트 - 문어숙회, 우동면",
+      "category": "유흥",
+      "order": 70
+    },
+    {
+      "id": "shared-expense-1782731606867",
+      "name": "느티나무마트 - 문어숙회, 우동면",
+      "category": "식료품",
+      "order": 71
     }
   ],
   "entries": [
@@ -775,21 +799,21 @@
       "id": "shared-expense-1782628034320",
       "itemId": "shared-expense-1782628034319",
       "yearMonth": "2026-07",
-      "day": 28,
+      "day": 27,
       "amount": 44500
     },
     {
       "id": "shared-expense-1782628034322",
       "itemId": "shared-expense-1782628034321",
       "yearMonth": "2026-07",
-      "day": 28,
+      "day": 27,
       "amount": 800
     },
     {
       "id": "shared-expense-1782661271020",
       "itemId": "shared-expense-1782661271019",
       "yearMonth": "2026-07",
-      "day": 29,
+      "day": 28,
       "amount": 29500
     },
     {
@@ -804,7 +828,7 @@
       "id": "shared-expense-1782661271024",
       "itemId": "shared-expense-1782661271023",
       "yearMonth": "2026-07",
-      "day": 29,
+      "day": 28,
       "amount": 23099,
       "memo": "쿠팡카드"
     },
@@ -812,9 +836,30 @@
       "id": "shared-expense-1782699921756",
       "itemId": "shared-expense-1782699921755",
       "yearMonth": "2026-07",
-      "day": 29,
+      "day": 28,
       "amount": 25930,
       "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1782731606862",
+      "itemId": "shared-expense-1782731606861",
+      "yearMonth": "2026-07",
+      "day": 29,
+      "amount": 28964
+    },
+    {
+      "id": "shared-expense-1782731606864",
+      "itemId": "shared-expense-1782731606863",
+      "yearMonth": "2026-07",
+      "day": 29,
+      "amount": 92400
+    },
+    {
+      "id": "shared-expense-1782731606866",
+      "itemId": "shared-expense-1782731606867",
+      "yearMonth": "2026-07",
+      "day": 29,
+      "amount": 10380
     }
   ],
   "categories": [
@@ -825,8 +870,9 @@
     "교통",
     "경조사",
     "의료",
-    "기타",
-    "여행"
+    "여행",
+    "유흥",
+    "기타"
   ],
   "categoryColors": {
     "외식비": 0,
