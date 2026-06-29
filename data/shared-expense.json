@@ -401,6 +401,12 @@
       "name": "칵테일 지거 세트, 매트 소",
       "category": "쇼핑",
       "order": 66
+    },
+    {
+      "id": "shared-expense-1782699921755",
+      "name": "닭목살, 오징어링, 샐러드",
+      "category": "식료품",
+      "order": 67
     }
   ],
   "entries": [
@@ -800,6 +806,14 @@
       "yearMonth": "2026-07",
       "day": 29,
       "amount": 23099,
+      "memo": "쿠팡카드"
+    },
+    {
+      "id": "shared-expense-1782699921756",
+      "itemId": "shared-expense-1782699921755",
+      "yearMonth": "2026-07",
+      "day": 29,
+      "amount": 25930,
       "memo": "쿠팡카드"
     }
   ],
