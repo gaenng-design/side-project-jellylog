@@ -431,6 +431,12 @@
       "name": "느티나무마트 - 문어숙회, 우동면",
       "category": "식료품",
       "order": 71
+    },
+    {
+      "id": "shared-expense-1782833873231",
+      "name": "닭가슴살",
+      "category": "식료품",
+      "order": 72
     }
   ],
   "entries": [
@@ -860,6 +866,14 @@
       "yearMonth": "2026-07",
       "day": 29,
       "amount": 10380
+    },
+    {
+      "id": "shared-expense-1782833873232",
+      "itemId": "shared-expense-1782833873231",
+      "yearMonth": "2026-07",
+      "day": 30,
+      "amount": 57900,
+      "memo": "쿠팡카드"
     }
   ],
   "categories": [
