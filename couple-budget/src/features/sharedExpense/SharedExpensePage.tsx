@@ -112,6 +112,25 @@ function EntryRow({
           }}
         >
           {item?.name ?? '(이름 없음)'}
+          {entry.creditCard && (
+            <span
+              title={entry.cardSettled ? '후불 카드 — 결제 완료' : '후불 카드 — 결제 예정'}
+              style={{
+                marginLeft: 6,
+                fontSize: 10,
+                fontWeight: 600,
+                color: entry.cardSettled ? '#15803d' : '#c2410c',
+                background: entry.cardSettled ? '#dcfce7' : '#fff7ed',
+                padding: '1px 6px',
+                borderRadius: 999,
+                textDecoration: 'none',
+                verticalAlign: 'middle',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              💳 {entry.cardSettled ? '결제완료' : '후불'}
+            </span>
+          )}
           {excluded && (
             <span
               style={{
@@ -214,6 +233,168 @@ function EntryRow({
   )
 }
 
+/**
+ * 후불 신용 카드 결제 내역 카드 — 현재 월의 후불 카드 entry 만 모아서
+ * 결제완료 체크박스로 카드 대금 출금 여부 추적.
+ */
+function CreditCardSection({
+  entries,
+  itemMap,
+  formatDay,
+  onToggleSettled,
+}: {
+  entries: import('@/types').SharedExpenseEntry[]
+  itemMap: Map<string, import('@/types').SharedExpenseItem>
+  formatDay: (e: import('@/types').SharedExpenseEntry) => string
+  onToggleSettled: (id: string, next: boolean) => void
+}) {
+  const [open, setOpen] = useState(true)
+  if (entries.length === 0) return null
+
+  const sorted = [...entries].sort((a, b) => (a.day ?? 99) - (b.day ?? 99))
+  const totalCount = sorted.length
+  const settledCount = sorted.filter((e) => e.cardSettled).length
+  const pendingAmount = sorted
+    .filter((e) => !e.cardSettled && !e.excluded)
+    .reduce((s, e) => s + e.amount, 0)
+  const settledAmount = sorted
+    .filter((e) => e.cardSettled && !e.excluded)
+    .reduce((s, e) => s + e.amount, 0)
+
+  return (
+    <div
+      style={{
+        ...jellyCardStyle,
+        padding: 0,
+        overflow: 'hidden',
+        marginBottom: 14,
+        border: '1px solid #fed7aa',
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          padding: '12px 16px',
+          background: '#fff7ed',
+          border: 'none',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+          textAlign: 'left',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#c2410c' }}>
+            💳 후불 신용 카드
+          </span>
+          <span style={{ fontSize: 11, color: '#9a3412' }}>
+            결제완료 {settledCount}/{totalCount}건
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 11, color: '#c2410c', fontWeight: 600 }}>
+            미결제 {pendingAmount.toLocaleString('ko-KR')}원
+          </span>
+          <span style={{ fontSize: 12, color: '#c2410c' }}>{open ? '▼' : '▶'}</span>
+        </div>
+      </button>
+      {open && (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {sorted.map((e, idx) => {
+            const item = itemMap.get(e.itemId)
+            const settled = !!e.cardSettled
+            return (
+              <label
+                key={e.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '10px 16px',
+                  borderTop: idx === 0 ? 'none' : '1px solid #fed7aa',
+                  cursor: 'pointer',
+                  background: settled ? '#fefce8' : '#fff',
+                  opacity: e.excluded ? 0.5 : 1,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={settled}
+                  onChange={(ev) => onToggleSettled(e.id, ev.target.checked)}
+                  style={{ width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
+                />
+                <div
+                  style={{
+                    flex: '0 0 auto',
+                    width: 60,
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: e.day == null ? '#9ca3af' : '#374151',
+                    textAlign: 'center',
+                    textDecoration: settled ? 'line-through' : 'none',
+                  }}
+                >
+                  {formatDay(e)}
+                </div>
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: JELLY.text,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    textDecoration: settled ? 'line-through' : 'none',
+                  }}
+                >
+                  {item?.name ?? '(이름 없음)'}
+                  {e.excluded && (
+                    <span style={{ marginLeft: 6, fontSize: 10, color: '#9ca3af' }}>(제외)</span>
+                  )}
+                </div>
+                <div
+                  style={{
+                    flex: '0 0 auto',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: settled ? '#15803d' : '#c2410c',
+                    whiteSpace: 'nowrap',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}
+                >
+                  {e.amount.toLocaleString('ko-KR')}원
+                </div>
+              </label>
+            )
+          })}
+          {settledCount > 0 && (
+            <div
+              style={{
+                padding: '8px 16px',
+                fontSize: 11,
+                color: '#6b7280',
+                background: '#fefce8',
+                borderTop: '1px solid #fed7aa',
+                textAlign: 'right',
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              결제 완료 {settledAmount.toLocaleString('ko-KR')}원 · 미결제 {pendingAmount.toLocaleString('ko-KR')}원
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 type SortOption = '날짜' | '카테고리'
 
 /** 항목 추가 폼 */
@@ -229,7 +410,7 @@ function AddEntryForm({
   monthLabel: string
   categories: string[]
   recentItems: { name: string; category: string }[]
-  onAdd: (params: { name: string; category: string; day?: number; amount: number; memo?: string; excluded?: boolean }) => void
+  onAdd: (params: { name: string; category: string; day?: number; amount: number; memo?: string; excluded?: boolean; creditCard?: boolean }) => void
   disabled?: boolean
 }) {
   const [name, setName] = useState('')
@@ -238,6 +419,7 @@ function AddEntryForm({
   const [amount, setAmount] = useState('')
   const [memo, setMemo] = useState('')
   const [excluded, setExcluded] = useState(false)
+  const [creditCard, setCreditCard] = useState(false)
   const submittingRef = useRef(false)
 
   const handleAdd = () => {
@@ -262,6 +444,7 @@ function AddEntryForm({
       amount: amt,
       memo: memo.trim() || undefined,
       excluded: excluded || undefined,
+      creditCard: creditCard || undefined,
     })
 
     setName('')
@@ -269,6 +452,7 @@ function AddEntryForm({
     setAmount('')
     setMemo('')
     setExcluded(false)
+    setCreditCard(false)
     setCategory(categories[0] ?? '기타')
 
     // 빠른 시간 안에 다시 호출되지 않도록
@@ -422,6 +606,29 @@ function AddEntryForm({
         />
         <button
           type="button"
+          onClick={() => !disabled && setCreditCard((v) => !v)}
+          disabled={disabled}
+          title={creditCard ? '후불 카드 사용 — 클릭하여 해제' : '후불 신용 카드로 결제'}
+          style={{
+            flexShrink: 0,
+            height: 36,
+            padding: '0 14px',
+            borderRadius: INPUT_BORDER_RADIUS,
+            border: creditCard ? '1px solid #c2410c' : '1px solid #e5e7eb',
+            background: creditCard ? '#fff7ed' : '#fff',
+            color: creditCard ? '#c2410c' : '#6b7280',
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: 'inherit',
+            cursor: disabled ? 'default' : 'pointer',
+            opacity: disabled ? 0.5 : 1,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {creditCard ? '✓ 💳 후불' : '💳 후불'}
+        </button>
+        <button
+          type="button"
           onClick={() => !disabled && setExcluded((v) => !v)}
           disabled={disabled}
           title={excluded ? '클릭하여 다시 합계에 포함' : '생활비 합계에서 제외'}
@@ -494,6 +701,8 @@ export function SharedExpensePage() {
     amount: '',
     memo: '',
     excluded: false,
+    creditCard: false,
+    cardSettled: false,
   })
 
   const itemMap = useMemo(() => new Map(items.map((it) => [it.id, it])), [items])
@@ -582,6 +791,8 @@ export function SharedExpensePage() {
       amount: e.amount > 0 ? e.amount.toLocaleString('ko-KR') : '',
       memo: e.memo ?? '',
       excluded: !!e.excluded,
+      creditCard: !!e.creditCard,
+      cardSettled: !!e.cardSettled,
     })
   }
 
@@ -606,6 +817,8 @@ export function SharedExpensePage() {
       amount: newAmount,
       memo: editForm.memo.trim() || undefined,
       excluded: editForm.excluded || undefined,
+      creditCard: editForm.creditCard || undefined,
+      cardSettled: editForm.creditCard && editForm.cardSettled ? true : undefined,
     })
     setEditingEntry(null)
   }
@@ -929,6 +1142,14 @@ export function SharedExpensePage() {
         </div>
       </div>
 
+      {/* 후불 신용 카드 결제 예정/완료 카드 */}
+      <CreditCardSection
+        entries={monthEntries.filter((e) => e.creditCard)}
+        itemMap={itemMap}
+        formatDay={formatDay}
+        onToggleSettled={(id, next) => updateEntry(id, { cardSettled: next || undefined })}
+      />
+
       {/* 거래 리스트 */}
       {monthEntries.length === 0 ? (
         <div
@@ -1086,9 +1307,9 @@ export function SharedExpensePage() {
         categories={categories.length > 0 ? categories : ['기타']}
         recentItems={recentItems}
         disabled={isFutureMonth}
-        onAdd={({ name, category, day, amount, memo, excluded }) => {
+        onAdd={({ name, category, day, amount, memo, excluded, creditCard }) => {
           const itemId = findOrCreateItem(name, category)
-          addEntry({ itemId, yearMonth: currentYearMonth, day, amount, memo, excluded })
+          addEntry({ itemId, yearMonth: currentYearMonth, day, amount, memo, excluded, creditCard })
         }}
       />
 
@@ -1172,7 +1393,45 @@ export function SharedExpensePage() {
             />
           </div>
 
-          <div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => setEditForm({ ...editForm, creditCard: !editForm.creditCard })}
+              style={{
+                height: 36,
+                padding: '0 14px',
+                borderRadius: JELLY.radiusControl,
+                border: editForm.creditCard ? '1px solid #c2410c' : '1px solid #e5e7eb',
+                background: editForm.creditCard ? '#fff7ed' : '#fff',
+                color: editForm.creditCard ? '#c2410c' : '#6b7280',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              {editForm.creditCard ? '✓ 💳 후불 카드' : '💳 후불 카드'}
+            </button>
+            {editForm.creditCard && (
+              <button
+                type="button"
+                onClick={() => setEditForm({ ...editForm, cardSettled: !editForm.cardSettled })}
+                style={{
+                  height: 36,
+                  padding: '0 14px',
+                  borderRadius: JELLY.radiusControl,
+                  border: editForm.cardSettled ? '1px solid #15803d' : '1px solid #e5e7eb',
+                  background: editForm.cardSettled ? '#dcfce7' : '#fff',
+                  color: editForm.cardSettled ? '#15803d' : '#6b7280',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {editForm.cardSettled ? '✓ 카드대금 결제완료' : '카드대금 결제완료'}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setEditForm({ ...editForm, excluded: !editForm.excluded })}

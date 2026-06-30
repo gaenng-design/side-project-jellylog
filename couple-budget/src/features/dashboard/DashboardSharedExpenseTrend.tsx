@@ -31,26 +31,41 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
   const currentYear = parseInt(curYStr, 10)
   const currentMonth = parseInt(curMStr, 10) - 1
 
-  const { monthly, target, maxVal, totalUsed, categoryBreakdown } = useMemo(() => {
+  const { monthly, monthlyByCategory, target, maxVal, totalUsed, categoryBreakdown } = useMemo(() => {
     const itemCategoryMap = new Map(items.map((it) => [it.id, it.category]))
     const monthlyArr: number[] = Array.from({ length: 12 }, () => 0)
+    // 월별 카테고리 분해 — Map 으로 누적 후 배열로 변환
+    const monthlyByCatMaps: Map<string, number>[] = Array.from(
+      { length: 12 },
+      () => new Map<string, number>(),
+    )
     for (const e of entries) {
       if (!e.yearMonth.startsWith(String(year))) continue
       if (e.excluded) continue
       const mi = parseInt(e.yearMonth.split('-')[1], 10) - 1
-      if (mi >= 0 && mi < 12) monthlyArr[mi] += e.amount
+      if (mi < 0 || mi >= 12) continue
+      monthlyArr[mi] += e.amount
+      const cat = itemCategoryMap.get(e.itemId) ?? '기타'
+      monthlyByCatMaps[mi].set(cat, (monthlyByCatMaps[mi].get(cat) ?? 0) + e.amount)
     }
     // 카테고리별 (해당 연도 합계)
     const catMap = new Map<string, number>()
-    for (const e of entries) {
-      if (!e.yearMonth.startsWith(String(year))) continue
-      if (e.excluded) continue
-      const cat = itemCategoryMap.get(e.itemId) ?? '기타'
-      catMap.set(cat, (catMap.get(cat) ?? 0) + e.amount)
+    for (let mi = 0; mi < 12; mi++) {
+      for (const [cat, amt] of monthlyByCatMaps[mi]) {
+        catMap.set(cat, (catMap.get(cat) ?? 0) + amt)
+      }
     }
     const catBreak = Array.from(catMap.entries())
       .map(([category, amount]) => ({ category, amount }))
       .sort((a, b) => b.amount - a.amount)
+    const catOrder = catBreak.map((x) => x.category)
+
+    // 월별 카테고리 배열 — 누적 순서 고정(연간 합계 큰 카테고리부터)
+    const monthlyByCat: { category: string; amount: number }[][] = monthlyByCatMaps.map((m) => {
+      const arr = Array.from(m.entries()).map(([category, amount]) => ({ category, amount }))
+      arr.sort((a, b) => catOrder.indexOf(a.category) - catOrder.indexOf(b.category))
+      return arr
+    })
 
     const totalUsedVal = monthlyArr.reduce((a, b) => a + b, 0)
 
@@ -62,6 +77,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
     const maxV = Math.max(...monthlyArr, ...targetArr, 1)
     return {
       monthly: monthlyArr,
+      monthlyByCategory: monthlyByCat,
       target: targetArr,
       maxVal: maxV,
       totalUsed: totalUsedVal,
@@ -132,22 +148,47 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                   </g>
                 )
               })}
-              {/* 막대 */}
+              {/* 막대 — 카테고리별로 스택 (아래 = 연간 합계 큰 카테고리) */}
               {monthly.map((v, i) => {
-                const h = (v / maxVal) * innerH
                 const overTarget = target[i] > 0 && v > target[i]
                 const isCurrent = year === currentYear && i === currentMonth
+                const baseX = pointX(i) - barW / 2
+                const baseY = padT + innerH
+                const cats = monthlyByCategory[i]
+                let yTop = baseY
                 return (
-                  <rect
-                    key={i}
-                    x={pointX(i) - barW / 2}
-                    y={padT + innerH - h}
-                    width={barW}
-                    height={h}
-                    fill={overTarget ? '#ef4444' : PRIMARY}
-                    opacity={isCurrent ? 1 : 0.7}
-                    rx={3}
-                  />
+                  <g key={i}>
+                    {cats.map((seg, si) => {
+                      const segH = (seg.amount / maxVal) * innerH
+                      if (segH <= 0) return null
+                      yTop -= segH
+                      const { fg } = resolveCategoryColor(seg.category, categoryColorMap)
+                      return (
+                        <rect
+                          key={si}
+                          x={baseX}
+                          y={yTop}
+                          width={barW}
+                          height={segH}
+                          fill={fg}
+                          opacity={isCurrent ? 0.95 : 0.75}
+                        />
+                      )
+                    })}
+                    {/* 초과 시 빨간 외곽선 */}
+                    {overTarget && (
+                      <rect
+                        x={baseX}
+                        y={padT + innerH - (v / maxVal) * innerH}
+                        width={barW}
+                        height={(v / maxVal) * innerH}
+                        fill="none"
+                        stroke="#ef4444"
+                        strokeWidth={1.5}
+                        rx={2}
+                      />
+                    )}
+                  </g>
                 )
               })}
               {/* 목표 라인 */}
@@ -181,21 +222,27 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                   />
                 )
               })}
-              {/* 툴팁 */}
+              {/* 툴팁 — 월별 사용/목표 + 상위 카테고리(최대 4개) */}
               {activeIdx !== null && (() => {
                 const i = activeIdx
                 const used = monthly[i] ?? 0
                 const tgt = target[i] ?? 0
+                const cats = monthlyByCategory[i]
+                  .slice()
+                  .sort((a, b) => b.amount - a.amount)
+                  .slice(0, 4)
+                const catLines = cats.map((c) => `· ${c.category} ${fmt(c.amount)}원`)
                 const lines = [
                   `${i + 1}월`,
                   `사용 ${fmt(used)}원`,
                   ...(tgt > 0 ? [`목표 ${fmt(tgt)}원`] : []),
+                  ...catLines,
                 ]
                 const lineH = 13
                 const padX = 8
                 const padY = 6
                 const maxLineLen = Math.max(...lines.map((l) => l.length))
-                const boxW = Math.max(90, maxLineLen * 7 + padX * 2)
+                const boxW = Math.max(110, maxLineLen * 7 + padX * 2)
                 const boxH = lines.length * lineH + padY * 2
                 let tx = pointX(i) + 8
                 if (tx + boxW > W - padR) tx = pointX(i) - boxW - 8
@@ -204,39 +251,77 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                 return (
                   <g pointerEvents="none">
                     <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill="#111827" opacity={0.92} />
-                    {lines.map((l, li) => (
-                      <text
-                        key={li}
-                        x={tx + padX}
-                        y={ty + padY + (li + 1) * lineH - 3}
-                        fontSize="10.5"
-                        fill={li === 0 ? '#9ca3af' : '#fff'}
-                        style={tabularNums}
-                      >
-                        {l}
-                      </text>
-                    ))}
+                    {lines.map((l, li) => {
+                      const isHeader = li === 0
+                      const isCat = li >= (tgt > 0 ? 3 : 2)
+                      return (
+                        <text
+                          key={li}
+                          x={tx + padX}
+                          y={ty + padY + (li + 1) * lineH - 3}
+                          fontSize={isCat ? 10 : 10.5}
+                          fill={isHeader ? '#9ca3af' : isCat ? '#d1d5db' : '#fff'}
+                          style={tabularNums}
+                        >
+                          {l}
+                        </text>
+                      )
+                    })}
                   </g>
                 )
               })()}
             </svg>
           </div>
-          <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: DS.color.text.secondary, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ display: 'inline-block', width: 12, height: 8, background: PRIMARY }} />
-              사용액
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ display: 'inline-block', width: 12, height: 8, background: '#ef4444' }} />
-              목표 초과
-            </div>
-            {sharedLivingCostTarget > 0 && (
+          {/* 카테고리 범례 — 막대 색상 매핑 */}
+          {categoryBreakdown.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 12,
+                marginTop: 8,
+                fontSize: 11,
+                color: DS.color.text.secondary,
+                flexWrap: 'wrap',
+                alignItems: 'center',
+              }}
+            >
+              {categoryBreakdown.map(({ category }) => {
+                const { fg } = resolveCategoryColor(category, categoryColorMap)
+                return (
+                  <div key={category} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 12,
+                        height: 8,
+                        background: fg,
+                        borderRadius: 2,
+                      }}
+                    />
+                    {category}
+                  </div>
+                )
+              })}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ display: 'inline-block', width: 12, height: 2, borderTop: '2px dashed #9ca3af' }} />
-                목표 라인
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: 12,
+                    height: 8,
+                    border: '1.5px solid #ef4444',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                목표 초과
               </div>
-            )}
-          </div>
+              {sharedLivingCostTarget > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ display: 'inline-block', width: 12, height: 2, borderTop: '2px dashed #9ca3af' }} />
+                  목표 라인
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 카테고리별 비중 (이번 연도) */}
           {categoryBreakdown.length > 0 && (

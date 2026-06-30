@@ -117,4 +117,8 @@ export interface SharedExpenseEntry {
   memo?: string
   /** 생활비 합계에서 제외 (예: 환급 예정, 다른 사람 부담분) */
   excluded?: boolean
+  /** 후불 신용 카드 사용 여부 (실제 카드 대금 출금은 나중) */
+  creditCard?: boolean
+  /** 후불 신용 카드 대금 결제 완료 여부 */
+  cardSettled?: boolean
 }

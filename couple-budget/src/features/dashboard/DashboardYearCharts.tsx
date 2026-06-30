@@ -20,6 +20,117 @@ import { useChartTooltip } from './useChartTooltip'
 /** 그래프 툴팁 공통 라벨 포맷 */
 const fmtFull = (n: number) => `${n.toLocaleString('ko-KR')}원`
 
+/**
+ * 카테고리 비중 도넛 — SVG 기반, 세그먼트 호버 시 강조 + 중앙 라벨 갱신.
+ * - props.items 는 amount 기준 정렬된 카테고리 리스트
+ * - hoverIdx 가 null 이면 합계 표시, 값이 있으면 그 항목의 카테고리/금액/비율
+ */
+function FixedCategoryDonut({
+  items,
+  size = 176,
+  thickness = 22,
+  hoverIdx,
+  onHover,
+}: {
+  items: { category: string; amount: number; color: string; pct: number }[]
+  size?: number
+  thickness?: number
+  hoverIdx: number | null
+  onHover: (i: number | null) => void
+}) {
+  const total = items.reduce((s, it) => s + it.amount, 0) || 1
+  const cx = size / 2
+  const cy = size / 2
+  const outerR = size / 2 - 4
+  const innerR = outerR - thickness
+  let acc = 0
+  const segments = items.map((it, i) => {
+    const startA = (acc / total) * Math.PI * 2 - Math.PI / 2
+    acc += it.amount
+    const endA = (acc / total) * Math.PI * 2 - Math.PI / 2
+    const large = endA - startA > Math.PI ? 1 : 0
+    const x1 = cx + outerR * Math.cos(startA)
+    const y1 = cy + outerR * Math.sin(startA)
+    const x2 = cx + outerR * Math.cos(endA)
+    const y2 = cy + outerR * Math.sin(endA)
+    const x3 = cx + innerR * Math.cos(endA)
+    const y3 = cy + innerR * Math.sin(endA)
+    const x4 = cx + innerR * Math.cos(startA)
+    const y4 = cy + innerR * Math.sin(startA)
+    const d = `M ${x1} ${y1} A ${outerR} ${outerR} 0 ${large} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerR} ${innerR} 0 ${large} 0 ${x4} ${y4} Z`
+    return { d, color: it.color, idx: i }
+  })
+
+  const hovered = hoverIdx !== null ? items[hoverIdx] : null
+
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {segments.map((s) => (
+          <path
+            key={s.idx}
+            d={s.d}
+            fill={s.color}
+            stroke="#fff"
+            strokeWidth={1}
+            opacity={hoverIdx === null || hoverIdx === s.idx ? 1 : 0.32}
+            style={{ cursor: 'pointer', transition: 'opacity 0.15s' }}
+            onMouseEnter={() => onHover(s.idx)}
+            onMouseLeave={() => onHover(null)}
+          />
+        ))}
+      </svg>
+      {/* 중앙 라벨 — 호버 시 카테고리, 미호버 시 합계 */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          pointerEvents: 'none',
+          padding: '0 12px',
+        }}
+      >
+        {hovered ? (
+          <>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: hovered.color,
+                marginBottom: 2,
+                maxWidth: innerR * 1.5,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+              title={hovered.category}
+            >
+              {hovered.category}
+            </div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: DS.color.text.primary, ...tabularNums }}>
+              {hovered.pct < 10 ? hovered.pct.toFixed(1) : Math.round(hovered.pct)}%
+            </div>
+            <div style={{ fontSize: 10, color: DS.color.text.secondary, marginTop: 2, ...tabularNums }}>
+              {hovered.amount.toLocaleString('ko-KR')}원
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 10, color: DS.color.text.secondary, marginBottom: 2 }}>합계</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: DS.color.text.primary, ...tabularNums }}>
+              {total.toLocaleString('ko-KR')}원
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const MONTH_LABELS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
 const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
@@ -143,6 +254,112 @@ const PAD_L = 44
 const PAD_R = 16
 const PAD_T = 16
 const PAD_B = 36
+
+/**
+ * 연간 고정지출 카테고리 비중 — 도넛 + 범례 (호버 연동).
+ * 항상 중앙 정렬, column 레이아웃이라 뷰포트 폭에 따라 범례가 멀어지지 않음.
+ */
+function FixedCategoryBreakdownBlock({
+  breakdown,
+}: {
+  breakdown: { category: string; amount: number; pct: number }[]
+}) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
+  const items = breakdown.map((r, i) => ({
+    category: r.category,
+    amount: r.amount,
+    pct: r.pct,
+    color: FIXED_DONUT_PALETTE[i % FIXED_DONUT_PALETTE.length],
+  }))
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: DS.space[4],
+      }}
+    >
+      <FixedCategoryDonut
+        items={items}
+        size={176}
+        thickness={22}
+        hoverIdx={hoverIdx}
+        onHover={setHoverIdx}
+      />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: DS.space[2],
+          width: '100%',
+          maxWidth: 360,
+        }}
+      >
+        {items.map((row, i) => {
+          const isActive = hoverIdx === i
+          const isOther = hoverIdx !== null && !isActive
+          return (
+            <div
+              key={row.category}
+              onMouseEnter={() => setHoverIdx(i)}
+              onMouseLeave={() => setHoverIdx(null)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: DS.space[3],
+                padding: '4px 8px',
+                borderRadius: 6,
+                background: isActive ? 'rgba(79, 140, 255, 0.08)' : 'transparent',
+                opacity: isOther ? 0.45 : 1,
+                cursor: 'pointer',
+                transition: 'opacity 0.15s, background 0.15s',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                <span
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 4,
+                    flexShrink: 0,
+                    background: row.color,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: DS.font.caption.size,
+                    color: isActive ? DS.color.text.primary : DS.color.text.secondary,
+                    fontWeight: isActive ? 600 : 400,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title={row.category}
+                >
+                  {row.category}
+                </span>
+              </div>
+              <span
+                style={{
+                  fontSize: DS.font.caption.size,
+                  fontWeight: 600,
+                  color: DS.color.text.primary,
+                  flexShrink: 0,
+                  ...tabularNums,
+                }}
+              >
+                {row.pct < 10 ? row.pct.toFixed(1) : Math.round(row.pct)}% · {fmt(row.amount)}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 function MonthlyIncomeBarChart({ values }: { values: number[] }) {
   const maxV = Math.max(1, ...values)
@@ -495,73 +712,13 @@ export function DashboardYearCharts() {
           </div>
         ) : (
           <>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: DS.space[6],
-              }}
-            >
-              <SpendingDonut
-                size={176}
-                thickness={18}
-                segments={fixedCategoryBreakdown.map((r, i) => ({
-                  pct: r.amount,
-                  color: FIXED_DONUT_PALETTE[i % FIXED_DONUT_PALETTE.length],
-                }))}
-              />
-              <div style={{ flex: '1 1 220px', minWidth: 200, display: 'flex', flexDirection: 'column', gap: DS.space[2] }}>
-                {fixedCategoryBreakdown.map((row, i) => (
-                  <div
-                    key={row.category}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: DS.space[3] }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                      <span
-                        style={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: 4,
-                          flexShrink: 0,
-                          background: FIXED_DONUT_PALETTE[i % FIXED_DONUT_PALETTE.length],
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontSize: DS.font.caption.size,
-                          color: DS.color.text.secondary,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                        title={row.category}
-                      >
-                        {row.category}
-                      </span>
-                    </div>
-                    <span
-                      style={{
-                        fontSize: DS.font.caption.size,
-                        fontWeight: 600,
-                        color: DS.color.text.primary,
-                        flexShrink: 0,
-                        ...tabularNums,
-                      }}
-                    >
-                      {row.pct < 10 ? row.pct.toFixed(1) : Math.round(row.pct)}% · {fmt(row.amount)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <FixedCategoryBreakdownBlock breakdown={fixedCategoryBreakdown} />
             <div
               style={{
                 fontSize: DS.font.caption.size,
                 color: DS.color.text.secondary,
                 marginTop: DS.space[4],
+                textAlign: 'center',
                 ...tabularNums,
               }}
             >
