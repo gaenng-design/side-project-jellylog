@@ -162,7 +162,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                       const segH = (seg.amount / maxVal) * innerH
                       if (segH <= 0) return null
                       yTop -= segH
-                      const { fg } = resolveCategoryColor(seg.category, categoryColorMap)
+                      const { fg } = resolveCategoryColor(seg.category, categoryColors)
                       return (
                         <rect
                           key={si}
@@ -286,7 +286,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
               }}
             >
               {categoryBreakdown.map(({ category }) => {
-                const { fg } = resolveCategoryColor(category, categoryColorMap)
+                const { fg } = resolveCategoryColor(category, categoryColors)
                 return (
                   <div key={category} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span
