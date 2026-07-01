@@ -828,7 +828,7 @@
       "yearMonth": "2026-07",
       "day": 25,
       "amount": 10250,
-      "memo": "쿠팡카드"
+      "creditCard": true
     },
     {
       "id": "shared-expense-1782661271024",
@@ -836,7 +836,7 @@
       "yearMonth": "2026-07",
       "day": 28,
       "amount": 23099,
-      "memo": "쿠팡카드"
+      "creditCard": true
     },
     {
       "id": "shared-expense-1782699921756",
@@ -844,7 +844,7 @@
       "yearMonth": "2026-07",
       "day": 28,
       "amount": 25930,
-      "memo": "쿠팡카드"
+      "creditCard": true
     },
     {
       "id": "shared-expense-1782731606862",
@@ -873,7 +873,7 @@
       "yearMonth": "2026-07",
       "day": 30,
       "amount": 57900,
-      "memo": "쿠팡카드"
+      "creditCard": true
     }
   ],
   "categories": [
