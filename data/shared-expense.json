@@ -467,6 +467,24 @@
       "name": "석암생고기",
       "category": "유흥",
       "order": 77
+    },
+    {
+      "id": "shared-expense-1783174961135",
+      "name": "날씨님 집에서 회",
+      "category": "외식비",
+      "order": 78
+    },
+    {
+      "id": "shared-expense-1783174961137",
+      "name": "날씨님 집에서 회",
+      "category": "유흥",
+      "order": 79
+    },
+    {
+      "id": "shared-expense-1783174961138",
+      "name": "집에서 회",
+      "category": "유흥",
+      "order": 80
     }
   ],
   "entries": [
@@ -948,6 +966,23 @@
       "yearMonth": "2026-07",
       "day": 4,
       "amount": 38000
+    },
+    {
+      "id": "shared-expense-1783174961136",
+      "itemId": "shared-expense-1783174961137",
+      "yearMonth": "2026-07",
+      "day": 1,
+      "amount": 17000,
+      "memo": "51000-34000(네명분 돈 받음)",
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1783174961139",
+      "itemId": "shared-expense-1783174961138",
+      "yearMonth": "2026-07",
+      "day": 4,
+      "amount": 32000,
+      "creditCard": true
     }
   ],
   "categories": [
