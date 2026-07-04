@@ -437,6 +437,36 @@
       "name": "닭가슴살",
       "category": "식료품",
       "order": 72
+    },
+    {
+      "id": "shared-expense-1783174961126",
+      "name": "오봉집",
+      "category": "외식비",
+      "order": 73
+    },
+    {
+      "id": "shared-expense-1783174961128",
+      "name": "석암생고기",
+      "category": "외식비",
+      "order": 74
+    },
+    {
+      "id": "shared-expense-1783174961131",
+      "name": "리큐르",
+      "category": "유흥",
+      "order": 75
+    },
+    {
+      "id": "shared-expense-1783174961133",
+      "name": "오봉집",
+      "category": "유흥",
+      "order": 76
+    },
+    {
+      "id": "shared-expense-1783174961134",
+      "name": "석암생고기",
+      "category": "유흥",
+      "order": 77
     }
   ],
   "entries": [
@@ -874,6 +904,50 @@
       "day": 30,
       "amount": 57900,
       "creditCard": true
+    },
+    {
+      "id": "shared-expense-1783174961124",
+      "itemId": "shared-expense-1782628034317",
+      "yearMonth": "2026-07",
+      "day": 1,
+      "amount": 119000,
+      "memo": "날씨님이랑먹음"
+    },
+    {
+      "id": "shared-expense-1783174961125",
+      "itemId": "shared-expense-1780546297992",
+      "yearMonth": "2026-07",
+      "day": 2,
+      "amount": 5900
+    },
+    {
+      "id": "shared-expense-1783174961127",
+      "itemId": "shared-expense-1783174961133",
+      "yearMonth": "2026-07",
+      "day": 3,
+      "amount": 133000
+    },
+    {
+      "id": "shared-expense-1783174961129",
+      "itemId": "shared-expense-1783174961134",
+      "yearMonth": "2026-07",
+      "day": 3,
+      "amount": 115000,
+      "memo": "경은카드로 냄"
+    },
+    {
+      "id": "shared-expense-1783174961130",
+      "itemId": "shared-expense-1780546297992",
+      "yearMonth": "2026-07",
+      "day": 3,
+      "amount": 27900
+    },
+    {
+      "id": "shared-expense-1783174961132",
+      "itemId": "shared-expense-1783174961131",
+      "yearMonth": "2026-07",
+      "day": 4,
+      "amount": 38000
     }
   ],
   "categories": [
