@@ -485,6 +485,12 @@
       "name": "집에서 회",
       "category": "유흥",
       "order": 80
+    },
+    {
+      "id": "shared-expense-1783250074245",
+      "name": "카레, 다짐육, 알룰로스, 치즈, 감자, 아이스크림, 라임즙",
+      "category": "식료품",
+      "order": 81
     }
   ],
   "entries": [
@@ -982,6 +988,14 @@
       "yearMonth": "2026-07",
       "day": 4,
       "amount": 32000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1783250074246",
+      "itemId": "shared-expense-1783250074245",
+      "yearMonth": "2026-07",
+      "day": 5,
+      "amount": 56140,
       "creditCard": true
     }
   ],
