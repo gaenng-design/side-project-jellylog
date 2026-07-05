@@ -491,6 +491,18 @@
       "name": "카레, 다짐육, 알룰로스, 치즈, 감자, 아이스크림, 라임즙",
       "category": "식료품",
       "order": 81
+    },
+    {
+      "id": "shared-expense-1783260686900",
+      "name": "쿠팡이츠 - 회",
+      "category": "유흥",
+      "order": 82
+    },
+    {
+      "id": "shared-expense-1783260686901",
+      "name": "불티꼼장어",
+      "category": "유흥",
+      "order": 83
     }
   ],
   "entries": [
@@ -886,7 +898,7 @@
     },
     {
       "id": "shared-expense-1782661271024",
-      "itemId": "shared-expense-1782661271023",
+      "itemId": "shared-expense-1783260686900",
       "yearMonth": "2026-07",
       "day": 28,
       "amount": 23099,
@@ -931,7 +943,7 @@
     },
     {
       "id": "shared-expense-1783174961124",
-      "itemId": "shared-expense-1782628034317",
+      "itemId": "shared-expense-1783260686901",
       "yearMonth": "2026-07",
       "day": 1,
       "amount": 119000,
