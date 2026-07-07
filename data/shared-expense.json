@@ -503,6 +503,12 @@
       "name": "불티꼼장어",
       "category": "유흥",
       "order": 83
+    },
+    {
+      "id": "shared-expense-1783402716387",
+      "name": "집들이용 참치회+사조김 (2팀)",
+      "category": "유흥",
+      "order": 84
     }
   ],
   "entries": [
@@ -1008,6 +1014,14 @@
       "yearMonth": "2026-07",
       "day": 5,
       "amount": 56140,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1783402716388",
+      "itemId": "shared-expense-1783402716387",
+      "yearMonth": "2026-07",
+      "day": 7,
+      "amount": 137280,
       "creditCard": true
     }
   ],
