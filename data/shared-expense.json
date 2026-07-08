@@ -509,6 +509,12 @@
       "name": "집들이용 참치회+사조김 (2팀)",
       "category": "유흥",
       "order": 84
+    },
+    {
+      "id": "shared-expense-1783476342681",
+      "name": "집들이용 마늘쫑, 시메사바, 우유, 안키모, 김밥김, 굴소스, 베이글",
+      "category": "식료품",
+      "order": 85
     }
   ],
   "entries": [
@@ -1022,6 +1028,14 @@
       "yearMonth": "2026-07",
       "day": 7,
       "amount": 137280,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1783476342682",
+      "itemId": "shared-expense-1783476342681",
+      "yearMonth": "2026-07",
+      "day": 8,
+      "amount": 36200,
       "creditCard": true
     }
   ],
