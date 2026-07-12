@@ -545,6 +545,12 @@
       "name": "염소탕",
       "category": "외식비",
       "order": 90
+    },
+    {
+      "id": "shared-expense-1783867090274",
+      "name": "샤워기 필터",
+      "category": "생활 용품",
+      "order": 91
     }
   ],
   "entries": [
@@ -1116,6 +1122,14 @@
       "yearMonth": "2026-07",
       "day": 12,
       "amount": 22100
+    },
+    {
+      "id": "shared-expense-1783867090275",
+      "itemId": "shared-expense-1783867090274",
+      "yearMonth": "2026-07",
+      "day": 10,
+      "amount": 16900,
+      "creditCard": true
     }
   ],
   "categories": [
