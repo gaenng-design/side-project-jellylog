@@ -515,6 +515,36 @@
       "name": "집들이용 마늘쫑, 시메사바, 우유, 안키모, 김밥김, 굴소스, 베이글",
       "category": "식료품",
       "order": 85
+    },
+    {
+      "id": "shared-expense-1783867090262",
+      "name": "계란, 떡볶이, 순대",
+      "category": "식료품",
+      "order": 86
+    },
+    {
+      "id": "shared-expense-1783867090264",
+      "name": "다이소 - 장갑",
+      "category": "생활 용품",
+      "order": 87
+    },
+    {
+      "id": "shared-expense-1783867090267",
+      "name": "액자갈이",
+      "category": "기타",
+      "order": 88
+    },
+    {
+      "id": "shared-expense-1783867090269",
+      "name": "택시비",
+      "category": "교통",
+      "order": 89
+    },
+    {
+      "id": "shared-expense-1783867090271",
+      "name": "염소탕",
+      "category": "외식비",
+      "order": 90
     }
   ],
   "entries": [
@@ -1037,6 +1067,55 @@
       "day": 8,
       "amount": 36200,
       "creditCard": true
+    },
+    {
+      "id": "shared-expense-1783867090263",
+      "itemId": "shared-expense-1783867090262",
+      "yearMonth": "2026-07",
+      "day": 9,
+      "amount": 14090
+    },
+    {
+      "id": "shared-expense-1783867090265",
+      "itemId": "shared-expense-1783867090264",
+      "yearMonth": "2026-07",
+      "day": 10,
+      "amount": 7000
+    },
+    {
+      "id": "shared-expense-1783867090266",
+      "itemId": "shared-expense-1782661271019",
+      "yearMonth": "2026-07",
+      "day": 11,
+      "amount": 29500
+    },
+    {
+      "id": "shared-expense-1783867090268",
+      "itemId": "shared-expense-1783867090267",
+      "yearMonth": "2026-07",
+      "day": 11,
+      "amount": 40000
+    },
+    {
+      "id": "shared-expense-1783867090270",
+      "itemId": "shared-expense-1783867090269",
+      "yearMonth": "2026-07",
+      "day": 12,
+      "amount": 24500
+    },
+    {
+      "id": "shared-expense-1783867090272",
+      "itemId": "shared-expense-1783867090271",
+      "yearMonth": "2026-07",
+      "day": 12,
+      "amount": 28000
+    },
+    {
+      "id": "shared-expense-1783867090273",
+      "itemId": "shared-expense-1783867090269",
+      "yearMonth": "2026-07",
+      "day": 12,
+      "amount": 22100
     }
   ],
   "categories": [
