@@ -551,6 +551,12 @@
       "name": "샤워기 필터",
       "category": "생활 용품",
       "order": 91
+    },
+    {
+      "id": "shared-expense-1783867090276",
+      "name": "인덕원 택시비",
+      "category": "교통",
+      "order": 92
     }
   ],
   "entries": [
@@ -1104,7 +1110,7 @@
     },
     {
       "id": "shared-expense-1783867090270",
-      "itemId": "shared-expense-1783867090269",
+      "itemId": "shared-expense-1783867090276",
       "yearMonth": "2026-07",
       "day": 12,
       "amount": 24500
@@ -1118,7 +1124,7 @@
     },
     {
       "id": "shared-expense-1783867090273",
-      "itemId": "shared-expense-1783867090269",
+      "itemId": "shared-expense-1783867090276",
       "yearMonth": "2026-07",
       "day": 12,
       "amount": 22100
