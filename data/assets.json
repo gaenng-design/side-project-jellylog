@@ -7,8 +7,7 @@
       "source": "manual",
       "id": "asset-1777882542533",
       "order": 0,
-      "person": "B",
-      "locked": true
+      "person": "B"
     },
     {
       "name": "청약",
@@ -95,8 +94,7 @@
       "category": "저축",
       "person": "A",
       "id": "asset-1779085520147",
-      "order": 11,
-      "locked": true
+      "order": 11
     },
     {
       "name": "축의금",
