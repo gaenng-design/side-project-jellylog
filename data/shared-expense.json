@@ -593,6 +593,36 @@
       "name": "김치찜",
       "category": "외식비",
       "order": 98
+    },
+    {
+      "id": "shared-expense-1784862363618",
+      "name": "셀렉스 프로 단백질 드링크",
+      "category": "식료품",
+      "order": 99
+    },
+    {
+      "id": "shared-expense-1784862363620",
+      "name": "아구찜",
+      "category": "외식비",
+      "order": 100
+    },
+    {
+      "id": "shared-expense-1784862363622",
+      "name": "팔보채",
+      "category": "외식비",
+      "order": 101
+    },
+    {
+      "id": "shared-expense-1784862363624",
+      "name": "쿠팡 - 참치회, 김치, 닭윙, 새우",
+      "category": "식료품",
+      "order": 102
+    },
+    {
+      "id": "shared-expense-1784862363626",
+      "name": "죽력고 배달비",
+      "category": "유흥",
+      "order": 103
     }
   ],
   "entries": [
@@ -1221,6 +1251,47 @@
       "yearMonth": "2026-07",
       "day": 24,
       "amount": 14000
+    },
+    {
+      "id": "shared-expense-1784862363619",
+      "itemId": "shared-expense-1784862363618",
+      "yearMonth": "2026-07",
+      "day": 14,
+      "amount": 30060,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1784862363621",
+      "itemId": "shared-expense-1784862363620",
+      "yearMonth": "2026-07",
+      "day": 20,
+      "amount": 18886,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1784862363623",
+      "itemId": "shared-expense-1784862363622",
+      "yearMonth": "2026-07",
+      "day": 21,
+      "amount": 35000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1784862363625",
+      "itemId": "shared-expense-1784862363624",
+      "yearMonth": "2026-07",
+      "day": 22,
+      "amount": 123990,
+      "memo": "병섭오빠 집들이 준비",
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1784862363627",
+      "itemId": "shared-expense-1784862363626",
+      "yearMonth": "2026-07",
+      "day": 23,
+      "amount": 6000,
+      "creditCard": true
     }
   ],
   "categories": [
