@@ -661,6 +661,13 @@ export function SharedExpensePage() {
   const setYearMonth = useAppStore((s) => s.setYearMonth)
   const sharedLivingCostTarget = useAppStore((s) => s.settings.sharedLivingCost ?? 0)
   const cycleStartDay = useAppStore((s) => s.settings.sharedExpenseCycleStartDay ?? 1)
+
+  // 사이클 기준 실제 날짜 정렬 키 (6/25 → 6/26 → ... → 7/24)
+  const toDateKey = (e: SharedExpenseEntry): number => {
+    const d = getEntryDisplayDate(e.yearMonth, e.day ?? 99, cycleStartDay)
+    return d.year * 10000 + (d.monthIdx + 1) * 100 + d.day
+  }
+
   const [yearStr, monthStr] = currentYearMonth.split('-')
   const year = parseInt(yearStr, 10)
   const monthIdx = parseInt(monthStr, 10) - 1
@@ -736,10 +743,10 @@ export function SharedExpensePage() {
         const catA = categories.indexOf(itemA?.category ?? '')
         const catB = categories.indexOf(itemB?.category ?? '')
         if (catA !== catB) return catA - catB
-        return (a.day ?? 99) - (b.day ?? 99)
+        return toDateKey(a) - toDateKey(b)
       }
-      // '날짜' (기본): 빠른 → 늦은 (1일 → 2일 ...)
-      return (a.day ?? 99) - (b.day ?? 99)
+      // '날짜' (기본): 사이클 기준 빠른 날짜 순 (6/25 → ... → 7/24)
+      return toDateKey(a) - toDateKey(b)
     })
     return sorted
   }, [monthEntries, itemMap, filterCategory, searchQuery, sortOption, categories])
@@ -1241,7 +1248,7 @@ export function SharedExpensePage() {
                   {/* 그룹 내 항목들 */}
                   {list
                     .slice()
-                    .sort((a, b) => (a.day ?? 99) - (b.day ?? 99))
+                    .sort((a, b) => toDateKey(a) - toDateKey(b))
                     .map((e, idx) => (
                       <EntryRow
                         key={e.id}

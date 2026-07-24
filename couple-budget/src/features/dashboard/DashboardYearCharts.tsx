@@ -16,6 +16,7 @@ import { YearSelectDropdown } from '@/components/YearSelectDropdown'
 import { Card } from '@/design-system/components/Card'
 import { SpendingDonut } from '@/design-system/components/SpendingDonut'
 import { useChartTooltip } from './useChartTooltip'
+import { useDashboardWidgetVisible } from './DashboardPage'
 
 /** 그래프 툴팁 공통 라벨 포맷 */
 const fmtFull = (n: number) => `${n.toLocaleString('ko-KR')}원`
@@ -134,6 +135,26 @@ function FixedCategoryDonut({
 const MONTH_LABELS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
 const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
+
+/**
+ * Y축 축약 표기 — 자산 차트와 동일한 정책.
+ * - 1억 이상: "X억" 또는 "X억 Y천"
+ * - 1천만 이상: "Y천"
+ * - 1만 이상: "Y만"
+ */
+function fmtAxis(n: number): string {
+  if (n <= 0) return '0'
+  if (n >= 10000000) {
+    const cheonmanUnits = Math.round(n / 10000000)
+    const eok = Math.floor(cheonmanUnits / 10)
+    const cheonman = cheonmanUnits % 10
+    if (eok === 0) return `${cheonman}천`
+    if (cheonman === 0) return `${eok}억`
+    return `${eok}억 ${cheonman}천`
+  }
+  if (n >= 10000) return `${Math.round(n / 10000).toLocaleString('ko-KR')}만`
+  return n.toLocaleString('ko-KR')
+}
 
 /** 원형 그래프 조각 색 (DS 프라이머리 톤 + 대비) */
 const FIXED_DONUT_PALETTE = [
@@ -276,9 +297,11 @@ function FixedCategoryBreakdownBlock({
     <div
       style={{
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         alignItems: 'center',
-        gap: DS.space[4],
+        justifyContent: 'center',
+        gap: DS.space[6],
       }}
     >
       <FixedCategoryDonut
@@ -293,7 +316,8 @@ function FixedCategoryBreakdownBlock({
           display: 'flex',
           flexDirection: 'column',
           gap: DS.space[2],
-          width: '100%',
+          flex: '0 1 340px',
+          minWidth: 240,
           maxWidth: 360,
         }}
       >
@@ -396,9 +420,9 @@ function MonthlyIncomeBarChart({ values }: { values: number[] }) {
         strokeWidth={1}
       />
       {[
-        { t: 1, label: fmt(Math.round(maxV)) },
-        { t: 0.5, label: fmt(Math.round(maxV * 0.5)) },
-        { t: 0, label: fmt(0) },
+        { t: 1, label: fmtAxis(Math.round(maxV)) },
+        { t: 0.5, label: fmtAxis(Math.round(maxV * 0.5)) },
+        { t: 0, label: fmtAxis(0) },
       ].map(({ t, label }) => {
         const y = PAD_T + innerH * (1 - t)
         return (
@@ -531,9 +555,9 @@ function InvestCumulativeChart({ cumulative, lastMonthIdx }: { cumulative: numbe
         strokeWidth={1}
       />
       {[
-        { t: 1, label: fmt(Math.round(maxV)) },
-        { t: 0.5, label: fmt(Math.round(maxV * 0.5)) },
-        { t: 0, label: fmt(0) },
+        { t: 1, label: fmtAxis(Math.round(maxV)) },
+        { t: 0.5, label: fmtAxis(Math.round(maxV * 0.5)) },
+        { t: 0, label: fmtAxis(0) },
       ].map(({ t, label }) => {
         const y = PAD_T + innerH * (1 - t)
         return (
@@ -658,6 +682,10 @@ export function DashboardYearCharts() {
     return { totalIncome, endCum, totalFixed, endIdx }
   }, [incomeMonthly, investCumulative, fixedCategoryBreakdown, lastMonthIdx])
 
+  const showIncome = useDashboardWidgetVisible('income')
+  const showFixedCategory = useDashboardWidgetVisible('fixedCategory')
+  const showInvestCumulative = useDashboardWidgetVisible('investCumulative')
+
   return (
     <div
       style={{
@@ -674,6 +702,7 @@ export function DashboardYearCharts() {
         <YearSelectDropdown value={year} onChange={setYear} variant="light" />
       </div>
 
+      {showIncome && (
       <Card variant="data" padding={5} hoverLift={false}>
         <div style={{ fontSize: DS.font.title2.size, fontWeight: DS.font.title2.weight, marginBottom: DS.space[2] }}>월별 수입</div>
         <div style={{ fontSize: DS.font.caption.size, color: DS.color.text.secondary, marginBottom: DS.space[4], lineHeight: 1.5 }}>
@@ -691,7 +720,9 @@ export function DashboardYearCharts() {
           연간 합계 {fmt(yearEndNote.totalIncome)}
         </div>
       </Card>
+      )}
 
+      {showFixedCategory && (
       <Card variant="data" padding={5} hoverLift={false}>
         <div style={{ fontSize: DS.font.title2.size, fontWeight: DS.font.title2.weight, marginBottom: DS.space[2] }}>
           연간 고정지출 · 카테고리 비중
@@ -727,7 +758,9 @@ export function DashboardYearCharts() {
           </>
         )}
       </Card>
+      )}
 
+      {showInvestCumulative && (
       <Card variant="data" padding={5} hoverLift={false}>
         <div style={{ fontSize: DS.font.title2.size, fontWeight: DS.font.title2.weight, marginBottom: DS.space[2] }}>
           저축·투자 누적
@@ -747,6 +780,7 @@ export function DashboardYearCharts() {
           {yearEndNote.endIdx + 1}월 말 기준 누적 {fmt(yearEndNote.endCum)}
         </div>
       </Card>
+      )}
     </div>
   )
 }

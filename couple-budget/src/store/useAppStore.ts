@@ -70,6 +70,12 @@ export interface AppSettings {
     /** 목표 달성 희망일 (YYYY-MM-DD). 빈 값이면 미설정 */
     deadline?: string
   }>
+  /**
+   * 대시보드 위젯 표시 여부 (key → 표시 여부).
+   * key 가 없거나 true 면 표시, false 면 숨김.
+   * key 목록: summary / assetTrend / sharedTrend / income / fixedCategory / investCumulative
+   */
+  dashboardWidgets?: Record<string, boolean>
 }
 
 interface AppState {
