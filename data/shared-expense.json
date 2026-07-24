@@ -557,6 +557,42 @@
       "name": "인덕원 택시비",
       "category": "교통",
       "order": 92
+    },
+    {
+      "id": "shared-expense-1784862363605",
+      "name": "어부의 딸 횟집",
+      "category": "외식비",
+      "order": 93
+    },
+    {
+      "id": "shared-expense-1784862363607",
+      "name": "탑골순대국",
+      "category": "외식비",
+      "order": 94
+    },
+    {
+      "id": "shared-expense-1784862363609",
+      "name": "제주공항 밥",
+      "category": "외식비",
+      "order": 95
+    },
+    {
+      "id": "shared-expense-1784862363612",
+      "name": "사위식당 판교 (낙곱새)",
+      "category": "외식비",
+      "order": 96
+    },
+    {
+      "id": "shared-expense-1784862363614",
+      "name": "씨유 맥주",
+      "category": "유흥",
+      "order": 97
+    },
+    {
+      "id": "shared-expense-1784862363616",
+      "name": "김치찜",
+      "category": "외식비",
+      "order": 98
     }
   ],
   "entries": [
@@ -1136,6 +1172,55 @@
       "day": 10,
       "amount": 16900,
       "creditCard": true
+    },
+    {
+      "id": "shared-expense-1784862363606",
+      "itemId": "shared-expense-1784862363605",
+      "yearMonth": "2026-07",
+      "day": 15,
+      "amount": 83000
+    },
+    {
+      "id": "shared-expense-1784862363608",
+      "itemId": "shared-expense-1784862363607",
+      "yearMonth": "2026-07",
+      "day": 15,
+      "amount": 23000
+    },
+    {
+      "id": "shared-expense-1784862363610",
+      "itemId": "shared-expense-1784862363609",
+      "yearMonth": "2026-07",
+      "day": 19,
+      "amount": 9500
+    },
+    {
+      "id": "shared-expense-1784862363611",
+      "itemId": "shared-expense-1784862363609",
+      "yearMonth": "2026-07",
+      "day": 19,
+      "amount": 9000
+    },
+    {
+      "id": "shared-expense-1784862363613",
+      "itemId": "shared-expense-1784862363612",
+      "yearMonth": "2026-07",
+      "day": 20,
+      "amount": 28000
+    },
+    {
+      "id": "shared-expense-1784862363615",
+      "itemId": "shared-expense-1784862363614",
+      "yearMonth": "2026-07",
+      "day": 23,
+      "amount": 13000
+    },
+    {
+      "id": "shared-expense-1784862363617",
+      "itemId": "shared-expense-1784862363616",
+      "yearMonth": "2026-07",
+      "day": 24,
+      "amount": 14000
     }
   ],
   "categories": [
