@@ -671,6 +671,12 @@
       "name": "락휴 - 노래방",
       "category": "유흥",
       "order": 111
+    },
+    {
+      "id": "shared-expense-1785070078686",
+      "name": "민의 상우 같이 논 돈",
+      "category": "유흥",
+      "order": 112
     }
   ],
   "entries": [
@@ -1129,7 +1135,8 @@
       "itemId": "shared-expense-1783174961133",
       "yearMonth": "2026-07",
       "day": 3,
-      "amount": 133000
+      "amount": 133000,
+      "excluded": true
     },
     {
       "id": "shared-expense-1783174961129",
@@ -1137,7 +1144,8 @@
       "yearMonth": "2026-07",
       "day": 3,
       "amount": 115000,
-      "memo": "경은카드로 냄"
+      "memo": "경은카드로 냄",
+      "excluded": true
     },
     {
       "id": "shared-expense-1783174961130",
@@ -1384,6 +1392,13 @@
       "yearMonth": "2026-08",
       "day": 25,
       "amount": 25000
+    },
+    {
+      "id": "shared-expense-1785070078687",
+      "itemId": "shared-expense-1785070078686",
+      "yearMonth": "2026-08",
+      "day": 26,
+      "amount": 146250
     }
   ],
   "categories": [
