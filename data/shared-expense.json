@@ -623,6 +623,54 @@
       "name": "죽력고 배달비",
       "category": "유흥",
       "order": 103
+    },
+    {
+      "id": "shared-expense-1785070078672",
+      "name": "쿠팡이츠",
+      "category": "외식비",
+      "order": 104
+    },
+    {
+      "id": "shared-expense-1785070078675",
+      "name": "쿠팡이츠 - 오렌지, 아이스크림",
+      "category": "외식비",
+      "order": 105
+    },
+    {
+      "id": "shared-expense-1785070078676",
+      "name": "쿠팡이츠 - 쌀국수",
+      "category": "외식비",
+      "order": 106
+    },
+    {
+      "id": "shared-expense-1785070078677",
+      "name": "쿠팡이츠 - 오렌지, 아이스크림",
+      "category": "식료품",
+      "order": 107
+    },
+    {
+      "id": "shared-expense-1785070078678",
+      "name": "느티나무마트 - 술",
+      "category": "유흥",
+      "order": 108
+    },
+    {
+      "id": "shared-expense-1785070078680",
+      "name": "다이소 - 깨갈이",
+      "category": "생활 용품",
+      "order": 109
+    },
+    {
+      "id": "shared-expense-1785070078682",
+      "name": "묵은지",
+      "category": "식료품",
+      "order": 110
+    },
+    {
+      "id": "shared-expense-1785070078684",
+      "name": "락휴 - 노래방",
+      "category": "유흥",
+      "order": 111
     }
   ],
   "entries": [
@@ -1292,6 +1340,50 @@
       "day": 23,
       "amount": 6000,
       "creditCard": true
+    },
+    {
+      "id": "shared-expense-1785070078673",
+      "itemId": "shared-expense-1785070078676",
+      "yearMonth": "2026-08",
+      "day": 25,
+      "amount": 22000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1785070078674",
+      "itemId": "shared-expense-1785070078677",
+      "yearMonth": "2026-08",
+      "day": 25,
+      "amount": 13060,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1785070078679",
+      "itemId": "shared-expense-1785070078678",
+      "yearMonth": "2026-08",
+      "day": 25,
+      "amount": 123900
+    },
+    {
+      "id": "shared-expense-1785070078681",
+      "itemId": "shared-expense-1785070078680",
+      "yearMonth": "2026-08",
+      "day": 25,
+      "amount": 3000
+    },
+    {
+      "id": "shared-expense-1785070078683",
+      "itemId": "shared-expense-1785070078682",
+      "yearMonth": "2026-08",
+      "day": 25,
+      "amount": 12900
+    },
+    {
+      "id": "shared-expense-1785070078685",
+      "itemId": "shared-expense-1785070078684",
+      "yearMonth": "2026-08",
+      "day": 25,
+      "amount": 25000
     }
   ],
   "categories": [
