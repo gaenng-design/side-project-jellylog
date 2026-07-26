@@ -73,9 +73,47 @@
           "sav-3": true
         }
       }
+    },
+    "2026-08": {
+      "A": {
+        "deposit": true,
+        "sharedLiving": true,
+        "transfer5090Send": false,
+        "sharedFundExpense": true,
+        "separateItemChecks": {
+          "0": false,
+          "1": true
+        },
+        "investChecks": {
+          "inv-0": true,
+          "inv-1": true,
+          "sav-1": true,
+          "sav-0": true,
+          "sav-3": true
+        }
+      },
+      "B": {
+        "deposit": true,
+        "sharedLiving": true,
+        "transfer5090Send": false,
+        "sharedFundExpense": true,
+        "separateItemChecks": {
+          "0": true,
+          "1": true,
+          "2": true
+        },
+        "investChecks": {
+          "sav-0": true,
+          "inv-0": true,
+          "sav-2": true,
+          "sav-1": true,
+          "sav-3": true
+        }
+      }
     }
   },
   "memoByMonth": {
-    "2026-07": "경은 주식 보너스 : 125만원 받음 (세후 약 100만원)"
+    "2026-07": "경은 주식 보너스 : 125만원 받음 (세후 약 100만원)",
+    "2026-08": "승윤 연봉 인상된 금액 추가로 들어옴"
   }
 }
