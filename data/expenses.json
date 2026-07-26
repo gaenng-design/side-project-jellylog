@@ -268,7 +268,7 @@
       "person": "A",
       "category": "투자",
       "description": "ISA",
-      "defaultAmount": 1300000,
+      "defaultAmount": 1550000,
       "personOrder": 0
     },
     {
@@ -276,7 +276,7 @@
       "person": "B",
       "category": "투자",
       "description": "ISA",
-      "defaultAmount": 1300000,
+      "defaultAmount": 1550000,
       "personOrder": 0
     },
     {
