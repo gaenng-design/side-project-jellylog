@@ -964,9 +964,20 @@ export function AssetPage() {
         const sharedTotal = sortedItems
           .filter((item) => !item.person)
           .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+
+        // 전월 합계 (1월이면 전년 12월)
+        const prevMonthTotal = currentMonth > 0
+          ? currentYearMonthTotals[currentMonth - 1]
+          : calcMonthTotals(currentYear - 1)[11]
+        const monthDiff = monthTotal - prevMonthTotal
+        const hasPrevData = prevMonthTotal > 0
+        const prevLabel = currentMonth > 0
+          ? `${MONTHS[currentMonth - 1]} 대비`
+          : `${currentYear - 1}년 12월 대비`
+
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
-            {/* 상단: 총 합계 + 가용 금액 */}
+            {/* 상단: 총 합계 + 가용 금액 + 전월 대비 증감 */}
             <div
               style={{
                 ...jellyCardStyle,
@@ -990,6 +1001,23 @@ export function AssetPage() {
                 </div>
                 <div style={{ fontSize: 26, fontWeight: 700, color: JELLY.text }}>{fmtSum(availableTotal)}</div>
               </div>
+              {hasPrevData && (
+                <div style={{ flex: 1, minWidth: 160 }}>
+                  <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+                    📈 이번 달 증감
+                    <span style={{ color: '#9ca3af', marginLeft: 4 }}>({prevLabel})</span>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 26,
+                      fontWeight: 700,
+                      color: monthDiff >= 0 ? '#059669' : '#dc2626',
+                    }}
+                  >
+                    {monthDiff >= 0 ? '+' : ''}{fmtSum(monthDiff)}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 하단: 유저별 소유 자산 */}

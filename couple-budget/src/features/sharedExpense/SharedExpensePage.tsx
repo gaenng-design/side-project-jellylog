@@ -242,16 +242,22 @@ function CreditCardSection({
   itemMap,
   formatDay,
   onToggleSettled,
+  cycleStartDay,
 }: {
   entries: import('@/types').SharedExpenseEntry[]
   itemMap: Map<string, import('@/types').SharedExpenseItem>
   formatDay: (e: import('@/types').SharedExpenseEntry) => string
   onToggleSettled: (id: string, next: boolean) => void
+  cycleStartDay: number
 }) {
   const [open, setOpen] = useState(true)
   if (entries.length === 0) return null
 
-  const sorted = [...entries].sort((a, b) => (a.day ?? 99) - (b.day ?? 99))
+  const toDKey = (e: import('@/types').SharedExpenseEntry) => {
+    const d = getEntryDisplayDate(e.yearMonth, e.day ?? 99, cycleStartDay)
+    return d.year * 10000 + (d.monthIdx + 1) * 100 + d.day
+  }
+  const sorted = [...entries].sort((a, b) => toDKey(a) - toDKey(b))
   const totalCount = sorted.length
   const settledCount = sorted.filter((e) => e.cardSettled).length
   const pendingAmount = sorted
@@ -1155,6 +1161,7 @@ export function SharedExpensePage() {
         itemMap={itemMap}
         formatDay={formatDay}
         onToggleSettled={(id, next) => updateEntry(id, { cardSettled: next || undefined })}
+        cycleStartDay={cycleStartDay}
       />
 
       {/* 거래 리스트 */}
