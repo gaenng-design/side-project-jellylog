@@ -85,7 +85,7 @@
       "name": "신한 저축",
       "category": "저축",
       "person": "A",
-      "defaultAmount": 1000000,
+      "defaultAmount": 1300000,
       "id": "asset-1778552010606",
       "order": 10
     },
@@ -584,7 +584,7 @@
       "id": "asset-1778483629253",
       "itemId": "asset-1778483629249",
       "yearMonth": "2026-08",
-      "amount": 1687676
+      "amount": 1230395
     },
     {
       "id": "asset-1778483629254",
@@ -686,25 +686,25 @@
       "id": "asset-1778552010611",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-09",
-      "amount": 6931301
+      "amount": 7231301
     },
     {
       "id": "asset-1778552010612",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-10",
-      "amount": 7931301
+      "amount": 8531301
     },
     {
       "id": "asset-1778552010613",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-11",
-      "amount": 8931301
+      "amount": 9831301
     },
     {
       "id": "asset-1778552010614",
       "itemId": "asset-1778552010606",
       "yearMonth": "2026-12",
-      "amount": 9931301
+      "amount": 11131301
     },
     {
       "id": "asset-1779085520148",
@@ -812,7 +812,7 @@
       "id": "asset-1782628034309",
       "itemId": "asset-1778483629248",
       "yearMonth": "2026-08",
-      "amount": 8434215
+      "amount": 9785624
     },
     {
       "id": "asset-1782628034310",
@@ -860,7 +860,7 @@
       "id": "asset-1785070078675",
       "itemId": "asset-1778483629236",
       "yearMonth": "2026-08",
-      "amount": 9017686
+      "amount": 8671388
     },
     {
       "id": "asset-1785070078676",
