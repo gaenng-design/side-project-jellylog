@@ -578,13 +578,13 @@
       "id": "asset-1778483629252",
       "itemId": "asset-1778483629249",
       "yearMonth": "2026-07",
-      "amount": 1287676
+      "amount": 1487676
     },
     {
       "id": "asset-1778483629253",
       "itemId": "asset-1778483629249",
       "yearMonth": "2026-08",
-      "amount": 800000
+      "amount": 1687676
     },
     {
       "id": "asset-1778483629254",
@@ -855,6 +855,24 @@
       "itemId": "asset-1779085520151",
       "yearMonth": "2026-08",
       "amount": 5968225
+    },
+    {
+      "id": "asset-1785070078675",
+      "itemId": "asset-1778483629236",
+      "yearMonth": "2026-08",
+      "amount": 9017686
+    },
+    {
+      "id": "asset-1785070078676",
+      "itemId": "asset-1779085520147",
+      "yearMonth": "2026-08",
+      "amount": 10000000
+    },
+    {
+      "id": "asset-1785070078677",
+      "itemId": "asset-1779085520149",
+      "yearMonth": "2026-08",
+      "amount": 14956233
     }
   ]
 }
