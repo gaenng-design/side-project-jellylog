@@ -259,7 +259,9 @@
     "ft-1777399537883::2026-01": 478086,
     "ft-1777358483512::2026-05": 291250,
     "ft-1777358483512::2026-07": 215280,
-    "ft-1777399537879::2026-07": 36410
+    "ft-1777399537879::2026-07": 36410,
+    "ft-1777358483512::2026-08": 198240,
+    "ft-1777399537883::2026-08": 26716
   },
   "fixedMonthlySeparations": {},
   "investTemplates": [
@@ -301,7 +303,7 @@
       "person": "A",
       "category": "저축",
       "description": "적금 (비상금)",
-      "defaultAmount": 1000000,
+      "defaultAmount": 1300000,
       "id": "inv-1777399537877",
       "order": 3,
       "personOrder": 2
@@ -377,7 +379,8 @@
     "inv-1777399537877::2026-02": 500000,
     "inv-1777399537877::2026-05": 700000,
     "inv-1777358483511::2026-07": 1550000,
-    "inv-1777358483512::2026-07": 1550000
+    "inv-1777358483512::2026-07": 1550000,
+    "inv-1777399537877::2026-08": 1300000
   },
   "planExtra": {
     "extraRowsByMonth": {
@@ -479,6 +482,25 @@
           }
         ],
         "invest": []
+      },
+      "2026-08": {
+        "fixed": [],
+        "invest": [
+          {
+            "person": "A",
+            "category": "저축",
+            "description": "추가 저축",
+            "amount": 1000000,
+            "id": "1785071266718-fdxvk"
+          },
+          {
+            "person": "A",
+            "category": "투자",
+            "description": "추가 ISA",
+            "amount": 1500000,
+            "id": "1785071277899-ekthw"
+          }
+        ]
       }
     },
     "separateExpenseRowsByMonth": {
@@ -602,6 +624,16 @@
           "amount": 658372,
           "isSeparate": false,
           "id": "1778599991442-r5qld"
+        }
+      ],
+      "2026-08": [
+        {
+          "person": "공금",
+          "category": "식비",
+          "description": "저번달 생활비 오버",
+          "amount": 110591,
+          "isSeparate": false,
+          "id": "1785071084150-mbsny"
         }
       ]
     },
@@ -2973,7 +3005,7 @@
           {
             "person": "A",
             "category": "저축",
-            "description": "적금 (비상금)",
+            "description": "적금",
             "defaultAmount": 1000000,
             "id": "inv-1777399537877",
             "order": 3,
