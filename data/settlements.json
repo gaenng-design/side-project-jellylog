@@ -81,7 +81,7 @@
         "transfer5090Send": false,
         "sharedFundExpense": true,
         "separateItemChecks": {
-          "0": false,
+          "0": true,
           "1": true
         },
         "investChecks": {
@@ -89,7 +89,8 @@
           "inv-1": true,
           "sav-1": true,
           "sav-0": true,
-          "sav-3": true
+          "sav-3": true,
+          "sav-2": true
         }
       },
       "B": {
