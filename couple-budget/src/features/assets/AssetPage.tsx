@@ -756,9 +756,13 @@ export function AssetPage() {
   const narrow = useNarrowLayout()
   const settings = useAppStore((s) => s.settings)
   // 자산 탭의 "현재 달" 경계는 오늘 날짜 고정 — 다른 탭에서 선택한 월에 영향받지 않아야 함
+  // 25일 기준: 25일 이전 → 이번 달 포커싱, 25일 이후 → 다음 달 포커싱
   const today = new Date()
-  const currentYear = today.getFullYear()
-  const currentMonth = today.getMonth() // 0-based
+  const focusDate = today.getDate() >= 25
+    ? new Date(today.getFullYear(), today.getMonth() + 1, 1)
+    : today
+  const currentYear = focusDate.getFullYear()
+  const currentMonth = focusDate.getMonth() // 0-based
 
   // 표시할 연도 목록: 현재달 기준 앞으로의 2년치 (올해 · 내년, 오래된 → 최신순)
   // 추가로 보고 싶은 미래 연도 수 (기본 2년치 + 사용자가 추가한 만큼)
