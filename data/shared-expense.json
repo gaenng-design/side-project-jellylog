@@ -1399,6 +1399,14 @@
       "yearMonth": "2026-08",
       "day": 26,
       "amount": 146250
+    },
+    {
+      "id": "shared-expense-1785320776748",
+      "itemId": "shared-expense-1781092207840",
+      "yearMonth": "2026-08",
+      "day": 29,
+      "amount": 20588,
+      "creditCard": true
     }
   ],
   "categories": [
