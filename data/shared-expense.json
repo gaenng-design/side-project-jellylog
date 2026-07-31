@@ -1092,7 +1092,8 @@
       "yearMonth": "2026-07",
       "day": 25,
       "amount": 10250,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1782661271024",
@@ -1100,7 +1101,8 @@
       "yearMonth": "2026-07",
       "day": 28,
       "amount": 23099,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1782699921756",
@@ -1108,7 +1110,8 @@
       "yearMonth": "2026-07",
       "day": 28,
       "amount": 25930,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1782731606862",
@@ -1137,7 +1140,8 @@
       "yearMonth": "2026-07",
       "day": 30,
       "amount": 57900,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1783174961124",
@@ -1192,7 +1196,8 @@
       "day": 1,
       "amount": 17000,
       "memo": "51000-34000(네명분 돈 받음)",
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1783174961139",
@@ -1200,7 +1205,8 @@
       "yearMonth": "2026-07",
       "day": 4,
       "amount": 32000,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1783250074246",
@@ -1208,7 +1214,8 @@
       "yearMonth": "2026-07",
       "day": 5,
       "amount": 56140,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1783402716388",
@@ -1216,7 +1223,8 @@
       "yearMonth": "2026-07",
       "day": 7,
       "amount": 137280,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1783476342682",
@@ -1224,7 +1232,8 @@
       "yearMonth": "2026-07",
       "day": 8,
       "amount": 36200,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1783867090263",
@@ -1281,7 +1290,8 @@
       "yearMonth": "2026-07",
       "day": 10,
       "amount": 16900,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1784862363606",
@@ -1338,7 +1348,8 @@
       "yearMonth": "2026-07",
       "day": 14,
       "amount": 30060,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1784862363621",
@@ -1346,7 +1357,8 @@
       "yearMonth": "2026-07",
       "day": 20,
       "amount": 18886,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1784862363623",
@@ -1354,7 +1366,8 @@
       "yearMonth": "2026-07",
       "day": 21,
       "amount": 35000,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1784862363625",
@@ -1363,7 +1376,8 @@
       "day": 22,
       "amount": 123990,
       "memo": "병섭오빠 집들이 준비",
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1784862363627",
@@ -1371,7 +1385,8 @@
       "yearMonth": "2026-07",
       "day": 23,
       "amount": 6000,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1785070078673",
