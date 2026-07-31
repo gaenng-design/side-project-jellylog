@@ -677,6 +677,30 @@
       "name": "민의 상우 같이 논 돈",
       "category": "유흥",
       "order": 112
+    },
+    {
+      "id": "shared-expense-1785473412621",
+      "name": "윤정이랑 점심과 커피",
+      "category": "외식비",
+      "order": 113
+    },
+    {
+      "id": "shared-expense-1785473412624",
+      "name": "람바다",
+      "category": "외식비",
+      "order": 114
+    },
+    {
+      "id": "shared-expense-1785473412626",
+      "name": "떡튀순",
+      "category": "외식비",
+      "order": 115
+    },
+    {
+      "id": "shared-expense-1785473412628",
+      "name": "참치, 김, 닭발, 참기름, 파스타소스",
+      "category": "외식비",
+      "order": 116
     }
   ],
   "entries": [
@@ -1406,6 +1430,50 @@
       "yearMonth": "2026-08",
       "day": 29,
       "amount": 20588,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1785473412620",
+      "itemId": "shared-expense-1781404791966",
+      "yearMonth": "2026-08",
+      "day": 30,
+      "amount": 5850
+    },
+    {
+      "id": "shared-expense-1785473412622",
+      "itemId": "shared-expense-1785473412621",
+      "yearMonth": "2026-08",
+      "day": 30,
+      "amount": 33332
+    },
+    {
+      "id": "shared-expense-1785473412623",
+      "itemId": "shared-expense-1781404791966",
+      "yearMonth": "2026-08",
+      "day": 30,
+      "amount": 10800
+    },
+    {
+      "id": "shared-expense-1785473412625",
+      "itemId": "shared-expense-1785473412624",
+      "yearMonth": "2026-08",
+      "day": 30,
+      "amount": 91000
+    },
+    {
+      "id": "shared-expense-1785473412627",
+      "itemId": "shared-expense-1785473412626",
+      "yearMonth": "2026-08",
+      "day": 31,
+      "amount": 15000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1785473412629",
+      "itemId": "shared-expense-1785473412628",
+      "yearMonth": "2026-08",
+      "day": 30,
+      "amount": 81070,
       "creditCard": true
     }
   ],
