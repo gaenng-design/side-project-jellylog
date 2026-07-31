@@ -1379,7 +1379,8 @@
       "yearMonth": "2026-08",
       "day": 25,
       "amount": 22000,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1785070078674",
@@ -1387,7 +1388,8 @@
       "yearMonth": "2026-08",
       "day": 25,
       "amount": 13060,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1785070078679",
@@ -1430,7 +1432,8 @@
       "yearMonth": "2026-08",
       "day": 29,
       "amount": 20588,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1785473412620",
@@ -1474,7 +1477,8 @@
       "yearMonth": "2026-08",
       "day": 30,
       "amount": 81070,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     }
   ],
   "categories": [
