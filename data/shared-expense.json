@@ -1500,6 +1500,20 @@
       "amount": 81070,
       "creditCard": true,
       "cardSettled": true
+    },
+    {
+      "id": "shared-expense-1785650269723",
+      "itemId": "shared-expense-1780546297992",
+      "yearMonth": "2026-08",
+      "day": 1,
+      "amount": 44700
+    },
+    {
+      "id": "shared-expense-1785650269724",
+      "itemId": "shared-expense-1781404791966",
+      "yearMonth": "2026-08",
+      "day": 2,
+      "amount": 5850
     }
   ],
   "categories": [
