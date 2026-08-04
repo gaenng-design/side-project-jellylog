@@ -719,6 +719,12 @@
       "name": "두부, 양파, 쪽파, 감자, 소면, 대패목살, 요거트",
       "category": "식료품",
       "order": 119
+    },
+    {
+      "id": "shared-expense-1785814865624",
+      "name": "디카페인 커피캡슐 60개",
+      "category": "식료품",
+      "order": 120
     }
   ],
   "entries": [
@@ -1533,6 +1539,14 @@
       "yearMonth": "2026-08",
       "day": 3,
       "amount": 30780,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1785814865625",
+      "itemId": "shared-expense-1785814865624",
+      "yearMonth": "2026-08",
+      "day": 4,
+      "amount": 26870,
       "creditCard": true
     }
   ],
