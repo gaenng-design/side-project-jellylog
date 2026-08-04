@@ -707,6 +707,18 @@
       "name": "참치, 김, 닭발, 참기름, 파스타소스",
       "category": "식료품",
       "order": 117
+    },
+    {
+      "id": "shared-expense-1785809440204",
+      "name": "두부, 양파, 쪽파, 감자, 소면, 대패목살, 요거트",
+      "category": "외식비",
+      "order": 118
+    },
+    {
+      "id": "shared-expense-1785809440206",
+      "name": "두부, 양파, 쪽파, 감자, 소면, 대패목살, 요거트",
+      "category": "식료품",
+      "order": 119
     }
   ],
   "entries": [
@@ -1514,6 +1526,14 @@
       "yearMonth": "2026-08",
       "day": 2,
       "amount": 5850
+    },
+    {
+      "id": "shared-expense-1785809440205",
+      "itemId": "shared-expense-1785809440206",
+      "yearMonth": "2026-08",
+      "day": 3,
+      "amount": 30780,
+      "creditCard": true
     }
   ],
   "categories": [
