@@ -725,6 +725,24 @@
       "name": "디카페인 커피캡슐 60개",
       "category": "식료품",
       "order": 120
+    },
+    {
+      "id": "shared-expense-1786586307922",
+      "name": "무알콜 맥주",
+      "category": "식료품",
+      "order": 121
+    },
+    {
+      "id": "shared-expense-1786586307924",
+      "name": "칵테일 머들러",
+      "category": "생활 용품",
+      "order": 122
+    },
+    {
+      "id": "shared-expense-1786586307926",
+      "name": "아버님 닭가슴살",
+      "category": "기타",
+      "order": 123
     }
   ],
   "entries": [
@@ -1546,7 +1564,31 @@
       "itemId": "shared-expense-1785814865624",
       "yearMonth": "2026-08",
       "day": 4,
-      "amount": 26870,
+      "amount": 21870,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1786586307923",
+      "itemId": "shared-expense-1786586307922",
+      "yearMonth": "2026-08",
+      "day": 5,
+      "amount": 20000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1786586307925",
+      "itemId": "shared-expense-1786586307924",
+      "yearMonth": "2026-08",
+      "day": 8,
+      "amount": 12000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1786586307927",
+      "itemId": "shared-expense-1786586307926",
+      "yearMonth": "2026-08",
+      "day": 8,
+      "amount": 46900,
       "creditCard": true
     }
   ],
