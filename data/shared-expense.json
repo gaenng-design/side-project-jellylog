@@ -1598,7 +1598,8 @@
       "yearMonth": "2026-08",
       "day": 31,
       "amount": 15000,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1785473412629",
@@ -1629,7 +1630,8 @@
       "yearMonth": "2026-08",
       "day": 3,
       "amount": 30780,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1785814865625",
@@ -1637,7 +1639,8 @@
       "yearMonth": "2026-08",
       "day": 4,
       "amount": 21870,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1786163578172",
@@ -1708,7 +1711,8 @@
       "yearMonth": "2026-08",
       "day": 5,
       "amount": 20000,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1786163578191",
@@ -1716,7 +1720,8 @@
       "yearMonth": "2026-08",
       "day": 8,
       "amount": 12000,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1786163578193",
@@ -1724,7 +1729,8 @@
       "yearMonth": "2026-08",
       "day": 8,
       "amount": 46900,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1786163578195",
@@ -1732,7 +1738,8 @@
       "yearMonth": "2026-08",
       "day": 20,
       "amount": 1300,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1786163578197",
@@ -1740,8 +1747,7 @@
       "yearMonth": "2026-08",
       "day": 13,
       "amount": 90700,
-      "memo": "경은이 지불",
-      "creditCard": true
+      "memo": "경은이 지불"
     },
     {
       "id": "shared-expense-1786163578199",
@@ -1749,8 +1755,7 @@
       "yearMonth": "2026-08",
       "day": 14,
       "amount": 26000,
-      "memo": "경은이 지불",
-      "creditCard": true
+      "memo": "경은이 지불"
     },
     {
       "id": "shared-expense-1786163578201",
@@ -1758,8 +1763,7 @@
       "yearMonth": "2026-08",
       "day": 14,
       "amount": 16200,
-      "memo": "경은이 지불",
-      "creditCard": true
+      "memo": "경은이 지불"
     }
   ],
   "categories": [
