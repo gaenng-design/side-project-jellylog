@@ -797,6 +797,24 @@
       "name": "영화 - 트로이",
       "category": "기타",
       "order": 132
+    },
+    {
+      "id": "shared-expense-1786163578196",
+      "name": "와인한잔 - 유천이랑 셋이 먹음",
+      "category": "외식비",
+      "order": 133
+    },
+    {
+      "id": "shared-expense-1786163578198",
+      "name": "홍일면옥 - 화서 임장 후 저녁",
+      "category": "외식비",
+      "order": 134
+    },
+    {
+      "id": "shared-expense-1786163578200",
+      "name": "타이엔 - 신갈 임장 후 저녁",
+      "category": "외식비",
+      "order": 135
     }
   ],
   "entries": [
@@ -1644,7 +1662,7 @@
     },
     {
       "id": "shared-expense-1786163578178",
-      "itemId": "shared-expense-1786163578177",
+      "itemId": "shared-expense-1786163578200",
       "yearMonth": "2026-08",
       "day": 11,
       "amount": 22400
@@ -1714,6 +1732,33 @@
       "yearMonth": "2026-08",
       "day": 20,
       "amount": 1300,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1786163578197",
+      "itemId": "shared-expense-1786163578196",
+      "yearMonth": "2026-08",
+      "day": 13,
+      "amount": 90700,
+      "memo": "경은이 지불",
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1786163578199",
+      "itemId": "shared-expense-1786163578198",
+      "yearMonth": "2026-08",
+      "day": 14,
+      "amount": 26000,
+      "memo": "경은이 지불",
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1786163578201",
+      "itemId": "shared-expense-1786163578182",
+      "yearMonth": "2026-08",
+      "day": 14,
+      "amount": 16200,
+      "memo": "경은이 지불",
       "creditCard": true
     }
   ],
