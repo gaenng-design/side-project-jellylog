@@ -727,22 +727,76 @@
       "order": 120
     },
     {
-      "id": "shared-expense-1786586307922",
-      "name": "무알콜 맥주",
-      "category": "식료품",
+      "id": "shared-expense-1786163578171",
+      "name": "다이소",
+      "category": "생활 용품",
       "order": 121
     },
     {
-      "id": "shared-expense-1786586307924",
-      "name": "칵테일 머들러",
-      "category": "생활 용품",
+      "id": "shared-expense-1786163578173",
+      "name": "락트리 - 클라이밍",
+      "category": "기타",
       "order": 122
     },
     {
-      "id": "shared-expense-1786586307926",
-      "name": "아버님 닭가슴살",
-      "category": "기타",
+      "id": "shared-expense-1786163578175",
+      "name": "경은에게 이체?",
+      "category": "외식비",
       "order": 123
+    },
+    {
+      "id": "shared-expense-1786163578177",
+      "name": "타이엔 (신갈 임장 후 저녁)",
+      "category": "외식비",
+      "order": 124
+    },
+    {
+      "id": "shared-expense-1786163578179",
+      "name": "범수산 - 유천이랑 셋이 먹음",
+      "category": "외식비",
+      "order": 125
+    },
+    {
+      "id": "shared-expense-1786163578182",
+      "name": "택시비 - 화서 임장",
+      "category": "교통",
+      "order": 126
+    },
+    {
+      "id": "shared-expense-1786163578184",
+      "name": "양파",
+      "category": "식료품",
+      "order": 127
+    },
+    {
+      "id": "shared-expense-1786163578186",
+      "name": "다파는 농부 - 부침가루",
+      "category": "식료품",
+      "order": 128
+    },
+    {
+      "id": "shared-expense-1786163578188",
+      "name": "쿠팡 - 무알콜 맥주",
+      "category": "식료품",
+      "order": 129
+    },
+    {
+      "id": "shared-expense-1786163578190",
+      "name": "쿠팡 - 칵테일 머들러",
+      "category": "생활 용품",
+      "order": 130
+    },
+    {
+      "id": "shared-expense-1786163578192",
+      "name": "쿠팡 - 아버님 닭가슴살",
+      "category": "식료품",
+      "order": 131
+    },
+    {
+      "id": "shared-expense-1786163578194",
+      "name": "영화 - 트로이",
+      "category": "기타",
+      "order": 132
     }
   ],
   "entries": [
@@ -1568,27 +1622,98 @@
       "creditCard": true
     },
     {
-      "id": "shared-expense-1786586307923",
-      "itemId": "shared-expense-1786586307922",
+      "id": "shared-expense-1786163578172",
+      "itemId": "shared-expense-1786163578171",
+      "yearMonth": "2026-08",
+      "day": 6,
+      "amount": 4000
+    },
+    {
+      "id": "shared-expense-1786163578174",
+      "itemId": "shared-expense-1786163578173",
+      "yearMonth": "2026-08",
+      "day": 6,
+      "amount": 45000
+    },
+    {
+      "id": "shared-expense-1786163578176",
+      "itemId": "shared-expense-1786163578175",
+      "yearMonth": "2026-08",
+      "day": 8,
+      "amount": 45500
+    },
+    {
+      "id": "shared-expense-1786163578178",
+      "itemId": "shared-expense-1786163578177",
+      "yearMonth": "2026-08",
+      "day": 11,
+      "amount": 22400
+    },
+    {
+      "id": "shared-expense-1786163578180",
+      "itemId": "shared-expense-1786163578179",
+      "yearMonth": "2026-08",
+      "day": 13,
+      "amount": 84000
+    },
+    {
+      "id": "shared-expense-1786163578181",
+      "itemId": "shared-expense-1783867090269",
+      "yearMonth": "2026-08",
+      "day": 13,
+      "amount": 34000
+    },
+    {
+      "id": "shared-expense-1786163578183",
+      "itemId": "shared-expense-1786163578182",
+      "yearMonth": "2026-08",
+      "day": 14,
+      "amount": 23500
+    },
+    {
+      "id": "shared-expense-1786163578185",
+      "itemId": "shared-expense-1786163578184",
+      "yearMonth": "2026-08",
+      "day": 23,
+      "amount": 3000
+    },
+    {
+      "id": "shared-expense-1786163578187",
+      "itemId": "shared-expense-1786163578186",
+      "yearMonth": "2026-08",
+      "day": 23,
+      "amount": 2100
+    },
+    {
+      "id": "shared-expense-1786163578189",
+      "itemId": "shared-expense-1786163578188",
       "yearMonth": "2026-08",
       "day": 5,
       "amount": 20000,
       "creditCard": true
     },
     {
-      "id": "shared-expense-1786586307925",
-      "itemId": "shared-expense-1786586307924",
+      "id": "shared-expense-1786163578191",
+      "itemId": "shared-expense-1786163578190",
       "yearMonth": "2026-08",
       "day": 8,
       "amount": 12000,
       "creditCard": true
     },
     {
-      "id": "shared-expense-1786586307927",
-      "itemId": "shared-expense-1786586307926",
+      "id": "shared-expense-1786163578193",
+      "itemId": "shared-expense-1786163578192",
       "yearMonth": "2026-08",
       "day": 8,
       "amount": 46900,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1786163578195",
+      "itemId": "shared-expense-1786163578194",
+      "yearMonth": "2026-08",
+      "day": 20,
+      "amount": 1300,
       "creditCard": true
     }
   ],
