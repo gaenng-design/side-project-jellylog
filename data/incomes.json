@@ -223,6 +223,22 @@
       "description": "경은",
       "amount": 5240000,
       "id": "1785070976443-5wnop"
+    },
+    {
+      "yearMonth": "2026-09",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 5580000,
+      "id": "1787660031249-bwy58"
+    },
+    {
+      "yearMonth": "2026-09",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 5214000,
+      "id": "1787660089986-aplpt"
     }
   ]
 }
