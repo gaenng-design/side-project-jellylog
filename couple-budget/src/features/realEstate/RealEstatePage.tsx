@@ -241,6 +241,61 @@ function ManInput({
   )
 }
 
+// ── 영수증 구분선 컴포넌트 ──────────────────────────────────────
+
+const RECEIPT_BG = '#F5F7FA' // 페이지 배경색 — 천공 노치 색상
+
+function ReceiptDividerV() {
+  const notchBase = {
+    position: 'absolute' as const,
+    left: '50%' as const,
+    transform: 'translateX(-50%)' as const,
+    width: 20,
+    height: 20,
+    borderRadius: '50%' as const,
+    background: RECEIPT_BG,
+  }
+  return (
+    <div
+      style={{
+        position: 'relative',
+        flexShrink: 0,
+        width: 0,
+        alignSelf: 'stretch',
+        borderLeft: '1.5px dashed #D1D5DB',
+      }}
+    >
+      <div style={{ ...notchBase, top: -10 }} />
+      <div style={{ ...notchBase, bottom: -10 }} />
+    </div>
+  )
+}
+
+function ReceiptDividerH() {
+  const notchBase = {
+    position: 'absolute' as const,
+    top: '50%' as const,
+    transform: 'translateY(-50%)' as const,
+    width: 20,
+    height: 20,
+    borderRadius: '50%' as const,
+    background: RECEIPT_BG,
+  }
+  return (
+    <div
+      style={{
+        position: 'relative',
+        flexShrink: 0,
+        height: 0,
+        borderTop: '1.5px dashed #D1D5DB',
+      }}
+    >
+      <div style={{ ...notchBase, left: -10 }} />
+      <div style={{ ...notchBase, right: -10 }} />
+    </div>
+  )
+}
+
 // ── 대출 계산기 로직 ──────────────────────────────────────────
 
 type RepayType = 'equal-installment' | 'equal-principal' | 'bullet'
@@ -321,10 +376,18 @@ function LoanCalcSection({ narrow }: { narrow: boolean }) {
       <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1D1F', marginBottom: 12 }}>
         🏦 대출 계산기
       </div>
-      <div style={{ display: 'flex', flexDirection: narrow ? 'column' : 'row', gap: 20, alignItems: 'flex-start' }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: narrow ? 'column' : 'row',
+        background: (jellyCardStyle.background ?? '#FFFFFF') as string,
+        borderRadius: JELLY.radiusLg,
+        boxShadow: JELLY.shadowFloat,
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
 
         {/* 입력 패널 */}
-        <div style={{ ...jellyCardStyle, padding: '24px 20px', flex: 1, minWidth: 0 }}>
+        <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
             {/* 대출 금액 */}
@@ -447,8 +510,11 @@ function LoanCalcSection({ narrow }: { narrow: boolean }) {
           </div>
         </div>
 
+        {/* 점선 구분선 + 노치 */}
+        {narrow ? <ReceiptDividerH /> : <ReceiptDividerV />}
+
         {/* 결과 패널 */}
-        <div style={{ ...jellyCardStyle, padding: '24px 20px', flex: 1, minWidth: 0 }}>
+        <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1D1F', marginBottom: 4 }}>📊 상환 분석</div>
           {!result ? (
             <div style={{ marginTop: 24, textAlign: 'center', color: '#9CA3AF', fontSize: 14, padding: '32px 0' }}>
@@ -769,9 +835,17 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', flexDirection: narrow ? 'column' : 'row', gap: 20, alignItems: 'flex-start' }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: narrow ? 'column' : 'row',
+        background: (jellyCardStyle.background ?? '#FFFFFF') as string,
+        borderRadius: JELLY.radiusLg,
+        boxShadow: JELLY.shadowFloat,
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
         {/* 입력 패널 */}
-        <div style={{ ...jellyCardStyle, padding: '24px 20px', flex: 1, minWidth: 0 }}>
+        <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1D1F', marginBottom: 20 }}>
             📝 매매 조건 입력
           </div>
@@ -833,8 +907,11 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
           </div>
         </div>
 
+        {/* 점선 구분선 + 노치 */}
+        {narrow ? <ReceiptDividerH /> : <ReceiptDividerV />}
+
         {/* 결과 패널 */}
-        <div style={{ ...jellyCardStyle, padding: '24px 20px', flex: 1, minWidth: 0 }}>
+        <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1D1F', marginBottom: 4 }}>
             🧮 예상 비용 분석
           </div>
