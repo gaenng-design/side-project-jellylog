@@ -159,11 +159,13 @@ function OptionGroup<T extends string | number>({
 function ManInput({ value, onChange, placeholder }: {
   value: string; onChange: (v: string) => void; placeholder?: string
 }) {
+  // uncontrolled — onBlur로 store 반영, 입력 도중 리렌더 없음 → 모바일 키보드 유지
   return (
     <div style={{ position: 'relative' }}>
       <input
-        type="text" inputMode="numeric" value={value}
-        onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
+        type="text" inputMode="numeric" defaultValue={value} key={value}
+        onBlur={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
+        onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '') }}
         placeholder={placeholder ?? '0'} style={inputStyle}
       />
       <span style={{
@@ -314,8 +316,9 @@ function LoanCalcSection({
               <div style={labelStyle}>연 이자율 (%)</div>
               <div style={{ position: 'relative' }}>
                 <input
-                  type="text" inputMode="decimal" value={rateStr}
-                  onChange={(e) => onRateStr(e.target.value.replace(/[^0-9.]/g, ''))}
+                  type="text" inputMode="decimal" defaultValue={rateStr} key={rateStr}
+                  onBlur={(e) => onRateStr(e.target.value.replace(/[^0-9.]/g, ''))}
+                  onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, '') }}
                   placeholder="예) 3.5" style={inputStyle}
                 />
                 <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#9CA3AF', pointerEvents: 'none' }}>%</span>
@@ -340,8 +343,9 @@ function LoanCalcSection({
                 })}
                 <div style={{ position: 'relative', flex: '0 0 80px' }}>
                   <input
-                    type="text" inputMode="numeric" value={termStr}
-                    onChange={(e) => onTermStr(e.target.value.replace(/[^0-9]/g, ''))}
+                    type="text" inputMode="numeric" defaultValue={termStr} key={termStr}
+                    onBlur={(e) => onTermStr(e.target.value.replace(/[^0-9]/g, ''))}
+                    onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '') }}
                     placeholder="직접" style={{ ...inputStyle, height: 38, paddingRight: 28 }}
                   />
                   <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: '#9CA3AF', pointerEvents: 'none' }}>년</span>
@@ -479,13 +483,15 @@ function PlanEditRow({
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: '1px solid #F3F4F6' }}>
       <input
-        type="text" value={item.name} onChange={(e) => onChangeName(e.target.value)}
+        type="text" defaultValue={item.name} key={item.id + '-name'}
+        onBlur={(e) => onChangeName(e.target.value)}
         style={{ ...inputStyle, flex: '0 0 130px', height: 38, fontSize: 13 }}
       />
       <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
         <input
-          type="text" inputMode="numeric" value={item.amountMan}
-          onChange={(e) => onChangeAmount(e.target.value.replace(/[^0-9]/g, ''))}
+          type="text" inputMode="numeric" defaultValue={item.amountMan} key={item.id + '-amt'}
+          onBlur={(e) => onChangeAmount(e.target.value.replace(/[^0-9]/g, ''))}
+          onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '') }}
           placeholder="0" style={{ ...inputStyle, height: 38, paddingRight: 44, width: '100%' }}
         />
         <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: '#9CA3AF', pointerEvents: 'none' }}>만원</span>
