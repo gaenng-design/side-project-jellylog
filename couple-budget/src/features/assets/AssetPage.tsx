@@ -119,7 +119,6 @@ function MonthsTable({
   toggleCollapse,
   isMonthEditable,
   getProjectedValue,
-  getEntry,
   setEntry,
   monthTotals,
   onItemClick,
@@ -141,7 +140,6 @@ function MonthsTable({
   toggleCollapse: (itemId: string) => void
   isMonthEditable: (yr: number, monthIdx: number) => boolean
   getProjectedValue: (yr: number, item: AssetItem, monthIdx: number) => number
-  getEntry: (itemId: string, yearMonth: string) => number
   setEntry: (itemId: string, yearMonth: string, amount: number) => void
   /** months 와 동일 길이 · 동일 순서의 월 합계 배열 */
   monthTotals: number[]
@@ -477,9 +475,7 @@ function MonthsTable({
                     {sortedItems.map((item) => {
                       const isCollapsed = collapsedItems.has(item.id)
                       const colWidth = itemColWidths[item.id] ?? 100
-                      const displayValue = isFuture
-                        ? getProjectedValue(yr, item, mi)
-                        : getEntry(item.id, ym(yr, mi))
+                      const displayValue = getProjectedValue(yr, item, mi)
                       return (
                         <div
                           key={`${item.id}-${yr}-${mi}`}
@@ -791,15 +787,33 @@ export function AssetPage() {
     return monthIdx <= currentMonth
   }
 
-  /** 미래 월의 예측값 계산 — 현재 달 이후의 모든 월(다음 연도 포함)에 동일한 정책 적용 */
-  const getProjectedValue = (yr: number, item: AssetItem, monthIdx: number): number => {
-    // 과거 또는 현재 달까지는 실제 입력값
-    if (yr < currentYear || (yr === currentYear && monthIdx <= currentMonth)) {
-      return getEntry(item.id, ym(yr, monthIdx))
+  /**
+   * 저장값이 없는 과거·현재 달에 대해 직전 저장 월 + defaultAmount 누적으로 추산.
+   * 저장값이 있으면 그대로 반환.
+   */
+  const getEffectiveEntry = (item: AssetItem, yr: number, mi: number): number => {
+    const stored = getEntry(item.id, ym(yr, mi))
+    if (stored !== 0) return stored
+    if (!item.defaultAmount || item.defaultAmount <= 0) return 0
+    for (let offset = 1; offset <= 24; offset++) {
+      let pYr = yr
+      let pMi = mi - offset
+      while (pMi < 0) { pMi += 12; pYr-- }
+      if (pYr < 2020) break
+      const prevVal = getEntry(item.id, ym(pYr, pMi))
+      if (prevVal > 0) return prevVal + item.defaultAmount * offset
     }
-    // 미래(이번 달 이후): 현재 달 잔액을 베이스로 defaultAmount * 경과개월 적용
-    const baseYM = ym(currentYear, currentMonth)
-    const base = getEntry(item.id, baseYM)
+    return 0
+  }
+
+  /** 과거·현재·미래 월 모두의 표시값 계산 */
+  const getProjectedValue = (yr: number, item: AssetItem, monthIdx: number): number => {
+    // 과거·현재 달: 저장값 우선, 없으면 직전 월 기준 추산
+    if (yr < currentYear || (yr === currentYear && monthIdx <= currentMonth)) {
+      return getEffectiveEntry(item, yr, monthIdx)
+    }
+    // 미래 달: 현재 달의 유효값을 베이스로 defaultAmount * 경과개월 적용
+    const base = getEffectiveEntry(item, currentYear, currentMonth)
     const gap = (yr - currentYear) * 12 + (monthIdx - currentMonth)
     if (item.defaultAmount && item.defaultAmount > 0) {
       return base + item.defaultAmount * gap
@@ -861,13 +875,9 @@ export function AssetPage() {
 
   /** 특정 연도의 월별 합계 계산 (모든 항목 - 접힘 여부와 무관) */
   const calcMonthTotals = (yr: number) =>
-    Array.from({ length: 12 }, (_, mi) => {
-      const isFuture = yr === currentYear && mi > currentMonth
-      return sortedItems.reduce((sum, item) => {
-        const val = isFuture ? getProjectedValue(yr, item, mi) : getEntry(item.id, ym(yr, mi))
-        return sum + val
-      }, 0)
-    })
+    Array.from({ length: 12 }, (_, mi) =>
+      sortedItems.reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
+    )
 
   // 현재 연도 월별 합계 (summary 카드용)
   const currentYearMonthTotals = calcMonthTotals(currentYear)
@@ -1169,13 +1179,9 @@ export function AssetPage() {
             monthList.push({ year: yr, monthIdx: mi })
           }
         }
-        const flatMonthTotals = monthList.map(({ year: yr, monthIdx: mi }) => {
-          const isFuture = yr > currentYear || (yr === currentYear && mi > currentMonth)
-          return sortedItems.reduce((sum, item) => {
-            const v = isFuture ? getProjectedValue(yr, item, mi) : getEntry(item.id, ym(yr, mi))
-            return sum + v
-          }, 0)
-        })
+        const flatMonthTotals = monthList.map(({ year: yr, monthIdx: mi }) =>
+          sortedItems.reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
+        )
         return (
           <MonthsTable
             months={monthList}
@@ -1186,7 +1192,6 @@ export function AssetPage() {
             toggleCollapse={toggleCollapse}
             isMonthEditable={isMonthEditable}
             getProjectedValue={getProjectedValue}
-            getEntry={getEntry}
             setEntry={setEntry}
             monthTotals={flatMonthTotals}
             onItemClick={(item) => {

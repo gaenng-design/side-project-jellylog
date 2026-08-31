@@ -5,6 +5,7 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { AssetPage } from '@/features/assets/AssetPage'
 import { SharedExpensePage } from '@/features/sharedExpense/SharedExpensePage'
+import { RealEstatePage } from '@/features/realEstate/RealEstatePage'
 import { PasswordProtection } from '@/features/auth/PasswordProtection'
 import {
   JELLY,
@@ -34,6 +35,7 @@ const NAV_ITEMS = [
   { to: '/assets', label: '자산', icon: '💰' },
   { to: '/expense-plan', label: '지출 계획', icon: '📋' },
   { to: '/shared-expense', label: '공동 생활비', icon: '🏠' },
+  { to: '/real-estate', label: '부동산', icon: '🏡' },
   { to: '/settings', label: '설정', icon: '⚙️' },
 ]
 
@@ -772,6 +774,7 @@ function AppShell() {
             <Route path="/expense-plan" element={<ExpensePlanPage />} />
             <Route path="/assets" element={<AssetPage />} />
             <Route path="/shared-expense" element={<SharedExpensePage />} />
+            <Route path="/real-estate" element={<RealEstatePage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </div>
