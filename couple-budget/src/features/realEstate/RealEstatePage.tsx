@@ -479,27 +479,48 @@ function LoanCalcSection({ narrow }: { narrow: boolean }) {
                       type="button"
                       onClick={() => setRepayType(key)}
                       style={{
+                        position: 'relative',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 10,
+                        gap: 12,
                         padding: '10px 14px',
-                        borderRadius: 10,
-                        border: `1.5px solid ${active ? PRIMARY : '#E5E7EB'}`,
-                        background: active ? PRIMARY_LIGHT : '#FFFFFF',
+                        borderRadius: JELLY.radiusControl,
+                        border: active ? `1.5px solid ${PRIMARY}` : JELLY.innerBorderSoft,
+                        background: active
+                          ? 'linear-gradient(180deg, rgba(224,242,254,0.5) 0%, rgba(186,230,253,0.28) 100%)'
+                          : 'rgba(255,255,255,0.22)',
+                        boxShadow: active
+                          ? 'inset 0 1px 0 rgba(255,255,255,0.55), 0 4px 12px rgba(14,165,233,0.08)'
+                          : 'inset 0 1px 0 rgba(255,255,255,0.35)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                         textAlign: 'left',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        transition: 'border 0.15s ease, background 0.15s ease, box-shadow 0.15s ease',
                       }}
                     >
+                      {/* 커스텀 라디오 점 — 분담비율 설정과 동일 */}
                       <span style={{
-                        width: 16, height: 16, borderRadius: '50%',
-                        border: `2px solid ${active ? PRIMARY : '#D1D5DB'}`,
-                        background: active ? PRIMARY : '#FFFFFF',
+                        width: 18, height: 18, borderRadius: '50%',
+                        border: `2px solid ${active ? PRIMARY : 'rgba(148,163,184,0.55)'}`,
+                        background: active ? PRIMARY : 'rgba(255,255,255,0.45)',
                         flexShrink: 0,
-                        display: 'inline-block',
-                      }} />
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: active ? 'inset 0 1px 0 rgba(255,255,255,0.5)' : 'none',
+                      }}>
+                        {active && (
+                          <span style={{
+                            width: 7, height: 7, borderRadius: '50%',
+                            background: '#fff',
+                            boxShadow: '0 1px 2px rgba(15,23,42,0.2)',
+                          }} />
+                        )}
+                      </span>
                       <span>
-                        <span style={{ fontSize: 13, fontWeight: active ? 700 : 500, color: active ? PRIMARY : '#374151' }}>{label}</span>
+                        <span style={{ fontSize: 13, fontWeight: active ? 600 : 500, color: '#1A1D1F' }}>{label}</span>
                         <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 6 }}>{desc}</span>
                       </span>
                     </button>
