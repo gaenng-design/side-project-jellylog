@@ -519,6 +519,233 @@ function LoanCalcSection({ narrow }: { narrow: boolean }) {
   )
 }
 
+// ── 매매 계획 시트 ────────────────────────────────────────────
+
+interface PlanItem {
+  id: string
+  name: string
+  amountMan: string
+}
+
+let _planId = 0
+const planUid = () => `pl-${++_planId}`
+
+const PRESET_PLAN_ITEMS: Omit<PlanItem, 'id'>[] = [
+  { name: '인테리어 공사', amountMan: '' },
+  { name: '이사비', amountMan: '' },
+  { name: '가전·가구', amountMan: '' },
+  { name: '입주청소', amountMan: '' },
+  { name: '법무사 (등기비용)', amountMan: '' },
+]
+
+function PlanFixedRow({ label, value, dim }: { label: string; value: string; dim?: boolean }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 0',
+        borderTop: '1px solid #F3F4F6',
+      }}
+    >
+      <span style={{ fontSize: 13, color: '#374151' }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: dim ? '#9CA3AF' : '#1A1D1F' }}>{value}</span>
+    </div>
+  )
+}
+
+function PlanEditRow({
+  item,
+  onChangeName,
+  onChangeAmount,
+  onRemove,
+}: {
+  item: PlanItem
+  onChangeName: (v: string) => void
+  onChangeAmount: (v: string) => void
+  onRemove: () => void
+}) {
+  const amt = (parseInt(item.amountMan || '0', 10) || 0) * 10_000
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '6px 0',
+        borderTop: '1px solid #F3F4F6',
+      }}
+    >
+      <input
+        type="text"
+        value={item.name}
+        onChange={(e) => onChangeName(e.target.value)}
+        style={{ ...inputStyle, flex: '0 0 130px', height: 38, fontSize: 13 }}
+      />
+      <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={item.amountMan}
+          onChange={(e) => onChangeAmount(e.target.value.replace(/[^0-9]/g, ''))}
+          placeholder="0"
+          style={{ ...inputStyle, height: 38, paddingRight: 44, width: '100%' }}
+        />
+        <span
+          style={{
+            position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+            fontSize: 11, color: '#9CA3AF', pointerEvents: 'none',
+          }}
+        >
+          만원
+        </span>
+      </div>
+      {amt > 0 && (
+        <span style={{ fontSize: 11, color: '#6B7280', flexShrink: 0, minWidth: 60, textAlign: 'right' }}>
+          {fmtUnit(amt)}
+        </span>
+      )}
+      <button
+        type="button"
+        onClick={onRemove}
+        style={{
+          flexShrink: 0,
+          width: 32,
+          height: 32,
+          borderRadius: 8,
+          border: '1px solid rgba(252,165,165,0.45)',
+          background: 'rgba(254,242,242,0.9)',
+          color: '#b91c1c',
+          fontSize: 16,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'inherit',
+        }}
+      >
+        ×
+      </button>
+    </div>
+  )
+}
+
+function PlanSheet({
+  price,
+  acqTax,
+  agentFee,
+  loan,
+}: {
+  price: number
+  acqTax: number
+  agentFee: number
+  loan: number
+}) {
+  const [items, setItems] = useState<PlanItem[]>(
+    () => PRESET_PLAN_ITEMS.map((it) => ({ ...it, id: planUid() }))
+  )
+  const [newName, setNewName] = useState('')
+
+  const addItem = () => {
+    const name = newName.trim() || '기타'
+    setItems((prev) => [...prev, { id: planUid(), name, amountMan: '' }])
+    setNewName('')
+  }
+  const updateItem = (id: string, patch: Partial<Omit<PlanItem, 'id'>>) =>
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)))
+  const removeItem = (id: string) =>
+    setItems((prev) => prev.filter((it) => it.id !== id))
+
+  const extraTotal = items.reduce(
+    (sum, it) => sum + (parseInt(it.amountMan || '0', 10) || 0) * 10_000,
+    0,
+  )
+  const hasPrice  = price > 0
+  const fixedExtra = hasPrice ? acqTax + agentFee : 0
+  const totalCost  = price + fixedExtra + extraTotal
+  const selfFund   = Math.max(0, totalCost - loan)
+
+  return (
+    <div style={{ marginTop: 20 }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1D1F', marginBottom: 12 }}>
+        📋 매매 계획 시트
+      </div>
+      <div style={{ ...jellyCardStyle, padding: '24px 20px' }}>
+
+        {/* 부동산 취득 비용 */}
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', marginBottom: 4 }}>부동산 취득 비용</div>
+        <PlanFixedRow label="매매가" value={hasPrice ? fmtUnit(price) : '—'} dim={!hasPrice} />
+        <PlanFixedRow label="취득세" value={hasPrice ? fmtWon(acqTax) : '—'} dim={!hasPrice} />
+        <PlanFixedRow label="중개수수료 (상한)" value={hasPrice ? fmtWon(agentFee) : '—'} dim={!hasPrice} />
+
+        {/* 추가 비용 */}
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', marginTop: 16, marginBottom: 4 }}>추가 비용</div>
+        {items.map((item) => (
+          <PlanEditRow
+            key={item.id}
+            item={item}
+            onChangeName={(name) => updateItem(item.id, { name })}
+            onChangeAmount={(amountMan) => updateItem(item.id, { amountMan })}
+            onRemove={() => removeItem(item.id)}
+          />
+        ))}
+
+        {/* 항목 추가 */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+          <input
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') addItem() }}
+            placeholder="항목명 입력 후 추가"
+            style={{ ...inputStyle, flex: 1, height: 40 }}
+          />
+          <button
+            type="button"
+            onClick={addItem}
+            style={{
+              height: 40,
+              padding: '0 18px',
+              borderRadius: INPUT_BORDER_RADIUS,
+              border: `1.5px solid ${PRIMARY}`,
+              background: PRIMARY_LIGHT,
+              color: PRIMARY,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              flexShrink: 0,
+            }}
+          >
+            + 추가
+          </button>
+        </div>
+
+        {/* 합계 */}
+        <div style={{ marginTop: 8 }}>
+          <ResultRow label="총 비용 합계" value={fmtWon(totalCost)} sub={fmtUnit(totalCost)} dividerTop />
+          {loan > 0 && <ResultRow label="대출" value={`– ${fmtWon(loan)}`} />}
+          <ResultRow
+            label="필요 자기자본"
+            value={fmtWon(selfFund)}
+            sub={fmtUnit(selfFund)}
+            highlight
+            large
+            dividerTop
+          />
+        </div>
+
+        {!hasPrice && (
+          <div style={{ marginTop: 12, fontSize: 11, color: '#9CA3AF', textAlign: 'center' }}>
+            위에서 매매가를 입력하면 취득세·중개수수료가 자동 반영됩니다.
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── 매매 전 계산기 ─────────────────────────────────────────────
 
 function BeforeTab({ narrow }: { narrow: boolean }) {
@@ -701,6 +928,9 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
 
       {/* 대출 계산기 섹션 */}
       <LoanCalcSection narrow={narrow} />
+
+      {/* 매매 계획 시트 */}
+      <PlanSheet price={price} acqTax={acqTax} agentFee={agentFee} loan={loan} />
     </div>
   )
 }
