@@ -17,6 +17,7 @@ export interface AppData {
   incomes: unknown
   settlements: unknown
   metadata: unknown
+  realEstate?: unknown
 }
 
 export interface GitHubSyncResult {

@@ -24,6 +24,7 @@ import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { useSettlementStore } from '@/store/useSettlementStore'
 import { useAssetStore } from '@/store/useAssetStore'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
+import { useRealEstatePlanStore } from '@/store/useRealEstatePlanStore'
 import { GitHubDataSync } from '@/services/github-sync'
 
 const saveIcon = '💾'
@@ -72,6 +73,7 @@ function AppShell() {
       const settlementState = useSettlementStore.getState()
       const assetState = useAssetStore.getState()
       const sharedExpenseState = useSharedExpenseStore.getState()
+      const realEstateState = useRealEstatePlanStore.getState()
 
       // localStorage repository 데이터 (월별 실제 수입/지출 항목들)
       const readRepo = (key: string): unknown[] => {
@@ -133,6 +135,10 @@ function AppShell() {
         metadata: {
           app: appState,
           lastUpdated: new Date().toISOString(),
+        },
+        realEstate: {
+          plans: realEstateState.plans,
+          activePlanId: realEstateState.activePlanId,
         },
       }
 
@@ -239,6 +245,11 @@ function AppShell() {
 
         if (result.data.metadata && result.data.metadata.app) {
           useAppStore.setState(result.data.metadata.app)
+        }
+
+        if ((result.data as any).realEstate) {
+          const reData = (result.data as any).realEstate
+          if (reData.plans) useRealEstatePlanStore.setState({ plans: reData.plans, activePlanId: reData.activePlanId ?? null })
         }
 
         setSyncComplete(true)
