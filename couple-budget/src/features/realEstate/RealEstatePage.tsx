@@ -857,11 +857,6 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
               <OptionGroup options={[5, 10, 20]} value={p.depositPct} onChange={(v) => patchActivePlan({ depositPct: v })} format={(v) => `${v}%`} />
             </div>
             <div>
-              <div style={labelStyle}>예상 대출 금액</div>
-              <ManInput value={p.purchaseLoanMan} onChange={(v) => patchActivePlan({ purchaseLoanMan: v })} placeholder="예) 30000 (3억)" />
-              {loan > 0 && <div style={{ fontSize: 11, color: '#6B7280', marginTop: 5 }}>= {fmtUnit(loan)}</div>}
-            </div>
-            <div>
               <div style={labelStyle}>취득 후 보유 주택 수</div>
               <OptionGroup options={[1, 2, 3]} value={p.homeCount} onChange={(v) => patchActivePlan({ homeCount: v })} format={(v) => `${v}주택`} />
               {p.homeCount === 2 && <div style={{ fontSize: 11, color: '#F59E0B', marginTop: 6 }}>조정대상지역 기준 8% 적용</div>}
