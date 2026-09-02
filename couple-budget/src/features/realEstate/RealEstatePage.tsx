@@ -154,6 +154,8 @@ function OptionGroup<T extends string | number>({
   )
 }
 
+function eokToWon(s: string): number { return (parseFloat(s || '0') || 0) * 100_000_000 }
+
 // ── 금액 입력 (만원 단위) ─────────────────────────────────────
 
 function ManInput({ value, onChange, placeholder }: {
@@ -172,6 +174,35 @@ function ManInput({ value, onChange, placeholder }: {
         position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
         fontSize: 12, color: '#9CA3AF', pointerEvents: 'none',
       }}>만원</span>
+    </div>
+  )
+}
+
+// ── 금액 입력 (억 단위, 소수 지원) ───────────────────────────
+
+function EokInput({ value, onChange, placeholder }: {
+  value: string; onChange: (v: string) => void; placeholder?: string
+}) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <input
+        type="text" inputMode="decimal" defaultValue={value} key={value}
+        onBlur={(e) => {
+          let v = e.target.value.replace(/[^0-9.]/g, '')
+          const dots = v.split('.'); if (dots.length > 2) v = dots[0] + '.' + dots.slice(1).join('')
+          onChange(v)
+        }}
+        onChange={(e) => {
+          let v = e.target.value.replace(/[^0-9.]/g, '')
+          const dots = v.split('.'); if (dots.length > 2) v = dots[0] + '.' + dots.slice(1).join('')
+          e.target.value = v
+        }}
+        placeholder={placeholder ?? '0'} style={inputStyle}
+      />
+      <span style={{
+        position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+        fontSize: 12, color: '#9CA3AF', pointerEvents: 'none',
+      }}>억</span>
     </div>
   )
 }
@@ -274,7 +305,7 @@ function LoanCalcSection({
 }) {
   const [sentFlash, setSentFlash] = useState(false)
 
-  const principal = (parseInt(loanMan || '0', 10) || 0) * 10_000
+  const principal = eokToWon(loanMan)
   const annualRate = parseFloat(rateStr || '0') || 0
   const termYears  = parseInt(termStr || '0', 10) || 0
   const result = calcLoan(principal, annualRate, termYears, repayType)
@@ -308,7 +339,7 @@ function LoanCalcSection({
 
             <div>
               <div style={labelStyle}>대출 금액</div>
-              <ManInput value={loanMan} onChange={onLoanMan} placeholder="예) 30000 (3억)" />
+              <EokInput value={loanMan} onChange={onLoanMan} placeholder="예) 3 (3억)" />
               {principal > 0 && <div style={{ fontSize: 11, color: PRIMARY, marginTop: 5 }}>= {fmtUnit(principal)}</div>}
             </div>
 
@@ -474,12 +505,12 @@ function PlanFixedRow({ label, value, dim }: { label: string; value: string; dim
 }
 
 function PlanEditRow({
-  item, onChangeName, onChangeAmount, onRemove,
+  item, onChangeName, onChangeAmount, onRemove, isEok = false,
 }: {
   item: PlanLineItem; onChangeName: (v: string) => void
-  onChangeAmount: (v: string) => void; onRemove: () => void
+  onChangeAmount: (v: string) => void; onRemove: () => void; isEok?: boolean
 }) {
-  const amt = (parseInt(item.amountMan || '0', 10) || 0) * 10_000
+  const amt = isEok ? eokToWon(item.amountMan) : (parseInt(item.amountMan || '0', 10) || 0) * 10_000
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: '1px solid #F3F4F6' }}>
       <input
@@ -488,13 +519,30 @@ function PlanEditRow({
         style={{ ...inputStyle, flex: '0 0 130px', height: 38, fontSize: 13 }}
       />
       <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
-        <input
-          type="text" inputMode="numeric" defaultValue={item.amountMan} key={item.id + '-amt'}
-          onBlur={(e) => onChangeAmount(e.target.value.replace(/[^0-9]/g, ''))}
-          onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '') }}
-          placeholder="0" style={{ ...inputStyle, height: 38, paddingRight: 44, width: '100%' }}
-        />
-        <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: '#9CA3AF', pointerEvents: 'none' }}>만원</span>
+        {isEok ? (
+          <input
+            type="text" inputMode="decimal" defaultValue={item.amountMan} key={item.id + '-amt'}
+            onBlur={(e) => {
+              let v = e.target.value.replace(/[^0-9.]/g, '')
+              const dots = v.split('.'); if (dots.length > 2) v = dots[0] + '.' + dots.slice(1).join('')
+              onChangeAmount(v)
+            }}
+            onChange={(e) => {
+              let v = e.target.value.replace(/[^0-9.]/g, '')
+              const dots = v.split('.'); if (dots.length > 2) v = dots[0] + '.' + dots.slice(1).join('')
+              e.target.value = v
+            }}
+            placeholder="0" style={{ ...inputStyle, height: 38, paddingRight: 44, width: '100%' }}
+          />
+        ) : (
+          <input
+            type="text" inputMode="numeric" defaultValue={item.amountMan} key={item.id + '-amt'}
+            onBlur={(e) => onChangeAmount(e.target.value.replace(/[^0-9]/g, ''))}
+            onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '') }}
+            placeholder="0" style={{ ...inputStyle, height: 38, paddingRight: 44, width: '100%' }}
+          />
+        )}
+        <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: '#9CA3AF', pointerEvents: 'none' }}>{isEok ? '억' : '만원'}</span>
       </div>
       {amt > 0 && <span style={{ fontSize: 11, color: '#6B7280', flexShrink: 0, minWidth: 60, textAlign: 'right' }}>{fmtUnit(amt)}</span>}
       <button type="button" onClick={onRemove} style={{
@@ -556,10 +604,10 @@ function PlanSheet({
   const totalCost  = price + fixedExtra + extraTotal
   const selfFund   = Math.max(0, totalCost - loan)
 
-  const capitalTotal = capitalItems.reduce((s, it) => s + (parseInt(it.amountMan || '0', 10) || 0) * 10_000, 0)
+  const capitalTotal = capitalItems.reduce((s, it) => s + eokToWon(it.amountMan), 0)
   const totalAvail   = capitalTotal + loan
   const gap          = totalAvail - totalCost // 양수=여유, 음수=부족
-  const hasCapital   = capitalItems.some((it) => (parseInt(it.amountMan || '0', 10) || 0) > 0)
+  const hasCapital   = capitalItems.some((it) => eokToWon(it.amountMan) > 0)
 
   const sectionLabel: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: '#9CA3AF', marginBottom: 4 }
 
@@ -613,7 +661,7 @@ function PlanSheet({
           <div style={sectionLabel}>자금 출처</div>
           {capitalItems.map((item) => (
             <PlanEditRow
-              key={item.id} item={item}
+              key={item.id} item={item} isEok
               onChangeName={(name) => onUpdateCapitalItem(item.id, { name })}
               onChangeAmount={(amountMan) => onUpdateCapitalItem(item.id, { amountMan })}
               onRemove={() => onRemoveCapitalItem(item.id)}
@@ -810,8 +858,8 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
   if (!plan) setActivePlan(activePlan.id)
 
   const p = activePlan
-  const price = (parseInt(p.priceMan || '0', 10) || 0) * 10_000
-  const loan  = (parseInt(p.purchaseLoanMan || '0', 10) || 0) * 10_000
+  const price = eokToWon(p.priceMan)
+  const loan  = eokToWon(p.purchaseLoanMan)
 
   const deposit    = price * p.depositPct / 100
   const balance    = price - deposit
@@ -849,7 +897,7 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div>
               <div style={labelStyle}>매매가</div>
-              <ManInput value={p.priceMan} onChange={(v) => patchActivePlan({ priceMan: v })} placeholder="예) 50000 (5억)" />
+              <EokInput value={p.priceMan} onChange={(v) => patchActivePlan({ priceMan: v })} placeholder="예) 7.7 (7억7천)" />
               {hasPrice && <div style={{ fontSize: 11, color: PRIMARY, marginTop: 5 }}>= {fmtUnit(price)}</div>}
             </div>
             <div>
