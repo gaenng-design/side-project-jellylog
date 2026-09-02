@@ -852,8 +852,9 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
   const balance    = price - deposit
   const acqTax     = calcAcquisitionTax(price, p.homeCount)
   const agentFee   = calcAgentFee(price)
+  const extraTotal = p.planItems.reduce((s, it) => s + (parseInt(it.amountMan || '0', 10) || 0) * 10_000, 0)
   const otherCosts = acqTax + agentFee
-  const totalNeed  = price + otherCosts
+  const totalNeed  = price + otherCosts + extraTotal
   const ownCapital = Math.max(0, totalNeed - loan)
   const hasPrice   = price > 0
 
@@ -930,6 +931,9 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
               <div style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', marginTop: 16, marginBottom: 4 }}>추가 비용</div>
               <ResultRow label="취득세" value={fmtWon(acqTax)} sub={`${((acqTax / price) * 100).toFixed(2)}%`} />
               <ResultRow label="중개수수료 (상한)" value={fmtWon(agentFee)} sub={`${((agentFee / price) * 100).toFixed(2)}%`} />
+              {p.planItems.filter((it) => (parseInt(it.amountMan || '0', 10) || 0) > 0).map((it) => (
+                <ResultRow key={it.id} label={it.name || '기타'} value={fmtWon((parseInt(it.amountMan || '0', 10) || 0) * 10_000)} />
+              ))}
               <div style={{ marginTop: 8 }}>
                 <ResultRow label="총 취득 비용" value={fmtWon(totalNeed)} sub={fmtUnit(totalNeed)} dividerTop />
                 {loan > 0 && <ResultRow label="대출" value={`– ${fmtWon(loan)}`} />}
