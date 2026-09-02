@@ -544,7 +544,6 @@ function PlanEditRow({
         )}
         <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: '#9CA3AF', pointerEvents: 'none' }}>{isEok ? '억' : '만원'}</span>
       </div>
-      {amt > 0 && <span style={{ fontSize: 11, color: '#6B7280', flexShrink: 0, minWidth: 60, textAlign: 'right' }}>{fmtUnit(amt)}</span>}
       <button type="button" onClick={onRemove} style={{
         flexShrink: 0, width: 32, height: 32, borderRadius: 8,
         border: '1px solid rgba(252,165,165,0.45)', background: 'rgba(254,242,242,0.9)',
@@ -623,18 +622,6 @@ function PlanSheet({
         <PlanFixedRow label="매매가" value={hasPrice ? fmtUnit(price) : '—'} dim={!hasPrice} />
         <PlanFixedRow label="취득세" value={hasPrice ? fmtWon(acqTax) : '—'} dim={!hasPrice} />
         <PlanFixedRow label="중개수수료 (상한)" value={hasPrice ? fmtWon(agentFee) : '—'} dim={!hasPrice} />
-
-        {/* 추가 비용 */}
-        <div style={{ ...sectionLabel, marginTop: 20 }}>추가 비용</div>
-        {planItems.map((item) => (
-          <PlanEditRow
-            key={item.id} item={item}
-            onChangeName={(name) => onUpdatePlanItem(item.id, { name })}
-            onChangeAmount={(amountMan) => onUpdatePlanItem(item.id, { amountMan })}
-            onRemove={() => onRemovePlanItem(item.id)}
-          />
-        ))}
-        <AddItemRow onAdd={(name) => onAddPlanItem({ name, amountMan: '' })} />
 
         {/* 비용 합계 */}
         <div style={{ marginTop: 16 }}>
@@ -909,6 +896,19 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
               <OptionGroup options={[1, 2, 3]} value={p.homeCount} onChange={(v) => patchActivePlan({ homeCount: v })} format={(v) => `${v}주택`} />
               {p.homeCount === 2 && <div style={{ fontSize: 11, color: '#F59E0B', marginTop: 6 }}>조정대상지역 기준 8% 적용</div>}
               {p.homeCount >= 3 && <div style={{ fontSize: 11, color: '#EF4444', marginTop: 6 }}>3주택 이상 12% 적용</div>}
+            </div>
+
+            <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 18 }}>
+              <div style={labelStyle}>추가 비용</div>
+              {p.planItems.map((item) => (
+                <PlanEditRow
+                  key={item.id} item={item}
+                  onChangeName={(name) => updatePlanItem(item.id, { name })}
+                  onChangeAmount={(amountMan) => updatePlanItem(item.id, { amountMan })}
+                  onRemove={() => removePlanItem(item.id)}
+                />
+              ))}
+              <AddItemRow onAdd={(name) => addPlanItem({ name, amountMan: '' })} />
             </div>
           </div>
         </div>
