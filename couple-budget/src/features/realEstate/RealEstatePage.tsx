@@ -5,7 +5,7 @@ import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { useRealEstatePlanStore } from '@/store/useRealEstatePlanStore'
 import type { RepayType, PlanLineItem, RealEstatePlan } from '@/store/useRealEstatePlanStore'
 
-type Tab = 'before' | 'after'
+type Tab = 'before' | 'after' | 'trade'
 
 // ── 세금·수수료 계산 ──────────────────────────────────────────
 
@@ -104,6 +104,7 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'before', label: '매매 전' },
     { key: 'after', label: '매매 후' },
+    { key: 'trade', label: '갈아타기' },
   ]
   return (
     <div style={{
@@ -694,10 +695,11 @@ function PlanSheet({
 // ── 계획 선택 바 ──────────────────────────────────────────────
 
 function PlanSelectorBar({
-  plans, activePlanId, onSelect, onCreate, onDelete, onRename,
+  plans, activePlanId, purchasedPlanId, onSelect, onCreate, onDelete, onRename,
 }: {
   plans: RealEstatePlan[]
   activePlanId: string | null
+  purchasedPlanId: string | null
   onSelect: (id: string) => void
   onCreate: () => void
   onDelete: (id: string) => void
@@ -752,8 +754,15 @@ function PlanSelectorBar({
                   fontSize: 13, fontWeight: active ? 700 : 500,
                   cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
                   flexShrink: 0, transition: 'all 0.12s',
+                  display: 'flex', alignItems: 'center', gap: 4,
                 }}
               >
+                {purchasedPlanId === p.id && (
+                  <span style={{
+                    fontSize: 10, background: '#16a34a', color: '#fff',
+                    borderRadius: 4, padding: '1px 5px', fontWeight: 700, letterSpacing: '0.02em',
+                  }}>매매</span>
+                )}
                 {p.name}
               </button>
             )
@@ -816,8 +825,8 @@ function PlanSelectorBar({
 
 function BeforeTab({ narrow }: { narrow: boolean }) {
   const {
-    plans, activePlanId,
-    createPlan, deletePlan, renamePlan, setActivePlan, patchActivePlan,
+    plans, activePlanId, purchasedPlanId,
+    createPlan, deletePlan, renamePlan, setActivePlan, setPurchasedPlan, patchActivePlan,
     addPlanItem, updatePlanItem, removePlanItem,
     addCapitalItem, updateCapitalItem, removeCapitalItem,
   } = useRealEstatePlanStore()
@@ -864,6 +873,7 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
       <PlanSelectorBar
         plans={plans}
         activePlanId={activePlan.id}
+        purchasedPlanId={purchasedPlanId}
         onSelect={setActivePlan}
         onCreate={() => createPlan()}
         onDelete={deletePlan}
@@ -977,6 +987,28 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
         onUpdateCapitalItem={updateCapitalItem}
         onRemoveCapitalItem={removeCapitalItem}
       />
+
+      {/* ── 매매 확정 버튼 ── */}
+      <div style={{ marginTop: 20, padding: '20px', background: purchasedPlanId === p.id ? 'rgba(220,252,231,0.8)' : '#F0F2F5', borderRadius: JELLY.radiusLg, border: purchasedPlanId === p.id ? '1.5px solid rgba(74,222,128,0.6)' : '1.5px dashed #D1D5DB', textAlign: 'center' }}>
+        {purchasedPlanId === p.id ? (
+          <>
+            <div style={{ fontSize: 22, marginBottom: 6 }}>✅</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#15803d', marginBottom: 4 }}>{p.name} · 매매 확정</div>
+            <div style={{ fontSize: 12, color: '#374151', marginBottom: 14 }}>매매 후 탭에서 월 지출을 확인하세요.</div>
+            <button type="button" onClick={() => setPurchasedPlan(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid rgba(74,222,128,0.6)', background: '#fff', color: '#16a34a', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              매매 취소
+            </button>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 12 }}>이 시뮬레이션대로 매매를 결정했다면</div>
+            <button type="button" onClick={() => setPurchasedPlan(p.id)} style={{ padding: '11px 32px', borderRadius: JELLY.radiusControl, border: `1.5px solid ${PRIMARY}`, background: PRIMARY, color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              이 계획으로 매매 →
+            </button>
+            <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 8 }}>매매 후 탭에 월 지출이 자동으로 정리됩니다</div>
+          </>
+        )}
+      </div>
     </div>
   )
 }
@@ -1044,8 +1076,8 @@ function calcCapitalGainsTax(
 // ── 매매 후 ───────────────────────────────────────────────────
 
 function AfterTab({ narrow }: { narrow: boolean }) {
-  const { plans, activePlanId } = useRealEstatePlanStore()
-  const plan = plans.find((p) => p.id === activePlanId) ?? plans[plans.length - 1] ?? null
+  const { plans, purchasedPlanId } = useRealEstatePlanStore()
+  const plan = plans.find((p) => p.id === purchasedPlanId) ?? null
 
   // 보유세
   const [hAssessed, setHAssessed] = useState('')
@@ -1056,45 +1088,23 @@ function AfterTab({ narrow }: { narrow: boolean }) {
   const [mInsurance, setMInsurance] = useState('')
   const [mOther, setMOther] = useState('')
 
-  // 매도
-  const [sSalePrice, setSSalePrice] = useState('')
-  const [sHoldYears, setSHoldYears] = useState('')
-  const [sIsOne, setSIsOne] = useState(true)
-
   const assessedWon = eokToWon(hAssessed)
   const pt = assessedWon > 0 ? calcPropertyTax(assessedWon) : null
   const ct = assessedWon > 0 ? calcComprehensiveTax(assessedWon, hHomeCount) : null
   const annualHolding = (pt?.total ?? 0) + (ct?.total ?? 0)
 
-  // 대출 원리금 (매매 전 계획 연동)
+  // 대출 원리금 (매매 확정 계획 연동)
   const loanPrincipal = plan ? eokToWon(plan.loanCalcMan) : 0
   const loanRate = plan ? (parseFloat(plan.loanRate || '0') || 0) : 0
   const loanTerm = plan ? (parseInt(plan.loanTerm || '0', 10) || 0) : 0
   const loanRepay = plan?.repayType ?? 'equal-installment'
   const loanRes = calcLoan(loanPrincipal, loanRate, loanTerm, loanRepay)
   const loanMonthly = loanRes ? (loanRepay === 'bullet' ? loanRes.monthlyInterestOnly : loanRes.firstMonthPayment) : 0
-  const creditMonthly = plan ? (plan.creditLoans ?? []).reduce((s: number, cl: { man: string; rate: string; term: string }) => {
-    const clRes = calcLoan(eokToWon(cl.man), parseFloat(cl.rate || '0') || 0, parseInt(cl.term || '0', 10) || 0, 'equal-installment')
-    return s + (clRes ? clRes.firstMonthPayment : 0)
-  }, 0) : 0
-  const totalLoanMonthly = loanMonthly + creditMonthly
 
   // 월 지출 합계
   const mExtra = ((parseInt(mMaintenance || '0', 10) || 0) + (parseInt(mInsurance || '0', 10) || 0) + (parseInt(mOther || '0', 10) || 0)) * 10_000
   const holdingMonthly = annualHolding / 12
-  const totalMonthly = totalLoanMonthly + mExtra + holdingMonthly
-
-  // 매도 시뮬레이터
-  const acquirePriceWon = plan ? eokToWon(plan.priceMan) : 0
-  const acquireCost = (plan && acquirePriceWon > 0)
-    ? calcAcquisitionTax(acquirePriceWon, plan.homeCount) + calcAgentFee(acquirePriceWon)
-      + plan.planItems.reduce((s, it) => s + (parseInt(it.amountMan || '0', 10) || 0) * 10_000, 0)
-    : 0
-  const salePriceWon = eokToWon(sSalePrice)
-  const holdYears = parseInt(sHoldYears || '0', 10) || 0
-  const saleResult = salePriceWon > 0
-    ? calcCapitalGainsTax(salePriceWon, acquirePriceWon, acquireCost, holdYears, sIsOne)
-    : null
+  const totalMonthly = loanMonthly + mExtra + holdingMonthly
 
   const sectionTitle: React.CSSProperties = { fontSize: 15, fontWeight: 700, color: '#1A1D1F', marginBottom: 12 }
   const secLabel: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: '#9CA3AF', marginTop: 16, marginBottom: 4 }
@@ -1103,10 +1113,103 @@ function AfterTab({ narrow }: { narrow: boolean }) {
     <ResultRow key={label} label={label} value={value} sub={sub} {...opts} />
   )
 
+  // 매매 계획 미선택
+  if (!plan) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '64px 0', textAlign: 'center' }}>
+        <div style={{ fontSize: 44 }}>🏠</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1D1F' }}>매매한 계획을 선택해 주세요</div>
+        <div style={{ fontSize: 13, color: '#9CA3AF', lineHeight: 1.7 }}>
+          매매 전 탭에서 시뮬레이션을 만든 후<br />
+          <strong style={{ color: '#374151' }}>이 계획으로 매매 →</strong> 버튼을 누르면<br />
+          여기서 월 지출이 자동으로 정리됩니다.
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
-      {/* ── 보유세 계산기 ── */}
+      {/* ── 매매 기준 계획 뱃지 ── */}
+      <div style={{ marginBottom: 20, padding: '12px 16px', background: 'rgba(220,252,231,0.8)', border: '1.5px solid rgba(74,222,128,0.5)', borderRadius: JELLY.radiusLg, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontSize: 18 }}>✅</span>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#15803d' }}>{plan.name} · 매매 확정</div>
+          {eokToWon(plan.priceMan) > 0 && (
+            <div style={{ fontSize: 12, color: '#374151', marginTop: 2 }}>
+              매매가 {fmtUnit(eokToWon(plan.priceMan))}
+              {loanMonthly > 0 && ` · 월 납입금 ${fmtWon(loanMonthly)}`}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── 월 지출 요약 ── */}
       <div style={{ marginBottom: 20 }}>
+        <div style={sectionTitle}>📅 월 지출 요약</div>
+        <div style={{ ...jellyCardStyle, padding: '24px 20px', borderRadius: JELLY.radiusLg, boxShadow: JELLY.shadowFloat }}>
+          {loanMonthly > 0 && (
+            <div style={{ marginBottom: 16, padding: '12px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: 12, color: '#374151' }}>
+              대출 계산기 기준 · 월 납입금 <strong style={{ color: PRIMARY }}>{fmtWon(loanMonthly)}</strong> 자동 반영됨
+            </div>
+          )}
+          {annualHolding > 0 && (
+            <div style={{ marginBottom: 16, padding: '12px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: 12, color: '#374151' }}>
+              보유세 기준 · 월 환산 <strong style={{ color: PRIMARY }}>{fmtWon(holdingMonthly)}</strong> 자동 반영됨
+            </div>
+          )}
+          <div style={{ ...labelStyle, marginBottom: 12 }}>추가 고정 지출 입력</div>
+          <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr', gap: 16, marginBottom: 20 }}>
+            {([
+              ['관리비 (월)', mMaintenance, setMMaintenance],
+              ['보험료 (월)', mInsurance, setMInsurance],
+              ['기타 고정 지출 (월)', mOther, setMOther],
+            ] as [string, string, (v: string) => void][]).map(([label, val, setter]) => (
+              <div key={label}>
+                <div style={labelStyle}>{label}</div>
+                <div style={{ position: 'relative' }}>
+                  <input type="text" inputMode="numeric" defaultValue={val} key={val}
+                    onBlur={(e) => setter(e.target.value.replace(/[^0-9]/g, ''))}
+                    onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '') }}
+                    placeholder="0" style={inputStyle} />
+                  <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#9CA3AF', pointerEvents: 'none' }}>만원</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          {totalMonthly > 0 ? (
+            <>
+              {loanMonthly > 0 && (
+                <>
+                  <div style={secLabel}>대출 원리금</div>
+                  {receiptRow('주택담보대출', fmtWon(loanMonthly), `${plan.loanTerm}년 · 연 ${plan.loanRate}%`)}
+                </>
+              )}
+              {holdingMonthly > 0 && (
+                <>
+                  <div style={secLabel}>보유세 (월할)</div>
+                  {receiptRow('재산세·종부세', fmtWon(holdingMonthly), '연간 보유세 ÷ 12')}
+                </>
+              )}
+              {mExtra > 0 && (
+                <>
+                  <div style={secLabel}>기타 고정 지출</div>
+                  {parseInt(mMaintenance) > 0 && receiptRow('관리비', fmtWon((parseInt(mMaintenance) || 0) * 10_000))}
+                  {parseInt(mInsurance) > 0 && receiptRow('보험료', fmtWon((parseInt(mInsurance) || 0) * 10_000))}
+                  {parseInt(mOther) > 0 && receiptRow('기타', fmtWon((parseInt(mOther) || 0) * 10_000))}
+                </>
+              )}
+              {receiptRow('월 총 지출', fmtWon(totalMonthly), fmtUnit(totalMonthly), { highlight: true, large: true, dividerTop: true })}
+              {receiptRow('연간 환산', fmtWon(totalMonthly * 12), fmtUnit(totalMonthly * 12))}
+            </>
+          ) : (
+            <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 14, padding: '24px 0' }}>위 항목을 입력하면 월 지출이 계산됩니다.</div>
+          )}
+        </div>
+      </div>
+
+      {/* ── 보유세 계산기 ── */}
+      <div>
         <div style={sectionTitle}>🏛️ 보유세 계산기</div>
         <div style={{ display: 'flex', flexDirection: narrow ? 'column' : 'row', ...jellyCardStyle, borderRadius: JELLY.radiusLg, boxShadow: JELLY.shadowFloat, overflow: 'hidden' }}>
           <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
@@ -1158,75 +1261,50 @@ function AfterTab({ narrow }: { narrow: boolean }) {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
 
-      {/* ── 월 지출 요약 ── */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={sectionTitle}>📅 월 지출 요약</div>
-        <div style={{ ...jellyCardStyle, padding: '24px 20px', borderRadius: JELLY.radiusLg, boxShadow: JELLY.shadowFloat }}>
-          {totalLoanMonthly > 0 && (
-            <div style={{ marginBottom: 16, padding: '12px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: 12, color: '#374151' }}>
-              대출 계산기 설정 기준 · 월 납입금 <strong style={{ color: PRIMARY }}>{fmtWon(totalLoanMonthly)}</strong> 자동 반영됨
-            </div>
-          )}
-          {annualHolding > 0 && (
-            <div style={{ marginBottom: 16, padding: '12px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: 12, color: '#374151' }}>
-              보유세 계산기 기준 · 월 환산 <strong style={{ color: PRIMARY }}>{fmtWon(holdingMonthly)}</strong> 자동 반영됨
-            </div>
-          )}
-          <div style={{ ...labelStyle, marginBottom: 12 }}>추가 고정 지출 입력</div>
-          <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr', gap: 16, marginBottom: 20 }}>
-            {([
-              ['관리비 (월)', mMaintenance, setMMaintenance],
-              ['보험료 (월)', mInsurance, setMInsurance],
-              ['기타 고정 지출 (월)', mOther, setMOther],
-            ] as [string, string, (v: string) => void][]).map(([label, val, setter]) => (
-              <div key={label}>
-                <div style={labelStyle}>{label}</div>
-                <div style={{ position: 'relative' }}>
-                  <input type="text" inputMode="numeric" defaultValue={val} key={val}
-                    onBlur={(e) => setter(e.target.value.replace(/[^0-9]/g, ''))}
-                    onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '') }}
-                    placeholder="0" style={inputStyle} />
-                  <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#9CA3AF', pointerEvents: 'none' }}>만원</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          {totalMonthly > 0 ? (
-            <>
-              {totalLoanMonthly > 0 && (
-                <>
-                  <div style={secLabel}>대출 원리금</div>
-                  {loanMonthly > 0 && receiptRow(plan?.loanBank || '주택담보대출', fmtWon(loanMonthly))}
-                  {creditMonthly > 0 && receiptRow('신용대출 합계', fmtWon(creditMonthly))}
-                </>
-              )}
-              {holdingMonthly > 0 && (
-                <>
-                  <div style={secLabel}>보유세 (월할)</div>
-                  {receiptRow('재산세·종부세', fmtWon(holdingMonthly), '연간 보유세 ÷ 12')}
-                </>
-              )}
-              {mExtra > 0 && (
-                <>
-                  <div style={secLabel}>기타 고정 지출</div>
-                  {parseInt(mMaintenance) > 0 && receiptRow('관리비', fmtWon((parseInt(mMaintenance) || 0) * 10_000))}
-                  {parseInt(mInsurance) > 0 && receiptRow('보험료', fmtWon((parseInt(mInsurance) || 0) * 10_000))}
-                  {parseInt(mOther) > 0 && receiptRow('기타', fmtWon((parseInt(mOther) || 0) * 10_000))}
-                </>
-              )}
-              {receiptRow('월 총 지출', fmtWon(totalMonthly), fmtUnit(totalMonthly), { highlight: true, large: true, dividerTop: true })}
-              {receiptRow('연간 환산', fmtWon(totalMonthly * 12), fmtUnit(totalMonthly * 12))}
-            </>
-          ) : (
-            <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 14, padding: '24px 0' }}>위 항목을 입력하면 월 지출이 계산됩니다.</div>
-          )}
-        </div>
+// ── 갈아타기 ──────────────────────────────────────────────────
+
+function TradeTab({ narrow }: { narrow: boolean }) {
+  const { plans, purchasedPlanId } = useRealEstatePlanStore()
+  const plan = plans.find((p) => p.id === purchasedPlanId) ?? null
+
+  const [sSalePrice, setSSalePrice] = useState('')
+  const [sHoldYears, setSHoldYears] = useState('')
+  const [sIsOne, setSIsOne] = useState(true)
+
+  const acquirePriceWon = plan ? eokToWon(plan.priceMan) : 0
+  const acquireCost = (plan && acquirePriceWon > 0)
+    ? calcAcquisitionTax(acquirePriceWon, plan.homeCount) + calcAgentFee(acquirePriceWon)
+      + plan.planItems.reduce((s, it) => s + (parseInt(it.amountMan || '0', 10) || 0) * 10_000, 0)
+    : 0
+  const salePriceWon = eokToWon(sSalePrice)
+  const holdYears = parseInt(sHoldYears || '0', 10) || 0
+  const saleResult = salePriceWon > 0
+    ? calcCapitalGainsTax(salePriceWon, acquirePriceWon, acquireCost, holdYears, sIsOne)
+    : null
+
+  const sectionTitle: React.CSSProperties = { fontSize: 15, fontWeight: 700, color: '#1A1D1F', marginBottom: 12 }
+  const secLabel: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: '#9CA3AF', marginTop: 16, marginBottom: 4 }
+  const note: React.CSSProperties = { fontSize: 11, color: '#9CA3AF', lineHeight: 1.6, marginTop: 12 }
+  const receiptRow = (label: string, value: string, sub?: string, opts: { highlight?: boolean; large?: boolean; dividerTop?: boolean } = {}) => (
+    <ResultRow key={label} label={label} value={value} sub={sub} {...opts} />
+  )
+
+  return (
+    <div>
+      <div style={{ marginBottom: 20, padding: '14px 16px', background: '#F0F2F5', borderRadius: JELLY.radiusLg, fontSize: 13, color: '#6B7280', lineHeight: 1.7 }}>
+        현재 집을 팔고 새 집으로 갈아탈 때 예상되는 양도소득세를 계산합니다.
+        {plan && acquirePriceWon > 0 && (
+          <> · <strong style={{ color: '#374151' }}>{plan.name}</strong>의 취득가가 자동 반영됩니다.</>
+        )}
       </div>
 
       {/* ── 매도 시뮬레이터 ── */}
       <div>
-        <div style={sectionTitle}>📈 매도 시뮬레이터</div>
+        <div style={sectionTitle}>📈 양도소득세 계산</div>
         <div style={{ display: 'flex', flexDirection: narrow ? 'column' : 'row', ...jellyCardStyle, borderRadius: JELLY.radiusLg, boxShadow: JELLY.shadowFloat, overflow: 'hidden' }}>
           <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1D1F', marginBottom: 20 }}>📝 매도 조건 입력</div>
@@ -1236,12 +1314,12 @@ function AfterTab({ narrow }: { narrow: boolean }) {
                 {acquirePriceWon > 0 ? (
                   <>
                     <div style={{ padding: '10px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: 12, color: '#374151' }}>
-                      매매 전 계획 기준 · <strong style={{ color: PRIMARY }}>{fmtUnit(acquirePriceWon)}</strong>
+                      {plan!.name} 기준 · <strong style={{ color: PRIMARY }}>{fmtUnit(acquirePriceWon)}</strong>
                     </div>
                     {acquireCost > 0 && <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>취득비용 포함 {fmtUnit(acquirePriceWon + acquireCost)}</div>}
                   </>
                 ) : (
-                  <div style={{ fontSize: 12, color: '#9CA3AF' }}>매매 전 탭에서 매매가를 입력하면 자동 반영됩니다.</div>
+                  <div style={{ fontSize: 12, color: '#9CA3AF' }}>매매 전 탭에서 계획을 선택하면 자동 반영됩니다.</div>
                 )}
               </div>
               <div>
@@ -1324,7 +1402,9 @@ export default function RealEstatePage() {
     <div style={{ padding: narrow ? '16px 12px' : '24px 20px', maxWidth: 900, margin: '0 auto' }}>
       <h1 style={pageTitleH1Style}>🏠 부동산 계산기</h1>
       <TabBar active={tab} onChange={setTab} />
-      {tab === 'before' ? <BeforeTab narrow={narrow} /> : <AfterTab narrow={narrow} />}
+      {tab === 'before' && <BeforeTab narrow={narrow} />}
+      {tab === 'after' && <AfterTab narrow={narrow} />}
+      {tab === 'trade' && <TradeTab narrow={narrow} />}
     </div>
   )
 }

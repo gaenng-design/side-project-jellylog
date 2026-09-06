@@ -69,11 +69,13 @@ function makePlan(name: string): RealEstatePlan {
 interface RealEstatePlanStore {
   plans: RealEstatePlan[]
   activePlanId: string | null
+  purchasedPlanId: string | null
 
   createPlan: (name?: string) => string
   deletePlan: (id: string) => void
   renamePlan: (id: string, name: string) => void
   setActivePlan: (id: string) => void
+  setPurchasedPlan: (id: string | null) => void
   patchActivePlan: (patch: Partial<Omit<RealEstatePlan, 'id' | 'createdAt'>>) => void
 
   addPlanItem: (item: Omit<PlanLineItem, 'id'>) => void
@@ -90,6 +92,7 @@ export const useRealEstatePlanStore = create<RealEstatePlanStore>()(
     (set, get) => ({
       plans: [],
       activePlanId: null,
+      purchasedPlanId: null,
 
       createPlan: (name) => {
         const label = name ?? `계획 ${get().plans.length + 1}`
@@ -103,7 +106,8 @@ export const useRealEstatePlanStore = create<RealEstatePlanStore>()(
           const plans = s.plans.filter((p) => p.id !== id)
           const activePlanId =
             s.activePlanId === id ? (plans[plans.length - 1]?.id ?? null) : s.activePlanId
-          return { plans, activePlanId }
+          const purchasedPlanId = s.purchasedPlanId === id ? null : s.purchasedPlanId
+          return { plans, activePlanId, purchasedPlanId }
         })
       },
 
@@ -116,6 +120,7 @@ export const useRealEstatePlanStore = create<RealEstatePlanStore>()(
       },
 
       setActivePlan: (id) => set({ activePlanId: id }),
+      setPurchasedPlan: (id) => set({ purchasedPlanId: id }),
 
       patchActivePlan: (patch) => {
         set((s) => {
