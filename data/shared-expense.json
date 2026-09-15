@@ -817,58 +817,46 @@
       "order": 135
     },
     {
-      "id": "shared-expense-1789446342343",
+      "id": "shared-expense-1789446754133",
       "name": "형수민경 술값",
-      "category": "외식비",
+      "category": "유흥",
       "order": 136
     },
     {
-      "id": "shared-expense-1789446342345",
-      "name": "느티나무마트 술+수육",
-      "category": "식료품",
+      "id": "shared-expense-1789446754135",
+      "name": "느티나무마트 술",
+      "category": "유흥",
       "order": 137
     },
     {
-      "id": "shared-expense-1789446342347",
-      "name": "돈가네 돼지고기김치찌개",
+      "id": "shared-expense-1789446754137",
+      "name": "돈가네 김치찌개",
       "category": "외식비",
       "order": 138
     },
     {
-      "id": "shared-expense-1789446342349",
-      "name": "채채네 - 크레프트한스",
+      "id": "shared-expense-1789446754139",
+      "name": "채채네랑",
       "category": "외식비",
       "order": 139
     },
     {
-      "id": "shared-expense-1789446342352",
+      "id": "shared-expense-1789446754142",
       "name": "명절 기차비",
       "category": "교통",
       "order": 140
     },
     {
-      "id": "shared-expense-1789446342354",
+      "id": "shared-expense-1789446754144",
       "name": "봉봉회마차",
       "category": "외식비",
       "order": 141
     },
     {
-      "id": "shared-expense-1789446342356",
-      "name": "느티나무마트 술",
-      "category": "유흥",
-      "order": 142
-    },
-    {
-      "id": "shared-expense-1789446342358",
-      "name": "느티나무마트 장봄",
-      "category": "외식비",
-      "order": 143
-    },
-    {
-      "id": "shared-expense-1789446342360",
+      "id": "shared-expense-1789446754147",
       "name": "느티나무마트 장봄",
       "category": "식료품",
-      "order": 144
+      "order": 142
     }
   ],
   "entries": [
@@ -1820,71 +1808,71 @@
       "memo": "경은이 지불"
     },
     {
-      "id": "shared-expense-1789446342342",
+      "id": "shared-expense-1789446754132",
       "itemId": "shared-expense-1783867090269",
       "yearMonth": "2026-09",
       "day": 29,
       "amount": 31400
     },
     {
-      "id": "shared-expense-1789446342344",
-      "itemId": "shared-expense-1789446342343",
+      "id": "shared-expense-1789446754134",
+      "itemId": "shared-expense-1789446754133",
       "yearMonth": "2026-09",
       "day": 29,
       "amount": 124400
     },
     {
-      "id": "shared-expense-1789446342346",
-      "itemId": "shared-expense-1789446342356",
+      "id": "shared-expense-1789446754136",
+      "itemId": "shared-expense-1789446754135",
       "yearMonth": "2026-09",
       "day": 29,
       "amount": 120900
     },
     {
-      "id": "shared-expense-1789446342348",
-      "itemId": "shared-expense-1789446342347",
+      "id": "shared-expense-1789446754138",
+      "itemId": "shared-expense-1789446754137",
       "yearMonth": "2026-09",
       "day": 31,
       "amount": 37000
     },
     {
-      "id": "shared-expense-1789446342350",
-      "itemId": "shared-expense-1789446342349",
+      "id": "shared-expense-1789446754140",
+      "itemId": "shared-expense-1789446754139",
       "yearMonth": "2026-09",
       "day": 6,
-      "amount": 101000
+      "amount": 57350
     },
     {
-      "id": "shared-expense-1789446342351",
-      "itemId": "shared-expense-1783867090269",
+      "id": "shared-expense-1789446754141",
+      "itemId": "shared-expense-1780546297992",
       "yearMonth": "2026-09",
       "day": 7,
       "amount": 16300
     },
     {
-      "id": "shared-expense-1789446342353",
-      "itemId": "shared-expense-1789446342352",
+      "id": "shared-expense-1789446754143",
+      "itemId": "shared-expense-1789446754142",
       "yearMonth": "2026-09",
       "day": 12,
       "amount": 150500
     },
     {
-      "id": "shared-expense-1789446342355",
-      "itemId": "shared-expense-1789446342354",
+      "id": "shared-expense-1789446754145",
+      "itemId": "shared-expense-1789446754144",
       "yearMonth": "2026-09",
       "day": 12,
       "amount": 66000
     },
     {
-      "id": "shared-expense-1789446342357",
-      "itemId": "shared-expense-1789446342356",
+      "id": "shared-expense-1789446754146",
+      "itemId": "shared-expense-1789446754135",
       "yearMonth": "2026-09",
       "day": 12,
       "amount": 88100
     },
     {
-      "id": "shared-expense-1789446342359",
-      "itemId": "shared-expense-1789446342360",
+      "id": "shared-expense-1789446754148",
+      "itemId": "shared-expense-1789446754147",
       "yearMonth": "2026-09",
       "day": 12,
       "amount": 44350
