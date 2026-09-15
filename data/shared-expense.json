@@ -815,6 +815,60 @@
       "name": "타이엔 - 신갈 임장 후 저녁",
       "category": "외식비",
       "order": 135
+    },
+    {
+      "id": "shared-expense-1789446342343",
+      "name": "형수민경 술값",
+      "category": "외식비",
+      "order": 136
+    },
+    {
+      "id": "shared-expense-1789446342345",
+      "name": "느티나무마트 술+수육",
+      "category": "식료품",
+      "order": 137
+    },
+    {
+      "id": "shared-expense-1789446342347",
+      "name": "돈가네 돼지고기김치찌개",
+      "category": "외식비",
+      "order": 138
+    },
+    {
+      "id": "shared-expense-1789446342349",
+      "name": "채채네 - 크레프트한스",
+      "category": "외식비",
+      "order": 139
+    },
+    {
+      "id": "shared-expense-1789446342352",
+      "name": "명절 기차비",
+      "category": "교통",
+      "order": 140
+    },
+    {
+      "id": "shared-expense-1789446342354",
+      "name": "봉봉회마차",
+      "category": "외식비",
+      "order": 141
+    },
+    {
+      "id": "shared-expense-1789446342356",
+      "name": "느티나무마트 술",
+      "category": "유흥",
+      "order": 142
+    },
+    {
+      "id": "shared-expense-1789446342358",
+      "name": "느티나무마트 장봄",
+      "category": "외식비",
+      "order": 143
+    },
+    {
+      "id": "shared-expense-1789446342360",
+      "name": "느티나무마트 장봄",
+      "category": "식료품",
+      "order": 144
     }
   ],
   "entries": [
@@ -1764,6 +1818,76 @@
       "day": 14,
       "amount": 16200,
       "memo": "경은이 지불"
+    },
+    {
+      "id": "shared-expense-1789446342342",
+      "itemId": "shared-expense-1783867090269",
+      "yearMonth": "2026-09",
+      "day": 29,
+      "amount": 31400
+    },
+    {
+      "id": "shared-expense-1789446342344",
+      "itemId": "shared-expense-1789446342343",
+      "yearMonth": "2026-09",
+      "day": 29,
+      "amount": 124400
+    },
+    {
+      "id": "shared-expense-1789446342346",
+      "itemId": "shared-expense-1789446342356",
+      "yearMonth": "2026-09",
+      "day": 29,
+      "amount": 120900
+    },
+    {
+      "id": "shared-expense-1789446342348",
+      "itemId": "shared-expense-1789446342347",
+      "yearMonth": "2026-09",
+      "day": 31,
+      "amount": 37000
+    },
+    {
+      "id": "shared-expense-1789446342350",
+      "itemId": "shared-expense-1789446342349",
+      "yearMonth": "2026-09",
+      "day": 6,
+      "amount": 101000
+    },
+    {
+      "id": "shared-expense-1789446342351",
+      "itemId": "shared-expense-1783867090269",
+      "yearMonth": "2026-09",
+      "day": 7,
+      "amount": 16300
+    },
+    {
+      "id": "shared-expense-1789446342353",
+      "itemId": "shared-expense-1789446342352",
+      "yearMonth": "2026-09",
+      "day": 12,
+      "amount": 150500
+    },
+    {
+      "id": "shared-expense-1789446342355",
+      "itemId": "shared-expense-1789446342354",
+      "yearMonth": "2026-09",
+      "day": 12,
+      "amount": 66000
+    },
+    {
+      "id": "shared-expense-1789446342357",
+      "itemId": "shared-expense-1789446342356",
+      "yearMonth": "2026-09",
+      "day": 12,
+      "amount": 88100
+    },
+    {
+      "id": "shared-expense-1789446342359",
+      "itemId": "shared-expense-1789446342360",
+      "yearMonth": "2026-09",
+      "day": 12,
+      "amount": 44350
     }
   ],
   "categories": [
