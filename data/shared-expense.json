@@ -893,6 +893,36 @@
       "name": "찜터만두",
       "category": "외식비",
       "order": 148
+    },
+    {
+      "id": "shared-expense-1790157068083",
+      "name": "쿠팡이츠 - 배떡",
+      "category": "외식비",
+      "order": 149
+    },
+    {
+      "id": "shared-expense-1790157068086",
+      "name": "쿠팡이츠 -",
+      "category": "외식비",
+      "order": 150
+    },
+    {
+      "id": "shared-expense-1790157068091",
+      "name": "쿠팡이츠 - 치킨",
+      "category": "외식비",
+      "order": 151
+    },
+    {
+      "id": "shared-expense-1790157068092",
+      "name": "쿠팡이츠 - 마라탕",
+      "category": "외식비",
+      "order": 152
+    },
+    {
+      "id": "shared-expense-1790157068093",
+      "name": "쿠팡이츠 - 떡볶이",
+      "category": "외식비",
+      "order": 153
     }
   ],
   "entries": [
@@ -1961,6 +1991,54 @@
       "yearMonth": "2026-09",
       "day": 23,
       "amount": 6000
+    },
+    {
+      "id": "shared-expense-1790157068084",
+      "itemId": "shared-expense-1790157068083",
+      "yearMonth": "2026-09",
+      "day": 11,
+      "amount": 24500,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068085",
+      "itemId": "shared-expense-1783260686900",
+      "yearMonth": "2026-09",
+      "day": 14,
+      "amount": 41000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068087",
+      "itemId": "shared-expense-1790157068091",
+      "yearMonth": "2026-09",
+      "day": 14,
+      "amount": 10147,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068088",
+      "itemId": "shared-expense-1790157068092",
+      "yearMonth": "2026-09",
+      "day": 18,
+      "amount": 22700,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068089",
+      "itemId": "shared-expense-1790157068093",
+      "yearMonth": "2026-09",
+      "day": 20,
+      "amount": 15500,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068090",
+      "itemId": "shared-expense-1782661271023",
+      "yearMonth": "2026-09",
+      "day": 20,
+      "amount": 43000,
+      "creditCard": true
     }
   ],
   "categories": [
