@@ -923,6 +923,30 @@
       "name": "쿠팡이츠 - 떡볶이",
       "category": "외식비",
       "order": 153
+    },
+    {
+      "id": "shared-expense-1790157068094",
+      "name": "쿠팡 -",
+      "category": "외식비",
+      "order": 154
+    },
+    {
+      "id": "shared-expense-1790157068096",
+      "name": "쿠팡",
+      "category": "외식비",
+      "order": 155
+    },
+    {
+      "id": "shared-expense-1790157068103",
+      "name": "쿠팡 - 추석 선물 (소고기)",
+      "category": "외식비",
+      "order": 156
+    },
+    {
+      "id": "shared-expense-1790157068105",
+      "name": "쿠팡 - 추석 선물 (소고기)",
+      "category": "경조사",
+      "order": 157
     }
   ],
   "entries": [
@@ -2038,6 +2062,78 @@
       "yearMonth": "2026-09",
       "day": 20,
       "amount": 43000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068095",
+      "itemId": "shared-expense-1790157068094",
+      "yearMonth": "2026-09",
+      "day": 27,
+      "amount": 11970,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068097",
+      "itemId": "shared-expense-1790157068096",
+      "yearMonth": "2026-09",
+      "day": 27,
+      "amount": 1876,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068098",
+      "itemId": "shared-expense-1790157068094",
+      "yearMonth": "2026-09",
+      "day": 29,
+      "amount": 8010,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068099",
+      "itemId": "shared-expense-1790157068094",
+      "yearMonth": "2026-09",
+      "day": 29,
+      "amount": 21440,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068100",
+      "itemId": "shared-expense-1790157068094",
+      "yearMonth": "2026-09",
+      "day": 3,
+      "amount": 4300,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068101",
+      "itemId": "shared-expense-1790157068094",
+      "yearMonth": "2026-09",
+      "day": 18,
+      "amount": 36974,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068102",
+      "itemId": "shared-expense-1790157068094",
+      "yearMonth": "2026-09",
+      "day": 18,
+      "amount": 18420,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068104",
+      "itemId": "shared-expense-1790157068105",
+      "yearMonth": "2026-09",
+      "day": 21,
+      "amount": 89900,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790157068106",
+      "itemId": "shared-expense-1790157068105",
+      "yearMonth": "2026-09",
+      "day": 21,
+      "amount": 104900,
       "creditCard": true
     }
   ],
