@@ -4,7 +4,7 @@
       "yearMonth": "2026-04",
       "person": "A",
       "category": "급여",
-      "description": "유저 1",
+      "description": "승윤",
       "amount": 5858000,
       "id": "1777468268931-uekpt"
     },
@@ -12,7 +12,7 @@
       "yearMonth": "2026-04",
       "person": "B",
       "category": "급여",
-      "description": "유저 2",
+      "description": "경은",
       "amount": 7597310,
       "id": "1777468268933-qglfr"
     },
@@ -239,6 +239,38 @@
       "description": "경은",
       "amount": 5214000,
       "id": "1787660089986-aplpt"
+    },
+    {
+      "yearMonth": "2026-09",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 5500000,
+      "id": "1790158347560-epwcs"
+    },
+    {
+      "yearMonth": "2026-09",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 5240000,
+      "id": "1790158347576-fof4l"
+    },
+    {
+      "yearMonth": "2026-10",
+      "person": "A",
+      "category": "급여",
+      "description": "승윤",
+      "amount": 5580000,
+      "id": "1790158353809-s8z4h"
+    },
+    {
+      "yearMonth": "2026-10",
+      "person": "B",
+      "category": "급여",
+      "description": "경은",
+      "amount": 5266254,
+      "id": "1790158353809-6h7mw"
     }
   ]
 }
