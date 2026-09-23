@@ -2082,7 +2082,8 @@
       "yearMonth": "2026-09",
       "day": 11,
       "amount": 24500,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068085",
@@ -2090,7 +2091,8 @@
       "yearMonth": "2026-09",
       "day": 14,
       "amount": 41000,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068087",
@@ -2098,7 +2100,8 @@
       "yearMonth": "2026-09",
       "day": 14,
       "amount": 10147,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068088",
@@ -2106,7 +2109,8 @@
       "yearMonth": "2026-09",
       "day": 18,
       "amount": 22700,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068089",
@@ -2114,7 +2118,8 @@
       "yearMonth": "2026-09",
       "day": 20,
       "amount": 15500,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068090",
@@ -2122,7 +2127,8 @@
       "yearMonth": "2026-09",
       "day": 20,
       "amount": 43000,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068095",
@@ -2130,7 +2136,8 @@
       "yearMonth": "2026-09",
       "day": 27,
       "amount": 11970,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068097",
@@ -2139,7 +2146,8 @@
       "day": 27,
       "amount": 1876,
       "memo": "쿠팡 캐시 사용",
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068098",
@@ -2147,7 +2155,8 @@
       "yearMonth": "2026-09",
       "day": 29,
       "amount": 8010,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068099",
@@ -2155,7 +2164,8 @@
       "yearMonth": "2026-09",
       "day": 29,
       "amount": 21440,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068100",
@@ -2163,7 +2173,8 @@
       "yearMonth": "2026-09",
       "day": 3,
       "amount": 4300,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068101",
@@ -2171,7 +2182,8 @@
       "yearMonth": "2026-09",
       "day": 18,
       "amount": 36974,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068102",
@@ -2179,7 +2191,8 @@
       "yearMonth": "2026-09",
       "day": 18,
       "amount": 18420,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068104",
@@ -2187,7 +2200,8 @@
       "yearMonth": "2026-09",
       "day": 21,
       "amount": 89900,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790157068106",
@@ -2195,7 +2209,8 @@
       "yearMonth": "2026-09",
       "day": 21,
       "amount": 104900,
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     }
   ],
   "categories": [
