@@ -118,6 +118,7 @@ function MonthsTable({
   collapsedItems,
   toggleCollapse,
   isMonthEditable,
+  editableBoundary,
   getProjectedValue,
   setEntry,
   monthTotals,
@@ -139,6 +140,8 @@ function MonthsTable({
   collapsedItems: Set<string>
   toggleCollapse: (itemId: string) => void
   isMonthEditable: (yr: number, monthIdx: number) => boolean
+  /** 편집 허용 상한 (yyyy*100 + monthIdx) */
+  editableBoundary: number
   getProjectedValue: (yr: number, item: AssetItem, monthIdx: number) => number
   setEntry: (itemId: string, yearMonth: string, amount: number) => void
   /** months 와 동일 길이 · 동일 순서의 월 합계 배열 */
@@ -1193,6 +1196,7 @@ export function AssetPage() {
             collapsedItems={collapsedItems}
             toggleCollapse={toggleCollapse}
             isMonthEditable={isMonthEditable}
+            editableBoundary={editableBoundary}
             getProjectedValue={getProjectedValue}
             setEntry={setEntry}
             monthTotals={flatMonthTotals}
