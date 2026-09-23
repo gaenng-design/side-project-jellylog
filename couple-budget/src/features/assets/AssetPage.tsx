@@ -438,7 +438,7 @@ function MonthsTable({
                     {!isCollapsed && group.entries.map(({ monthIdx: mi, flatIdx: idx }, withinGroupIdx) => {
                       const yr = group.year
                       const editable = isMonthEditable(yr, mi)
-                      const isFuture = yr > currentYear || (yr === currentYear && mi > currentMonth)
+                      const isFuture = yr * 100 + mi > editableBoundary
                       const isCurrent = yr === currentYear && mi === currentMonth
                       const isLastRowInGroup = withinGroupIdx === group.entries.length - 1
                       const isLastRow = isLastGroup && isLastRowInGroup
@@ -759,6 +759,9 @@ export function AssetPage() {
     : today
   const currentYear = focusDate.getFullYear()
   const currentMonth = focusDate.getMonth() // 0-based
+  // 편집 허용 상한: 다음 달까지 (12월이면 내년 1월)
+  const nextMonthDate = new Date(focusDate.getFullYear(), focusDate.getMonth() + 1, 1)
+  const editableBoundary = nextMonthDate.getFullYear() * 100 + nextMonthDate.getMonth()
 
   // 표시할 연도 목록: 현재달 기준 앞으로의 2년치 (올해 · 내년, 오래된 → 최신순)
   // 추가로 보고 싶은 미래 연도 수 (기본 2년치 + 사용자가 추가한 만큼)
@@ -780,11 +783,10 @@ export function AssetPage() {
     })
   }
 
-  /** 월이 편집 가능한지 (특정 연도/월 기준) */
+  /** 월이 편집 가능한지 — 이번 달 + 다음 달까지 허용 */
   const isMonthEditable = (yr: number, monthIdx: number): boolean => {
     if (yr < currentYear) return true
-    if (yr > currentYear) return false
-    return monthIdx <= currentMonth
+    return yr * 100 + monthIdx <= editableBoundary
   }
 
   /**
@@ -808,8 +810,8 @@ export function AssetPage() {
 
   /** 과거·현재·미래 월 모두의 표시값 계산 */
   const getProjectedValue = (yr: number, item: AssetItem, monthIdx: number): number => {
-    // 과거·현재 달: 저장값 우선, 없으면 직전 월 기준 추산
-    if (yr < currentYear || (yr === currentYear && monthIdx <= currentMonth)) {
+    // 편집 허용 범위(이번 달 + 다음 달)까지는 실제 입력값 (없으면 추산)
+    if (yr * 100 + monthIdx <= editableBoundary) {
       return getEffectiveEntry(item, yr, monthIdx)
     }
     // 미래 달: 현재 달의 유효값을 베이스로 defaultAmount * 경과개월 적용
