@@ -857,6 +857,42 @@
       "name": "느티나무마트 장봄",
       "category": "식료품",
       "order": 142
+    },
+    {
+      "id": "shared-expense-1790157068070",
+      "name": "홈플러스 익스프레스 - 한치",
+      "category": "식료품",
+      "order": 143
+    },
+    {
+      "id": "shared-expense-1790157068072",
+      "name": "으뜸 순두부",
+      "category": "외식비",
+      "order": 144
+    },
+    {
+      "id": "shared-expense-1790157068074",
+      "name": "전지윤 - 두쫀이 출생",
+      "category": "경조사",
+      "order": 145
+    },
+    {
+      "id": "shared-expense-1790157068076",
+      "name": "판교집",
+      "category": "외식비",
+      "order": 146
+    },
+    {
+      "id": "shared-expense-1790157068079",
+      "name": "미야즈",
+      "category": "유흥",
+      "order": 147
+    },
+    {
+      "id": "shared-expense-1790157068081",
+      "name": "찜터만두",
+      "category": "외식비",
+      "order": 148
     }
   ],
   "entries": [
@@ -1876,6 +1912,55 @@
       "yearMonth": "2026-09",
       "day": 12,
       "amount": 44350
+    },
+    {
+      "id": "shared-expense-1790157068071",
+      "itemId": "shared-expense-1790157068070",
+      "yearMonth": "2026-09",
+      "day": 18,
+      "amount": 16070
+    },
+    {
+      "id": "shared-expense-1790157068073",
+      "itemId": "shared-expense-1790157068072",
+      "yearMonth": "2026-09",
+      "day": 20,
+      "amount": 20000
+    },
+    {
+      "id": "shared-expense-1790157068075",
+      "itemId": "shared-expense-1790157068074",
+      "yearMonth": "2026-09",
+      "day": 21,
+      "amount": 50000
+    },
+    {
+      "id": "shared-expense-1790157068077",
+      "itemId": "shared-expense-1790157068076",
+      "yearMonth": "2026-09",
+      "day": 22,
+      "amount": 25000
+    },
+    {
+      "id": "shared-expense-1790157068078",
+      "itemId": "shared-expense-1781404791966",
+      "yearMonth": "2026-09",
+      "day": 22,
+      "amount": 11800
+    },
+    {
+      "id": "shared-expense-1790157068080",
+      "itemId": "shared-expense-1790157068079",
+      "yearMonth": "2026-09",
+      "day": 23,
+      "amount": 54000
+    },
+    {
+      "id": "shared-expense-1790157068082",
+      "itemId": "shared-expense-1790157068081",
+      "yearMonth": "2026-09",
+      "day": 23,
+      "amount": 6000
     }
   ],
   "categories": [
