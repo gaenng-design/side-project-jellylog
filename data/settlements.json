@@ -147,6 +147,28 @@
           "sav-3": true
         }
       }
+    },
+    "2026-10": {
+      "A": {
+        "deposit": false,
+        "sharedLiving": true,
+        "transfer5090Send": false,
+        "sharedFundExpense": false,
+        "separateItemChecks": {
+          "1": true
+        },
+        "investChecks": {}
+      },
+      "B": {
+        "deposit": true,
+        "sharedLiving": true,
+        "transfer5090Send": false,
+        "sharedFundExpense": false,
+        "separateItemChecks": {
+          "2": true
+        },
+        "investChecks": {}
+      }
     }
   },
   "memoByMonth": {
