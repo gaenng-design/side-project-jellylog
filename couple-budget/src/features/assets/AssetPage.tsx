@@ -441,7 +441,7 @@ function MonthsTable({
                     {!isCollapsed && group.entries.map(({ monthIdx: mi, flatIdx: idx }, withinGroupIdx) => {
                       const yr = group.year
                       const editable = isMonthEditable(yr, mi)
-                      const isFuture = yr * 100 + mi > editableBoundary
+                      const isFuture = !editable
                       const isCurrent = yr === currentYear && mi === currentMonth
                       const isLastRowInGroup = withinGroupIdx === group.entries.length - 1
                       const isLastRow = isLastGroup && isLastRowInGroup
@@ -865,9 +865,12 @@ export function AssetPage() {
   // entries 사용 표시 (lint warning 방지) - subscribe 목적
   void entries
 
+  // 카테고리 필터 탭
+  const [categoryFilter, setCategoryFilter] = useState('전체')
+
   // 항목 수정 모달
   const [editingItem, setEditingItem] = useState<AssetItem | null>(null)
-  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false })
+  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, targetAmount: '', costBasis: '', maturityDate: '' })
 
   /** 명의 순(A → B → 공유) → 그 안에서 order 순으로 정렬 */
   const personRank = (p?: 'A' | 'B'): number => (p === 'A' ? 0 : p === 'B' ? 1 : 2)
@@ -877,6 +880,16 @@ export function AssetPage() {
     if (ra !== rb) return ra - rb
     return a.order - b.order
   })
+
+  const filteredItems = categoryFilter === '전체'
+    ? sortedItems
+    : sortedItems.filter((item) => item.category === categoryFilter)
+
+  /** 카테고리별 현재 월 합계 */
+  const calcCategoryTotal = (cat: string) => {
+    const its = cat === '전체' ? sortedItems : sortedItems.filter((i) => i.category === cat)
+    return its.reduce((sum, item) => sum + getEntry(item.id, ym(currentYear, currentMonth)), 0)
+  }
 
   /** 특정 연도의 월별 합계 계산 (모든 항목 - 접힘 여부와 무관) */
   const calcMonthTotals = (yr: number) =>
@@ -1152,6 +1165,142 @@ export function AssetPage() {
         )
       })()}
 
+      {/* 카테고리 필터 탭 */}
+      {(() => {
+        const cats = ['전체', ...ASSET_CATEGORIES.filter((c) =>
+          sortedItems.some((i) => i.category === c)
+        )]
+        return (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
+            {cats.map((cat) => {
+              const total = calcCategoryTotal(cat)
+              const active = categoryFilter === cat
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategoryFilter(cat)}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 20,
+                    border: active ? `1.5px solid ${PRIMARY}` : '1.5px solid #e5e7eb',
+                    background: active ? `rgba(79,140,255,0.1)` : '#fff',
+                    fontSize: 12,
+                    fontWeight: active ? 600 : 400,
+                    color: active ? PRIMARY : '#6b7280',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  {cat}
+                  {total > 0 && (
+                    <span style={{ fontSize: 11, color: active ? PRIMARY : '#9ca3af' }}>
+                      {Math.round(total / 10000).toLocaleString('ko-KR')}만
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        )
+      })()}
+
+      {/* 투자 인사이트 카드 (저축: 목표/진행률/D-day, 투자: ROI) */}
+      {categoryFilter !== '전체' && (() => {
+        const currentYM = ym(currentYear, currentMonth)
+        const insightItems = filteredItems.filter((item) => {
+          if (item.category === '저축') return !!(item.targetAmount || item.maturityDate)
+          if (item.category === '투자') return !!item.costBasis
+          return false
+        })
+        if (insightItems.length === 0) return null
+        return (
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
+            {insightItems.map((item) => {
+              const currentVal = getEntry(item.id, currentYM)
+              if (item.category === '저축') {
+                const target = item.targetAmount ?? 0
+                const pct = target > 0 ? Math.min(100, Math.round((currentVal / target) * 100)) : 0
+                const dday = item.maturityDate
+                  ? Math.ceil((new Date(item.maturityDate).getTime() - new Date().getTime()) / 86400000)
+                  : null
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      ...jellyCardStyle,
+                      padding: '12px 16px',
+                      flex: '1 1 200px',
+                      minWidth: 180,
+                      maxWidth: 280,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>{item.name}</div>
+                    {target > 0 && (
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <span style={{ fontSize: 11, color: '#6b7280' }}>
+                            {Math.round(currentVal / 10000).toLocaleString()}만 / {Math.round(target / 10000).toLocaleString()}만원
+                          </span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: PRIMARY }}>{pct}%</span>
+                        </div>
+                        <div style={{ height: 6, borderRadius: 3, background: '#e5e7eb', overflow: 'hidden', marginBottom: 6 }}>
+                          <div style={{ height: '100%', borderRadius: 3, background: PRIMARY, width: `${pct}%`, transition: 'width 0.3s' }} />
+                        </div>
+                      </>
+                    )}
+                    {dday !== null && (
+                      <div style={{ fontSize: 11, color: dday <= 0 ? '#059669' : dday <= 30 ? '#f59e0b' : '#9ca3af' }}>
+                        {dday <= 0 ? '만기 도달' : `D-${dday}`}
+                        <span style={{ marginLeft: 4 }}>· {item.maturityDate}</span>
+                      </div>
+                    )}
+                  </div>
+                )
+              } else if (item.category === '투자') {
+                const basis = item.costBasis ?? 0
+                const profit = currentVal - basis
+                const roiPct = basis > 0 ? Math.round((profit / basis) * 1000) / 10 : 0
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      ...jellyCardStyle,
+                      padding: '12px 16px',
+                      flex: '1 1 200px',
+                      minWidth: 180,
+                      maxWidth: 280,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>{item.name}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontSize: 11, color: '#6b7280' }}>납입원금</span>
+                      <span style={{ fontSize: 11, color: '#374151' }}>{Math.round(basis / 10000).toLocaleString()}만원</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontSize: 11, color: '#6b7280' }}>평가금액</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>{Math.round(currentVal / 10000).toLocaleString()}만원</span>
+                    </div>
+                    {basis > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 6, borderTop: '1px solid #f3f4f6' }}>
+                        <span style={{ fontSize: 11, color: '#6b7280' }}>수익</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: profit >= 0 ? '#059669' : '#dc2626' }}>
+                          {profit >= 0 ? '+' : ''}{Math.round(profit / 10000).toLocaleString()}만원
+                          <span style={{ marginLeft: 4, fontSize: 11 }}>({roiPct >= 0 ? '+' : ''}{roiPct}%)</span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+              return null
+            })}
+          </div>
+        )
+      })()}
+
       {/* 항목 접기 안내 */}
       {sortedItems.length > 0 && collapsedItems.size > 0 && (
         <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 8 }}>
@@ -1185,14 +1334,14 @@ export function AssetPage() {
           }
         }
         const flatMonthTotals = monthList.map(({ year: yr, monthIdx: mi }) =>
-          sortedItems.reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
+          filteredItems.reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
         )
         return (
           <MonthsTable
             months={monthList}
             currentYear={currentYear}
             currentMonth={currentMonth}
-            sortedItems={sortedItems}
+            sortedItems={filteredItems}
             collapsedItems={collapsedItems}
             toggleCollapse={toggleCollapse}
             isMonthEditable={isMonthEditable}
@@ -1208,6 +1357,9 @@ export function AssetPage() {
                 defaultAmount: item.defaultAmount ? String(item.defaultAmount) : '',
                 person: item.person ?? '공유',
                 locked: !!item.locked,
+                targetAmount: item.targetAmount ? String(item.targetAmount) : '',
+                costBasis: item.costBasis ? String(item.costBasis) : '',
+                maturityDate: item.maturityDate ?? '',
               })
             }}
             getPersonLabel={getPersonLabel}
@@ -1341,6 +1493,54 @@ export function AssetPage() {
               <span>{editForm.locked ? 'on (만기까지 묶인 자산)' : 'off'}</span>
             </button>
           </div>
+
+          {/* 저축 전용 필드 */}
+          {editForm.category === '저축' && (
+            <>
+              <div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>목표 금액 (선택)</div>
+                <AmountInput
+                  value={editForm.targetAmount}
+                  onChange={(v) => setEditForm({ ...editForm, targetAmount: v })}
+                  placeholder="저축 목표 잔액"
+                  height={40}
+                />
+              </div>
+              <div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
+                <input
+                  type="date"
+                  value={editForm.maturityDate}
+                  onChange={(e) => setEditForm({ ...editForm, maturityDate: e.target.value })}
+                  style={{
+                    width: '100%',
+                    height: 40,
+                    padding: '0 12px',
+                    borderRadius: INPUT_BORDER_RADIUS,
+                    fontSize: INPUT_FONT_SIZE,
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    ...jellyInputSurface,
+                    color: '#232d3c',
+                  }}
+                />
+              </div>
+            </>
+          )}
+
+          {/* 투자 전용 필드 */}
+          {editForm.category === '투자' && (
+            <div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>납입 원금 (선택)</div>
+              <AmountInput
+                value={editForm.costBasis}
+                onChange={(v) => setEditForm({ ...editForm, costBasis: v })}
+                placeholder="총 납입한 원금"
+                height={40}
+              />
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 18 }}>
@@ -1393,6 +1593,9 @@ export function AssetPage() {
                     person: newPerson,
                     defaultAmount: newDefaultAmount,
                     locked: editForm.locked || undefined,
+                    targetAmount: editForm.targetAmount ? parseInt(editForm.targetAmount.replace(/,/g, ''), 10) : undefined,
+                    costBasis: editForm.costBasis ? parseInt(editForm.costBasis.replace(/,/g, ''), 10) : undefined,
+                    maturityDate: editForm.maturityDate || undefined,
                   })
 
                   // 정기입금액 변경 시 현재 연도의 다음 달부터 누적 업데이트
