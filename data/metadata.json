@@ -1,6 +1,6 @@
 {
   "app": {
-    "currentYearMonth": "2026-09",
+    "currentYearMonth": "2026-10",
     "settings": {
       "personAName": "승윤",
       "personBName": "경은",
@@ -72,5 +72,5 @@
     "householdName": null,
     "yearPickerMaxYear": 2026
   },
-  "lastUpdated": "2026-09-23T10:34:29.770Z"
+  "lastUpdated": "2026-09-27T11:30:18.989Z"
 }
