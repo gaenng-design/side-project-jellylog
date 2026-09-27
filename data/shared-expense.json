@@ -1007,6 +1007,12 @@
       "name": "쿠팡 - 커피캡슐",
       "category": "외식비",
       "order": 167
+    },
+    {
+      "id": "shared-expense-1790508574801",
+      "name": "쿠팡 - 계란, 안키모",
+      "category": "식료품",
+      "order": 168
     }
   ],
   "entries": [
@@ -2211,6 +2217,13 @@
       "amount": 104900,
       "creditCard": true,
       "cardSettled": true
+    },
+    {
+      "id": "shared-expense-1790508574802",
+      "itemId": "shared-expense-1790508574801",
+      "yearMonth": "2026-10",
+      "day": 27,
+      "amount": 7420
     }
   ],
   "categories": [
