@@ -1013,6 +1013,12 @@
       "name": "쿠팡 - 계란, 안키모",
       "category": "식료품",
       "order": 168
+    },
+    {
+      "id": "shared-expense-1790518917641",
+      "name": "쿠팡 - 크림, 새우, 양파, 후추, 향균 스프레이",
+      "category": "식료품",
+      "order": 169
     }
   ],
   "entries": [
@@ -2223,7 +2229,16 @@
       "itemId": "shared-expense-1790508574801",
       "yearMonth": "2026-10",
       "day": 27,
-      "amount": 7420
+      "amount": 7420,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790518917642",
+      "itemId": "shared-expense-1790518917641",
+      "yearMonth": "2026-10",
+      "day": 27,
+      "amount": 74615,
+      "creditCard": true
     }
   ],
   "categories": [
