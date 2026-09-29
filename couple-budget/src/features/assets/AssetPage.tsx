@@ -986,6 +986,7 @@ export function AssetPage() {
    * 저장값이 있으면 그대로 반환.
    */
   const getEffectiveEntry = (item: AssetItem, yr: number, mi: number): number => {
+    if (item.closedYM && ym(yr, mi) > item.closedYM) return 0
     const stored = getEntry(item.id, ym(yr, mi))
     if (stored !== 0) return stored
     for (let offset = 1; offset <= 24; offset++) {
@@ -1101,7 +1102,7 @@ export function AssetPage() {
   // 항목 수정 모달
   const [editingItem, setEditingItem] = useState<AssetItem | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, interestRate: '', savingsType: 'installment' as 'installment' | 'deposit' | 'checking', costBasis: '', returnRate: '', maturityDate: '' })
+  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, interestRate: '', savingsType: 'installment' as 'installment' | 'deposit' | 'checking' | 'subscription', costBasis: '', returnRate: '', maturityDate: '', closedYM: '' })
 
   /** 명의 순(A → B → 공유) → 그 안에서 order 순으로 정렬 */
   const personRank = (p?: 'A' | 'B'): number => (p === 'A' ? 0 : p === 'B' ? 1 : 2)
@@ -1467,7 +1468,10 @@ export function AssetPage() {
       {categoryFilter !== '전체' && (() => {
         const currentYM = ym(currentYear, currentMonth)
         const insightItems = filteredItems.filter((item) => {
-          if (item.category === '저축') return !!(item.maturityDate || item.interestRate)
+          if (item.category === '저축') {
+            if (item.savingsType === 'subscription') return getEntry(item.id, currentYM) > 0
+            return !!(item.maturityDate || item.interestRate)
+          }
           if (item.category === '투자') return getEntry(item.id, currentYM) > 0
           return false
         })
@@ -1563,6 +1567,12 @@ export function AssetPage() {
                           <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{fmtMan(Math.round(maturityAmount / 10000))}원</span>
                         </div>
                       </>
+                    )}
+                    {item.savingsType === 'subscription' && maturityAmount === 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                        <span style={{ fontSize: 11, color: '#6b7280' }}>현재 잔액</span>
+                        <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(currentVal / 10000))}원</span>
+                      </div>
                     )}
                     {dday !== null && (
                       <div style={{ fontSize: 11, marginTop: 8, color: dday <= 0 ? '#059669' : dday <= 30 ? '#f59e0b' : '#9ca3af' }}>
@@ -1889,6 +1899,7 @@ export function AssetPage() {
                 interestRate: item.interestRate ? String(item.interestRate) : '',
                 savingsType: item.savingsType ?? 'installment',
                 maturityDate: item.maturityDate ?? '',
+                closedYM: item.closedYM ?? '',
               })
             }}
             getPersonLabel={getPersonLabel}
@@ -2081,30 +2092,48 @@ export function AssetPage() {
                   }}
                 />
               </div>
-              {/* 만기일 */}
-              <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 {editForm.savingsType !== 'checking' && editForm.savingsType !== 'subscription' && <span style={{ color: '#ef4444' }}>*</span>}</div>
-                <input
-                  type="date"
-                  value={editForm.maturityDate}
-                  onChange={(e) => setEditForm({ ...editForm, maturityDate: e.target.value })}
-                  style={{
-                    width: '100%',
-                    height: 40,
-                    padding: '0 12px',
-                    borderRadius: INPUT_BORDER_RADIUS,
-                    fontSize: INPUT_FONT_SIZE,
-                    fontFamily: 'inherit',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    ...jellyInputSurface,
-                    color: '#232d3c',
-                  }}
-                />
-              </div>
+              {/* 만기일: 청약은 불필요 */}
+              {editForm.savingsType !== 'subscription' && (
+                <div>
+                  <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 {editForm.savingsType !== 'checking' && <span style={{ color: '#ef4444' }}>*</span>}</div>
+                  <input
+                    type="date"
+                    value={editForm.maturityDate}
+                    onChange={(e) => setEditForm({ ...editForm, maturityDate: e.target.value })}
+                    style={{
+                      width: '100%',
+                      height: 40,
+                      padding: '0 12px',
+                      borderRadius: INPUT_BORDER_RADIUS,
+                      fontSize: INPUT_FONT_SIZE,
+                      fontFamily: 'inherit',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      ...jellyInputSurface,
+                      color: '#232d3c',
+                    }}
+                  />
+                </div>
+              )}
             </>
           )}
 
+
+        {/* 해지/만기 처리 */}
+        {editForm.category === '저축' && (
+          <div>
+            <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>해지/만기 처리</div>
+            <ToggleSwitch
+              checked={!!editForm.closedYM}
+              onChange={(v) => setEditForm({ ...editForm, closedYM: v ? ym(currentYear, currentMonth) : '' })}
+            />
+            {editForm.closedYM && (
+              <div style={{ fontSize: 11, color: '#f59e0b', marginTop: 4 }}>
+                {editForm.closedYM} 이후 자동 이월 중단
+              </div>
+            )}
+          </div>
+        )}
 
         </div>
 
@@ -2159,7 +2188,8 @@ export function AssetPage() {
                     locked: editForm.locked || undefined,
                     interestRate: editForm.interestRate ? parseFloat(editForm.interestRate) : undefined,
                     savingsType: editForm.category === '저축' ? editForm.savingsType : undefined,
-                    maturityDate: editForm.maturityDate || undefined,
+                    maturityDate: (editForm.savingsType !== 'subscription' && editForm.maturityDate) ? editForm.maturityDate : undefined,
+                    closedYM: editForm.closedYM || undefined,
                   })
 
                   setEditingItem(null)

@@ -93,6 +93,8 @@ export interface AssetItem {
   interestRate?: number
   /** 저축 종류: 적금(installment) | 예금(deposit) | 입출금(checking) | 청약(subscription) */
   savingsType?: 'installment' | 'deposit' | 'checking' | 'subscription'
+  /** 해지/만기 처리된 연월 (YYYY-MM). 이 달 이후는 carry-forward 중단 */
+  closedYM?: string
   /** 투자 수익률 % (예: -5.2 → 원금 대비 -5.2%) */
   returnRate?: number
 
