@@ -12,6 +12,17 @@ import type { AssetItem } from '@/types'
 
 const MONTHS = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
 const fmt = (n: number) => (n === 0 ? '' : n.toLocaleString('ko-KR'))
+/** 만원 단위 값을 억이 넘으면 "N억 N,NNN만" 형식으로 표기 */
+const fmtMan = (manWon: number): string => {
+  const abs = Math.abs(manWon)
+  const sign = manWon < 0 ? '-' : ''
+  if (abs >= 10000) {
+    const eok = Math.floor(abs / 10000)
+    const man = abs % 10000
+    return sign + eok.toLocaleString('ko-KR') + '억' + (man > 0 ? ' ' + man.toLocaleString('ko-KR') + '만' : '')
+  }
+  return sign + abs.toLocaleString('ko-KR') + '만'
+}
 const fmtSum = (n: number) => n.toLocaleString('ko-KR') + '원'
 
 function ym(year: number, monthIdx: number) {
@@ -1241,7 +1252,7 @@ export function AssetPage() {
                   {cat}
                   {total > 0 && (
                     <span style={{ fontSize: 11, color: active ? PRIMARY : '#9ca3af' }}>
-                      {Math.round(total / 10000).toLocaleString('ko-KR')}만
+                      {fmtMan(Math.round(total / 10000))}
                     </span>
                   )}
                 </button>
@@ -1329,17 +1340,17 @@ export function AssetPage() {
                       <>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                           <span style={{ fontSize: 11, color: '#6b7280' }}>현재 잔액</span>
-                          <span style={{ fontSize: 11, color: '#374151' }}>{Math.round(currentVal / 10000).toLocaleString()}만원</span>
+                          <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(currentVal / 10000))}원</span>
                         </div>
                         {rate > 0 && (
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                             <span style={{ fontSize: 11, color: '#6b7280' }}>이자 (단리)</span>
-                            <span style={{ fontSize: 11, color: '#059669' }}>+{Math.round(interest / 10000).toLocaleString()}만원</span>
+                            <span style={{ fontSize: 11, color: '#059669' }}>+{fmtMan(Math.round(interest / 10000))}원</span>
                           </div>
                         )}
                         <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>만기 수령액</span>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{Math.round(maturityAmount / 10000).toLocaleString()}만원</span>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{fmtMan(Math.round(maturityAmount / 10000))}원</span>
                         </div>
                       </>
                     )}
@@ -1386,18 +1397,18 @@ export function AssetPage() {
                       <>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                           <span style={{ fontSize: 11, color: '#6b7280' }}>납입원금</span>
-                          <span style={{ fontSize: 11, color: '#374151' }}>{Math.round(basis / 10000).toLocaleString()}만원</span>
+                          <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(basis / 10000))}원</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                           <span style={{ fontSize: 11, color: '#6b7280' }}>평가금액</span>
-                          <span style={{ fontSize: 11, color: '#374151' }}>{Math.round(evalAmount / 10000).toLocaleString()}만원</span>
+                          <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(evalAmount / 10000))}원</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
                           <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>{isLoss ? '손실' : '수익'}</span>
                           <span style={{ fontSize: 14, fontWeight: 700, color: isLoss ? '#dc2626' : '#059669' }}>
                             {roiPct >= 0 ? '+' : ''}{roiPct}%
                             <span style={{ marginLeft: 6, fontSize: 11 }}>
-                              ({profit >= 0 ? '+' : ''}{Math.round(profit / 10000).toLocaleString()}만원)
+                              ({profit >= 0 ? '+' : ''}{fmtMan(Math.round(Math.abs(profit / 10000))) }원)
                             </span>
                           </span>
                         </div>
@@ -1475,10 +1486,10 @@ export function AssetPage() {
                           {label}
                         </td>
                         <td style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 600, color: '#111827' }}>
-                          {Math.round(total / 10000).toLocaleString()}만원
+                          {fmtMan(Math.round(total / 10000))}원
                         </td>
                         <td style={{ padding: '6px 12px', textAlign: 'right', color: delta === null ? '#9ca3af' : delta >= 0 ? '#059669' : '#dc2626', fontWeight: 500 }}>
-                          {delta === null ? '—' : `${delta >= 0 ? '+' : ''}${Math.round(delta / 10000).toLocaleString()}만원`}
+                          {delta === null ? '—' : `${delta >= 0 ? '+' : ''}${fmtMan(Math.round(Math.abs(delta / 10000)))}원`}
                         </td>
                       </tr>
                     )
