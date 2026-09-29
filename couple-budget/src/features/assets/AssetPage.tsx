@@ -1734,13 +1734,24 @@ export function AssetPage() {
 
         // ── 이달 증감 분석 데이터 ──
         const curTotal = currentYearMonthTotals[currentMonth]
+        const prevYr = currentMonth > 0 ? currentYear : currentYear - 1
+        const prevMi = currentMonth > 0 ? currentMonth - 1 : 11
         const prevTotal = currentMonth > 0
           ? currentYearMonthTotals[currentMonth - 1]
           : calcMonthTotals(currentYear - 1)[11]
         const actualDelta = curTotal - prevTotal
         const plannedDeposits = sortedItems.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
-        const extraReturn = actualDelta - plannedDeposits
-        const extraColor = extraReturn === 0 ? '#6b7280' : extraReturn > 0 ? '#059669' : '#dc2626'
+        // 카테고리별 손익 계산
+        const savingsItemsD = sortedItems.filter((i) => i.category === '저축')
+        const investItemsD = sortedItems.filter((i) => i.category === '투자')
+        const savingsCurD = savingsItemsD.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
+        const savingsPrevD = savingsItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
+        const savingsDepD = savingsItemsD.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
+        const savingsInterestD = savingsCurD - savingsPrevD - savingsDepD
+        const investCurD = investItemsD.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
+        const investPrevD = investItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
+        const investDepD = investItemsD.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
+        const investPnlD = investCurD - investPrevD - investDepD
         const deltaColor = actualDelta === 0 ? '#6b7280' : actualDelta > 0 ? '#059669' : '#dc2626'
         const prevLabel = currentMonth > 0 ? `${MONTHS[currentMonth - 1]}` : `${currentYear - 1}년 12월`
 
@@ -1802,15 +1813,29 @@ export function AssetPage() {
                     {plannedDeposits === 0 ? '—' : `+${fmtMan(Math.round(plannedDeposits / 10000))}원`}
                   </span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: extraColor, flexShrink: 0 }} />
-                    <span style={{ fontSize: 12, color: '#374151' }}>투자·이자 등 손익</span>
+                {savingsInterestD !== 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: savingsInterestD > 0 ? '#059669' : '#dc2626', flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, color: '#374151' }}>저축 이자</span>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: savingsInterestD > 0 ? '#059669' : '#dc2626' }}>
+                      {`${savingsInterestD > 0 ? '+' : ''}${fmtMan(Math.round(savingsInterestD / 10000))}원`}
+                    </span>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: extraColor }}>
-                    {extraReturn === 0 ? '—' : `${extraReturn > 0 ? '+' : ''}${fmtMan(Math.round(extraReturn / 10000))}원`}
-                  </span>
-                </div>
+                )}
+                {investPnlD !== 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: investPnlD > 0 ? '#059669' : '#dc2626', flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, color: '#374151' }}>투자 손익</span>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: investPnlD > 0 ? '#059669' : '#dc2626' }}>
+                      {`${investPnlD > 0 ? '+' : ''}${fmtMan(Math.round(investPnlD / 10000))}원`}
+                    </span>
+                  </div>
+                )}
+                <div style={{ height: 4 }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #e5e7eb' }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>= 실제 증감</span>
                   <span style={{ fontSize: 16, fontWeight: 700, color: deltaColor }}>
