@@ -2,10 +2,11 @@ import { jellyCardStyle } from '@/styles/jellyGlass'
 import type { AssetItem } from '@/types'
 import { fmtMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
+import { AfterTaxToggle } from './AfterTaxToggle'
 
 /** 전체 탭: 수익 현황 (투자 손익 · 저축 만기 예상 이자) */
 export function ProfitCards({ model }: { model: AssetModel }) {
-  const { currentYear, currentMonth, sortedItems, getProjectedValue, getMaturity, getPnl } = model
+  const { currentYear, currentMonth, sortedItems, getProjectedValue, getMaturity, getPnl, interestAfterTax } = model
   // 투자 항목 손익
   const investItems = sortedItems.filter((i) => i.category === '투자')
   // 저축 만기 예상 이자 (만기일 + 이율 있는 적금·예금) — 공용 calcMaturity 사용
@@ -28,7 +29,10 @@ export function ProfitCards({ model }: { model: AssetModel }) {
   const savingsMaturityColor = totalMaturityInterest > 0 ? '#059669' : '#6b7280'
   return (
     <div style={{ marginBottom: 16 }}>
-      <div style={{ fontWeight: 700, fontSize: 13, color: '#111827', marginBottom: 10 }}>수익 현황</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+        <div style={{ fontWeight: 700, fontSize: 13, color: '#111827' }}>수익 현황</div>
+        {savingsMaturityItems.length > 0 && <AfterTaxToggle model={model} />}
+      </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
         {/* 총 투자 수익 카드 */}
         {investItems.length > 0 && (
@@ -65,7 +69,7 @@ export function ProfitCards({ model }: { model: AssetModel }) {
               minWidth: 200,
               border: totalMaturityInterest > 0 ? '1.5px solid #a7f3d0' : undefined,
             }}>
-              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>저축 수익 (만기 예상 이자)</div>
+              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>저축 수익 (만기 예상 이자{interestAfterTax ? ' · 세후' : ''})</div>
               <div style={{ fontSize: 22, fontWeight: 700, color: savingsMaturityColor, marginBottom: 10 }}>
                 {totalMaturityInterest === 0 ? '—' : `+${fmtMan(Math.round(totalMaturityInterest / 10000))}원`}
               </div>

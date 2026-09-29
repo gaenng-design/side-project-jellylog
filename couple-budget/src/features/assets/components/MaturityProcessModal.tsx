@@ -17,7 +17,7 @@ const NO_TRANSFER = '옮기지 않음 (현금으로 수령)'
  * - 받은 금액을 선택한 항목의 이번 달 잔액에 더함
  */
 export function MaturityProcessModal({ model, item, onClose }: { model: AssetModel; item: AssetItem; onClose: () => void }) {
-  const { currentYear, currentMonth, sortedItems, getMaturity, getProjectedValue, updateItem, setEntry, getPersonLabel } = model
+  const { currentYear, currentMonth, sortedItems, getMaturity, getProjectedValue, updateItem, setEntry, getPersonLabel, interestAfterTax } = model
   const currentYM = ym(currentYear, currentMonth)
   const maturity = getMaturity(item)
   const expected = Math.round(maturity?.amount ?? getProjectedValue(currentYear, item, currentMonth))
@@ -59,7 +59,7 @@ export function MaturityProcessModal({ model, item, onClose }: { model: AssetMod
         <div style={{ background: '#f9fafb', borderRadius: 10, padding: '10px 12px' }}>
           {infoRow('만기일', item.maturityDate ?? '—')}
           {maturity && infoRow('원금', fmtSum(Math.round(maturity.principal)))}
-          {maturity && infoRow('이자 (세전)', `+${fmtSum(Math.round(maturity.interest))}`)}
+          {maturity && infoRow(interestAfterTax ? '이자 (세후)' : '이자 (세전)', `+${fmtSum(Math.round(maturity.interest))}`)}
           {infoRow('예상 수령액', fmtSum(expected), true)}
         </div>
 

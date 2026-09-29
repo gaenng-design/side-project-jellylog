@@ -12,6 +12,9 @@ interface AssetState {
   entries: AssetEntry[]
   /** 투자 항목 납입원금 월별 기록 (key: itemId::yearMonth) */
   costBasisEntries: Record<string, number>
+  /** 이자를 세후(이자소득세 15.4% 차감)로 표시할지 — 이 기기 표시 설정 */
+  interestAfterTax: boolean
+  setInterestAfterTax: (v: boolean) => void
   addItem: (item: Omit<AssetItem, 'id' | 'order'>) => string
   updateItem: (id: string, patch: Partial<Omit<AssetItem, 'id'>>) => void
   removeItem: (id: string) => void
@@ -31,6 +34,9 @@ export const useAssetStore = create<AssetState>()(
       items: [],
       entries: [],
       costBasisEntries: {},
+      interestAfterTax: false,
+
+      setInterestAfterTax: (v) => set({ interestAfterTax: v }),
 
       addItem: (item) => {
         const id = uid()
@@ -107,7 +113,7 @@ export const useAssetStore = create<AssetState>()(
     }),
     {
       name: 'couple-budget:assets',
-      partialize: (s) => ({ items: s.items, entries: s.entries, costBasisEntries: s.costBasisEntries }),
+      partialize: (s) => ({ items: s.items, entries: s.entries, costBasisEntries: s.costBasisEntries, interestAfterTax: s.interestAfterTax }),
     },
   ),
 )

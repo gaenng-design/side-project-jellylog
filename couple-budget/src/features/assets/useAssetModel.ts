@@ -8,6 +8,7 @@ import {
   getEffectivePnl,
   getSavingsCumulativeInterest as cumulativeInterest,
   buildFirstEntryMap,
+  INTEREST_TAX_RATE,
 } from '@/lib/assetCalc'
 
 /**
@@ -75,13 +76,17 @@ export function useAssetModel() {
   const getCostBasisEntry = useAssetStore((s) => s.getCostBasisEntry)
   const setCostBasisEntry = useAssetStore((s) => s.setCostBasisEntry)
   void costBasisEntries
+  const interestAfterTax = useAssetStore((s) => s.interestAfterTax)
+  const setInterestAfterTax = useAssetStore((s) => s.setInterestAfterTax)
+  /** 이자에 적용할 세율 — 세후 표시가 켜져 있으면 15.4% */
+  const taxRate = interestAfterTax ? INTEREST_TAX_RATE : 0
 
   // ── 계산 (lib/assetCalc 공용 함수) ──
   /** 항목별 첫 입력 월 (만기 이자·누적 이자 계산 기준) */
   const firstEntryYM = useMemo(() => buildFirstEntryMap(entries), [entries])
 
   /** 과거·현재·미래 월 모두의 표시값 */
-  const projectionCtx = { getEntry, currentYear, currentMonth, editableBoundary, firstEntryYM }
+  const projectionCtx = { getEntry, currentYear, currentMonth, editableBoundary, firstEntryYM, taxRate }
   const getProjectedValue = (yr: number, item: AssetItem, monthIdx: number): number =>
     projectValue(item, yr, monthIdx, projectionCtx)
 
@@ -89,6 +94,7 @@ export function useAssetModel() {
   const getMaturity = (item: AssetItem) =>
     calcMaturity(item, getProjectedValue(currentYear, item, currentMonth), currentYear, currentMonth, {
       startYM: firstEntryYM[item.id],
+      taxRate,
     })
 
   /** 투자 평가손익 (입력 없는 달은 최근 입력값 사용) */
@@ -96,7 +102,7 @@ export function useAssetModel() {
     getEffectivePnl(item, yr, mi, getCostBasisEntry)
 
   const getSavingsCumulativeInterest = (item: AssetItem, yr: number, mi: number): number =>
-    cumulativeInterest(item, yr, mi, getEntry, firstEntryYM[item.id])
+    cumulativeInterest(item, yr, mi, getEntry, firstEntryYM[item.id], taxRate)
 
   /** 명의 순(A → B → 공유) → 그 안에서 order 순으로 정렬 */
   const personRank = (p?: 'A' | 'B'): number => (p === 'A' ? 0 : p === 'B' ? 1 : 2)
@@ -151,6 +157,8 @@ export function useAssetModel() {
     getCostBasisEntry,
     setCostBasisEntry,
     firstEntryYM,
+    interestAfterTax,
+    setInterestAfterTax,
     getProjectedValue,
     getMaturity,
     getPnl,
