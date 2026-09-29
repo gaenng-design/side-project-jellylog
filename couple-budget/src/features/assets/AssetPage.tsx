@@ -121,6 +121,8 @@ function MonthsTable({
   editableBoundary,
   getProjectedValue,
   setEntry,
+  getCostBasisEntry,
+  setCostBasisEntry,
   monthTotals,
   onItemClick,
   getPersonLabel,
@@ -144,6 +146,8 @@ function MonthsTable({
   editableBoundary: number
   getProjectedValue: (yr: number, item: AssetItem, monthIdx: number) => number
   setEntry: (itemId: string, yearMonth: string, amount: number) => void
+  getCostBasisEntry: (itemId: string, yearMonth: string) => number
+  setCostBasisEntry: (itemId: string, yearMonth: string, amount: number) => void
   /** months 와 동일 길이 · 동일 순서의 월 합계 배열 */
   monthTotals: number[]
   onItemClick: (item: AssetItem) => void
@@ -284,16 +288,22 @@ function MonthsTable({
                               textOverflow: 'ellipsis',
                               padding: '0 14px',
                               display: 'inline-flex',
+                              flexDirection: 'column',
                               alignItems: 'center',
-                              gap: 4,
+                              gap: 2,
                             }}
                           >
-                            {item.locked && (
-                              <span title="묶인 돈" style={{ fontSize: 11, flexShrink: 0 }}>
-                                🔒
-                              </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                              {item.locked && (
+                                <span title="묶인 돈" style={{ fontSize: 11, flexShrink: 0 }}>🔒</span>
+                              )}
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
+                            </div>
+                            {item.category === '투자' && (
+                              <div style={{ display: 'flex', gap: 4, fontSize: 9, color: '#9ca3af', fontWeight: 400 }}>
+                                <span>납입원금</span><span>·</span><span>평가금액</span>
+                              </div>
                             )}
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
                           </div>
                         )}
                       </div>
@@ -496,6 +506,31 @@ function MonthsTable({
                         >
                           {isCollapsed ? (
                             <span style={{ fontSize: 10, color: '#d1d5db' }}>…</span>
+                          ) : item.category === '투자' ? (
+                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+                              {/* 납입원금 행 */}
+                              <div style={{ borderBottom: '1px solid #e5e7eb', background: 'rgba(249,250,251,0.7)' }}>
+                                <AmountCell
+                                  value={getCostBasisEntry(item.id, ym(yr, mi))}
+                                  onChange={(v) => {
+                                    const amount = v ? parseInt(v.replace(/,/g, ''), 10) : 0
+                                    setCostBasisEntry(item.id, ym(yr, mi), amount)
+                                  }}
+                                  disabled={!editable}
+                                  projected={isFuture}
+                                />
+                              </div>
+                              {/* 평가금액 행 */}
+                              <AmountCell
+                                value={displayValue}
+                                onChange={(v) => {
+                                  const amount = v ? parseInt(v.replace(/,/g, ''), 10) : 0
+                                  setEntry(item.id, ym(yr, mi), amount)
+                                }}
+                                disabled={!editable}
+                                projected={isFuture}
+                              />
+                            </div>
                           ) : (
                             <AmountCell
                               value={displayValue}
@@ -864,8 +899,12 @@ export function AssetPage() {
   const reorderItem = useAssetStore((s) => s.reorderItem)
   const setEntry = useAssetStore((s) => s.setEntry)
   const getEntry = useAssetStore((s) => s.getEntry)
+  const getCostBasisEntry = useAssetStore((s) => s.getCostBasisEntry)
+  const setCostBasisEntry = useAssetStore((s) => s.setCostBasisEntry)
+  const costBasisEntries = useAssetStore((s) => s.costBasisEntries)
   // entries 사용 표시 (lint warning 방지) - subscribe 목적
   void entries
+  void costBasisEntries
 
   // 카테고리 필터 탭
   const [categoryFilter, setCategoryFilter] = useState('전체')
@@ -1393,6 +1432,61 @@ export function AssetPage() {
         </div>
       )}
 
+      {/* 전체 탭: 월별 자산 누적 요약 */}
+      {categoryFilter === '전체' && (() => {
+        // 최근 12개월 (현재 포함)
+        const summaryMonths: { yr: number; mi: number; label: string }[] = []
+        for (let offset = 11; offset >= 0; offset--) {
+          let yr = currentYear
+          let mi = currentMonth - offset
+          while (mi < 0) { mi += 12; yr-- }
+          const label = `${yr}년 ${mi + 1}월`
+          summaryMonths.push({ yr, mi, label })
+        }
+        const summaryTotals = summaryMonths.map(({ yr, mi }) =>
+          sortedItems.reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
+        )
+        return (
+          <div style={{ marginBottom: 16, background: '#f9fafb', borderRadius: 10, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+            <div style={{ padding: '10px 14px', fontWeight: 700, fontSize: 13, color: '#111827', borderBottom: '1px solid #e5e7eb', background: '#fff' }}>
+              월별 자산 현황
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                <thead>
+                  <tr style={{ background: '#f3f4f6' }}>
+                    <th style={{ padding: '6px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 500, minWidth: 80 }}>월</th>
+                    <th style={{ padding: '6px 12px', textAlign: 'right', color: '#6b7280', fontWeight: 500, minWidth: 90 }}>총 자산</th>
+                    <th style={{ padding: '6px 12px', textAlign: 'right', color: '#6b7280', fontWeight: 500, minWidth: 80 }}>전월 대비</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {summaryMonths.map(({ label }, idx) => {
+                    const total = summaryTotals[idx]
+                    const prev = idx > 0 ? summaryTotals[idx - 1] : null
+                    const delta = prev !== null ? total - prev : null
+                    const isCurrentMonth = idx === summaryMonths.length - 1
+                    return (
+                      <tr key={label} style={{ borderTop: '1px solid #e5e7eb', background: isCurrentMonth ? '#eff6ff' : undefined }}>
+                        <td style={{ padding: '6px 12px', color: isCurrentMonth ? '#1d4ed8' : '#374151', fontWeight: isCurrentMonth ? 600 : 400 }}>
+                          {label}
+                        </td>
+                        <td style={{ padding: '6px 12px', textAlign: 'right', fontWeight: 600, color: '#111827' }}>
+                          {Math.round(total / 10000).toLocaleString()}만원
+                        </td>
+                        <td style={{ padding: '6px 12px', textAlign: 'right', color: delta === null ? '#9ca3af' : delta >= 0 ? '#059669' : '#dc2626', fontWeight: 500 }}>
+                          {delta === null ? '—' : `${delta >= 0 ? '+' : ''}${Math.round(delta / 10000).toLocaleString()}만원`}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* 통합 자산 테이블 — 2년치 월별 데이터를 하나의 표로 (최신 월이 아래) */}
       {(() => {
         // 오래된 → 최신 순으로 월 리스트 구성 (최신 월이 표 하단)
@@ -1417,6 +1511,8 @@ export function AssetPage() {
             editableBoundary={editableBoundary}
             getProjectedValue={getProjectedValue}
             setEntry={setEntry}
+            getCostBasisEntry={getCostBasisEntry}
+            setCostBasisEntry={setCostBasisEntry}
             monthTotals={flatMonthTotals}
             onItemClick={(item) => {
               setEditingItem(item)

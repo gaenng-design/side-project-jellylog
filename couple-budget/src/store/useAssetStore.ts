@@ -10,6 +10,8 @@ export const ASSET_CATEGORIES = ['저축', '투자', '부동산', '주식']
 interface AssetState {
   items: AssetItem[]
   entries: AssetEntry[]
+  /** 투자 항목 납입원금 월별 기록 (key: itemId::yearMonth) */
+  costBasisEntries: Record<string, number>
   addItem: (item: Omit<AssetItem, 'id' | 'order'>) => string
   updateItem: (id: string, patch: Partial<Omit<AssetItem, 'id'>>) => void
   removeItem: (id: string) => void
@@ -17,6 +19,8 @@ interface AssetState {
   /** yearMonth별 itemId의 금액 설정 (0이면 entry 제거) */
   setEntry: (itemId: string, yearMonth: string, amount: number) => void
   getEntry: (itemId: string, yearMonth: string) => number
+  setCostBasisEntry: (itemId: string, yearMonth: string, amount: number) => void
+  getCostBasisEntry: (itemId: string, yearMonth: string) => number
   /** 특정 연도 전체 entries 반환: { itemId: { yearMonth: amount } } */
   getYearData: (year: number) => Record<string, Record<string, number>>
 }
@@ -26,6 +30,7 @@ export const useAssetStore = create<AssetState>()(
     (set, get) => ({
       items: [],
       entries: [],
+      costBasisEntries: {},
 
       addItem: (item) => {
         const id = uid()
@@ -45,6 +50,9 @@ export const useAssetStore = create<AssetState>()(
         set((s) => ({
           items: s.items.filter((it) => it.id !== id),
           entries: s.entries.filter((e) => e.itemId !== id),
+          costBasisEntries: Object.fromEntries(
+            Object.entries(s.costBasisEntries).filter(([k]) => !k.startsWith(id + '::'))
+          ),
         }))
       },
 
@@ -78,6 +86,19 @@ export const useAssetStore = create<AssetState>()(
         return get().entries.find((e) => e.itemId === itemId && e.yearMonth === yearMonth)?.amount ?? 0
       },
 
+      setCostBasisEntry: (itemId, yearMonth, amount) => {
+        const key = `${itemId}::${yearMonth}`
+        set((s) => ({
+          costBasisEntries: amount === 0
+            ? Object.fromEntries(Object.entries(s.costBasisEntries).filter(([k]) => k !== key))
+            : { ...s.costBasisEntries, [key]: amount },
+        }))
+      },
+
+      getCostBasisEntry: (itemId, yearMonth) => {
+        return get().costBasisEntries[`${itemId}::${yearMonth}`] ?? 0
+      },
+
       getYearData: (year) => {
         const result: Record<string, Record<string, number>> = {}
         for (const e of get().entries) {
@@ -90,6 +111,7 @@ export const useAssetStore = create<AssetState>()(
     }),
     {
       name: 'couple-budget:assets',
+      partialize: (s) => ({ items: s.items, entries: s.entries, costBasisEntries: s.costBasisEntries }),
     },
   ),
 )
