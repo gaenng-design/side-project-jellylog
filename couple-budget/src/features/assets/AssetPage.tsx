@@ -1436,9 +1436,13 @@ export function AssetPage() {
 
       {/* 카테고리 필터 탭 */}
       {(() => {
-        const cats = ['전체', ...ASSET_CATEGORIES.filter((c) =>
-          sortedItems.some((i) => i.category === c)
-        )]
+        const extraCats = [...new Set(sortedItems.map((i) => i.category))]
+          .filter((c) => !ASSET_CATEGORIES.includes(c))
+        const cats = [
+          '전체',
+          ...ASSET_CATEGORIES.filter((c) => sortedItems.some((i) => i.category === c)),
+          ...extraCats.filter((c) => sortedItems.some((i) => i.category === c)),
+        ]
         return (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16, alignItems: 'center' }}>
             {cats.map((cat) => {
@@ -1501,9 +1505,12 @@ export function AssetPage() {
         )
       })()}
 
-      {/* 인사이트 카드 (저축: 만기수령액, 투자: ROI) */}
+      {/* 인사이트 카드 — 유저별 통합 카드 (저축: 만기수령액, 투자: ROI) */}
       {categoryFilter !== '전체' && (() => {
         const currentYM = ym(currentYear, currentMonth)
+        const isInsightCategory = categoryFilter === '저축' || categoryFilter === '투자'
+        if (!isInsightCategory) return null
+
         const insightItems = filteredItems.filter((item) => {
           if (item.category === '저축') {
             if (item.savingsType === 'subscription') return getEntry(item.id, currentYM) > 0
@@ -1513,189 +1520,125 @@ export function AssetPage() {
           return false
         })
         if (insightItems.length === 0) return null
-        // 유저별로 그룹화: A, B, undefined(공유)
+
         const personsOrder: Array<'A' | 'B' | undefined> = (['A', 'B', undefined] as const).filter(
           (p) => insightItems.some((i) => i.person === p)
         )
+
         return (
-          <div style={{ marginBottom: 16 }}>
-            {personsOrder.map((personKey, groupIdx) => {
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
+            {personsOrder.map((personKey) => {
               const groupItems = insightItems.filter((i) => i.person === personKey)
               if (groupItems.length === 0) return null
               const groupLabel = personKey === 'A' ? personAName : personKey === 'B' ? personBName : '공유'
               const groupColor = personKey ? getPersonColor(personKey) : '#9ca3af'
-              return (
-                <div key={String(personKey)}>
-                  {groupIdx > 0 && <div style={{ height: 1, background: '#f3f4f6', margin: '12px 0' }} />}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                    <span style={{
-                      fontSize: 11, padding: '2px 8px', borderRadius: 8,
-                      background: `color-mix(in srgb, ${groupColor} 15%, white)`,
-                      color: groupColor, fontWeight: 700,
-                    }}>{groupLabel}</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                    {groupItems.map((item) => {
-              const currentVal = getEntry(item.id, currentYM)
-              if (item.category === '저축') {
-                const rate = item.interestRate ?? 0
-                const dday = item.maturityDate
-                  ? Math.ceil((new Date(item.maturityDate).getTime() - new Date().getTime()) / 86400000)
-                  : null
-                // 만기까지 남은 개월 수
-                const remainingMonths = item.maturityDate
-                  ? Math.max(0, Math.round(
-                      (new Date(item.maturityDate).getFullYear() - currentYear) * 12 +
-                      (new Date(item.maturityDate).getMonth() - currentMonth)
-                    ))
-                  : 0
-                // 만기 수령액 계산 (단리 기준)
-                let maturityAmount = 0
-                if (rate > 0 && item.maturityDate) {
-                  const r = rate / 100
-                  if (item.savingsType === 'deposit') {
-                    // 예금: 현재 금액 × (1 + 연이율 × 남은개월/12)
-                    maturityAmount = currentVal * (1 + r * remainingMonths / 12)
+
+              if (categoryFilter === '저축') {
+                const totalBalance = groupItems.reduce((s, item) => s + getEntry(item.id, currentYM), 0)
+                let totalMaturityInterest = 0
+                let totalMaturityAmount = 0
+                groupItems.forEach((item) => {
+                  const currentVal = getEntry(item.id, currentYM)
+                  if (!item.maturityDate) return
+                  const rate = item.interestRate ?? 0
+                  const remainingMonths = Math.max(0, Math.round(
+                    (new Date(item.maturityDate).getFullYear() - currentYear) * 12 +
+                    (new Date(item.maturityDate).getMonth() - currentMonth)
+                  ))
+                  let matAmt = 0
+                  if (rate > 0) {
+                    const r = rate / 100
+                    if (item.savingsType === 'deposit') {
+                      matAmt = currentVal * (1 + r * remainingMonths / 12)
+                    } else {
+                      const monthlyDeposit = item.defaultAmount ?? 0
+                      const principal = currentVal + monthlyDeposit * remainingMonths
+                      const interestOnCurrent = currentVal * r * remainingMonths / 12
+                      const interestOnFuture = monthlyDeposit * (r / 12) * (remainingMonths * (remainingMonths - 1) / 2)
+                      matAmt = principal + interestOnCurrent + interestOnFuture
+                    }
                   } else {
-                    // 적금: 현재 잔액 이자 + 앞으로 납입분 이자
-                    const monthlyDeposit = item.defaultAmount ?? 0
-                    const futureDeposits = monthlyDeposit * remainingMonths
-                    const principal = currentVal + futureDeposits
-                    // 현재 잔액: 남은기간 동안 이자
-                    const interestOnCurrent = currentVal * r * remainingMonths / 12
-                    // 앞으로 납입분: 각 회차별 이자 (단리) = monthlyDeposit × r/12 × Σ(n-1, n-2, ..., 0)
-                    const interestOnFuture = monthlyDeposit * (r / 12) * (remainingMonths * (remainingMonths - 1) / 2)
-                    maturityAmount = principal + interestOnCurrent + interestOnFuture
+                    matAmt = currentVal + (item.defaultAmount ?? 0) * remainingMonths
                   }
-                } else if (item.maturityDate) {
-                  const monthlyDeposit = item.defaultAmount ?? 0
-                  maturityAmount = currentVal + monthlyDeposit * remainingMonths
-                }
-                const interest = maturityAmount - currentVal - (item.defaultAmount ?? 0) * remainingMonths
-                const typeLabel = item.savingsType === 'deposit' ? '예금' : item.savingsType === 'subscription' ? '청약' : '적금'
+                  const interest = matAmt - currentVal - (item.defaultAmount ?? 0) * remainingMonths
+                  totalMaturityInterest += interest
+                  totalMaturityAmount += matAmt
+                })
+                const withMaturity = groupItems
+                  .filter((i) => i.maturityDate)
+                  .sort((a, b) => new Date(a.maturityDate!).getTime() - new Date(b.maturityDate!).getTime())
+                const nearestMaturity = withMaturity[0]?.maturityDate
+                const nearestDday = nearestMaturity
+                  ? Math.ceil((new Date(nearestMaturity).getTime() - new Date().getTime()) / 86400000)
+                  : null
                 return (
                   <div
-                    key={item.id}
-                    style={{
-                      ...jellyCardStyle,
-                      padding: '14px 16px',
-                      flex: '1 1 220px',
-                      minWidth: 200,
-                      maxWidth: 320,
-                    }}
+                    key={String(personKey)}
+                    style={{ ...jellyCardStyle, padding: '14px 16px', flex: '1 1 200px', minWidth: 180 }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
-                        {item.person && (
-                          <span style={{
-                            fontSize: 10, padding: '2px 6px', borderRadius: 8, flexShrink: 0,
-                            background: `color-mix(in srgb, ${getPersonColor(item.person)} 15%, white)`,
-                            color: getPersonColor(item.person), fontWeight: 600,
-                          }}>{getPersonLabel(item.person)}</span>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
-                        {rate > 0 && (
-                          <span style={{ fontSize: 11, color: PRIMARY, fontWeight: 600 }}>{rate}%</span>
-                        )}
-                        <span style={{
-                          fontSize: 10, padding: '2px 7px', borderRadius: 10,
-                          background: item.savingsType === 'deposit' ? '#f0fdf4' : item.savingsType === 'subscription' ? '#fefce8' : '#eff6ff',
-                          color: item.savingsType === 'deposit' ? '#059669' : item.savingsType === 'subscription' ? '#d97706' : PRIMARY,
-                          fontWeight: 600,
-                        }}>{typeLabel}</span>
-                      </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: groupColor, display: 'inline-block', flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: groupColor }}>{groupLabel}</span>
+                      <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
                     </div>
-                    {maturityAmount > 0 && (
-                      <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                          <span style={{ fontSize: 11, color: '#6b7280' }}>현재 잔액</span>
-                          <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(currentVal / 10000))}원</span>
-                        </div>
-                        {rate > 0 && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                            <span style={{ fontSize: 11, color: '#6b7280' }}>이자 (단리)</span>
-                            <span style={{ fontSize: 11, color: '#059669' }}>+{fmtMan(Math.round(interest / 10000))}원</span>
-                          </div>
-                        )}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>만기 수령액</span>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{fmtMan(Math.round(maturityAmount / 10000))}원</span>
-                        </div>
-                      </>
-                    )}
-                    {item.savingsType === 'subscription' && maturityAmount === 0 && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                        <span style={{ fontSize: 11, color: '#6b7280' }}>현재 잔액</span>
-                        <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(currentVal / 10000))}원</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontSize: 11, color: '#6b7280' }}>현재 잔액</span>
+                      <span style={{ fontSize: 11, color: '#374151', fontWeight: 500 }}>{fmtMan(Math.round(totalBalance / 10000))}원</span>
+                    </div>
+                    {totalMaturityInterest > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontSize: 11, color: '#6b7280' }}>만기 예상 이자</span>
+                        <span style={{ fontSize: 11, color: '#059669', fontWeight: 500 }}>+{fmtMan(Math.round(totalMaturityInterest / 10000))}원</span>
                       </div>
                     )}
-                    {dday !== null && (
-                      <div style={{ fontSize: 11, marginTop: 8, color: dday <= 0 ? '#059669' : dday <= 30 ? '#f59e0b' : '#9ca3af' }}>
-                        {dday <= 0 ? '✓ 만기 도달' : `D-${dday}`}
-                        <span style={{ marginLeft: 4, color: '#9ca3af' }}>· {item.maturityDate}</span>
+                    {totalMaturityAmount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>만기 수령액</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{fmtMan(Math.round(totalMaturityAmount / 10000))}원</span>
+                      </div>
+                    )}
+                    {nearestDday !== null && (
+                      <div style={{ fontSize: 11, marginTop: 8, color: nearestDday <= 0 ? '#059669' : nearestDday <= 30 ? '#f59e0b' : '#9ca3af' }}>
+                        {nearestDday <= 0 ? '✓ 최근 만기 도달' : `가장 빠른 만기 D-${nearestDday}`}
+                        <span style={{ marginLeft: 4, color: '#9ca3af' }}>· {nearestMaturity}</span>
                       </div>
                     )}
                   </div>
                 )
-              } else if (item.category === '투자') {
-                const pnl = getCostBasisEntry(item.id, currentYM)  // 평가 손익 (signed)
-                const isLoss = pnl < 0
-                const costBasis = currentVal - pnl  // 원금 = 잔고 - 손익
-                const pnlPct = costBasis !== 0 ? Math.round((pnl / costBasis) * 1000) / 10 : 0
-                const pnlColor = pnl === 0 ? '#6b7280' : isLoss ? '#dc2626' : '#059669'
+              } else {
+                const totalPnl = groupItems.reduce((s, item) => s + getCostBasisEntry(item.id, currentYM), 0)
+                const totalBalance = groupItems.reduce((s, item) => s + getEntry(item.id, currentYM), 0)
+                const totalBasis = totalBalance - totalPnl
+                const pnlPct = totalBasis !== 0 ? Math.round((totalPnl / totalBasis) * 1000) / 10 : 0
+                const pnlColor = totalPnl === 0 ? '#6b7280' : totalPnl > 0 ? '#059669' : '#dc2626'
                 return (
                   <div
-                    key={item.id}
-                    style={{
-                      ...jellyCardStyle,
-                      padding: '14px 16px',
-                      flex: '1 1 220px',
-                      minWidth: 200,
-                      maxWidth: 320,
-                      border: isLoss ? '1.5px solid #fca5a5' : undefined,
-                    }}
+                    key={String(personKey)}
+                    style={{ ...jellyCardStyle, padding: '14px 16px', flex: '1 1 200px', minWidth: 180, border: totalPnl < 0 ? '1.5px solid #fca5a5' : undefined }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
-                        {item.person && (
-                          <span style={{
-                            fontSize: 10, padding: '2px 6px', borderRadius: 8, flexShrink: 0,
-                            background: `color-mix(in srgb, ${getPersonColor(item.person)} 15%, white)`,
-                            color: getPersonColor(item.person), fontWeight: 600,
-                          }}>{getPersonLabel(item.person)}</span>
-                        )}
-                      </div>
-                      {pnl !== 0 && (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: pnlColor, flexShrink: 0 }}>
-                          {pnl > 0 ? '+' : ''}{pnlPct}%
-                        </span>
-                      )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: groupColor, display: 'inline-block', flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: groupColor }}>{groupLabel}</span>
+                      <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ fontSize: 11, color: '#6b7280' }}>원금</span>
-                      <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(costBasis / 10000))}원</span>
+                      <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(totalBasis / 10000))}원</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ fontSize: 11, color: '#6b7280' }}>평가 손익</span>
                       <span style={{ fontSize: 11, fontWeight: 600, color: pnlColor }}>
-                        {pnl === 0 ? '—' : (pnl > 0 ? '+' : '') + fmtMan(Math.round(pnl / 10000)) + '원'}
+                        {totalPnl === 0 ? '—' : `${totalPnl > 0 ? '+' : ''}${fmtMan(Math.round(totalPnl / 10000))}원`}
+                        {pnlPct !== 0 && <span style={{ fontSize: 10, marginLeft: 4, color: pnlColor }}>({pnlPct > 0 ? '+' : ''}{pnlPct}%)</span>}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #e5e7eb', marginTop: 6 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>= 총 잔고</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#374151' }}>{fmtMan(Math.round(currentVal / 10000))}원</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #e5e7eb', marginTop: 4 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>총 잔고</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>{fmtMan(Math.round(totalBalance / 10000))}원</span>
                     </div>
                   </div>
                 )
               }
-              return null
-                  })}
-                  </div>
-                </div>
-              )
             })}
           </div>
         )
@@ -1744,7 +1687,9 @@ export function AssetPage() {
           ? currentYearMonthTotals[currentMonth - 1]
           : calcMonthTotals(currentYear - 1)[11]
         const actualDelta = curTotal - prevTotal
-        const plannedDeposits = sortedItems.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
+        const plannedDeposits = sortedItems
+          .filter((item) => ASSET_CATEGORIES.includes(item.category))
+          .reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
         // 카테고리별 손익 계산
         const savingsItemsD = sortedItems.filter((i) => i.category === '저축')
         const investItemsD = sortedItems.filter((i) => i.category === '투자')
@@ -1768,7 +1713,7 @@ export function AssetPage() {
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16, alignItems: 'stretch' }}>
             {/* 카테고리별 자산 구성 */}
             {showBarChart && (
-              <div style={{ flex: '1 1 280px', background: '#fff', borderRadius: 10, border: '1px solid #e5e7eb', padding: '14px 16px' }}>
+              <div style={{ flex: '1 1 280px', ...jellyCardStyle, padding: '14px 16px' }}>
                 <div style={{ fontWeight: 700, fontSize: 13, color: '#111827', marginBottom: 14 }}>카테고리별 자산 구성</div>
                 <div style={{ display: 'flex', height: 20, borderRadius: 6, overflow: 'hidden', marginBottom: 12 }}>
                   {catTotals.map(({ cat, total }, idx) => (
@@ -1972,7 +1917,7 @@ export function AssetPage() {
           return investPnl + savingsInterest
         })
         return (
-          <div style={{ marginBottom: 16, background: '#f9fafb', borderRadius: 10, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+          <div style={{ marginBottom: 16, ...jellyCardStyle, padding: 0, overflow: 'hidden' }}>
             <div style={{ padding: '10px 14px', fontWeight: 700, fontSize: 13, color: '#111827', borderBottom: '1px solid #e5e7eb', background: '#fff' }}>
               월별 자산 현황
             </div>
