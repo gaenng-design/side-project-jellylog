@@ -1555,14 +1555,18 @@ export function AssetPage() {
                       )}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 11, color: '#6b7280' }}>총 잔고</span>
-                      <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(currentVal / 10000))}원</span>
+                      <span style={{ fontSize: 11, color: '#6b7280' }}>원금</span>
+                      <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(costBasis / 10000))}원</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>평가 손익</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: pnlColor }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                      <span style={{ fontSize: 11, color: '#6b7280' }}>평가 손익</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: pnlColor }}>
                         {pnl === 0 ? '—' : (pnl > 0 ? '+' : '') + fmtMan(Math.round(pnl / 10000)) + '원'}
                       </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #e5e7eb', marginTop: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>= 총 잔고</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#374151' }}>{fmtMan(Math.round(currentVal / 10000))}원</span>
                     </div>
                   </div>
                 )
