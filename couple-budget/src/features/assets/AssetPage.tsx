@@ -1346,7 +1346,7 @@ export function AssetPage() {
         const currentYM = ym(currentYear, currentMonth)
         const insightItems = filteredItems.filter((item) => {
           if (item.category === '저축') return !!(item.maturityDate || item.interestRate)
-          if (item.category === '투자') return !!(item.costBasis || item.returnRate !== undefined)
+          if (item.category === '투자') return getCostBasisEntry(item.id, currentYM) > 0
           return false
         })
         if (insightItems.length === 0) return null
@@ -1442,15 +1442,10 @@ export function AssetPage() {
                   </div>
                 )
               } else if (item.category === '투자') {
-                const basis = item.costBasis ?? 0
-                const rr = item.returnRate  // 수익률 %
-                const hasReturnRate = rr !== undefined
-                // returnRate 입력 시 평가금액 = 원금 × (1 + rr/100)
-                const evalAmount = hasReturnRate && basis > 0
-                  ? Math.round(basis * (1 + (rr ?? 0) / 100))
-                  : currentVal
+                const basis = getCostBasisEntry(item.id, currentYM)
+                const evalAmount = currentVal
                 const profit = basis > 0 ? evalAmount - basis : 0
-                const roiPct = hasReturnRate ? (rr ?? 0) : (basis > 0 ? Math.round((profit / basis) * 1000) / 10 : 0)
+                const roiPct = basis > 0 ? Math.round((profit / basis) * 1000) / 10 : 0
                 const isLoss = roiPct < 0
                 return (
                   <div
@@ -1472,27 +1467,23 @@ export function AssetPage() {
                         </span>
                       )}
                     </div>
-                    {basis > 0 && (
-                      <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                          <span style={{ fontSize: 11, color: '#6b7280' }}>납입원금</span>
-                          <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(basis / 10000))}원</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                          <span style={{ fontSize: 11, color: '#6b7280' }}>평가금액</span>
-                          <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(evalAmount / 10000))}원</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>{isLoss ? '손실' : '수익'}</span>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: isLoss ? '#dc2626' : '#059669' }}>
-                            {roiPct >= 0 ? '+' : ''}{roiPct}%
-                            <span style={{ marginLeft: 6, fontSize: 11 }}>
-                              ({profit >= 0 ? '+' : ''}{fmtMan(Math.round(Math.abs(profit / 10000))) }원)
-                            </span>
-                          </span>
-                        </div>
-                      </>
-                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                      <span style={{ fontSize: 11, color: '#6b7280' }}>납입원금</span>
+                      <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(basis / 10000))}원</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                      <span style={{ fontSize: 11, color: '#6b7280' }}>평가금액</span>
+                      <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(evalAmount / 10000))}원</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>{isLoss ? '손실' : '수익'}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: isLoss ? '#dc2626' : '#059669' }}>
+                        {roiPct >= 0 ? '+' : ''}{roiPct}%
+                        <span style={{ marginLeft: 6, fontSize: 11 }}>
+                          ({profit >= 0 ? '+' : ''}{fmtMan(Math.round(Math.abs(profit / 10000)))}원)
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 )
               }
@@ -1617,8 +1608,6 @@ export function AssetPage() {
                 locked: !!item.locked,
                 interestRate: item.interestRate ? String(item.interestRate) : '',
                 savingsType: item.savingsType ?? 'installment',
-                costBasis: item.costBasis ? String(item.costBasis) : '',
-                returnRate: item.returnRate !== undefined ? String(item.returnRate) : '',
                 maturityDate: item.maturityDate ?? '',
               })
             }}
@@ -1836,42 +1825,7 @@ export function AssetPage() {
             </>
           )}
 
-          {/* 투자 전용 필드 */}
-          {editForm.category === '투자' && (
-            <>
-              <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>납입 원금 (선택)</div>
-                <AmountInput
-                  value={editForm.costBasis}
-                  onChange={(v) => setEditForm({ ...editForm, costBasis: v })}
-                  placeholder="총 납입한 원금"
-                  height={40}
-                />
-              </div>
-              <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>수익률 % (선택, 손실은 마이너스)</div>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={editForm.returnRate}
-                  onChange={(e) => setEditForm({ ...editForm, returnRate: e.target.value })}
-                  placeholder="예: -5.2 (원금 손실) / 12.5 (수익)"
-                  style={{
-                    width: '100%',
-                    height: 40,
-                    padding: '0 12px',
-                    borderRadius: INPUT_BORDER_RADIUS,
-                    fontSize: INPUT_FONT_SIZE,
-                    fontFamily: 'inherit',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    ...jellyInputSurface,
-                    color: '#232d3c',
-                  }}
-                />
-              </div>
-            </>
-          )}
+
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 18 }}>
@@ -1925,8 +1879,6 @@ export function AssetPage() {
                     locked: editForm.locked || undefined,
                     interestRate: editForm.interestRate ? parseFloat(editForm.interestRate) : undefined,
                     savingsType: editForm.category === '저축' ? editForm.savingsType : undefined,
-                    costBasis: editForm.costBasis ? parseInt(editForm.costBasis.replace(/,/g, ''), 10) : undefined,
-                    returnRate: editForm.returnRate !== '' ? parseFloat(editForm.returnRate) : undefined,
                     maturityDate: editForm.maturityDate || undefined,
                   })
 
