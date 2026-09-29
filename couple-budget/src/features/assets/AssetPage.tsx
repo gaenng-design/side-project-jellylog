@@ -686,8 +686,8 @@ function AddItemRow({ onAdd, personAName, personBName }: {
         />
       </div>
 
-      {/* 정기입금액 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, paddingTop: 12 }}>
+      {/* 정기입금액 (부동산 제외) */}
+      {category !== '부동산' && <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, paddingTop: 12 }}>
         <input
           type="checkbox"
           checked={hasDefault}
@@ -700,8 +700,8 @@ function AddItemRow({ onAdd, personAName, personBName }: {
         <label style={{ fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }}>
           정기입금액
         </label>
-      </div>
-      {hasDefault && (
+      </div>}
+      {category !== '부동산' && hasDefault && (
         <div style={{ minWidth: 130, flexShrink: 0 }}>
           <AmountInput value={defaultAmount} onChange={setDefaultAmount} placeholder="0" height={40} />
         </div>
@@ -872,7 +872,7 @@ export function AssetPage() {
 
   // 항목 수정 모달
   const [editingItem, setEditingItem] = useState<AssetItem | null>(null)
-  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, interestRate: '', savingsType: 'installment' as 'installment' | 'deposit', costBasis: '', maturityDate: '' })
+  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, interestRate: '', savingsType: 'installment' as 'installment' | 'deposit' | 'checking', costBasis: '', returnRate: '', maturityDate: '' })
 
   /** 명의 순(A → B → 공유) → 그 안에서 order 순으로 정렬 */
   const personRank = (p?: 'A' | 'B'): number => (p === 'A' ? 0 : p === 'B' ? 1 : 2)
@@ -1214,7 +1214,7 @@ export function AssetPage() {
         const currentYM = ym(currentYear, currentMonth)
         const insightItems = filteredItems.filter((item) => {
           if (item.category === '저축') return !!(item.maturityDate || item.interestRate)
-          if (item.category === '투자') return !!item.costBasis
+          if (item.category === '투자') return !!(item.costBasis || item.returnRate !== undefined)
           return false
         })
         if (insightItems.length === 0) return null
@@ -1311,8 +1311,15 @@ export function AssetPage() {
                 )
               } else if (item.category === '투자') {
                 const basis = item.costBasis ?? 0
-                const profit = currentVal - basis
-                const roiPct = basis > 0 ? Math.round((profit / basis) * 1000) / 10 : 0
+                const rr = item.returnRate  // 수익률 %
+                const hasReturnRate = rr !== undefined
+                // returnRate 입력 시 평가금액 = 원금 × (1 + rr/100)
+                const evalAmount = hasReturnRate && basis > 0
+                  ? Math.round(basis * (1 + (rr ?? 0) / 100))
+                  : currentVal
+                const profit = basis > 0 ? evalAmount - basis : 0
+                const roiPct = hasReturnRate ? (rr ?? 0) : (basis > 0 ? Math.round((profit / basis) * 1000) / 10 : 0)
+                const isLoss = roiPct < 0
                 return (
                   <div
                     key={item.id}
@@ -1322,25 +1329,37 @@ export function AssetPage() {
                       flex: '1 1 220px',
                       minWidth: 200,
                       maxWidth: 320,
+                      border: isLoss ? '1.5px solid #fca5a5' : undefined,
                     }}
                   >
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 10 }}>{item.name}</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 11, color: '#6b7280' }}>납입원금</span>
-                      <span style={{ fontSize: 11, color: '#374151' }}>{Math.round(basis / 10000).toLocaleString()}만원</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 11, color: '#6b7280' }}>평가금액</span>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>{Math.round(currentVal / 10000).toLocaleString()}만원</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{item.name}</span>
+                      {isLoss && (
+                        <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', fontWeight: 600 }}>
+                          원금 손실
+                        </span>
+                      )}
                     </div>
                     {basis > 0 && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>수익</span>
-                        <span style={{ fontSize: 14, fontWeight: 700, color: profit >= 0 ? '#059669' : '#dc2626' }}>
-                          {profit >= 0 ? '+' : ''}{Math.round(profit / 10000).toLocaleString()}만원
-                          <span style={{ marginLeft: 4, fontSize: 11 }}>({roiPct >= 0 ? '+' : ''}{roiPct}%)</span>
-                        </span>
-                      </div>
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                          <span style={{ fontSize: 11, color: '#6b7280' }}>납입원금</span>
+                          <span style={{ fontSize: 11, color: '#374151' }}>{Math.round(basis / 10000).toLocaleString()}만원</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                          <span style={{ fontSize: 11, color: '#6b7280' }}>평가금액</span>
+                          <span style={{ fontSize: 11, color: '#374151' }}>{Math.round(evalAmount / 10000).toLocaleString()}만원</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>{isLoss ? '손실' : '수익'}</span>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: isLoss ? '#dc2626' : '#059669' }}>
+                            {roiPct >= 0 ? '+' : ''}{roiPct}%
+                            <span style={{ marginLeft: 6, fontSize: 11 }}>
+                              ({profit >= 0 ? '+' : ''}{Math.round(profit / 10000).toLocaleString()}만원)
+                            </span>
+                          </span>
+                        </div>
+                      </>
                     )}
                   </div>
                 )
@@ -1410,6 +1429,7 @@ export function AssetPage() {
                 interestRate: item.interestRate ? String(item.interestRate) : '',
                 savingsType: item.savingsType ?? 'installment',
                 costBasis: item.costBasis ? String(item.costBasis) : '',
+                returnRate: item.returnRate !== undefined ? String(item.returnRate) : '',
                 maturityDate: item.maturityDate ?? '',
               })
             }}
@@ -1508,15 +1528,17 @@ export function AssetPage() {
             </div>
           </div>
 
-          <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>정기입금액 (선택)</div>
-            <AmountInput
-              value={editForm.defaultAmount}
-              onChange={(v) => setEditForm({ ...editForm, defaultAmount: v })}
-              placeholder="매월 추가되는 금액"
-              height={40}
-            />
-          </div>
+          {editForm.category !== '부동산' && (
+            <div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>정기입금액 (선택)</div>
+              <AmountInput
+                value={editForm.defaultAmount}
+                onChange={(v) => setEditForm({ ...editForm, defaultAmount: v })}
+                placeholder="매월 추가되는 금액"
+                height={40}
+              />
+            </div>
+          )}
 
           {/* 묶인 돈 토글 */}
           <div>
@@ -1552,8 +1574,8 @@ export function AssetPage() {
               <div>
                 <div style={{ fontSize: 12, marginBottom: 4 }}>종류</div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {(['installment', 'deposit'] as const).map((type) => {
-                    const label = type === 'installment' ? '적금' : '예금'
+                  {(['installment', 'deposit', 'checking'] as const).map((type) => {
+                    const label = type === 'installment' ? '적금' : type === 'deposit' ? '예금' : '입출금'
                     const active = editForm.savingsType === type
                     return (
                       <button
@@ -1630,15 +1652,39 @@ export function AssetPage() {
 
           {/* 투자 전용 필드 */}
           {editForm.category === '투자' && (
-            <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>납입 원금 (선택)</div>
-              <AmountInput
-                value={editForm.costBasis}
-                onChange={(v) => setEditForm({ ...editForm, costBasis: v })}
-                placeholder="총 납입한 원금"
-                height={40}
-              />
-            </div>
+            <>
+              <div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>납입 원금 (선택)</div>
+                <AmountInput
+                  value={editForm.costBasis}
+                  onChange={(v) => setEditForm({ ...editForm, costBasis: v })}
+                  placeholder="총 납입한 원금"
+                  height={40}
+                />
+              </div>
+              <div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>수익률 % (선택, 손실은 마이너스)</div>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editForm.returnRate}
+                  onChange={(e) => setEditForm({ ...editForm, returnRate: e.target.value })}
+                  placeholder="예: -5.2 (원금 손실) / 12.5 (수익)"
+                  style={{
+                    width: '100%',
+                    height: 40,
+                    padding: '0 12px',
+                    borderRadius: INPUT_BORDER_RADIUS,
+                    fontSize: INPUT_FONT_SIZE,
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    ...jellyInputSurface,
+                    color: '#232d3c',
+                  }}
+                />
+              </div>
+            </>
           )}
         </div>
 
@@ -1695,6 +1741,7 @@ export function AssetPage() {
                     interestRate: editForm.interestRate ? parseFloat(editForm.interestRate) : undefined,
                     savingsType: editForm.category === '저축' ? editForm.savingsType : undefined,
                     costBasis: editForm.costBasis ? parseInt(editForm.costBasis.replace(/,/g, ''), 10) : undefined,
+                    returnRate: editForm.returnRate !== '' ? parseFloat(editForm.returnRate) : undefined,
                     maturityDate: editForm.maturityDate || undefined,
                   })
 
