@@ -1207,8 +1207,8 @@ export function AssetPage() {
         if (len > maxStrLen) maxStrLen = len
       }
     }
-    const calculated = maxStrLen * 4 + 12
-    return Math.max(BASE_ITEM_COLUMN_WIDTH, calculated)
+    const calculated = maxStrLen * 4 + 20
+    return Math.max(130, calculated)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortedItems, entries, years, currentYear, currentMonth])
 
@@ -1509,9 +1509,29 @@ export function AssetPage() {
           return false
         })
         if (insightItems.length === 0) return null
+        // 유저별로 그룹화: A, B, undefined(공유)
+        const personsOrder: Array<'A' | 'B' | undefined> = (['A', 'B', undefined] as const).filter(
+          (p) => insightItems.some((i) => i.person === p)
+        )
         return (
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
-            {insightItems.map((item) => {
+          <div style={{ marginBottom: 16 }}>
+            {personsOrder.map((personKey, groupIdx) => {
+              const groupItems = insightItems.filter((i) => i.person === personKey)
+              if (groupItems.length === 0) return null
+              const groupLabel = personKey === 'A' ? personAName : personKey === 'B' ? personBName : '공유'
+              const groupColor = personKey ? getPersonColor(personKey) : '#9ca3af'
+              return (
+                <div key={String(personKey)}>
+                  {groupIdx > 0 && <div style={{ height: 1, background: '#f3f4f6', margin: '12px 0' }} />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <span style={{
+                      fontSize: 11, padding: '2px 8px', borderRadius: 8,
+                      background: `color-mix(in srgb, ${groupColor} 15%, white)`,
+                      color: groupColor, fontWeight: 700,
+                    }}>{groupLabel}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    {groupItems.map((item) => {
               const currentVal = getEntry(item.id, currentYM)
               if (item.category === '저축') {
                 const rate = item.interestRate ?? 0
@@ -1668,6 +1688,10 @@ export function AssetPage() {
                 )
               }
               return null
+                  })}
+                  </div>
+                </div>
+              )
             })}
           </div>
         )
@@ -1754,7 +1778,7 @@ export function AssetPage() {
         const prevTotal = currentMonth > 0
           ? currentYearMonthTotals[currentMonth - 1]
           : calcMonthTotals(currentYear - 1)[11]
-        if (prevTotal === 0) return null
+        if (curTotal === 0) return null
         const actualDelta = curTotal - prevTotal
         // 정기 납입 계획: defaultAmount 있는 항목의 합
         const plannedDeposits = sortedItems.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
