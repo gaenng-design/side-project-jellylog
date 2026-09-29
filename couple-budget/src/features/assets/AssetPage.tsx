@@ -1120,7 +1120,7 @@ export function AssetPage() {
   /** 카테고리별 현재 월 합계 */
   const calcCategoryTotal = (cat: string) => {
     const its = cat === '전체' ? sortedItems : sortedItems.filter((i) => i.category === cat)
-    return its.reduce((sum, item) => sum + getEntry(item.id, ym(currentYear, currentMonth)), 0)
+    return its.reduce((sum, item) => sum + getProjectedValue(currentYear, item, currentMonth), 0)
   }
 
   /** 특정 연도의 월별 합계 계산 (모든 항목 - 접힘 여부와 무관) */
@@ -1220,15 +1220,15 @@ export function AssetPage() {
         const sumByPerson = (p?: 'A' | 'B') =>
           sortedItems
             .filter((item) => item.person === p)
-            .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+            .reduce((sum, item) => sum + getProjectedValue(currentYear, item, currentMonth), 0)
         const availableTotal = sortedItems
           .filter((item) => !item.locked)
-          .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+          .reduce((sum, item) => sum + getProjectedValue(currentYear, item, currentMonth), 0)
         const personATotal = sumByPerson('A')
         const personBTotal = sumByPerson('B')
         const sharedTotal = sortedItems
           .filter((item) => !item.person)
-          .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+          .reduce((sum, item) => sum + getProjectedValue(currentYear, item, currentMonth), 0)
 
         // 전월 합계 (1월이면 전년 12월)
         const prevMonthTotal = currentMonth > 0
