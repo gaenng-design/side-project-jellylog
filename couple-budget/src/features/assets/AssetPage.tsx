@@ -1491,7 +1491,7 @@ export function AssetPage() {
       })()}
 
       {/* 통합 자산 테이블 — 2년치 월별 데이터를 하나의 표로 (최신 월이 아래) */}
-      {(() => {
+      {categoryFilter !== '전체' && (() => {
         // 오래된 → 최신 순으로 월 리스트 구성 (최신 월이 표 하단)
         const monthList: { year: number; monthIdx: number }[] = []
         for (const yr of years) {
@@ -1627,7 +1627,7 @@ export function AssetPage() {
             </div>
           </div>
 
-          {editForm.category !== '부동산' && (
+          {editForm.category !== '부동산' && !(editForm.category === '저축' && editForm.savingsType === 'deposit') && (
             <div>
               <div style={{ fontSize: 12, marginBottom: 4 }}>정기입금액 (선택)</div>
               <AmountInput
