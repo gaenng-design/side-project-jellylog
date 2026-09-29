@@ -5,7 +5,7 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
 import { AssetPage } from '@/features/assets/AssetPage'
 import { SharedExpensePage } from '@/features/sharedExpense/SharedExpensePage'
-import { RealEstatePage } from '@/features/realEstate/RealEstatePage'
+import RealEstatePage from '@/features/realEstate/RealEstatePage'
 import { PasswordProtection } from '@/features/auth/PasswordProtection'
 import {
   JELLY,
