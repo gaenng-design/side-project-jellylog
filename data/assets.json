@@ -110,38 +110,22 @@
     },
     {
       "name": "축의금",
-      "category": "기타",
-      "person": "A",
-      "id": "asset-1779085520149",
-      "order": 12
-    },
-    {
-      "name": "축의금",
-      "category": "기타",
-      "person": "B",
-      "id": "asset-1779085520151",
-      "order": 13
-    },
-    {
-      "name": "축의금",
       "category": "저축",
       "person": "A",
-      "initialAmount": 22000000,
-      "id": "asset-1790693456550",
-      "order": 14,
+      "id": "asset-1779085520149",
+      "order": 12,
       "interestRate": 3,
-      "savingsType": "installment",
+      "savingsType": "checking",
       "maturityDate": "2027-01-26"
     },
     {
       "name": "축의금",
       "category": "저축",
       "person": "B",
-      "initialAmount": 5968225,
-      "id": "asset-1790693456555",
-      "order": 15,
+      "id": "asset-1779085520151",
+      "order": 13,
       "interestRate": 3.4,
-      "savingsType": "installment",
+      "savingsType": "checking",
       "maturityDate": "2027-06-09"
     }
   ],
@@ -1009,36 +993,6 @@
       "itemId": "asset-1778483629217",
       "yearMonth": "2026-11",
       "amount": 150000000
-    },
-    {
-      "id": "asset-1790693456551",
-      "itemId": "asset-1790693456550",
-      "yearMonth": "2026-10",
-      "amount": 22000000
-    },
-    {
-      "id": "asset-1790693456554",
-      "itemId": "asset-1790693456550",
-      "yearMonth": "2026-08",
-      "amount": 22000000
-    },
-    {
-      "id": "asset-1790693456556",
-      "itemId": "asset-1790693456555",
-      "yearMonth": "2026-10",
-      "amount": 5968225
-    },
-    {
-      "id": "asset-1790693456557",
-      "itemId": "asset-1790693456555",
-      "yearMonth": "2026-09",
-      "amount": 5968225
-    },
-    {
-      "id": "asset-1790693456558",
-      "itemId": "asset-1790693456555",
-      "yearMonth": "2026-08",
-      "amount": 5968225
     }
   ]
 }
