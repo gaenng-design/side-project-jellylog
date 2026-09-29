@@ -120,6 +120,96 @@ function AmountCell({
   )
 }
 
+
+/** 투자 평가 손익용: +/- 입력 지원, 색상 표시 */
+function SignedAmountCell({
+  value,
+  onChange,
+  disabled,
+  projected,
+}: {
+  value: number
+  onChange: (v: number) => void
+  disabled?: boolean
+  projected?: boolean
+}) {
+  const [editing, setEditing] = useState(false)
+  const [raw, setRaw] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const startEdit = () => {
+    setRaw(value === 0 ? '' : String(value))
+    setEditing(true)
+    setTimeout(() => inputRef.current?.select(), 0)
+  }
+
+  const commit = () => {
+    const cleaned = raw.replace(/,/g, '').trim()
+    const parsed = cleaned === '' ? 0 : parseInt(cleaned, 10)
+    onChange(isNaN(parsed) ? 0 : parsed)
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <input
+        ref={inputRef}
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') commit()
+          if (e.key === 'Escape') setEditing(false)
+        }}
+        placeholder="+/- 금액"
+        style={{
+          width: '100%',
+          height: 36,
+          padding: '0 8px',
+          border: `1.5px solid ${PRIMARY}`,
+          borderRadius: 0,
+          fontSize: 12,
+          textAlign: 'right',
+          outline: 'none',
+          boxSizing: 'border-box',
+          background: '#fff',
+          fontFamily: 'inherit',
+          color: JELLY.text,
+        }}
+      />
+    )
+  }
+
+  const isNeg = value < 0
+  const isPos = value > 0
+  return (
+    <div
+      onClick={() => !disabled && !projected && startEdit()}
+      style={{
+        width: '100%',
+        minHeight: 36,
+        alignSelf: 'stretch',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        padding: '0 8px',
+        fontSize: 12,
+        color: isNeg ? '#dc2626' : isPos ? '#059669' : '#d1d5db',
+        cursor: (disabled || projected) ? 'default' : 'pointer',
+        userSelect: 'none',
+        background: 'transparent',
+        border: '1.5px solid transparent',
+        boxSizing: 'border-box',
+        whiteSpace: 'nowrap',
+        opacity: disabled ? 0.5 : 1,
+        fontWeight: (isNeg || isPos) ? 600 : 400,
+      }}
+    >
+      {value === 0 ? '—' : (isPos ? '+' : '') + value.toLocaleString('ko-KR')}
+    </div>
+  )
+}
+
 /** 자산 테이블 — 여러 연·월을 하나의 표로 표시 */
 function MonthsTable({
   months,
@@ -312,7 +402,7 @@ function MonthsTable({
                             </div>
                             {item.category === '투자' && (
                               <div style={{ display: 'flex', gap: 4, fontSize: 9, color: '#9ca3af', fontWeight: 400 }}>
-                                <span>납입원금</span><span>·</span><span>평가금액</span>
+                                <span>총 잔고</span><span>·</span><span>평가 손익</span>
                               </div>
                             )}
                           </div>
@@ -523,25 +613,22 @@ function MonthsTable({
                             <span style={{ fontSize: 10, color: '#d1d5db' }}>…</span>
                           ) : item.category === '투자' ? (
                             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-                              {/* 납입원금 행 */}
+                              {/* 총 잔고 행 */}
                               <div style={{ borderBottom: '1px solid #e5e7eb', background: 'rgba(249,250,251,0.7)' }}>
                                 <AmountCell
-                                  value={getCostBasisEntry(item.id, ym(yr, mi))}
+                                  value={displayValue}
                                   onChange={(v) => {
                                     const amount = v ? parseInt(v.replace(/,/g, ''), 10) : 0
-                                    setCostBasisEntry(item.id, ym(yr, mi), amount)
+                                    setEntry(item.id, ym(yr, mi), amount)
                                   }}
                                   disabled={!editable}
                                   projected={isFuture}
                                 />
                               </div>
-                              {/* 평가금액 행 */}
-                              <AmountCell
-                                value={displayValue}
-                                onChange={(v) => {
-                                  const amount = v ? parseInt(v.replace(/,/g, ''), 10) : 0
-                                  setEntry(item.id, ym(yr, mi), amount)
-                                }}
+                              {/* 평가 손익 행 (signed) */}
+                              <SignedAmountCell
+                                value={getCostBasisEntry(item.id, ym(yr, mi))}
+                                onChange={(v) => setCostBasisEntry(item.id, ym(yr, mi), v)}
                                 disabled={!editable}
                                 projected={isFuture}
                               />
@@ -1346,7 +1433,7 @@ export function AssetPage() {
         const currentYM = ym(currentYear, currentMonth)
         const insightItems = filteredItems.filter((item) => {
           if (item.category === '저축') return !!(item.maturityDate || item.interestRate)
-          if (item.category === '투자') return getCostBasisEntry(item.id, currentYM) > 0
+          if (item.category === '투자') return getEntry(item.id, currentYM) > 0
           return false
         })
         if (insightItems.length === 0) return null
@@ -1442,11 +1529,8 @@ export function AssetPage() {
                   </div>
                 )
               } else if (item.category === '투자') {
-                const basis = getCostBasisEntry(item.id, currentYM)
-                const evalAmount = currentVal
-                const profit = basis > 0 ? evalAmount - basis : 0
-                const roiPct = basis > 0 ? Math.round((profit / basis) * 1000) / 10 : 0
-                const isLoss = roiPct < 0
+                const pnl = getCostBasisEntry(item.id, currentYM)  // 평가 손익 (signed)
+                const isLoss = pnl < 0
                 return (
                   <div
                     key={item.id}
@@ -1463,25 +1547,18 @@ export function AssetPage() {
                       <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{item.name}</span>
                       {isLoss && (
                         <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', fontWeight: 600 }}>
-                          원금 손실
+                          손실
                         </span>
                       )}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 11, color: '#6b7280' }}>납입원금</span>
-                      <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(basis / 10000))}원</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 11, color: '#6b7280' }}>평가금액</span>
-                      <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(evalAmount / 10000))}원</span>
+                      <span style={{ fontSize: 11, color: '#6b7280' }}>총 잔고</span>
+                      <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(currentVal / 10000))}원</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>{isLoss ? '손실' : '수익'}</span>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: isLoss ? '#dc2626' : '#059669' }}>
-                        {roiPct >= 0 ? '+' : ''}{roiPct}%
-                        <span style={{ marginLeft: 6, fontSize: 11 }}>
-                          ({profit >= 0 ? '+' : ''}{fmtMan(Math.round(Math.abs(profit / 10000)))}원)
-                        </span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>평가 손익</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: pnl === 0 ? '#6b7280' : isLoss ? '#dc2626' : '#059669' }}>
+                        {pnl > 0 ? '+' : ''}{pnl === 0 ? '—' : fmtMan(Math.round(pnl / 10000)) + '원'}
                       </span>
                     </div>
                   </div>
