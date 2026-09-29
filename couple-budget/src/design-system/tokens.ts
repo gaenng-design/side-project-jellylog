@@ -25,13 +25,13 @@ export const DS = {
       /** 칩·구분 면 */
       muted: '#F3F4F6',
     },
-    /** 글자 — 흰 배경 대비: primary 16.9 · body 10.3 · secondary 4.8 · muted 3.8 */
+    /** 글자 — 흰 배경 대비: primary 16.9 · body 10.3 · secondary 4.8 · muted 3.3 */
     text: {
       primary: '#1A1D1F',
       body: '#374151',
       secondary: '#6B7280',
-      /** 보조 설명·축 라벨·빈 값 표시 */
-      muted: '#7B8494',
+      /** 보조 설명·축 라벨·빈 값 표시 (맑은 청회색) */
+      muted: '#8590A2',
       disabled: '#A0A4A8',
       /** 색 면(버튼·배지) 위 글자 */
       inverse: '#FFFFFF',
@@ -48,11 +48,11 @@ export const DS = {
     /** 작은 글자·링크로 쓸 때 (흰 배경 대비 4.7) */
     primaryDark: '#3B6FD9',
     /** 이익·증가 */
-    positive: { main: '#0B7A56', soft: '#ECFDF5', border: '#A7F3D0' },
+    positive: { main: '#059669', soft: '#ECFDF5', border: '#A7F3D0' },
     /** 손실·감소·오류 */
     negative: { main: '#DC2626', strong: '#B91C1C', soft: '#FEF2F2', border: '#FCA5A5' },
     /** 주의·임박 */
-    warning: { main: '#F59E0B', text: '#B45309', soft: '#FFFBEB', border: '#FED7AA' },
+    warning: { main: '#F59E0B', text: '#D97706', soft: '#FFFBEB', border: '#FED7AA' },
     /** 자산 카테고리 */
     category: { savings: '#3B82F6', invest: '#8B5CF6', realEstate: '#F59E0B' },
     /** 글로벌 내비 */

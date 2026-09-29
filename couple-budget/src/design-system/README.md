@@ -19,13 +19,13 @@
 | 글자 | `text.primary` | #1A1D1F | 제목·본문 (대비 16.9) |
 | | `text.body` | #374151 | 일반 글자 (10.3) |
 | | `text.secondary` | #6B7280 | 보조 설명 (4.8) |
-| | `text.muted` | #7B8494 | 축 라벨·빈 값 (3.8) |
+| | `text.muted` | #8590A2 | 축 라벨·빈 값 (3.3) |
 | | `text.inverse` | #FFFFFF | 색 면 위 글자 |
 | 선 | `border.subtle` / `default` / `strong` | #E5E7EB / #D1D5DB / #B3B8C1 | 카드 안 구분 / 입력 / 강조 |
 | 주 색 | `primary` / `primarySoft` / `primaryDark` | #4F8CFF / #EAF2FF / #3B6FD9 | CTA·포인트 / 연한 면 / 작은 글자 |
-| 이익 | `positive.main / soft / border` | #0B7A56 / #ECFDF5 / #A7F3D0 | 증가·수익 |
+| 이익 | `positive.main / soft / border` | #059669 / #ECFDF5 / #A7F3D0 | 증가·수익 |
 | 손실 | `negative.main / strong / soft / border` | #DC2626 / #B91C1C / #FEF2F2 / #FCA5A5 | 감소·오류·삭제 |
-| 주의 | `warning.main / text / soft / border` | #F59E0B / #B45309 / #FFFBEB / #FED7AA | 임박·경고 |
+| 주의 | `warning.main / text / soft / border` | #F59E0B / #D97706 / #FFFBEB / #FED7AA | 임박·경고 |
 | 카테고리 | `category.savings / invest / realEstate` | #3B82F6 / #8B5CF6 / #F59E0B | 자산 카테고리 |
 
 모서리: `radius.card` 16 · `control` 12 · `chip` 999. 그림자: `shadow[1..3]`.
