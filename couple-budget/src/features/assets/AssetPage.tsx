@@ -1524,8 +1524,17 @@ export function AssetPage() {
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{item.name}</span>
-                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
+                        {item.person && (
+                          <span style={{
+                            fontSize: 10, padding: '2px 6px', borderRadius: 8, flexShrink: 0,
+                            background: `color-mix(in srgb, ${getPersonColor(item.person)} 15%, white)`,
+                            color: getPersonColor(item.person), fontWeight: 600,
+                          }}>{getPersonLabel(item.person)}</span>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
                         {rate > 0 && (
                           <span style={{ fontSize: 11, color: PRIMARY, fontWeight: 600 }}>{rate}%</span>
                         )}
@@ -1582,9 +1591,18 @@ export function AssetPage() {
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{item.name}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
+                        {item.person && (
+                          <span style={{
+                            fontSize: 10, padding: '2px 6px', borderRadius: 8, flexShrink: 0,
+                            background: `color-mix(in srgb, ${getPersonColor(item.person)} 15%, white)`,
+                            color: getPersonColor(item.person), fontWeight: 600,
+                          }}>{getPersonLabel(item.person)}</span>
+                        )}
+                      </div>
                       {pnl !== 0 && (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: pnlColor }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: pnlColor, flexShrink: 0 }}>
                           {pnl > 0 ? '+' : ''}{pnlPct}%
                         </span>
                       )}
