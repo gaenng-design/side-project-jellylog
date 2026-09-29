@@ -1715,6 +1715,59 @@ export function AssetPage() {
         )
       })()}
 
+      {/* 전체 탭: 이달 증감 분석 카드 */}
+      {categoryFilter === '전체' && (() => {
+        const curTotal = currentYearMonthTotals[currentMonth]
+        const prevTotal = currentMonth > 0
+          ? currentYearMonthTotals[currentMonth - 1]
+          : calcMonthTotals(currentYear - 1)[11]
+        if (prevTotal === 0) return null
+        const actualDelta = curTotal - prevTotal
+        // 정기 납입 계획: defaultAmount 있는 항목의 합
+        const plannedDeposits = sortedItems.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
+        // 납입 외 손익 = 실제 증감 - 정기 납입
+        const extraReturn = actualDelta - plannedDeposits
+        const extraColor = extraReturn === 0 ? '#6b7280' : extraReturn > 0 ? '#059669' : '#dc2626'
+        const deltaColor = actualDelta === 0 ? '#6b7280' : actualDelta > 0 ? '#059669' : '#dc2626'
+        const prevLabel = currentMonth > 0 ? `${MONTHS[currentMonth - 1]}` : `${currentYear - 1}년 12월`
+        return (
+          <div style={{ marginBottom: 16, ...jellyCardStyle, padding: '14px 16px' }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: '#111827', marginBottom: 12 }}>
+              이달 증감 분석
+              <span style={{ fontSize: 11, fontWeight: 400, color: '#9ca3af', marginLeft: 6 }}>({prevLabel} 대비)</span>
+            </div>
+            {/* 정기 납입 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: '#3b82f6', flexShrink: 0 }} />
+                <span style={{ fontSize: 12, color: '#374151' }}>정기 납입</span>
+                <span style={{ fontSize: 11, color: '#9ca3af' }}>(적금·투자 등 자동)</span>
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: plannedDeposits > 0 ? '#3b82f6' : '#9ca3af' }}>
+                {plannedDeposits === 0 ? '—' : `+${fmtMan(Math.round(plannedDeposits / 10000))}원`}
+              </span>
+            </div>
+            {/* 납입 외 손익 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: extraColor, flexShrink: 0 }} />
+                <span style={{ fontSize: 12, color: '#374151' }}>투자·이자 등 손익</span>
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: extraColor }}>
+                {extraReturn === 0 ? '—' : `${extraReturn > 0 ? '+' : ''}${fmtMan(Math.round(extraReturn / 10000))}원`}
+              </span>
+            </div>
+            {/* 구분선 + 합계 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #e5e7eb' }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>= 실제 증감</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: deltaColor }}>
+                {actualDelta === 0 ? '—' : `${actualDelta > 0 ? '+' : ''}${fmtMan(Math.round(actualDelta / 10000))}원`}
+              </span>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* 전체 탭: 수익 현황 카드 */}
       {categoryFilter === '전체' && (() => {
         const currentYM = ym(currentYear, currentMonth)
