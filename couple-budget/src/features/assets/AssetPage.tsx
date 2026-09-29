@@ -1867,24 +1867,50 @@ export function AssetPage() {
                 </div>
               )}
               {/* 저축 수익 (만기 예상 이자) 카드 */}
-              {savingsWithMaturity.length > 0 && (
-                <div style={{
-                  ...jellyCardStyle,
-                  padding: '14px 16px',
-                  flex: '1 1 180px',
-                  minWidth: 160,
-                  border: totalMaturityInterest > 0 ? '1.5px solid #a7f3d0' : undefined,
-                }}>
-                  <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>저축 수익 (만기 예상 이자)</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: savingsMaturityColor, marginBottom: 6 }}>
-                    {totalMaturityInterest === 0 ? '—' : `+${fmtMan(Math.round(totalMaturityInterest / 10000))}원`}
+              {savingsWithMaturity.length > 0 && (() => {
+                const savingsMaturityItems = savingsWithMaturity.map((item) => {
+                  const curVal = getProjectedValue(currentYear, item, currentMonth)
+                  const rate = item.interestRate! / 100
+                  const remainingMonths = Math.max(0, Math.round(
+                    (new Date(item.maturityDate!).getFullYear() - currentYear) * 12 +
+                    (new Date(item.maturityDate!).getMonth() - currentMonth)
+                  ))
+                  const monthly = item.defaultAmount ?? 0
+                  let interest = 0
+                  if (item.savingsType === 'deposit') {
+                    interest = curVal * rate * remainingMonths / 12
+                  } else {
+                    interest = curVal * rate * remainingMonths / 12 +
+                               monthly * (rate / 12) * (remainingMonths * (remainingMonths - 1) / 2)
+                  }
+                  return { item, interest, maturityDate: item.maturityDate! }
+                }).sort((a, b) => new Date(a.maturityDate).getTime() - new Date(b.maturityDate).getTime())
+                return (
+                  <div style={{
+                    ...jellyCardStyle,
+                    padding: '14px 16px',
+                    flex: '1 1 200px',
+                    minWidth: 200,
+                    border: totalMaturityInterest > 0 ? '1.5px solid #a7f3d0' : undefined,
+                  }}>
+                    <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>저축 수익 (만기 예상 이자)</div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: savingsMaturityColor, marginBottom: 10 }}>
+                      {totalMaturityInterest === 0 ? '—' : `+${fmtMan(Math.round(totalMaturityInterest / 10000))}원`}
+                    </div>
+                    <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {savingsMaturityItems.map(({ item, interest, maturityDate }) => (
+                        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                            <span style={{ fontSize: 11, color: '#374151', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
+                            <span style={{ fontSize: 10, color: '#9ca3af' }}>{maturityDate}</span>
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: '#059669', flexShrink: 0 }}>+{fmtMan(Math.round(interest / 10000))}원</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6' }}>
-                    <span style={{ fontSize: 11, color: '#9ca3af' }}>항목 수</span>
-                    <span style={{ fontSize: 11, color: '#374151' }}>{savingsWithMaturity.length}개</span>
-                  </div>
-                </div>
-              )}
+                )
+              })()}
             </div>
           </div>
         )
