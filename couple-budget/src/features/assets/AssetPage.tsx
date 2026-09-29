@@ -655,7 +655,7 @@ function MonthsTable({
 }
 
 function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClose }: {
-  onAdd: (name: string, category: string, defaultAmount: number, person: 'A' | 'B' | undefined, locked: boolean) => void
+  onAdd: (name: string, category: string, defaultAmount: number, person: 'A' | 'B' | undefined, locked: boolean, initialAmount?: number) => void
   personAName: string
   personBName: string
   initialCategory: string
@@ -664,6 +664,7 @@ function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClos
   const [name, setName] = useState('')
   const [category, setCategory] = useState(initialCategory)
   const [person, setPerson] = useState<'A' | 'B'>('A')
+  const [initialAmount, setInitialAmount] = useState('')
   const [hasDefault, setHasDefault] = useState(false)
   const [defaultAmount, setDefaultAmount] = useState('')
   const [locked, setLocked] = useState(false)
@@ -672,7 +673,8 @@ function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClos
     const t = name.trim()
     if (!t) return
     const defAmt = hasDefault && defaultAmount ? parseInt(defaultAmount.replace(/,/g, ''), 10) : 0
-    onAdd(t, category, defAmt, person, locked)
+    const initAmt = initialAmount ? parseInt(initialAmount.replace(/,/g, ''), 10) : 0
+    onAdd(t, category, defAmt, person, locked, initAmt)
     onClose()
   }
 
@@ -731,6 +733,12 @@ function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClos
               ...jellyInputSurface, color: '#232d3c',
             }}
           />
+        </div>
+
+        {/* 초기 금액 */}
+        <div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>초기 금액 (선택)</div>
+          <AmountInput value={initialAmount} onChange={setInitialAmount} placeholder="이미 보유한 금액" height={40} />
         </div>
 
         {/* 명의 */}
@@ -1613,18 +1621,24 @@ export function AssetPage() {
           personBName={personBName}
           initialCategory={categoryFilter !== '전체' ? categoryFilter : '저축'}
           onClose={() => setShowAddModal(false)}
-          onAdd={(name, category, defaultAmount, person, locked) => {
+          onAdd={(name, category, defaultAmount, person, locked, initialAmount) => {
             const newItemId = addItem({
               name,
               category,
               person,
               defaultAmount: defaultAmount > 0 ? defaultAmount : undefined,
               locked: locked || undefined,
+              initialAmount: initialAmount && initialAmount > 0 ? initialAmount : undefined,
             })
+            // 초기 금액을 현재 월에 기록
+            if (initialAmount && initialAmount > 0) {
+              setEntry(newItemId, ym(currentYear, currentMonth), initialAmount)
+            }
             if (defaultAmount > 0) {
-              for (let mi = currentMonth; mi < 12; mi++) {
-                const cumulativeAmount = defaultAmount * (mi - currentMonth + 1)
-                setEntry(newItemId, ym(currentYear, mi), cumulativeAmount)
+              for (let mi = currentMonth + (initialAmount && initialAmount > 0 ? 1 : 0); mi < 12; mi++) {
+                const base = initialAmount && initialAmount > 0 ? initialAmount : 0
+                const offset = mi - currentMonth - (initialAmount && initialAmount > 0 ? 1 : 0) + 1
+                setEntry(newItemId, ym(currentYear, mi), base + defaultAmount * offset)
               }
             }
           }}
@@ -1889,8 +1903,6 @@ export function AssetPage() {
                 if (editingItem && editForm.name.trim()) {
                   const newDefaultAmount = editForm.defaultAmount ? parseInt(editForm.defaultAmount.replace(/,/g, ''), 10) : undefined
                   const newPerson = editForm.person === '공유' ? undefined : editForm.person as 'A' | 'B'
-                  const oldDefaultAmount = editingItem.defaultAmount
-
                   updateItem(editingItem.id, {
                     name: editForm.name.trim(),
                     category: editForm.category || '저축',
@@ -1903,14 +1915,6 @@ export function AssetPage() {
                     returnRate: editForm.returnRate !== '' ? parseFloat(editForm.returnRate) : undefined,
                     maturityDate: editForm.maturityDate || undefined,
                   })
-
-                  // 정기입금액 변경 시 현재 연도의 다음 달부터 누적 업데이트
-                  if (newDefaultAmount && newDefaultAmount > 0 && newDefaultAmount !== oldDefaultAmount) {
-                    for (let mi = currentMonth + 1; mi < 12; mi++) {
-                      const prevMonthAmount = getEntry(editingItem.id, ym(currentYear, mi - 1))
-                      setEntry(editingItem.id, ym(currentYear, mi), prevMonthAmount + newDefaultAmount)
-                    }
-                  }
 
                   setEditingItem(null)
                 }
