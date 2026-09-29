@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { pageTitleH1Style, PRIMARY } from '@/styles/formControls'
+import { MONTHS } from './assetFormat'
 import { ym } from '@/lib/assetCalc'
 import type { AssetItem } from '@/types'
 import { useAssetModel } from './useAssetModel'
@@ -13,6 +14,7 @@ import { AssetTrendChart } from './components/AssetTrendChart'
 import { AssetMonthsSection } from './components/AssetMonthsSection'
 import { AddItemModal } from './components/AddItemModal'
 import { EditItemModal } from './components/EditItemModal'
+import { MonthlyBalanceModal } from './components/MonthlyBalanceModal'
 
 export function AssetPage() {
   const model = useAssetModel()
@@ -39,10 +41,33 @@ export function AssetPage() {
   // 항목 추가·수정 모달
   const [editingItem, setEditingItem] = useState<AssetItem | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showBalanceModal, setShowBalanceModal] = useState(false)
 
   return (
     <div style={{ paddingBottom: 40 }}>
-      <h1 style={{ ...pageTitleH1Style, marginBottom: 16 }}>자산</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
+        <h1 style={{ ...pageTitleH1Style, margin: 0 }}>자산</h1>
+        {sortedItems.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowBalanceModal(true)}
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              padding: '8px 14px',
+              borderRadius: 999,
+              border: 'none',
+              background: PRIMARY,
+              color: '#fff',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            ✏️ {MONTHS[currentMonth]} 잔액 입력
+          </button>
+        )}
+      </div>
 
       <AssetSummaryHeader model={model} />
 
@@ -130,6 +155,10 @@ export function AssetPage() {
             }
           }}
         />
+      )}
+
+      {showBalanceModal && (
+        <MonthlyBalanceModal model={model} onClose={() => setShowBalanceModal(false)} />
       )}
 
       {editingItem && (
