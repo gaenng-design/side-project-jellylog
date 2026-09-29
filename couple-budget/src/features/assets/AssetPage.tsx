@@ -370,7 +370,11 @@ function MonthsTable({
                       >
                         {!isCollapsed && (
                           <>
-                            <div>{item.category}</div>
+                            <div>{
+                              item.category === '저축'
+                                ? (item.savingsType === 'deposit' ? '예금' : item.savingsType === 'checking' ? '입출금' : '적금')
+                                : item.category
+                            }</div>
                             {item.defaultAmount ? (
                               <div style={{ fontSize: 9, color: '#6b7280', fontWeight: 500 }}>
                                 +{item.defaultAmount.toLocaleString('ko-KR')}
