@@ -658,6 +658,38 @@ function MonthsTable({
   )
 }
 
+
+const ToggleSwitch = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
+  <div
+    onClick={() => onChange(!checked)}
+    style={{
+      display: 'inline-flex', alignItems: 'center', cursor: 'pointer',
+      gap: 8, userSelect: 'none',
+    }}
+  >
+    <div style={{
+      position: 'relative', width: 44, height: 24,
+      borderRadius: 12,
+      background: checked ? PRIMARY : '#d1d5db',
+      transition: 'background 0.2s',
+      flexShrink: 0,
+    }}>
+      <div style={{
+        position: 'absolute', top: 2,
+        left: checked ? 22 : 2,
+        width: 20, height: 20,
+        borderRadius: '50%',
+        background: '#fff',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+        transition: 'left 0.2s',
+      }} />
+    </div>
+    <span style={{ fontSize: 13, color: checked ? PRIMARY : '#9ca3af' }}>
+      {checked ? '🔒 만기까지 묶인 자산' : '해제'}
+    </span>
+  </div>
+)
+
 function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClose }: {
   onAdd: (name: string, category: string, defaultAmount: number, person: 'A' | 'B' | undefined, locked: boolean, initialAmount?: number) => void
   personAName: string
@@ -710,7 +742,7 @@ function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClos
 
         {/* 카테고리 */}
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>카테고리</div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>카테고리 <span style={{ color: '#ef4444' }}>*</span></div>
           <CustomSelect
             options={ASSET_CATEGORIES}
             value={category}
@@ -723,7 +755,7 @@ function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClos
 
         {/* 항목명 */}
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>항목명</div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>항목명 <span style={{ color: '#ef4444' }}>*</span></div>
           <input
             autoFocus
             value={name}
@@ -785,22 +817,7 @@ function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClos
         {/* 묶인 돈 */}
         <div>
           <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>묶인 돈</div>
-          <button
-            type="button"
-            onClick={() => setLocked((v) => !v)}
-            style={{
-              width: '100%', height: 40, padding: '0 12px',
-              borderRadius: INPUT_BORDER_RADIUS,
-              border: `1px solid ${locked ? PRIMARY : '#e5e7eb'}`,
-              background: locked ? 'rgba(79, 140, 255, 0.1)' : '#fff',
-              fontSize: 13, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 8,
-              color: locked ? PRIMARY : '#9ca3af', fontFamily: 'inherit',
-            }}
-          >
-            <span style={{ fontSize: 16, filter: locked ? 'none' : 'grayscale(1) opacity(0.6)' }}>🔒</span>
-            <span>{locked ? 'on (만기까지 묶인 자산)' : 'off'}</span>
-          </button>
+          <ToggleSwitch checked={locked} onChange={setLocked} />
         </div>
 
         {/* 버튼 */}
@@ -1657,7 +1674,7 @@ export function AssetPage() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명 <span style={{ color: '#ef4444' }}>*</span></div>
             <input
               value={editForm.name}
               onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
@@ -1733,28 +1750,7 @@ export function AssetPage() {
           {/* 묶인 돈 토글 */}
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>묶인 돈</div>
-            <button
-              type="button"
-              onClick={() => setEditForm({ ...editForm, locked: !editForm.locked })}
-              style={{
-                width: '100%',
-                height: 40,
-                padding: '0 12px',
-                borderRadius: INPUT_BORDER_RADIUS,
-                border: `1px solid ${editForm.locked ? PRIMARY : '#e5e7eb'}`,
-                background: editForm.locked ? 'rgba(79, 140, 255, 0.1)' : '#fff',
-                fontSize: 13,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                color: editForm.locked ? PRIMARY : '#9ca3af',
-                fontFamily: 'inherit',
-              }}
-            >
-              <span style={{ fontSize: 16, filter: editForm.locked ? 'none' : 'grayscale(1) opacity(0.6)' }}>🔒</span>
-              <span>{editForm.locked ? 'on (만기까지 묶인 자산)' : 'off'}</span>
-            </button>
+            <ToggleSwitch checked={editForm.locked} onChange={(v) => setEditForm({ ...editForm, locked: v })} />
           </div>
 
           {/* 저축 전용 필드 */}
