@@ -1047,16 +1047,23 @@ export function AssetPage() {
     const gap = (yr - currentYear) * 12 + (monthIdx - currentMonth)
     const rate = (item.category === '저축' && item.interestRate) ? item.interestRate / 100 : 0
     const monthly = item.defaultAmount && item.defaultAmount > 0 ? item.defaultAmount : 0
-    if (rate > 0 && item.category === '저축') {
-      if (item.savingsType === 'deposit') {
-        // 예금: 원금에 단리 이자 적용
-        return Math.round(base * (1 + rate * gap / 12))
-      } else if (item.savingsType === 'installment') {
-        // 적금: 현재 잔액 이자 + 납입분 + 납입분 이자
-        const interestOnBase = base * rate * gap / 12
-        const futureDeposits = monthly * gap
-        const interestOnFuture = monthly * (rate / 12) * (gap * (gap - 1) / 2)
-        return Math.round(base + interestOnBase + futureDeposits + interestOnFuture)
+    if (rate > 0 && item.category === '저축' && item.maturityDate) {
+      const matDate = new Date(item.maturityDate)
+      const matGap = (matDate.getFullYear() - currentYear) * 12 + (matDate.getMonth() - currentMonth)
+      if (gap >= matGap && matGap >= 0) {
+        // 만기일 도달 또는 경과: 원금 + 이자 전액 반영
+        if (item.savingsType === 'deposit') {
+          return Math.round(base * (1 + rate * matGap / 12))
+        } else if (item.savingsType === 'installment') {
+          const interestOnBase = base * rate * matGap / 12
+          const futureDeposits = monthly * matGap
+          const interestOnFuture = monthly * (rate / 12) * (matGap * (matGap - 1) / 2)
+          return Math.round(base + interestOnBase + futureDeposits + interestOnFuture)
+        }
+      } else {
+        // 만기 전: 원금만 (이자 미반영)
+        if (item.savingsType === 'deposit') return base
+        if (item.savingsType === 'installment') return base + monthly * gap
       }
     }
     if (monthly > 0) return base + monthly * gap
@@ -1216,8 +1223,22 @@ export function AssetPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortedItems, entries, years, currentYear, currentMonth])
 
+  // 모든 아이템 컬럼 너비를 최대값으로 통일 (접힌 항목 제외)
+  const maxItemColWidth = Math.max(
+    BASE_ITEM_COLUMN_WIDTH,
+    ...sortedItems
+      .filter((item) => !collapsedItems.has(item.id))
+      .map((item) => itemColWidths[item.id] ?? BASE_ITEM_COLUMN_WIDTH)
+  )
+  const unifiedItemColWidths: Record<string, number> = Object.fromEntries(
+    sortedItems.map((item) => [
+      item.id,
+      collapsedItems.has(item.id) ? COLLAPSED_COLUMN_WIDTH : maxItemColWidth,
+    ])
+  )
+
   const visibleColumnsWidth = sortedItems.reduce(
-    (sum, item) => sum + (itemColWidths[item.id] ?? BASE_ITEM_COLUMN_WIDTH),
+    (sum, item) => sum + (unifiedItemColWidths[item.id] ?? BASE_ITEM_COLUMN_WIDTH),
     0,
   )
   const tableMinWidth = MONTH_COLUMN_WIDTH + Math.max(visibleColumnsWidth, 200) + sumColWidth
@@ -2033,7 +2054,7 @@ export function AssetPage() {
             getPersonLabel={getPersonLabel}
             getItemColumnBg={getItemColumnBg}
             tableMinWidth={tableMinWidth}
-            itemColWidths={itemColWidths}
+            itemColWidths={unifiedItemColWidths}
             sumColWidth={sumColWidth}
             MONTH_COLUMN_WIDTH={MONTH_COLUMN_WIDTH}
             extraFutureYears={extraFutureYears}
