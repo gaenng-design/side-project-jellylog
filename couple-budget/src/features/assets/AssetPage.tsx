@@ -1560,7 +1560,10 @@ export function AssetPage() {
                 let totalMaturityAmount = 0
                 groupItems.forEach((item) => {
                   const currentVal = getEntry(item.id, currentYM)
-                  if (!item.maturityDate) return
+                  if (!item.maturityDate) {
+                    totalMaturityAmount += currentVal
+                    return
+                  }
                   const rate = item.interestRate ?? 0
                   const remainingMonths = Math.max(0, Math.round(
                     (new Date(item.maturityDate).getFullYear() - currentYear) * 12 +
