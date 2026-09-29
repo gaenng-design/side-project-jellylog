@@ -799,14 +799,16 @@ export function AssetPage() {
   const getEffectiveEntry = (item: AssetItem, yr: number, mi: number): number => {
     const stored = getEntry(item.id, ym(yr, mi))
     if (stored !== 0) return stored
-    if (!item.defaultAmount || item.defaultAmount <= 0) return 0
     for (let offset = 1; offset <= 24; offset++) {
       let pYr = yr
       let pMi = mi - offset
       while (pMi < 0) { pMi += 12; pYr-- }
       if (pYr < 2020) break
       const prevVal = getEntry(item.id, ym(pYr, pMi))
-      if (prevVal > 0) return prevVal + item.defaultAmount * offset
+      if (prevVal > 0) {
+        if (!item.defaultAmount || item.defaultAmount <= 0) return prevVal
+        return prevVal + item.defaultAmount * offset
+      }
     }
     return 0
   }
