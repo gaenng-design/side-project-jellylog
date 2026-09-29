@@ -12,7 +12,7 @@ import { DaySelect } from '@/components/DaySelect'
 import { CustomSelect } from '@/components/CustomSelect'
 import { YearSelectDropdown } from '@/components/YearSelectDropdown'
 import { FixedExpenseRow } from '@/components/FixedExpenseRow'
-import { InvestRow } from '@/components/InvestRow'
+import { InvestRow, type InvestRowData } from '@/components/InvestRow'
 import { AccountNumberInline } from '@/components/AccountNumberInline'
 import { GroupHeaderChip } from '@/components/GroupHeaderChip'
 import { Modal } from '@/components/Modal'
@@ -128,7 +128,8 @@ function SortableTemplateRow(props: {
 
 function SortableInvestRow(props: {
   tpl: InvestTemplate
-  onUpdate: (patch: Partial<{ category: string; description: string; defaultAmount: number; maturityDate?: string; accountNumber?: string }>) => void
+  /** InvestRow가 넘기는 patch 형태 (금액은 amount) — 부모에서 템플릿 필드로 변환 */
+  onUpdate: (patch: Partial<InvestRowData>) => void
   onRemove: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: props.tpl.id })

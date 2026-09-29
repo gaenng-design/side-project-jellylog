@@ -452,10 +452,22 @@ function UserInvestTreeRows(props: {
   return <>{body}</>
 }
 
+interface FixedDepositBreakdown {
+  totalFixed: number
+  halfEach: number
+  separateByUser: { A: number; B: number }
+  totalIncludingSeparate?: number
+  templateSeparateByUser?: { A: number; B: number }
+  templateSeparateItemsByUser?: {
+    A: { description: string; amount: number; accountNumber?: string }[]
+    B: { description: string; amount: number; accountNumber?: string }[]
+  }
+}
+
 function deriveFixedDepositBreakdown(summary: {
   totalFixed: number
   fixedDepositByUser: { A: number; B: number }
-}): { totalFixed: number; halfEach: number; separateByUser: { A: number; B: number } } {
+}): FixedDepositBreakdown {
   const halfEach = Math.round(summary.totalFixed / 2)
   return {
     totalFixed: summary.totalFixed,
@@ -494,17 +506,7 @@ interface SettlementResultViewProps {
     chartData: { label: string; amount: number; pct: number }[]
     fixedDepositByUser: { A: number; B: number }
     /** 구버전 정산 요약·HMR 직후 등에서 누락될 수 있음 → 아래 derive로 보완 */
-    fixedDepositBreakdown?: {
-      totalFixed: number
-      halfEach: number
-      separateByUser: { A: number; B: number }
-      totalIncludingSeparate?: number
-      templateSeparateByUser?: { A: number; B: number }
-      templateSeparateItemsByUser?: {
-        A: { description: string; amount: number; accountNumber?: string }[]
-        B: { description: string; amount: number; accountNumber?: string }[]
-      }
-    }
+    fixedDepositBreakdown?: FixedDepositBreakdown
     separateExpenseCard5090?: {
       total: number
       paidA: number
@@ -584,7 +586,7 @@ export function SettlementResultView({
 }: SettlementResultViewProps) {
   const narrow = useNarrowLayout()
   const { userSummary, chartData, fixedDepositByUser, totalIncome } = summary
-  const fixedDepositBreakdown = summary.fixedDepositBreakdown ?? deriveFixedDepositBreakdown(summary)
+  const fixedDepositBreakdown: FixedDepositBreakdown = summary.fixedDepositBreakdown ?? deriveFixedDepositBreakdown(summary)
   const sep5090 = summary.separateExpenseCard5090
   const sepCardActive = sep5090 != null && sep5090.total > 0
   const [fixedDepositMoreOpen, setFixedDepositMoreOpen] = useState(false)

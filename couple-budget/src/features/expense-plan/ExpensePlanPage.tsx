@@ -1578,7 +1578,7 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
           )
           const rowShell = {
             padding: '8px 10px' as const,
-            borderBottom: (idx === 1 ? 'none' : '1px solid #f3f4f6') as const,
+            borderBottom: idx === 1 ? 'none' : '1px solid #f3f4f6',
           }
           if (narrow) {
             return (

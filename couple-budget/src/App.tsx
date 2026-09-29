@@ -240,8 +240,9 @@ function AppShell() {
             useSettlementStore.setState({ memoByMonth: settlementData.memoByMonth })
         }
 
-        if (result.data.metadata && result.data.metadata.app) {
-          useAppStore.setState(result.data.metadata.app)
+        const metadata = result.data.metadata as { app?: Parameters<typeof useAppStore.setState>[0] } | undefined
+        if (metadata && metadata.app) {
+          useAppStore.setState(metadata.app)
         }
 
         setSyncComplete(true)

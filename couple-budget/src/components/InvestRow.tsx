@@ -15,7 +15,7 @@ function formatMaturityDate(ymd: string) {
   return `${y}.${m}.${d}`
 }
 
-interface InvestRowData {
+export interface InvestRowData {
   id: string
   /** 지출 계획에서 구분(A/B) 표시·편집 시 전달 */
   person?: Exclude<Person, '공금'>
@@ -23,6 +23,8 @@ interface InvestRowData {
   description: string
   amount: number
   maturityDate?: string
+  /** 계좌번호 (지출 계획·설정 화면에서 보조 컨트롤로 편집) */
+  accountNumber?: string
 }
 
 interface InvestRowProps {

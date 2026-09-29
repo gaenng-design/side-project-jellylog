@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, type ReactNode, type MouseEvent } from 'react'
+import { useState, useRef, useEffect, useCallback, type ReactNode, type MouseEvent as ReactMouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT, DROPDOWN_PADDING_COMPACT, DROPDOWN_PADDING_REGULAR, DROPDOWN_CARET_COLOR, DROPDOWN_CARET_FONT_SIZE_COMPACT, DROPDOWN_CARET_FONT_SIZE_REGULAR, DROPDOWN_ITEM_PADDING_COMPACT, DROPDOWN_ITEM_PADDING_REGULAR } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
@@ -27,7 +27,7 @@ interface CustomSelectProps {
   triggerWidth?: number
   /** compact: 트리거 버튼 앞쪽 (예: 별도 정산 ↗). 클릭 시 드롭다운 대신 onCompactLeadingClick */
   compactLeading?: ReactNode
-  onCompactLeadingClick?: (e: MouseEvent) => void
+  onCompactLeadingClick?: (e: ReactMouseEvent) => void
   /** compact 모드 ▾ 색 ( tinted 칩에서 흰색 등) */
   compactCaretColor?: string
   title?: string
