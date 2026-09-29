@@ -104,13 +104,13 @@ export function useAssetModel() {
   const getSavingsCumulativeInterest = (item: AssetItem, yr: number, mi: number): number =>
     cumulativeInterest(item, yr, mi, getEntry, firstEntryYM[item.id], taxRate)
 
-  /** 명의 순(A → B → 공유) → 그 안에서 order 순으로 정렬 */
+  /** 명의 순(A → B → 공유) → 그 안에서 이름 가나다 순으로 정렬 */
   const personRank = (p?: 'A' | 'B'): number => (p === 'A' ? 0 : p === 'B' ? 1 : 2)
   const sortedItems = [...items].sort((a, b) => {
     const ra = personRank(a.person)
     const rb = personRank(b.person)
     if (ra !== rb) return ra - rb
-    return a.order - b.order
+    return a.name.localeCompare(b.name, 'ko')
   })
 
   /** 카테고리별 현재 월 합계 */
