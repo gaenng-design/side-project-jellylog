@@ -1,38 +1,38 @@
 import type { CSSProperties } from 'react'
+import { DS } from '@/design-system/tokens'
 
 /**
- * 앱 전역 시각 토큰 — 소프트 핀테크 UI (밝은 캔버스 · 화이트 카드 · 은은한 섀도)
- * 기존 export 이름 유지 → 기능 변경 없이 스타일만 일괄 적용
+ * 앱 전역 스타일 프리셋 — 값은 모두 design-system/tokens.ts 에서 파생된다.
+ * 기존 export 이름 유지 → 화면 코드를 바꾸지 않고 토큰만으로 일괄 조정 가능
  */
 
-const BG = '#F5F7FA'
-const CARD = '#FFFFFF'
-const TEXT = '#1A1D1F'
-const TEXT_MUTED = '#6B7280'
-const PRIMARY_BTN = '#4F8CFF'
-const PRIMARY_SOFT = '#EAF2FF'
+const BG = DS.color.bg.primary
+const CARD = DS.color.bg.secondary
+const TEXT = DS.color.text.primary
+const TEXT_MUTED = DS.color.text.secondary
+const PRIMARY_BTN = DS.color.primary
+const PRIMARY_SOFT = DS.color.primarySoft
 
 export const JELLY = {
   text: TEXT,
   textMuted: TEXT_MUTED,
   primary: PRIMARY_SOFT,
   surface: CARD,
-  surfaceInput: '#F0F2F5',
+  surfaceInput: DS.color.bg.tertiary,
   innerBorder: '1px solid rgba(0,0,0,0.06)',
   innerBorderSoft: '1px solid rgba(0,0,0,0.04)',
   /** 레거시 코드 호환: 블러 없음 */
   blur: 'blur(0px)',
-  shadowFloat: '0 8px 24px rgba(0, 0, 0, 0.06)',
+  shadowFloat: DS.shadow[2],
   shadowModal: '0 16px 48px rgba(0, 0, 0, 0.1)',
-  radiusControl: 12,
-  radiusUserChip: 9999,
-  radiusFull: 9999,
-  radiusLg: 20,
-  radiusMd: 20,
+  radiusControl: DS.radius.control,
+  radiusUserChip: DS.radius.chip,
+  radiusFull: DS.radius.chip,
+  radiusLg: DS.radius.card,
+  radiusMd: DS.radius.card,
 } as const
 
-export const jellyFontStack =
-  "'Inter', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif"
+export const jellyFontStack = DS.font.family
 
 export const jellyShellBackground: CSSProperties = {
   background: BG,
@@ -40,7 +40,7 @@ export const jellyShellBackground: CSSProperties = {
 
 /** 앱 외곽 nav 전용이 아닌 레거시 참조용 — 다크 사이드바는 App.tsx에서 별도 정의 */
 export const jellySidebarShell: CSSProperties = {
-  background: '#1A1D21',
+  background: DS.color.sidebar.bg,
   borderRight: 'none',
   boxShadow: '4px 0 24px rgba(0,0,0,0.06)',
 }
@@ -57,7 +57,7 @@ export const jellyPrimaryButton: CSSProperties = {
   padding: '11px 22px',
   border: 'none',
   background: PRIMARY_BTN,
-  color: '#ffffff',
+  color: DS.color.text.inverse,
   fontWeight: 600,
   cursor: 'pointer',
   boxShadow: '0 4px 14px rgba(79, 140, 255, 0.35)',
@@ -74,7 +74,7 @@ export const jellyGhostButton: CSSProperties = {
   borderRadius: JELLY.radiusControl,
   padding: '8px 16px',
   border: JELLY.innerBorderSoft,
-  background: '#F0F2F5',
+  background: DS.color.bg.tertiary,
   color: TEXT_MUTED,
   fontWeight: 500,
   cursor: 'pointer',
@@ -85,7 +85,7 @@ export const jellyDangerButton: CSSProperties = {
   padding: '10px 18px',
   border: '1px solid rgba(239, 68, 68, 0.35)',
   background: 'rgba(254, 242, 242, 0.95)',
-  color: '#B91C1C',
+  color: DS.color.negative.strong,
   fontWeight: 600,
   cursor: 'pointer',
   boxShadow: '0 2px 8px rgba(239, 68, 68, 0.08)',
@@ -94,7 +94,7 @@ export const jellyDangerButton: CSSProperties = {
 export const jellyInputSurface: CSSProperties = {
   borderRadius: JELLY.radiusControl,
   border: JELLY.innerBorderSoft,
-  background: '#FFFFFF',
+  background: DS.color.bg.secondary,
   color: TEXT,
   boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
 }

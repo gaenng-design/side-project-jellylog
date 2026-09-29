@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { DS } from '@/design-system/tokens'
 import { JELLY, jellyCardStyle, jellyInputSurface } from '@/styles/jellyGlass'
 import { SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
 
@@ -10,17 +11,17 @@ export const pageTitleH1Style: CSSProperties = {
   margin: 0,
   fontSize: 24,
   fontWeight: 700,
-  color: '#111827',
+  color: DS.color.text.primary,
 }
 
 /** 단색 강조(아이콘·포커스 링 등). 본문은 JELLY.text 사용 */
-export const PRIMARY = '#4F8CFF'
-export const PRIMARY_LIGHT = '#EAF2FF'
-export const PRIMARY_DARK = '#3B6FD9'
+export const PRIMARY = DS.color.primary
+export const PRIMARY_LIGHT = DS.color.primarySoft
+export const PRIMARY_DARK = DS.color.primaryDark
 
 /** 용돈 금액·합계: 양수(블루빛 그린) / 음수(붉은 톤) */
-export const ALLOWANCE_POSITIVE_COLOR = '#0d9488'
-export const ALLOWANCE_NEGATIVE_COLOR = '#dc2626'
+export const ALLOWANCE_POSITIVE_COLOR = DS.color.positive.main
+export const ALLOWANCE_NEGATIVE_COLOR = DS.color.negative.main
 
 export function allowanceValueColor(value: number): string {
   return value >= 0 ? ALLOWANCE_POSITIVE_COLOR : ALLOWANCE_NEGATIVE_COLOR

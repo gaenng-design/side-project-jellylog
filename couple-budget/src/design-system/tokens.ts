@@ -1,25 +1,65 @@
 /**
- * Fintech UI design tokens — soft minimal, shadow hierarchy, 8pt scale.
+ * 디자인 토큰 — 앱 전체 색·글꼴·간격·모서리·그림자의 단일 기준(single source of truth).
+ *
+ * 분위기: 차분한 핀테크. 밝은 캔버스 위 흰 카드, 은은한 그림자, 대비가 분명한 회색 단계.
+ * 규칙
+ *  - 화면 코드에 `#RRGGBB`를 직접 쓰지 않고 이 파일의 토큰을 쓴다.
+ *  - 같은 의미는 같은 색: 이익=positive, 손실=negative, 주의=warning.
+ *  - 글자색은 text.*, 면 색은 bg.*, 선은 border.* 로만 고른다.
+ *  - `styles/jellyGlass.ts`, `styles/formControls.ts` 는 이 토큰에서 파생된다(기존 export 이름 유지).
  */
 import type { CSSProperties } from 'react'
 
 export const DS = {
   color: {
+    /** 면(배경) */
     bg: {
+      /** 앱 캔버스 */
       primary: '#F5F7FA',
+      /** 카드·모달 면 */
       secondary: '#FFFFFF',
+      /** 입력 주변·비활성 면 */
       tertiary: '#F0F2F5',
+      /** 표 머리글·보조 영역 */
+      subtle: '#F9FAFB',
+      /** 칩·구분 면 */
+      muted: '#F3F4F6',
     },
+    /** 글자 — 흰 배경 대비: primary 16.9 · body 10.3 · secondary 4.8 · muted 3.8 */
     text: {
       primary: '#1A1D1F',
+      body: '#374151',
       secondary: '#6B7280',
+      /** 보조 설명·축 라벨·빈 값 표시 */
+      muted: '#7B8494',
       disabled: '#A0A4A8',
+      /** 색 면(버튼·배지) 위 글자 */
+      inverse: '#FFFFFF',
     },
+    /** 선 */
+    border: {
+      subtle: '#E5E7EB',
+      default: '#D1D5DB',
+      strong: '#B3B8C1',
+    },
+    /** 주 색 (포인트·CTA) */
     primary: '#4F8CFF',
     primarySoft: '#EAF2FF',
+    /** 작은 글자·링크로 쓸 때 (흰 배경 대비 4.7) */
+    primaryDark: '#3B6FD9',
+    /** 이익·증가 */
+    positive: { main: '#0B7A56', soft: '#ECFDF5', border: '#A7F3D0' },
+    /** 손실·감소·오류 */
+    negative: { main: '#DC2626', strong: '#B91C1C', soft: '#FEF2F2', border: '#FCA5A5' },
+    /** 주의·임박 */
+    warning: { main: '#F59E0B', text: '#B45309', soft: '#FFFBEB', border: '#FED7AA' },
+    /** 자산 카테고리 */
+    category: { savings: '#3B82F6', invest: '#8B5CF6', realEstate: '#F59E0B' },
+    /** 글로벌 내비 */
+    sidebar: { bg: '#1A1D21' },
+    /** 차트 강조용 (텍스트에는 positive.main 사용) */
     success: '#22C55E',
-    warning: '#F59E0B',
-    error: '#EF4444',
+    error: '#DC2626',
     info: '#3B82F6',
     gradient: 'linear-gradient(135deg, #4F8CFF 0%, #6EA8FF 100%)',
   },
@@ -39,7 +79,7 @@ export const DS = {
   },
   radius: {
     card: 16,
-    button: 12,
+    control: 12,
     chip: 999,
   },
   shadow: {
