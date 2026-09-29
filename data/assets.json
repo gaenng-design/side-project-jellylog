@@ -7,7 +7,10 @@
       "source": "manual",
       "id": "asset-1777882542533",
       "order": 0,
-      "person": "B"
+      "person": "B",
+      "interestRate": 4.5,
+      "savingsType": "installment",
+      "maturityDate": "2029-02-26"
     },
     {
       "name": "청약",
