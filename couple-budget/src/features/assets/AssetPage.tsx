@@ -779,7 +779,7 @@ function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClos
 
         {/* 명의 */}
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>명의</div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>명의 <span style={{ color: '#ef4444' }}>*</span></div>
           <CustomSelect
             options={personOptions.map(o => o.label)}
             value={personOptions.find(o => o.value === person)?.label ?? personAName}
@@ -1696,7 +1696,7 @@ export function AssetPage() {
 
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리 <span style={{ color: '#ef4444' }}>*</span></div>
               <CustomSelect
                 options={ASSET_CATEGORIES}
                 value={editForm.category}
@@ -1707,7 +1707,7 @@ export function AssetPage() {
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>명의</div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>명의 <span style={{ color: '#ef4444' }}>*</span></div>
               <CustomSelect
                 options={['공유', personAName, personBName]}
                 value={editForm.person === 'A' ? personAName : editForm.person === 'B' ? personBName : '공유'}
@@ -1737,7 +1737,7 @@ export function AssetPage() {
           {/* 예금 전용: 예금액 표시/수정 */}
           {editForm.category === '저축' && editForm.savingsType === 'deposit' && editingItem && (
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>예금액</div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>예금액 <span style={{ color: '#ef4444' }}>*</span></div>
               <AmountInput
                 value={editForm.defaultAmount}
                 onChange={(v) => setEditForm({ ...editForm, defaultAmount: v })}
@@ -1758,7 +1758,7 @@ export function AssetPage() {
             <>
               {/* 적금 / 예금 선택 */}
               <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>종류</div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>종류 <span style={{ color: '#ef4444' }}>*</span></div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   {(['installment', 'deposit', 'checking'] as const).map((type) => {
                     const label = type === 'installment' ? '적금' : type === 'deposit' ? '예금' : '입출금'
