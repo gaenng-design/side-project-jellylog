@@ -1181,7 +1181,7 @@ export function AssetPage() {
   const BASE_ITEM_COLUMN_WIDTH = 100 // 기본 항목 컬럼 너비
   const COLLAPSED_COLUMN_WIDTH = 40 // 접힌 항목 너비
 
-  /** 항목별 동적 컬럼 너비 계산 (전체 연도의 최대 자릿수 기준) */
+  /** 항목별 동적 컬럼 너비 계산 (전체 연도의 최대 자릿수 기준, 미래 예측값 포함) */
   const itemColWidths = useMemo(() => {
     const result: Record<string, number> = {}
     for (const item of sortedItems) {
@@ -1192,15 +1192,15 @@ export function AssetPage() {
       let maxStrLen = 0
       for (const yr of years) {
         for (let mi = 0; mi < 12; mi++) {
-          const isFuture = yr === currentYear && mi > currentMonth
-          const val = isFuture ? getProjectedValue(yr, item, mi) : getEntry(item.id, ym(yr, mi))
+          // 미래 연도 포함 전체 월에 getProjectedValue 사용 (표시값과 동일)
+          const val = getProjectedValue(yr, item, mi)
           if (val === 0) continue
           const len = val.toLocaleString('ko-KR').length
           if (len > maxStrLen) maxStrLen = len
         }
       }
-      // 자릿수 기반(12px 폰트 가정) + padding 여유
-      const calculated = maxStrLen * 4 + 12
+      // 7px/자 (12px 폰트 tabular-nums 기준) + padding
+      const calculated = maxStrLen * 7 + 16
       result[item.id] = Math.max(BASE_ITEM_COLUMN_WIDTH, calculated)
     }
     return result
@@ -1218,7 +1218,7 @@ export function AssetPage() {
         if (len > maxStrLen) maxStrLen = len
       }
     }
-    const calculated = maxStrLen * 4 + 20
+    const calculated = maxStrLen * 7 + 20
     return Math.max(130, calculated)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortedItems, entries, years, currentYear, currentMonth])
