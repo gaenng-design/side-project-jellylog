@@ -1717,6 +1717,19 @@ export function AssetPage() {
             </div>
           )}
 
+          {/* 예금 전용: 예금액 표시/수정 */}
+          {editForm.category === '저축' && editForm.savingsType === 'deposit' && editingItem && (
+            <div>
+              <div style={{ fontSize: 12, marginBottom: 4 }}>예금액</div>
+              <AmountInput
+                value={editForm.defaultAmount}
+                onChange={(v) => setEditForm({ ...editForm, defaultAmount: v })}
+                placeholder="예금 원금"
+                height={40}
+              />
+            </div>
+          )}
+
           {/* 묶인 돈 토글 */}
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>묶인 돈</div>
@@ -1780,7 +1793,7 @@ export function AssetPage() {
               </div>
               {/* 연이율 */}
               <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>연이율 % (선택)</div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>연이율 % {editForm.savingsType !== 'checking' && <span style={{ color: '#ef4444' }}>*</span>}</div>
                 <input
                   type="number"
                   min="0"
@@ -1805,7 +1818,7 @@ export function AssetPage() {
               </div>
               {/* 만기일 */}
               <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 {editForm.savingsType !== 'checking' && <span style={{ color: '#ef4444' }}>*</span>}</div>
                 <input
                   type="date"
                   value={editForm.maturityDate}
@@ -1904,7 +1917,8 @@ export function AssetPage() {
 
             <button
               onClick={() => {
-                if (editingItem && editForm.name.trim()) {
+                const savingsValid = editForm.category !== '저축' || editForm.savingsType === 'checking' || (!!editForm.interestRate && !!editForm.maturityDate)
+                if (editingItem && editForm.name.trim() && savingsValid) {
                   const newDefaultAmount = editForm.defaultAmount ? parseInt(editForm.defaultAmount.replace(/,/g, ''), 10) : undefined
                   const newPerson = editForm.person === '공유' ? undefined : editForm.person as 'A' | 'B'
                   updateItem(editingItem.id, {
@@ -1929,9 +1943,9 @@ export function AssetPage() {
                 border: 'none',
                 fontSize: 13,
                 fontWeight: 600,
-                cursor: editForm.name.trim() ? 'pointer' : 'not-allowed',
-                background: editForm.name.trim() ? PRIMARY : '#e5e7eb',
-                color: editForm.name.trim() ? '#fff' : '#9ca3af',
+                cursor: editForm.name.trim() && (editForm.category !== '저축' || editForm.savingsType === 'checking' || (!!editForm.interestRate && !!editForm.maturityDate)) ? 'pointer' : 'not-allowed',
+                background: editForm.name.trim() && (editForm.category !== '저축' || editForm.savingsType === 'checking' || (!!editForm.interestRate && !!editForm.maturityDate)) ? PRIMARY : '#e5e7eb',
+                color: editForm.name.trim() && (editForm.category !== '저축' || editForm.savingsType === 'checking' || (!!editForm.interestRate && !!editForm.maturityDate)) ? '#fff' : '#9ca3af',
               }}
             >
               저장
