@@ -53,14 +53,14 @@
     },
     {
       "name": "AIM",
-      "category": "저축",
+      "category": "투자",
       "person": "A",
       "id": "asset-1778483629236",
       "order": 6
     },
     {
       "name": "AIM",
-      "category": "저축",
+      "category": "투자",
       "person": "B",
       "id": "asset-1778483629237",
       "order": 7
@@ -94,7 +94,8 @@
       "category": "저축",
       "person": "A",
       "id": "asset-1779085520147",
-      "order": 11
+      "order": 11,
+      "savingsType": "deposit"
     },
     {
       "name": "축의금",
@@ -290,7 +291,7 @@
       "id": "asset-1778483629197",
       "itemId": "asset-1778483629191",
       "yearMonth": "2026-10",
-      "amount": 17277710
+      "amount": 17100820
     },
     {
       "id": "asset-1778483629199",
@@ -356,7 +357,7 @@
       "id": "asset-1778483629210",
       "itemId": "asset-1778483629204",
       "yearMonth": "2026-10",
-      "amount": 1739804
+      "amount": 1727039
     },
     {
       "id": "asset-1778483629212",
@@ -926,7 +927,7 @@
       "id": "asset-1790686766921",
       "itemId": "asset-1778483629237",
       "yearMonth": "2026-10",
-      "amount": 9724141
+      "amount": 9512711
     },
     {
       "id": "asset-1790686766922",
