@@ -1050,13 +1050,13 @@ export function AssetPage() {
     if (rate > 0 && item.category === '저축') {
       if (item.savingsType === 'deposit') {
         // 예금: 원금에 단리 이자 적용
-        return base * (1 + rate * gap / 12)
+        return Math.round(base * (1 + rate * gap / 12))
       } else if (item.savingsType === 'installment') {
         // 적금: 현재 잔액 이자 + 납입분 + 납입분 이자
         const interestOnBase = base * rate * gap / 12
         const futureDeposits = monthly * gap
         const interestOnFuture = monthly * (rate / 12) * (gap * (gap - 1) / 2)
-        return base + interestOnBase + futureDeposits + interestOnFuture
+        return Math.round(base + interestOnBase + futureDeposits + interestOnFuture)
       }
     }
     if (monthly > 0) return base + monthly * gap
