@@ -1635,6 +1635,58 @@ export function AssetPage() {
         </div>
       )}
 
+      {/* 전체 탭: 카테고리별 바 그래프 */}
+      {categoryFilter === '전체' && (() => {
+        const catTotals = ASSET_CATEGORIES.map((cat) => ({
+          cat,
+          total: sortedItems
+            .filter((i) => i.category === cat)
+            .reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0),
+        })).filter((c) => c.total > 0)
+        const grandTotal = catTotals.reduce((s, c) => s + c.total, 0)
+        if (catTotals.length === 0 || grandTotal === 0) return null
+        const CAT_COLORS: Record<string, string> = {
+          저축: '#3b82f6',
+          투자: '#8b5cf6',
+          부동산: '#f59e0b',
+        }
+        return (
+          <div style={{ marginBottom: 16, background: '#fff', borderRadius: 10, border: '1px solid #e5e7eb', padding: '14px 16px' }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: '#111827', marginBottom: 14 }}>카테고리별 자산 구성</div>
+            {/* 스택드 바 */}
+            <div style={{ display: 'flex', height: 20, borderRadius: 6, overflow: 'hidden', marginBottom: 12 }}>
+              {catTotals.map(({ cat, total }, idx) => (
+                <div
+                  key={cat}
+                  title={`${cat}: ${fmtMan(Math.round(total / 10000))}원`}
+                  style={{
+                    flex: `0 0 ${(total / grandTotal) * 100}%`,
+                    background: CAT_COLORS[cat] ?? '#9ca3af',
+                    marginRight: idx < catTotals.length - 1 ? 2 : 0,
+                    borderRadius: idx === 0 ? '6px 0 0 6px' : idx === catTotals.length - 1 ? '0 6px 6px 0' : 0,
+                    minWidth: 4,
+                  }}
+                />
+              ))}
+            </div>
+            {/* 범례 + 금액 */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px' }}>
+              {catTotals.map(({ cat, total }) => {
+                const pct = Math.round((total / grandTotal) * 1000) / 10
+                return (
+                  <div key={cat} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 3, background: CAT_COLORS[cat] ?? '#9ca3af', flexShrink: 0 }} />
+                    <span style={{ fontSize: 12, color: '#374151', fontWeight: 600 }}>{cat}</span>
+                    <span style={{ fontSize: 12, color: '#6b7280' }}>{fmtMan(Math.round(total / 10000))}원</span>
+                    <span style={{ fontSize: 11, color: '#9ca3af' }}>({pct}%)</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
+
       {/* 전체 탭: 월별 자산 누적 요약 */}
       {categoryFilter === '전체' && (() => {
         // 최근 12개월 (현재 포함)
