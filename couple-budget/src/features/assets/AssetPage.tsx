@@ -1712,14 +1712,16 @@ export function AssetPage() {
           : calcMonthTotals(currentYear - 1)[11]
         const actualDelta = curTotal - prevTotal
         const plannedDeposits = sortedItems
-          .filter((item) => ASSET_CATEGORIES.includes(item.category))
+          .filter((item) => ASSET_CATEGORIES.includes(item.category) && item.savingsType !== 'deposit')
           .reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
         // 카테고리별 손익 계산
         const savingsItemsD = sortedItems.filter((i) => i.category === '저축')
         const investItemsD = sortedItems.filter((i) => i.category === '투자')
         const savingsCurD = savingsItemsD.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
         const savingsPrevD = savingsItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
-        const savingsDepD = savingsItemsD.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
+        const savingsDepD = savingsItemsD
+          .filter((item) => item.savingsType !== 'deposit')
+          .reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
         const savingsInterestD = savingsCurD - savingsPrevD - savingsDepD
         const investCurD = investItemsD.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
         const investPrevD = investItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
