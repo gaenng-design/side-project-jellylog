@@ -6,7 +6,7 @@ import type { AssetModel } from '../useAssetModel'
 
 /** 전체 탭: 카테고리별 자산 구성 + 이달 증감 분석 */
 export function OverviewCards({ model }: { model: AssetModel }) {
-  const { currentYear, currentMonth, sortedItems, getProjectedValue, calcMonthTotals, currentYearMonthTotals } = model
+  const { currentYear, currentMonth, sortedItems, getProjectedValue, getPnl, calcMonthTotals, currentYearMonthTotals } = model
   // ── 카테고리별 바 그래프 데이터 ──
   const catTotals = ASSET_CATEGORIES.map((cat) => ({
     cat,
@@ -35,10 +35,10 @@ export function OverviewCards({ model }: { model: AssetModel }) {
   const savingsPrevD = savingsItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
   const savingsDepD = savingsItemsD.reduce((s, item) => s + monthlyContribution(item, currentYear, currentMonth), 0)
   const savingsInterestD = savingsCurD - savingsPrevD - savingsDepD
-  const investCurD = investItemsD.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
-  const investPrevD = investItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
-  const investDepD = investItemsD.reduce((s, item) => s + monthlyContribution(item, currentYear, currentMonth), 0)
-  const investPnlD = investCurD - investPrevD - investDepD
+  // 투자 손익 = 이번 달 평가손익 − 전월 평가손익 (잔액 변동에는 입금·출금이 섞여 있어 손익 기록을 기준으로 함)
+  const investCurPnl = investItemsD.reduce((s, item) => s + getPnl(item, currentYear, currentMonth), 0)
+  const investPrevPnl = investItemsD.reduce((s, item) => s + getPnl(item, prevYr, prevMi), 0)
+  const investPnlD = investCurPnl - investPrevPnl
   const deltaColor = actualDelta === 0 ? '#6b7280' : actualDelta > 0 ? '#059669' : '#dc2626'
   const prevLabel = currentMonth > 0 ? `${MONTHS[currentMonth - 1]}` : `${currentYear - 1}년 12월`
 
@@ -100,14 +100,25 @@ export function OverviewCards({ model }: { model: AssetModel }) {
               {plannedDeposits === 0 ? '—' : `+${fmtMan(Math.round(plannedDeposits / 10000))}원`}
             </span>
           </div>
-          {savingsInterestD !== 0 && (
+          {savingsInterestD > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: savingsInterestD > 0 ? '#059669' : '#dc2626', flexShrink: 0 }} />
+                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: '#059669', flexShrink: 0 }} />
                 <span style={{ fontSize: 12, color: '#374151' }}>저축 이자</span>
               </div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: savingsInterestD > 0 ? '#059669' : '#dc2626' }}>
-                {`${savingsInterestD > 0 ? '+' : ''}${fmtMan(Math.round(savingsInterestD / 10000))}원`}
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>
+                {`+${fmtMan(Math.round(savingsInterestD / 10000))}원`}
+              </span>
+            </div>
+          )}
+          {savingsInterestD < 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: '#dc2626', flexShrink: 0 }} />
+                <span style={{ fontSize: 12, color: '#374151' }}>저축 출금·감소</span>
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#dc2626' }}>
+                {`${fmtMan(Math.round(savingsInterestD / 10000))}원`}
               </span>
             </div>
           )}

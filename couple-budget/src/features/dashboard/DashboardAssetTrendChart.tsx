@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { DS } from '@/design-system/tokens'
 import { Card } from '@/design-system/components/Card'
-import { useAssetStore } from '@/store/useAssetStore'
-import { getEffectiveEntry, parseYM } from '@/lib/assetCalc'
+import { useAssetStore, ASSET_CATEGORIES } from '@/store/useAssetStore'
 import type { AssetItem } from '@/types'
+import { getEffectiveEntry, parseYM } from '@/lib/assetCalc'
 import { useAppStore } from '@/store/useAppStore'
 import { PRIMARY } from '@/styles/formControls'
 import { useChartTooltip } from './useChartTooltip'
@@ -52,14 +52,14 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
   const [curYStr, curMStr] = currentYearMonth.split('-')
   const currentYear = parseInt(curYStr, 10)
   const currentMonth = parseInt(curMStr, 10) - 1
-  void entries
-  /** 자산 탭과 같은 기준 — 입력 없는 달은 직전 입력값 + 월 납입액으로 추정 */
-  const effectiveEntry = (item: AssetItem, yearMonth: string) => {
-    const { year: y, monthIdx: m } = parseYM(yearMonth)
-    return getEffectiveEntry(item, y, m, getEntry)
-  }
-
   const { totalSeries, availableSeries, max, lastIdx } = useMemo(() => {
+    /** 자산 탭과 같은 기준 — 입력 없는 달은 직전 입력값 + 월 납입액으로 추정 */
+    const getItemAmount = (item: AssetItem, ymStr: string): number => {
+      const { year: y, monthIdx: m } = parseYM(ymStr)
+      return getEffectiveEntry(item, y, m, getEntry)
+    }
+
+    const assetItems = items.filter((i) => ASSET_CATEGORIES.includes(i.category))
     const total: (number | null)[] = []
     const avail: (number | null)[] = []
     let last = 11
@@ -72,10 +72,10 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
         continue
       }
       const monthYM = ym(year, mi)
-      const t = items.reduce((sum, item) => sum + effectiveEntry(item, monthYM), 0)
-      const a = items
+      const t = assetItems.reduce((sum, item) => sum + getItemAmount(item, monthYM), 0)
+      const a = assetItems
         .filter((item) => !item.locked)
-        .reduce((sum, item) => sum + effectiveEntry(item, monthYM), 0)
+        .reduce((sum, item) => sum + getItemAmount(item, monthYM), 0)
       total.push(t)
       avail.push(a)
     }

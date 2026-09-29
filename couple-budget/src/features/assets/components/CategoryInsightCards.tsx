@@ -46,7 +46,11 @@ export function CategoryInsightCards({ model, categoryFilter, filteredItems }: {
             let totalMaturityAmount = 0
             groupItems.forEach((item) => {
               const result = getMaturity(item)
-              if (!result) return
+              if (!result) {
+                // 만기일·이율이 없는 항목은 현재 잔액을 그대로 수령액에 포함
+                totalMaturityAmount += getProjectedValue(currentYear, item, currentMonth)
+                return
+              }
               totalMaturityInterest += result.interest
               totalMaturityAmount += result.amount
             })
