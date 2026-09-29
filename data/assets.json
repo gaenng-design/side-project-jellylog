@@ -115,7 +115,7 @@
       "id": "asset-1779085520149",
       "order": 12,
       "interestRate": 3,
-      "savingsType": "checking",
+      "savingsType": "installment",
       "maturityDate": "2027-01-26"
     },
     {
@@ -125,7 +125,7 @@
       "id": "asset-1779085520151",
       "order": 13,
       "interestRate": 3.4,
-      "savingsType": "checking",
+      "savingsType": "installment",
       "maturityDate": "2027-06-09"
     }
   ],
@@ -994,5 +994,6 @@
       "yearMonth": "2026-11",
       "amount": 150000000
     }
-  ]
+  ],
+  "costBasisEntries": {}
 }
