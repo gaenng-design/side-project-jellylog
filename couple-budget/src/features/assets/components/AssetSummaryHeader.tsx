@@ -95,9 +95,9 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
             borderRadius: 12,
             background: getItemColumnBg('A', 'header'),
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 8,
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: 4,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
@@ -127,9 +127,9 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
             borderRadius: 12,
             background: getItemColumnBg('B', 'header'),
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 8,
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: 4,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
@@ -160,9 +160,9 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
               borderRadius: 12,
               background: '#f3f4f6',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 8,
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: 4,
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>

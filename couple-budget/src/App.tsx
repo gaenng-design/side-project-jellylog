@@ -91,6 +91,7 @@ function AppShell() {
         assets: {
           items: assetState.items,
           entries: assetState.entries,
+          costBasisEntries: assetState.costBasisEntries,
         },
         sharedExpense: {
           items: sharedExpenseState.items,
@@ -191,6 +192,8 @@ function AppShell() {
           const assetData = result.data.assets as any
           if (assetData.items) useAssetStore.setState({ items: assetData.items })
           if (assetData.entries) useAssetStore.setState({ entries: assetData.entries })
+          // 투자 평가 손익 — 이전 버전으로 저장된 파일에는 없으므로 있을 때만 복원
+          if (assetData.costBasisEntries) useAssetStore.setState({ costBasisEntries: assetData.costBasisEntries })
         }
 
         // 공동 생활비 데이터 복원
