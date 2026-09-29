@@ -654,13 +654,15 @@ function MonthsTable({
   )
 }
 
-function AddItemRow({ onAdd, personAName, personBName }: {
+function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClose }: {
   onAdd: (name: string, category: string, defaultAmount: number, person: 'A' | 'B' | undefined, locked: boolean) => void
   personAName: string
   personBName: string
+  initialCategory: string
+  onClose: () => void
 }) {
   const [name, setName] = useState('')
-  const [category, setCategory] = useState('저축')
+  const [category, setCategory] = useState(initialCategory)
   const [person, setPerson] = useState<'A' | 'B'>('A')
   const [hasDefault, setHasDefault] = useState(false)
   const [defaultAmount, setDefaultAmount] = useState('')
@@ -671,12 +673,7 @@ function AddItemRow({ onAdd, personAName, personBName }: {
     if (!t) return
     const defAmt = hasDefault && defaultAmount ? parseInt(defaultAmount.replace(/,/g, ''), 10) : 0
     onAdd(t, category, defAmt, person, locked)
-    setName('')
-    setCategory('저축')
-    setPerson('A')
-    setHasDefault(false)
-    setDefaultAmount('')
-    setLocked(false)
+    onClose()
   }
 
   const personOptions = [
@@ -685,114 +682,141 @@ function AddItemRow({ onAdd, personAName, personBName }: {
   ]
 
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 8, flexWrap: 'wrap' }}>
-      <div style={{ minWidth: 120, flexShrink: 0 }}>
-        <CustomSelect
-          options={ASSET_CATEGORIES}
-          value={category}
-          onChange={setCategory}
-          compact
-          compactFill
-          compactHeight={40}
-        />
-      </div>
-
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="항목명"
-        onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-        style={{
-          flex: 1,
-          minWidth: 140,
-          height: 40,
-          padding: '0 12px',
-          borderRadius: INPUT_BORDER_RADIUS,
-          fontSize: INPUT_FONT_SIZE,
-          fontFamily: 'inherit',
-          outline: 'none',
-          boxSizing: 'border-box',
-          ...jellyInputSurface,
-          color: '#232d3c',
-        }}
-      />
-
-      {/* 명의 선택 */}
-      <div style={{ minWidth: 100, flexShrink: 0 }}>
-        <CustomSelect
-          options={personOptions.map(o => o.label)}
-          value={personOptions.find(o => o.value === person)?.label ?? personAName}
-          onChange={(label) => {
-            const opt = personOptions.find(o => o.label === label)
-            if (opt) setPerson(opt.value as 'A' | 'B')
-          }}
-          compact
-          compactFill
-          compactHeight={40}
-        />
-      </div>
-
-      {/* 정기입금액 (부동산 제외) */}
-      {category !== '부동산' && <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, paddingTop: 12 }}>
-        <input
-          type="checkbox"
-          checked={hasDefault}
-          onChange={(e) => {
-            setHasDefault(e.target.checked)
-            if (!e.target.checked) setDefaultAmount('')
-          }}
-          style={{ width: 16, height: 16, cursor: 'pointer', accentColor: PRIMARY }}
-        />
-        <label style={{ fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }}>
-          정기입금액
-        </label>
-      </div>}
-      {category !== '부동산' && hasDefault && (
-        <div style={{ minWidth: 130, flexShrink: 0 }}>
-          <AmountInput value={defaultAmount} onChange={setDefaultAmount} placeholder="0" height={40} />
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(0,0,0,0.35)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '0 16px',
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div style={{
+        background: '#fff', borderRadius: 16, padding: '24px 20px',
+        width: '100%', maxWidth: 400,
+        boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
+        display: 'flex', flexDirection: 'column', gap: 16,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>항목 추가</span>
+          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#9ca3af', padding: '0 4px' }}>×</button>
         </div>
-      )}
 
-      {/* 묶인 돈 토글 */}
-      <button
-        type="button"
-        onClick={() => setLocked((v) => !v)}
-        title={locked ? '묶인 돈 (클릭하여 해제)' : '묶인 돈 표시'}
-        style={{
-          flexShrink: 0,
-          height: 40,
-          padding: '0 12px',
-          borderRadius: INPUT_BORDER_RADIUS,
-          border: `1px solid ${locked ? PRIMARY : '#e5e7eb'}`,
-          background: locked ? 'rgba(79, 140, 255, 0.1)' : '#fff',
-          fontSize: 14,
-          cursor: 'pointer',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-          color: locked ? PRIMARY : '#9ca3af',
-          fontWeight: 500,
-        }}
-      >
-        <span style={{ fontSize: 16, filter: locked ? 'none' : 'grayscale(1) opacity(0.6)' }}>🔒</span>
-        <span style={{ fontSize: 12 }}>{locked ? 'on' : 'off'}</span>
-      </button>
+        {/* 카테고리 */}
+        <div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>카테고리</div>
+          <CustomSelect
+            options={ASSET_CATEGORIES}
+            value={category}
+            onChange={setCategory}
+            compact
+            compactFill
+            compactHeight={40}
+          />
+        </div>
 
-      <button
-        type="button"
-        onClick={handleAdd}
-        style={{
-          ...jellyPrimaryButton,
-          fontSize: 13,
-          padding: '0 16px',
-          height: 40,
-          flexShrink: 0,
-          opacity: name.trim() ? 1 : 0.45,
-          cursor: name.trim() ? 'pointer' : 'default',
-        }}
-      >
-        + 추가
-      </button>
+        {/* 항목명 */}
+        <div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>항목명</div>
+          <input
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="항목명"
+            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+            style={{
+              width: '100%', height: 40, padding: '0 12px',
+              borderRadius: INPUT_BORDER_RADIUS, fontSize: INPUT_FONT_SIZE,
+              fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+              ...jellyInputSurface, color: '#232d3c',
+            }}
+          />
+        </div>
+
+        {/* 명의 */}
+        <div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>명의</div>
+          <CustomSelect
+            options={personOptions.map(o => o.label)}
+            value={personOptions.find(o => o.value === person)?.label ?? personAName}
+            onChange={(label) => {
+              const opt = personOptions.find(o => o.label === label)
+              if (opt) setPerson(opt.value as 'A' | 'B')
+            }}
+            compact
+            compactFill
+            compactHeight={40}
+          />
+        </div>
+
+        {/* 정기입금액 (부동산 제외) */}
+        {category !== '부동산' && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: hasDefault ? 8 : 0 }}>
+              <input
+                type="checkbox"
+                id="add-modal-hasDefault"
+                checked={hasDefault}
+                onChange={(e) => { setHasDefault(e.target.checked); if (!e.target.checked) setDefaultAmount('') }}
+                style={{ width: 16, height: 16, cursor: 'pointer', accentColor: PRIMARY }}
+              />
+              <label htmlFor="add-modal-hasDefault" style={{ fontSize: 12, color: '#6b7280', cursor: 'pointer', userSelect: 'none' }}>
+                정기입금액
+              </label>
+            </div>
+            {hasDefault && (
+              <AmountInput value={defaultAmount} onChange={setDefaultAmount} placeholder="0" height={40} />
+            )}
+          </div>
+        )}
+
+        {/* 묶인 돈 */}
+        <div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>묶인 돈</div>
+          <button
+            type="button"
+            onClick={() => setLocked((v) => !v)}
+            style={{
+              width: '100%', height: 40, padding: '0 12px',
+              borderRadius: INPUT_BORDER_RADIUS,
+              border: `1px solid ${locked ? PRIMARY : '#e5e7eb'}`,
+              background: locked ? 'rgba(79, 140, 255, 0.1)' : '#fff',
+              fontSize: 13, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 8,
+              color: locked ? PRIMARY : '#9ca3af', fontFamily: 'inherit',
+            }}
+          >
+            <span style={{ fontSize: 16, filter: locked ? 'none' : 'grayscale(1) opacity(0.6)' }}>🔒</span>
+            <span>{locked ? 'on (만기까지 묶인 자산)' : 'off'}</span>
+          </button>
+        </div>
+
+        {/* 버튼 */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              flex: 1, height: 44, borderRadius: INPUT_BORDER_RADIUS,
+              border: '1px solid #e5e7eb', background: '#fff',
+              fontSize: 14, cursor: 'pointer', color: '#6b7280', fontFamily: 'inherit',
+            }}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={handleAdd}
+            style={{
+              ...jellyPrimaryButton, flex: 2, height: 44,
+              fontSize: 14, opacity: name.trim() ? 1 : 0.45,
+              cursor: name.trim() ? 'pointer' : 'default',
+            }}
+          >
+            추가
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -925,6 +949,7 @@ export function AssetPage() {
 
   // 항목 수정 모달
   const [editingItem, setEditingItem] = useState<AssetItem | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
   const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, interestRate: '', savingsType: 'installment' as 'installment' | 'deposit' | 'checking', costBasis: '', returnRate: '', maturityDate: '' })
 
   /** 명의 순(A → B → 공유) → 그 안에서 order 순으로 정렬 */
@@ -1226,7 +1251,7 @@ export function AssetPage() {
           sortedItems.some((i) => i.category === c)
         )]
         return (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16, alignItems: 'center' }}>
             {cats.map((cat) => {
               const total = calcCategoryTotal(cat)
               const active = categoryFilter === cat
@@ -1258,6 +1283,31 @@ export function AssetPage() {
                 </button>
               )
             })}
+            {categoryFilter !== '전체' && (
+              <button
+                type="button"
+                onClick={() => setShowAddModal(true)}
+                style={{
+                  marginLeft: 'auto',
+                  height: 32,
+                  padding: '0 14px',
+                  borderRadius: INPUT_BORDER_RADIUS,
+                  border: `1.5px solid ${PRIMARY}`,
+                  background: 'rgba(79,140,255,0.08)',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: PRIMARY,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  fontFamily: 'inherit',
+                  flexShrink: 0,
+                }}
+              >
+                + 항목 추가
+              </button>
+            )}
           </div>
         )
       })()}
@@ -1556,11 +1606,13 @@ export function AssetPage() {
         )
       })()}
 
-      {/* Add row (별도 카드) */}
-      <div style={{ ...jellyCardStyle, padding: '12px 16px', marginTop: 16 }}>
-        <AddItemRow
+      {/* Add item modal */}
+      {showAddModal && (
+        <AddItemModal
           personAName={personAName}
           personBName={personBName}
+          initialCategory={categoryFilter !== '전체' ? categoryFilter : '저축'}
+          onClose={() => setShowAddModal(false)}
           onAdd={(name, category, defaultAmount, person, locked) => {
             const newItemId = addItem({
               name,
@@ -1569,8 +1621,6 @@ export function AssetPage() {
               defaultAmount: defaultAmount > 0 ? defaultAmount : undefined,
               locked: locked || undefined,
             })
-
-            // 정기입금액이 설정되면 현재 월부터 자동 채우기 (누적)
             if (defaultAmount > 0) {
               for (let mi = currentMonth; mi < 12; mi++) {
                 const cumulativeAmount = defaultAmount * (mi - currentMonth + 1)
@@ -1579,8 +1629,7 @@ export function AssetPage() {
             }
           }}
         />
-      </div>
-
+      )}
 
       {/* Edit item modal */}
       <Modal
