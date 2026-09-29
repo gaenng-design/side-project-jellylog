@@ -9,6 +9,16 @@ import { JELLY, jellyCardStyle, jellyPrimaryButton, jellyInputSurface } from '@/
 import { pageTitleH1Style, PRIMARY, PRIMARY_LIGHT, settingsTemplateDeleteButtonStyle, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE } from '@/styles/formControls'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import type { AssetItem } from '@/types'
+import {
+  ym,
+  daysUntil,
+  calcMaturity,
+  monthlyContribution,
+  getProjectedValue as projectValue,
+  getEffectivePnl,
+  getSavingsCumulativeInterest as cumulativeInterest,
+  buildFirstEntryMap,
+} from '@/lib/assetCalc'
 
 const MONTHS = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
 const fmt = (n: number) => (n === 0 ? '' : n.toLocaleString('ko-KR'))
@@ -24,10 +34,6 @@ const fmtMan = (manWon: number): string => {
   return sign + abs.toLocaleString('ko-KR') + '만'
 }
 const fmtSum = (n: number) => n.toLocaleString('ko-KR') + '원'
-
-function ym(year: number, monthIdx: number) {
-  return `${year}-${String(monthIdx + 1).padStart(2, '0')}`
-}
 
 function AmountCell({
   value,
@@ -54,7 +60,6 @@ function AmountCell({
     // 정확한 금액 계산: raw값이 공백이면 0, 아니면 파싱
     const cleanValue = raw.replace(/,/g, '')
     const parsed = cleanValue === '' ? '' : cleanValue
-    console.log('[AmountCell] commit:', { raw, cleanValue, parsed, disabled })
     onChange(parsed)
     setEditing(false)
   }
@@ -1014,85 +1019,6 @@ export function AssetPage() {
     return yr * 100 + monthIdx <= editableBoundary
   }
 
-  /**
-   * 저장값이 없는 과거·현재 달에 대해 직전 저장 월 + defaultAmount 누적으로 추산.
-   * 저장값이 있으면 그대로 반환.
-   */
-  const getEffectiveEntry = (item: AssetItem, yr: number, mi: number): number => {
-    if (item.closedYM && ym(yr, mi) > item.closedYM) return 0
-    const stored = getEntry(item.id, ym(yr, mi))
-    if (stored !== 0) return stored
-    for (let offset = 1; offset <= 24; offset++) {
-      let pYr = yr
-      let pMi = mi - offset
-      while (pMi < 0) { pMi += 12; pYr-- }
-      if (pYr < 2020) break
-      const prevVal = getEntry(item.id, ym(pYr, pMi))
-      if (prevVal > 0) {
-        if (!item.defaultAmount || item.defaultAmount <= 0) return prevVal
-        return prevVal + item.defaultAmount * offset
-      }
-    }
-    return 0
-  }
-
-  /** 과거·현재·미래 월 모두의 표시값 계산 */
-  const getProjectedValue = (yr: number, item: AssetItem, monthIdx: number): number => {
-    // 편집 허용 범위(이번 달 + 다음 달)까지는 실제 입력값 (없으면 추산)
-    if (yr * 100 + monthIdx <= editableBoundary) {
-      return getEffectiveEntry(item, yr, monthIdx)
-    }
-    // 미래 달: 현재 달의 유효값을 베이스로 계산
-    const base = getEffectiveEntry(item, currentYear, currentMonth)
-    const gap = (yr - currentYear) * 12 + (monthIdx - currentMonth)
-    const rate = (item.category === '저축' && item.interestRate) ? item.interestRate / 100 : 0
-    const monthly = item.defaultAmount && item.defaultAmount > 0 ? item.defaultAmount : 0
-    if (rate > 0 && item.category === '저축' && item.maturityDate) {
-      const matDate = new Date(item.maturityDate)
-      const matGap = (matDate.getFullYear() - currentYear) * 12 + (matDate.getMonth() - currentMonth)
-      if (gap >= matGap && matGap >= 0) {
-        // 만기일 도달 또는 경과: 원금 + 이자 전액 반영
-        if (item.savingsType === 'deposit') {
-          return Math.round(base * (1 + rate * matGap / 12))
-        } else if (item.savingsType === 'installment') {
-          const interestOnBase = base * rate * matGap / 12
-          const futureDeposits = monthly * matGap
-          const interestOnFuture = monthly * (rate / 12) * (matGap * (matGap - 1) / 2)
-          return Math.round(base + interestOnBase + futureDeposits + interestOnFuture)
-        }
-      } else {
-        // 만기 전: 원금만 (이자 미반영)
-        if (item.savingsType === 'deposit') return base
-        if (item.savingsType === 'installment') return base + monthly * gap
-      }
-    }
-    if (monthly > 0) return base + monthly * gap
-    return base
-  }
-
-  /** 저축 항목의 누적 이자 (원금 대비 수익 계산용) */
-  const getSavingsCumulativeInterest = (item: AssetItem, yr: number, mi: number): number => {
-    if (item.category !== '저축' || !item.interestRate || item.savingsType === 'checking' || item.savingsType === 'subscription') return 0
-    const rate = item.interestRate / 100
-    // 가장 오래된 entry 찾기
-    const itemEntries = entries.filter((e) => e.itemId === item.id)
-    if (itemEntries.length === 0) return 0
-    const earliest = itemEntries.reduce((min, e) => (e.yearMonth < min ? e.yearMonth : min), itemEntries[0].yearMonth)
-    const [eYr, eMo] = earliest.split('-').map(Number)
-    const startYr = eYr
-    const startMi = eMo - 1
-    const elapsed = (yr - startYr) * 12 + (mi - startMi)
-    if (elapsed <= 0) return 0
-    const principal = getEntry(item.id, ym(startYr, startMi))
-    if (item.savingsType === 'deposit') {
-      return principal * rate * elapsed / 12
-    } else {
-      // 적금: 매달 납입분 이자 누적 = monthly × rate/12 × Σ(elapsed, elapsed-1, ..., 1)
-      const monthly = item.defaultAmount ?? 0
-      return monthly * (rate / 12) * elapsed * (elapsed + 1) / 2
-    }
-  }
-
   const personAName = settings.personAName || '유저 1'
   const personBName = settings.personBName || '유저 2'
   const personAColor = settings.user1Color
@@ -1136,13 +1062,34 @@ export function AssetPage() {
   void entries
   void costBasisEntries
 
+  /** 항목별 첫 입력 월 (만기 이자·누적 이자 계산 기준) */
+  const firstEntryYM = useMemo(() => buildFirstEntryMap(entries), [entries])
+
+  /** 과거·현재·미래 월 모두의 표시값 — 계산은 lib/assetCalc 공용 함수 사용 */
+  const projectionCtx = { getEntry, currentYear, currentMonth, editableBoundary, firstEntryYM }
+  const getProjectedValue = (yr: number, item: AssetItem, monthIdx: number): number =>
+    projectValue(item, yr, monthIdx, projectionCtx)
+
+  /** 현재 잔액 기준 만기 예상 (가입 시점부터 전체 이자) */
+  const getMaturity = (item: AssetItem) =>
+    calcMaturity(item, getProjectedValue(currentYear, item, currentMonth), currentYear, currentMonth, {
+      startYM: firstEntryYM[item.id],
+    })
+
+  /** 투자 평가손익 (입력 없는 달은 최근 입력값 사용) */
+  const getPnl = (item: AssetItem, yr: number, mi: number): number =>
+    getEffectivePnl(item, yr, mi, getCostBasisEntry)
+
+  const getSavingsCumulativeInterest = (item: AssetItem, yr: number, mi: number): number =>
+    cumulativeInterest(item, yr, mi, getEntry, firstEntryYM[item.id])
+
   // 카테고리 필터 탭
   const [categoryFilter, setCategoryFilter] = useState('전체')
 
   // 항목 수정 모달
   const [editingItem, setEditingItem] = useState<AssetItem | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, interestRate: '', savingsType: 'installment' as 'installment' | 'deposit' | 'checking' | 'subscription', costBasis: '', returnRate: '', maturityDate: '', closedYM: '' })
+  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, interestRate: '', savingsType: 'installment' as 'installment' | 'deposit' | 'checking' | 'subscription', maturityDate: '', closedYM: '' })
 
   /** 명의 순(A → B → 공유) → 그 안에서 order 순으로 정렬 */
   const personRank = (p?: 'A' | 'B'): number => (p === 'A' ? 0 : p === 'B' ? 1 : 2)
@@ -1273,7 +1220,6 @@ export function AssetPage() {
 
       {/* Current month summary: 총 합계 + 가용 금액 + 유저별 자산 */}
       {(() => {
-        const currentYM = ym(currentYear, currentMonth)
         const monthTotal = currentYearMonthTotals[currentMonth]
         const sumByPerson = (p?: 'A' | 'B') =>
           sortedItems
@@ -1528,16 +1474,15 @@ export function AssetPage() {
 
       {/* 인사이트 카드 — 유저별 통합 카드 (저축: 만기수령액, 투자: ROI) */}
       {categoryFilter !== '전체' && (() => {
-        const currentYM = ym(currentYear, currentMonth)
         const isInsightCategory = categoryFilter === '저축' || categoryFilter === '투자'
         if (!isInsightCategory) return null
 
         const insightItems = filteredItems.filter((item) => {
           if (item.category === '저축') {
-            if (item.savingsType === 'subscription') return getEntry(item.id, currentYM) > 0
+            if (item.savingsType === 'subscription') return getProjectedValue(currentYear, item, currentMonth) > 0
             return !!(item.maturityDate || item.interestRate)
           }
-          if (item.category === '투자') return getEntry(item.id, currentYM) > 0
+          if (item.category === '투자') return getProjectedValue(currentYear, item, currentMonth) > 0
           return false
         })
         if (insightItems.length === 0) return null
@@ -1555,43 +1500,20 @@ export function AssetPage() {
               const groupColor = personKey ? getPersonColor(personKey) : '#9ca3af'
 
               if (categoryFilter === '저축') {
-                const totalBalance = groupItems.reduce((s, item) => s + getEntry(item.id, currentYM), 0)
+                const totalBalance = groupItems.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
                 let totalMaturityInterest = 0
                 let totalMaturityAmount = 0
                 groupItems.forEach((item) => {
-                  const currentVal = getEntry(item.id, currentYM)
-                  if (!item.maturityDate) return
-                  const rate = item.interestRate ?? 0
-                  const remainingMonths = Math.max(0, Math.round(
-                    (new Date(item.maturityDate).getFullYear() - currentYear) * 12 +
-                    (new Date(item.maturityDate).getMonth() - currentMonth)
-                  ))
-                  let matAmt = 0
-                  if (rate > 0) {
-                    const r = rate / 100
-                    if (item.savingsType === 'deposit') {
-                      matAmt = currentVal * (1 + r * remainingMonths / 12)
-                    } else {
-                      const monthlyDeposit = item.defaultAmount ?? 0
-                      const principal = currentVal + monthlyDeposit * remainingMonths
-                      const interestOnCurrent = currentVal * r * remainingMonths / 12
-                      const interestOnFuture = monthlyDeposit * (r / 12) * (remainingMonths * (remainingMonths - 1) / 2)
-                      matAmt = principal + interestOnCurrent + interestOnFuture
-                    }
-                  } else {
-                    matAmt = currentVal + (item.defaultAmount ?? 0) * remainingMonths
-                  }
-                  const interest = matAmt - currentVal - (item.defaultAmount ?? 0) * remainingMonths
-                  totalMaturityInterest += interest
-                  totalMaturityAmount += matAmt
+                  const result = getMaturity(item)
+                  if (!result) return
+                  totalMaturityInterest += result.interest
+                  totalMaturityAmount += result.amount
                 })
                 const withMaturity = groupItems
                   .filter((i) => i.maturityDate)
-                  .sort((a, b) => new Date(a.maturityDate!).getTime() - new Date(b.maturityDate!).getTime())
+                  .sort((a, b) => a.maturityDate!.localeCompare(b.maturityDate!))
                 const nearestMaturity = withMaturity[0]?.maturityDate
-                const nearestDday = nearestMaturity
-                  ? Math.ceil((new Date(nearestMaturity).getTime() - new Date().getTime()) / 86400000)
-                  : null
+                const nearestDday = nearestMaturity ? daysUntil(nearestMaturity) : null
                 return (
                   <div
                     key={String(personKey)}
@@ -1627,8 +1549,8 @@ export function AssetPage() {
                   </div>
                 )
               } else {
-                const totalPnl = groupItems.reduce((s, item) => s + getCostBasisEntry(item.id, currentYM), 0)
-                const totalBalance = groupItems.reduce((s, item) => s + getEntry(item.id, currentYM), 0)
+                const totalPnl = groupItems.reduce((s, item) => s + getPnl(item, currentYear, currentMonth), 0)
+                const totalBalance = groupItems.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
                 const totalBasis = totalBalance - totalPnl
                 const pnlPct = totalBasis !== 0 ? Math.round((totalPnl / totalBasis) * 1000) / 10 : 0
                 const pnlColor = totalPnl === 0 ? '#6b7280' : totalPnl > 0 ? '#059669' : '#dc2626'
@@ -1710,17 +1632,17 @@ export function AssetPage() {
         const actualDelta = curTotal - prevTotal
         const plannedDeposits = sortedItems
           .filter((item) => ASSET_CATEGORIES.includes(item.category))
-          .reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
+          .reduce((s, item) => s + monthlyContribution(item, currentYear, currentMonth), 0)
         // 카테고리별 손익 계산
         const savingsItemsD = sortedItems.filter((i) => i.category === '저축')
         const investItemsD = sortedItems.filter((i) => i.category === '투자')
         const savingsCurD = savingsItemsD.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
         const savingsPrevD = savingsItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
-        const savingsDepD = savingsItemsD.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
+        const savingsDepD = savingsItemsD.reduce((s, item) => s + monthlyContribution(item, currentYear, currentMonth), 0)
         const savingsInterestD = savingsCurD - savingsPrevD - savingsDepD
         const investCurD = investItemsD.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
         const investPrevD = investItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
-        const investDepD = investItemsD.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
+        const investDepD = investItemsD.reduce((s, item) => s + monthlyContribution(item, currentYear, currentMonth), 0)
         const investPnlD = investCurD - investPrevD - investDepD
         const deltaColor = actualDelta === 0 ? '#6b7280' : actualDelta > 0 ? '#059669' : '#dc2626'
         const prevLabel = currentMonth > 0 ? `${MONTHS[currentMonth - 1]}` : `${currentYear - 1}년 12월`
@@ -1820,40 +1742,22 @@ export function AssetPage() {
 
       {/* 전체 탭: 수익 현황 카드 */}
       {categoryFilter === '전체' && (() => {
-        const currentYM = ym(currentYear, currentMonth)
         // 투자 항목 손익
         const investItems = sortedItems.filter((i) => i.category === '투자')
-        // 저축 만기 예상 이자 합산 (만기일 + 이율 있는 항목만)
-        const savingsWithMaturity = sortedItems.filter(
-          (i) => i.category === '저축' && i.maturityDate && i.interestRate &&
-                 i.savingsType !== 'checking' && i.savingsType !== 'subscription'
-        )
-        const totalMaturityInterest = savingsWithMaturity.reduce((sum, item) => {
-          const curVal = getProjectedValue(currentYear, item, currentMonth)
-          if (curVal === 0) return sum
-          const rate = item.interestRate! / 100
-          const remainingMonths = Math.max(0, Math.round(
-            (new Date(item.maturityDate!).getFullYear() - currentYear) * 12 +
-            (new Date(item.maturityDate!).getMonth() - currentMonth)
-          ))
-          const monthly = item.defaultAmount ?? 0
-          let interest = 0
-          if (item.savingsType === 'deposit') {
-            interest = curVal * rate * remainingMonths / 12
-          } else {
-            // 적금: 현재 잔액 이자 + 납입분 이자 (단리)
-            interest = curVal * rate * remainingMonths / 12 +
-                       monthly * (rate / 12) * (remainingMonths * (remainingMonths - 1) / 2)
-          }
-          return sum + interest
-        }, 0)
+        // 저축 만기 예상 이자 (만기일 + 이율 있는 적금·예금) — 공용 calcMaturity 사용
+        const savingsMaturityItems = sortedItems
+          .filter((i) => i.category === '저축')
+          .map((item) => ({ item, result: getMaturity(item) }))
+          .filter((x): x is { item: AssetItem; result: NonNullable<typeof x.result> } => x.result !== null && x.result.principal > 0)
+          .sort((a, b) => a.item.maturityDate!.localeCompare(b.item.maturityDate!))
+        const savingsWithMaturity = savingsMaturityItems.map((x) => x.item)
+        const totalMaturityInterest = savingsMaturityItems.reduce((sum, x) => sum + x.result.interest, 0)
         if (investItems.length === 0 && savingsWithMaturity.length === 0) return null
         // 투자 전체 합산
-        const totalInvestPnl = investItems.reduce((s, item) => s + getCostBasisEntry(item.id, currentYM), 0)
+        const totalInvestPnl = investItems.reduce((s, item) => s + getPnl(item, currentYear, currentMonth), 0)
         const totalInvestBasis = investItems.reduce((s, item) => {
           const bal = getProjectedValue(currentYear, item, currentMonth)
-          const pnl = getCostBasisEntry(item.id, currentYM)
-          return s + (bal - pnl)
+          return s + (bal - getPnl(item, currentYear, currentMonth))
         }, 0)
         const totalInvestPnlPct = totalInvestBasis !== 0 ? Math.round((totalInvestPnl / totalInvestBasis) * 1000) / 10 : 0
         const investPnlColor = totalInvestPnl === 0 ? '#6b7280' : totalInvestPnl > 0 ? '#059669' : '#dc2626'
@@ -1889,23 +1793,6 @@ export function AssetPage() {
               )}
               {/* 저축 수익 (만기 예상 이자) 카드 */}
               {savingsWithMaturity.length > 0 && (() => {
-                const savingsMaturityItems = savingsWithMaturity.map((item) => {
-                  const curVal = getProjectedValue(currentYear, item, currentMonth)
-                  const rate = item.interestRate! / 100
-                  const remainingMonths = Math.max(0, Math.round(
-                    (new Date(item.maturityDate!).getFullYear() - currentYear) * 12 +
-                    (new Date(item.maturityDate!).getMonth() - currentMonth)
-                  ))
-                  const monthly = item.defaultAmount ?? 0
-                  let interest = 0
-                  if (item.savingsType === 'deposit') {
-                    interest = curVal * rate * remainingMonths / 12
-                  } else {
-                    interest = curVal * rate * remainingMonths / 12 +
-                               monthly * (rate / 12) * (remainingMonths * (remainingMonths - 1) / 2)
-                  }
-                  return { item, interest, maturityDate: item.maturityDate! }
-                }).sort((a, b) => new Date(a.maturityDate).getTime() - new Date(b.maturityDate).getTime())
                 return (
                   <div style={{
                     ...jellyCardStyle,
@@ -1919,13 +1806,13 @@ export function AssetPage() {
                       {totalMaturityInterest === 0 ? '—' : `+${fmtMan(Math.round(totalMaturityInterest / 10000))}원`}
                     </div>
                     <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {savingsMaturityItems.map(({ item, interest, maturityDate }) => (
+                      {savingsMaturityItems.map(({ item, result }) => (
                         <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                           <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                             <span style={{ fontSize: 11, color: '#374151', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
-                            <span style={{ fontSize: 10, color: '#9ca3af' }}>{maturityDate}</span>
+                            <span style={{ fontSize: 10, color: '#9ca3af' }}>{item.maturityDate}</span>
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: '#059669', flexShrink: 0 }}>+{fmtMan(Math.round(interest / 10000))}원</span>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: '#059669', flexShrink: 0 }}>+{fmtMan(Math.round(result.interest / 10000))}원</span>
                         </div>
                       ))}
                     </div>
@@ -1957,7 +1844,7 @@ export function AssetPage() {
         const summaryGains = summaryMonths.map(({ yr, mi }) => {
           const investPnl = sortedItems
             .filter((item) => item.category === '투자')
-            .reduce((sum, item) => sum + getCostBasisEntry(item.id, ym(yr, mi)), 0)
+            .reduce((sum, item) => sum + getPnl(item, yr, mi), 0)
           const savingsInterest = sortedItems
             .filter((item) => item.category === '저축')
             .reduce((sum, item) => sum + getSavingsCumulativeInterest(item, yr, mi), 0)
@@ -2165,16 +2052,10 @@ export function AssetPage() {
             </div>
           )}
 
-          {/* 예금 전용: 예금액 표시/수정 */}
-          {editForm.category === '저축' && editForm.savingsType === 'deposit' && editingItem && (
-            <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>예금액 <span style={{ color: '#ef4444' }}>*</span></div>
-              <AmountInput
-                value={editForm.defaultAmount}
-                onChange={(v) => setEditForm({ ...editForm, defaultAmount: v })}
-                placeholder="예금 원금"
-                height={40}
-              />
+          {/* 예금 전용: 원금은 월별 표에서 수정 (defaultAmount는 월 납입액이므로 사용하지 않음) */}
+          {editForm.category === '저축' && editForm.savingsType === 'deposit' && (
+            <div style={{ fontSize: 11, color: '#6b7280' }}>
+              예금 원금은 월별 표의 금액 칸에서 수정할 수 있어요.
             </div>
           )}
 
@@ -2329,7 +2210,8 @@ export function AssetPage() {
               onClick={() => {
                 const savingsValid = editForm.category !== '저축' || editForm.savingsType === 'checking' || editForm.savingsType === 'subscription' || (!!editForm.interestRate && !!editForm.maturityDate)
                 if (editingItem && editForm.name.trim() && savingsValid) {
-                  const newDefaultAmount = editForm.defaultAmount ? parseInt(editForm.defaultAmount.replace(/,/g, ''), 10) : undefined
+                  const isDepositForm = editForm.category === '저축' && editForm.savingsType === 'deposit'
+                  const newDefaultAmount = !isDepositForm && editForm.defaultAmount ? parseInt(editForm.defaultAmount.replace(/,/g, ''), 10) : undefined
                   const newPerson = editForm.person === '공유' ? undefined : editForm.person as 'A' | 'B'
                   updateItem(editingItem.id, {
                     name: editForm.name.trim(),

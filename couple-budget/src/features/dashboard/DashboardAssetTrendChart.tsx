@@ -2,6 +2,8 @@ import { useMemo } from 'react'
 import { DS } from '@/design-system/tokens'
 import { Card } from '@/design-system/components/Card'
 import { useAssetStore } from '@/store/useAssetStore'
+import { getEffectiveEntry, parseYM } from '@/lib/assetCalc'
+import type { AssetItem } from '@/types'
 import { useAppStore } from '@/store/useAppStore'
 import { PRIMARY } from '@/styles/formControls'
 import { useChartTooltip } from './useChartTooltip'
@@ -51,6 +53,11 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
   const currentYear = parseInt(curYStr, 10)
   const currentMonth = parseInt(curMStr, 10) - 1
   void entries
+  /** 자산 탭과 같은 기준 — 입력 없는 달은 직전 입력값 + 월 납입액으로 추정 */
+  const effectiveEntry = (item: AssetItem, yearMonth: string) => {
+    const { year: y, monthIdx: m } = parseYM(yearMonth)
+    return getEffectiveEntry(item, y, m, getEntry)
+  }
 
   const { totalSeries, availableSeries, max, lastIdx } = useMemo(() => {
     const total: (number | null)[] = []
@@ -65,16 +72,16 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
         continue
       }
       const monthYM = ym(year, mi)
-      const t = items.reduce((sum, item) => sum + getEntry(item.id, monthYM), 0)
+      const t = items.reduce((sum, item) => sum + effectiveEntry(item, monthYM), 0)
       const a = items
         .filter((item) => !item.locked)
-        .reduce((sum, item) => sum + getEntry(item.id, monthYM), 0)
+        .reduce((sum, item) => sum + effectiveEntry(item, monthYM), 0)
       total.push(t)
       avail.push(a)
     }
     const maxVal = Math.max(...total.map((v) => v ?? 0), 1)
     return { totalSeries: total, availableSeries: avail, max: maxVal, lastIdx: last }
-  }, [items, getEntry, year, currentYear, currentMonth])
+  }, [items, entries, getEntry, year, currentYear, currentMonth])
 
   const allZero = totalSeries.every((v) => v === null || v === 0)
   const { activeIdx, svgRef, setHover, setClick } = useChartTooltip()

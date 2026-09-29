@@ -3,6 +3,8 @@ import { DS } from '@/design-system/tokens'
 import { Card } from '@/design-system/components/Card'
 import { useAppStore } from '@/store/useAppStore'
 import { useAssetStore } from '@/store/useAssetStore'
+import { getEffectiveEntry, parseYM } from '@/lib/assetCalc'
+import type { AssetItem } from '@/types'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { PRIMARY } from '@/styles/formControls'
@@ -39,6 +41,11 @@ export function DashboardSummaryCards() {
   const entries = useAssetStore((s) => s.entries)
   const getEntry = useAssetStore((s) => s.getEntry)
   void entries
+  /** 자산 탭과 같은 기준 — 입력 없는 달은 직전 입력값 + 월 납입액으로 추정 */
+  const effectiveEntry = (item: AssetItem, yearMonth: string) => {
+    const { year: y, monthIdx: m } = parseYM(yearMonth)
+    return getEffectiveEntry(item, y, m, getEntry)
+  }
 
   // 공동 생활비 store
   const sharedEntries = useSharedExpenseStore((s) => s.entries)
@@ -46,27 +53,27 @@ export function DashboardSummaryCards() {
 
   const stats = useMemo(() => {
     // 이번 달 총 자산
-    const totalAsset = items.reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+    const totalAsset = items.reduce((sum, item) => sum + effectiveEntry(item, currentYM), 0)
     // 가용 자산 (locked 아닌 항목만) — 더 이상 카드로 노출하지 않지만 잠긴 돈 표시에 필요
     const availableAsset = items
       .filter((item) => !item.locked)
-      .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+      .reduce((sum, item) => sum + effectiveEntry(item, currentYM), 0)
     // 저축·투자 자산 (카테고리: 저축 또는 투자)
     const savingsAsset = items
       .filter((item) => item.category === '저축' || item.category === '투자')
-      .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+      .reduce((sum, item) => sum + effectiveEntry(item, currentYM), 0)
     // 전월 총 자산
-    const prevTotalAsset = items.reduce((sum, item) => sum + getEntry(item.id, prevYM), 0)
+    const prevTotalAsset = items.reduce((sum, item) => sum + effectiveEntry(item, prevYM), 0)
     const assetDelta = totalAsset - prevTotalAsset
 
     // 연초(1월) 총 자산 — 데이터가 없으면 같은 연도 중 가장 이른 입력 월 사용
     let baselineYM = ym(year, 0)
-    let baselineAsset = items.reduce((sum, item) => sum + getEntry(item.id, baselineYM), 0)
+    let baselineAsset = items.reduce((sum, item) => sum + effectiveEntry(item, baselineYM), 0)
     if (baselineAsset === 0) {
       // 1월 데이터가 없으면 현재 달까지 거슬러 올라가며 가장 이른 입력 월 탐색
       for (let mi = 1; mi <= monthIdx; mi++) {
         const candidate = ym(year, mi)
-        const sum = items.reduce((s, item) => s + getEntry(item.id, candidate), 0)
+        const sum = items.reduce((s, item) => s + effectiveEntry(item, candidate), 0)
         if (sum > 0) {
           baselineYM = candidate
           baselineAsset = sum
@@ -99,7 +106,7 @@ export function DashboardSummaryCards() {
       sharedExpenseUsed,
       sharedExpenseTarget,
     }
-  }, [items, getEntry, currentYM, prevYM, year, monthIdx, sharedEntries, sharedMonthlyOverride, sharedLivingCostTarget])
+  }, [items, entries, getEntry, currentYM, prevYM, year, monthIdx, sharedEntries, sharedMonthlyOverride, sharedLivingCostTarget])
 
   const sharedProgress =
     stats.sharedExpenseTarget > 0
