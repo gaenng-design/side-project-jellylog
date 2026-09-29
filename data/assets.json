@@ -18,7 +18,9 @@
       "person": "B",
       "defaultAmount": 100000,
       "id": "asset-1778483629178",
-      "order": 1
+      "order": 1,
+      "interestRate": 3.1,
+      "savingsType": "subscription"
     },
     {
       "name": "ISA",
