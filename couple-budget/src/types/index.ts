@@ -85,12 +85,15 @@ export interface AssetItem {
   defaultAmount?: number
   /** 묶인 돈 표시 (예: 적금/예금처럼 만기까지 묶여 있는 자산) */
   locked?: boolean
-  /** 목표 잔액 (저축 목표액) */
-  targetAmount?: number
   /** 납입 원금 (투자 원가) */
   costBasis?: number
-  /** 만기일 YYYY-MM-DD (저축 D-day용) */
+  /** 만기일 YYYY-MM-DD (저축/투자 D-day용) */
   maturityDate?: string
+  /** 연이율 % (예: 3.5 → 3.5%) */
+  interestRate?: number
+  /** 저축 종류: 적금(installment) | 예금(deposit) */
+  savingsType?: 'installment' | 'deposit'
+
 }
 
 /** 특정 월의 자산 항목에 적립된 금액 */

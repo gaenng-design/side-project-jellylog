@@ -872,7 +872,7 @@ export function AssetPage() {
 
   // 항목 수정 모달
   const [editingItem, setEditingItem] = useState<AssetItem | null>(null)
-  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, targetAmount: '', costBasis: '', maturityDate: '' })
+  const [editForm, setEditForm] = useState({ name: '', category: '저축', defaultAmount: '', person: '공유' as 'A' | 'B' | '공유', locked: false, interestRate: '', savingsType: 'installment' as 'installment' | 'deposit', costBasis: '', maturityDate: '' })
 
   /** 명의 순(A → B → 공유) → 그 안에서 order 순으로 정렬 */
   const personRank = (p?: 'A' | 'B'): number => (p === 'A' ? 0 : p === 'B' ? 1 : 2)
@@ -1209,11 +1209,11 @@ export function AssetPage() {
         )
       })()}
 
-      {/* 투자 인사이트 카드 (저축: 목표/진행률/D-day, 투자: ROI) */}
+      {/* 인사이트 카드 (저축: 만기수령액, 투자: ROI) */}
       {categoryFilter !== '전체' && (() => {
         const currentYM = ym(currentYear, currentMonth)
         const insightItems = filteredItems.filter((item) => {
-          if (item.category === '저축') return !!(item.targetAmount || item.maturityDate)
+          if (item.category === '저축') return !!(item.maturityDate || item.interestRate)
           if (item.category === '투자') return !!item.costBasis
           return false
         })
@@ -1223,40 +1223,88 @@ export function AssetPage() {
             {insightItems.map((item) => {
               const currentVal = getEntry(item.id, currentYM)
               if (item.category === '저축') {
-                const target = item.targetAmount ?? 0
-                const pct = target > 0 ? Math.min(100, Math.round((currentVal / target) * 100)) : 0
+                const rate = item.interestRate ?? 0
                 const dday = item.maturityDate
                   ? Math.ceil((new Date(item.maturityDate).getTime() - new Date().getTime()) / 86400000)
                   : null
+                // 만기까지 남은 개월 수
+                const remainingMonths = item.maturityDate
+                  ? Math.max(0, Math.round(
+                      (new Date(item.maturityDate).getFullYear() - currentYear) * 12 +
+                      (new Date(item.maturityDate).getMonth() - currentMonth)
+                    ))
+                  : 0
+                // 만기 수령액 계산 (단리 기준)
+                let maturityAmount = 0
+                if (rate > 0 && item.maturityDate) {
+                  const r = rate / 100
+                  if (item.savingsType === 'deposit') {
+                    // 예금: 현재 금액 × (1 + 연이율 × 남은개월/12)
+                    maturityAmount = currentVal * (1 + r * remainingMonths / 12)
+                  } else {
+                    // 적금: 현재 잔액 이자 + 앞으로 납입분 이자
+                    const monthlyDeposit = item.defaultAmount ?? 0
+                    const futureDeposits = monthlyDeposit * remainingMonths
+                    const principal = currentVal + futureDeposits
+                    // 현재 잔액: 남은기간 동안 이자
+                    const interestOnCurrent = currentVal * r * remainingMonths / 12
+                    // 앞으로 납입분: 각 회차별 이자 (단리) = monthlyDeposit × r/12 × Σ(n-1, n-2, ..., 0)
+                    const interestOnFuture = monthlyDeposit * (r / 12) * (remainingMonths * (remainingMonths - 1) / 2)
+                    maturityAmount = principal + interestOnCurrent + interestOnFuture
+                  }
+                } else if (item.maturityDate) {
+                  const monthlyDeposit = item.defaultAmount ?? 0
+                  maturityAmount = currentVal + monthlyDeposit * remainingMonths
+                }
+                const interest = maturityAmount - currentVal - (item.defaultAmount ?? 0) * remainingMonths
+                const typeLabel = item.savingsType === 'deposit' ? '예금' : '적금'
                 return (
                   <div
                     key={item.id}
                     style={{
                       ...jellyCardStyle,
-                      padding: '12px 16px',
-                      flex: '1 1 200px',
-                      minWidth: 180,
-                      maxWidth: 280,
+                      padding: '14px 16px',
+                      flex: '1 1 220px',
+                      minWidth: 200,
+                      maxWidth: 320,
                     }}
                   >
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>{item.name}</div>
-                    {target > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{item.name}</span>
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        {rate > 0 && (
+                          <span style={{ fontSize: 11, color: PRIMARY, fontWeight: 600 }}>{rate}%</span>
+                        )}
+                        <span style={{
+                          fontSize: 10, padding: '2px 7px', borderRadius: 10,
+                          background: item.savingsType === 'deposit' ? '#f0fdf4' : '#eff6ff',
+                          color: item.savingsType === 'deposit' ? '#059669' : PRIMARY,
+                          fontWeight: 600,
+                        }}>{typeLabel}</span>
+                      </div>
+                    </div>
+                    {maturityAmount > 0 && (
                       <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <span style={{ fontSize: 11, color: '#6b7280' }}>
-                            {Math.round(currentVal / 10000).toLocaleString()}만 / {Math.round(target / 10000).toLocaleString()}만원
-                          </span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: PRIMARY }}>{pct}%</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                          <span style={{ fontSize: 11, color: '#6b7280' }}>현재 잔액</span>
+                          <span style={{ fontSize: 11, color: '#374151' }}>{Math.round(currentVal / 10000).toLocaleString()}만원</span>
                         </div>
-                        <div style={{ height: 6, borderRadius: 3, background: '#e5e7eb', overflow: 'hidden', marginBottom: 6 }}>
-                          <div style={{ height: '100%', borderRadius: 3, background: PRIMARY, width: `${pct}%`, transition: 'width 0.3s' }} />
+                        {rate > 0 && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                            <span style={{ fontSize: 11, color: '#6b7280' }}>이자 (단리)</span>
+                            <span style={{ fontSize: 11, color: '#059669' }}>+{Math.round(interest / 10000).toLocaleString()}만원</span>
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>만기 수령액</span>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{Math.round(maturityAmount / 10000).toLocaleString()}만원</span>
                         </div>
                       </>
                     )}
                     {dday !== null && (
-                      <div style={{ fontSize: 11, color: dday <= 0 ? '#059669' : dday <= 30 ? '#f59e0b' : '#9ca3af' }}>
-                        {dday <= 0 ? '만기 도달' : `D-${dday}`}
-                        <span style={{ marginLeft: 4 }}>· {item.maturityDate}</span>
+                      <div style={{ fontSize: 11, marginTop: 8, color: dday <= 0 ? '#059669' : dday <= 30 ? '#f59e0b' : '#9ca3af' }}>
+                        {dday <= 0 ? '✓ 만기 도달' : `D-${dday}`}
+                        <span style={{ marginLeft: 4, color: '#9ca3af' }}>· {item.maturityDate}</span>
                       </div>
                     )}
                   </div>
@@ -1270,25 +1318,25 @@ export function AssetPage() {
                     key={item.id}
                     style={{
                       ...jellyCardStyle,
-                      padding: '12px 16px',
-                      flex: '1 1 200px',
-                      minWidth: 180,
-                      maxWidth: 280,
+                      padding: '14px 16px',
+                      flex: '1 1 220px',
+                      minWidth: 200,
+                      maxWidth: 320,
                     }}
                   >
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>{item.name}</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 10 }}>{item.name}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                       <span style={{ fontSize: 11, color: '#6b7280' }}>납입원금</span>
                       <span style={{ fontSize: 11, color: '#374151' }}>{Math.round(basis / 10000).toLocaleString()}만원</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                       <span style={{ fontSize: 11, color: '#6b7280' }}>평가금액</span>
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>{Math.round(currentVal / 10000).toLocaleString()}만원</span>
                     </div>
                     {basis > 0 && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 6, borderTop: '1px solid #f3f4f6' }}>
-                        <span style={{ fontSize: 11, color: '#6b7280' }}>수익</span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: profit >= 0 ? '#059669' : '#dc2626' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>수익</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: profit >= 0 ? '#059669' : '#dc2626' }}>
                           {profit >= 0 ? '+' : ''}{Math.round(profit / 10000).toLocaleString()}만원
                           <span style={{ marginLeft: 4, fontSize: 11 }}>({roiPct >= 0 ? '+' : ''}{roiPct}%)</span>
                         </span>
@@ -1359,7 +1407,8 @@ export function AssetPage() {
                 defaultAmount: item.defaultAmount ? String(item.defaultAmount) : '',
                 person: item.person ?? '공유',
                 locked: !!item.locked,
-                targetAmount: item.targetAmount ? String(item.targetAmount) : '',
+                interestRate: item.interestRate ? String(item.interestRate) : '',
+                savingsType: item.savingsType ?? 'installment',
                 costBasis: item.costBasis ? String(item.costBasis) : '',
                 maturityDate: item.maturityDate ?? '',
               })
@@ -1499,15 +1548,63 @@ export function AssetPage() {
           {/* 저축 전용 필드 */}
           {editForm.category === '저축' && (
             <>
+              {/* 적금 / 예금 선택 */}
               <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>목표 금액 (선택)</div>
-                <AmountInput
-                  value={editForm.targetAmount}
-                  onChange={(v) => setEditForm({ ...editForm, targetAmount: v })}
-                  placeholder="저축 목표 잔액"
-                  height={40}
+                <div style={{ fontSize: 12, marginBottom: 4 }}>종류</div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {(['installment', 'deposit'] as const).map((type) => {
+                    const label = type === 'installment' ? '적금' : '예금'
+                    const active = editForm.savingsType === type
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setEditForm({ ...editForm, savingsType: type })}
+                        style={{
+                          flex: 1,
+                          height: 40,
+                          borderRadius: INPUT_BORDER_RADIUS,
+                          border: `1.5px solid ${active ? PRIMARY : '#e5e7eb'}`,
+                          background: active ? 'rgba(79,140,255,0.1)' : '#fff',
+                          fontSize: 13,
+                          fontWeight: active ? 600 : 400,
+                          color: active ? PRIMARY : '#6b7280',
+                          cursor: 'pointer',
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        {label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+              {/* 연이율 */}
+              <div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>연이율 % (선택)</div>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={editForm.interestRate}
+                  onChange={(e) => setEditForm({ ...editForm, interestRate: e.target.value })}
+                  placeholder="예: 3.5"
+                  style={{
+                    width: '100%',
+                    height: 40,
+                    padding: '0 12px',
+                    borderRadius: INPUT_BORDER_RADIUS,
+                    fontSize: INPUT_FONT_SIZE,
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    ...jellyInputSurface,
+                    color: '#232d3c',
+                  }}
                 />
               </div>
+              {/* 만기일 */}
               <div>
                 <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
                 <input
@@ -1595,7 +1692,8 @@ export function AssetPage() {
                     person: newPerson,
                     defaultAmount: newDefaultAmount,
                     locked: editForm.locked || undefined,
-                    targetAmount: editForm.targetAmount ? parseInt(editForm.targetAmount.replace(/,/g, ''), 10) : undefined,
+                    interestRate: editForm.interestRate ? parseFloat(editForm.interestRate) : undefined,
+                    savingsType: editForm.category === '저축' ? editForm.savingsType : undefined,
                     costBasis: editForm.costBasis ? parseInt(editForm.costBasis.replace(/,/g, ''), 10) : undefined,
                     maturityDate: editForm.maturityDate || undefined,
                   })
