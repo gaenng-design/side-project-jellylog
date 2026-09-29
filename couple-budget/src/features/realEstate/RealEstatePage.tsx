@@ -129,7 +129,7 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
 
 // ── 선택 버튼 그룹 ────────────────────────────────────────────
 
-function OptionGroup<T extends string | number>({
+function OptionGroup<T extends string | number | boolean>({
   options, value, onChange, format,
 }: {
   options: T[]; value: T; onChange: (v: T) => void; format?: (v: T) => string
