@@ -1687,6 +1687,111 @@ export function AssetPage() {
         )
       })()}
 
+      {/* 전체 탭: 수익 현황 카드 */}
+      {categoryFilter === '전체' && (() => {
+        const currentYM = ym(currentYear, currentMonth)
+        // 투자 항목 손익
+        const investItems = sortedItems.filter((i) => i.category === '투자')
+        // 저축 누적 이자 합계
+        const totalSavingsInterest = sortedItems
+          .filter((i) => i.category === '저축')
+          .reduce((s, item) => s + getSavingsCumulativeInterest(item, currentYear, currentMonth), 0)
+        if (investItems.length === 0 && totalSavingsInterest === 0) return null
+        // 투자 전체 합산
+        const totalInvestPnl = investItems.reduce((s, item) => s + getCostBasisEntry(item.id, currentYM), 0)
+        const totalInvestBasis = investItems.reduce((s, item) => {
+          const bal = getProjectedValue(currentYear, item, currentMonth)
+          const pnl = getCostBasisEntry(item.id, currentYM)
+          return s + (bal - pnl)
+        }, 0)
+        const totalInvestPnlPct = totalInvestBasis !== 0 ? Math.round((totalInvestPnl / totalInvestBasis) * 1000) / 10 : 0
+        const totalGain = totalInvestPnl + totalSavingsInterest
+        const totalGainColor = totalGain === 0 ? '#6b7280' : totalGain > 0 ? '#059669' : '#dc2626'
+        return (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: '#111827', marginBottom: 10 }}>수익 현황</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+              {/* 전체 수익 요약 카드 */}
+              <div style={{
+                ...jellyCardStyle,
+                padding: '14px 16px',
+                flex: '1 1 200px',
+                minWidth: 180,
+                border: totalGain !== 0 ? `1.5px solid ${totalGain > 0 ? '#a7f3d0' : '#fca5a5'}` : undefined,
+                background: totalGain > 0 ? '#f0fdf4' : totalGain < 0 ? '#fff5f5' : undefined,
+              }}>
+                <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>총 수익 (투자 + 이자)</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: totalGainColor, marginBottom: 4 }}>
+                  {totalGain === 0 ? '—' : `${totalGain > 0 ? '+' : ''}${fmtMan(Math.round(totalGain / 10000))}원`}
+                </div>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  {totalInvestPnl !== 0 && (
+                    <div style={{ fontSize: 11, color: '#6b7280' }}>
+                      투자 <span style={{ color: totalInvestPnl > 0 ? '#059669' : '#dc2626', fontWeight: 600 }}>
+                        {totalInvestPnl > 0 ? '+' : ''}{fmtMan(Math.round(totalInvestPnl / 10000))}원
+                      </span>
+                      {totalInvestPnlPct !== 0 && (
+                        <span style={{ color: totalInvestPnlPct > 0 ? '#059669' : '#dc2626', marginLeft: 3 }}>
+                          ({totalInvestPnlPct > 0 ? '+' : ''}{totalInvestPnlPct}%)
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {totalSavingsInterest > 0 && (
+                    <div style={{ fontSize: 11, color: '#6b7280' }}>
+                      이자 <span style={{ color: '#059669', fontWeight: 600 }}>+{fmtMan(Math.round(totalSavingsInterest / 10000))}원</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* 투자 항목별 카드 */}
+              {investItems.map((item) => {
+                const pnl = getCostBasisEntry(item.id, currentYM)
+                const bal = getProjectedValue(currentYear, item, currentMonth)
+                const basis = bal - pnl
+                const pct = basis !== 0 ? Math.round((pnl / basis) * 1000) / 10 : 0
+                const isLoss = pnl < 0
+                const pnlColor = pnl === 0 ? '#6b7280' : isLoss ? '#dc2626' : '#059669'
+                return (
+                  <div key={item.id} style={{
+                    ...jellyCardStyle,
+                    padding: '14px 16px',
+                    flex: '1 1 160px',
+                    minWidth: 150,
+                    maxWidth: 240,
+                    border: pnl !== 0 ? `1.5px solid ${isLoss ? '#fca5a5' : '#a7f3d0'}` : undefined,
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#374151', flex: 1, marginRight: 6 }}>{item.name}</span>
+                      {pnl !== 0 && (
+                        <span style={{
+                          fontSize: 11, fontWeight: 700,
+                          padding: '2px 7px', borderRadius: 10,
+                          background: isLoss ? '#fee2e2' : '#dcfce7',
+                          color: pnlColor,
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                        }}>
+                          {pnl > 0 ? '+' : ''}{pct}%
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: pnlColor }}>
+                      {pnl === 0 ? <span style={{ color: '#9ca3af' }}>—</span> : `${pnl > 0 ? '+' : ''}${fmtMan(Math.round(pnl / 10000))}원`}
+                    </div>
+                    {basis > 0 && (
+                      <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>
+                        원금 {fmtMan(Math.round(basis / 10000))}원
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
+
       {/* 전체 탭: 월별 자산 누적 요약 */}
       {categoryFilter === '전체' && (() => {
         // 최근 12개월 (현재 포함)
