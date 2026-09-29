@@ -1853,11 +1853,31 @@ export function AssetPage() {
         const currentYM = ym(currentYear, currentMonth)
         // 투자 항목 손익
         const investItems = sortedItems.filter((i) => i.category === '투자')
-        // 저축 누적 이자 합계
-        const totalSavingsInterest = sortedItems
-          .filter((i) => i.category === '저축')
-          .reduce((s, item) => s + getSavingsCumulativeInterest(item, currentYear, currentMonth), 0)
-        if (investItems.length === 0 && totalSavingsInterest === 0) return null
+        // 저축 만기 예상 이자 합산 (만기일 + 이율 있는 항목만)
+        const savingsWithMaturity = sortedItems.filter(
+          (i) => i.category === '저축' && i.maturityDate && i.interestRate &&
+                 i.savingsType !== 'checking' && i.savingsType !== 'subscription'
+        )
+        const totalMaturityInterest = savingsWithMaturity.reduce((sum, item) => {
+          const curVal = getProjectedValue(currentYear, item, currentMonth)
+          if (curVal === 0) return sum
+          const rate = item.interestRate! / 100
+          const remainingMonths = Math.max(0, Math.round(
+            (new Date(item.maturityDate!).getFullYear() - currentYear) * 12 +
+            (new Date(item.maturityDate!).getMonth() - currentMonth)
+          ))
+          const monthly = item.defaultAmount ?? 0
+          let interest = 0
+          if (item.savingsType === 'deposit') {
+            interest = curVal * rate * remainingMonths / 12
+          } else {
+            // 적금: 현재 잔액 이자 + 납입분 이자 (단리)
+            interest = curVal * rate * remainingMonths / 12 +
+                       monthly * (rate / 12) * (remainingMonths * (remainingMonths - 1) / 2)
+          }
+          return sum + interest
+        }, 0)
+        if (investItems.length === 0 && savingsWithMaturity.length === 0) return null
         // 투자 전체 합산
         const totalInvestPnl = investItems.reduce((s, item) => s + getCostBasisEntry(item.id, currentYM), 0)
         const totalInvestBasis = investItems.reduce((s, item) => {
@@ -1867,7 +1887,7 @@ export function AssetPage() {
         }, 0)
         const totalInvestPnlPct = totalInvestBasis !== 0 ? Math.round((totalInvestPnl / totalInvestBasis) * 1000) / 10 : 0
         const investPnlColor = totalInvestPnl === 0 ? '#6b7280' : totalInvestPnl > 0 ? '#059669' : '#dc2626'
-        const savingsColor = totalSavingsInterest > 0 ? '#059669' : '#6b7280'
+        const savingsMaturityColor = totalMaturityInterest > 0 ? '#059669' : '#6b7280'
         return (
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontWeight: 700, fontSize: 13, color: '#111827', marginBottom: 10 }}>수익 현황</div>
@@ -1897,24 +1917,22 @@ export function AssetPage() {
                   )}
                 </div>
               )}
-              {/* 저축 수익 (이자) 카드 */}
-              {(totalSavingsInterest > 0 || sortedItems.some((i) => i.category === '저축' && i.interestRate)) && (
+              {/* 저축 수익 (만기 예상 이자) 카드 */}
+              {savingsWithMaturity.length > 0 && (
                 <div style={{
                   ...jellyCardStyle,
                   padding: '14px 16px',
                   flex: '1 1 180px',
                   minWidth: 160,
-                  border: totalSavingsInterest > 0 ? '1.5px solid #a7f3d0' : undefined,
+                  border: totalMaturityInterest > 0 ? '1.5px solid #a7f3d0' : undefined,
                 }}>
-                  <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>저축 수익 (누적 이자)</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: savingsColor, marginBottom: 6 }}>
-                    {totalSavingsInterest === 0 ? '—' : `+${fmtMan(Math.round(totalSavingsInterest / 10000))}원`}
+                  <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>저축 수익 (만기 예상 이자)</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: savingsMaturityColor, marginBottom: 6 }}>
+                    {totalMaturityInterest === 0 ? '—' : `+${fmtMan(Math.round(totalMaturityInterest / 10000))}원`}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6' }}>
-                    <span style={{ fontSize: 11, color: '#9ca3af' }}>저축 잔액</span>
-                    <span style={{ fontSize: 11, color: '#374151' }}>
-                      {fmtMan(Math.round(sortedItems.filter((i) => i.category === '저축').reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0) / 10000))}원
-                    </span>
+                    <span style={{ fontSize: 11, color: '#9ca3af' }}>항목 수</span>
+                    <span style={{ fontSize: 11, color: '#374151' }}>{savingsWithMaturity.length}개</span>
                   </div>
                 </div>
               )}
