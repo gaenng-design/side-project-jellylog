@@ -5,18 +5,19 @@ import { PRIMARY } from '@/styles/formControls'
 import { addMonths, monthDiff, parseYM } from '@/lib/assetCalc'
 import { fmtMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
+import { DS } from '@/design-system/tokens'
 
 /** 표시할 최대 개월 수 (가장 이른 입력 월부터 현재까지, 최소 12개월) */
 const MAX_MONTHS = 60
 const MIN_MONTHS = 12
 
-const th: React.CSSProperties = { padding: '6px 12px', textAlign: 'right', color: '#6b7280', fontWeight: 500, whiteSpace: 'nowrap' }
+const th: React.CSSProperties = { padding: '6px 12px', textAlign: 'right', color: DS.color.text.secondary, fontWeight: 500, whiteSpace: 'nowrap' }
 const td: React.CSSProperties = { padding: '6px 12px', textAlign: 'right', whiteSpace: 'nowrap' }
 
 /** 금액 증감 표기 (만원 단위, 0이면 '—') */
 function Delta({ value, bold }: { value: number | null; bold?: boolean }) {
-  if (value === null || Math.round(value / 10000) === 0) return <span style={{ color: '#9ca3af' }}>—</span>
-  const color = value > 0 ? '#059669' : '#dc2626'
+  if (value === null || Math.round(value / 10000) === 0) return <span style={{ color: DS.color.text.muted }}>—</span>
+  const color = value > 0 ? DS.color.positive.main : DS.color.negative.main
   return (
     <span style={{ color, fontWeight: bold ? 600 : 500 }}>
       {value > 0 ? '+' : '-'}{fmtMan(Math.round(Math.abs(value) / 10000))}원
@@ -75,13 +76,13 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
 
   return (
     <div style={{ marginBottom: 16, ...jellyCardStyle, padding: 0, overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px', fontWeight: 700, fontSize: 13, color: '#111827', borderBottom: '1px solid #e5e7eb', background: '#fff' }}>
+      <div style={{ padding: '10px 14px', fontWeight: 700, fontSize: 13, color: DS.color.text.primary, borderBottom: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary }}>
         월별 자산 현황
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
-            <tr style={{ background: '#f3f4f6' }}>
+            <tr style={{ background: DS.color.bg.muted }}>
               <th style={{ ...th, textAlign: 'left', minWidth: 80 }}>월</th>
               <th style={th}>총 자산</th>
               <th style={th}>전월 대비</th>
@@ -99,16 +100,16 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
                 <tr
                   key={`y-${yr}`}
                   onClick={() => toggle(yr)}
-                  style={{ borderTop: '1px solid #e5e7eb', background: yr === currentYear ? 'rgba(79, 140, 255, 0.10)' : '#f9fafb', cursor: 'pointer', userSelect: 'none' }}
+                  style={{ borderTop: `1px solid ${DS.color.border.subtle}`, background: yr === currentYear ? 'rgba(79, 140, 255, 0.10)' : DS.color.bg.subtle, cursor: 'pointer', userSelect: 'none' }}
                 >
-                  <td colSpan={isOpen ? 6 : 1} style={{ padding: '7px 12px', fontWeight: 700, color: yr === currentYear ? PRIMARY : '#374151', whiteSpace: 'nowrap' }}>
+                  <td colSpan={isOpen ? 6 : 1} style={{ padding: '7px 12px', fontWeight: 700, color: yr === currentYear ? PRIMARY : DS.color.text.body, whiteSpace: 'nowrap' }}>
                     <span style={{ fontSize: 10, marginRight: 6 }}>{isOpen ? '▼' : '▶'}</span>
                     {yr}년
                   </td>
                   {/* 접힌 연도: 연말(또는 최근 달) 총 자산과 연간 증감을 한 줄로 요약 */}
                   {!isOpen && (
                     <>
-                      <td style={{ ...td, fontWeight: 600, color: '#111827' }}>{fmtMan(Math.round(last.total / 10000))}원</td>
+                      <td style={{ ...td, fontWeight: 600, color: DS.color.text.primary }}>{fmtMan(Math.round(last.total / 10000))}원</td>
                       <td style={td}><Delta value={diff(last.total, yearMonths[0].prev?.total)} /></td>
                       <td style={td}><Delta value={diff(last.savings, yearMonths[0].prev?.savings)} /></td>
                       <td style={td}><Delta value={diff(last.invest, yearMonths[0].prev?.invest)} /></td>
@@ -120,11 +121,11 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
                   ? yearMonths.map((m) => {
                       const isCurrent = m.year === currentYear && m.monthIdx === currentMonth
                       return (
-                        <tr key={`${m.year}-${m.monthIdx}`} style={{ borderTop: '1px solid #e5e7eb', background: isCurrent ? '#eff6ff' : undefined }}>
-                          <td style={{ ...td, textAlign: 'left', color: isCurrent ? '#1d4ed8' : '#374151', fontWeight: isCurrent ? 600 : 400 }}>
+                        <tr key={`${m.year}-${m.monthIdx}`} style={{ borderTop: `1px solid ${DS.color.border.subtle}`, background: isCurrent ? DS.color.primarySoft : undefined }}>
+                          <td style={{ ...td, textAlign: 'left', color: isCurrent ? DS.color.primaryDark : DS.color.text.body, fontWeight: isCurrent ? 600 : 400 }}>
                             {m.year}년 {m.monthIdx + 1}월
                           </td>
-                          <td style={{ ...td, fontWeight: 600, color: '#111827' }}>{fmtMan(Math.round(m.total / 10000))}원</td>
+                          <td style={{ ...td, fontWeight: 600, color: DS.color.text.primary }}>{fmtMan(Math.round(m.total / 10000))}원</td>
                           <td style={td}><Delta value={diff(m.total, m.prev?.total)} /></td>
                           <td style={td}><Delta value={diff(m.savings, m.prev?.savings)} /></td>
                           <td style={td}><Delta value={diff(m.invest, m.prev?.invest)} /></td>
@@ -138,7 +139,7 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
           </tbody>
         </table>
       </div>
-      <div style={{ padding: '6px 14px 8px', fontSize: 10, color: '#9ca3af', borderTop: '1px solid #e5e7eb' }}>
+      <div style={{ padding: '6px 14px 8px', fontSize: 10, color: DS.color.text.muted, borderTop: `1px solid ${DS.color.border.subtle}` }}>
         연도를 누르면 접고 펼 수 있어요. 접힌 연도의 증감은 연초 대비 연말(현재 연도는 최근 달) 변화예요.
       </div>
     </div>

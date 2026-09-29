@@ -4,6 +4,7 @@ import { CHIP_COLOR_PRESETS } from '@/components/PersonUI'
 import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 import { DROPDOWN_CARET_COLOR } from '@/styles/formControls'
 import { DropdownArrowIcon } from './DropdownArrowIcon'
+import { DS } from '@/design-system/tokens'
 
 interface UserChipColorSelectProps {
   value: string
@@ -105,14 +106,14 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
           borderRadius: JELLY.radiusUserChip,
           border: `1px solid rgba(255,255,255,0.55)`,
           background: displayBg,
-          color: '#fff',
+          color: DS.color.text.inverse,
           textShadow: '0 1px 2px rgba(15, 23, 42, 0.45)',
           fontSize: 12,
           fontWeight: 700,
           cursor: 'pointer',
         }}
       >
-        <DropdownArrowIcon style={{ width: 10, height: 10, color: '#fff' }} />
+        <DropdownArrowIcon style={{ width: 10, height: 10, color: DS.color.text.inverse }} />
       </button>
       {open &&
         rect &&
@@ -146,7 +147,7 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
                   borderRadius: JELLY.radiusUserChip,
                   border: `1px solid rgba(255,255,255,0.55)`,
                   background: pastel,
-                  color: '#fff',
+                  color: DS.color.text.inverse,
                   textShadow: '0 1px 2px rgba(15, 23, 42, 0.45)',
                   fontSize: 12,
                   fontWeight: 700,

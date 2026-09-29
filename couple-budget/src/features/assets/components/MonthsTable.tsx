@@ -5,6 +5,7 @@ import { ym } from '@/lib/assetCalc'
 import type { AssetItem } from '@/types'
 import { MONTHS } from '../assetFormat'
 import { AmountCell, SignedAmountCell } from './AmountCells'
+import { DS } from '@/design-system/tokens'
 
 /** 자산 테이블 — 여러 연·월을 하나의 표로 표시 */
 export function MonthsTable({
@@ -87,15 +88,15 @@ export function MonthsTable({
   const monthHeaderStyle: React.CSSProperties = {
     flex: `0 0 ${MONTH_COLUMN_WIDTH}px`,
     padding: '0 6px',
-    borderRight: '1px solid #b3b8c1',
+    borderRight: `1px solid ${DS.color.border.strong}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 36,
     fontSize: 11,
     fontWeight: 600,
-    color: '#6b7280',
-    background: '#f9fafb',
+    color: DS.color.text.secondary,
+    background: DS.color.bg.subtle,
     position: 'sticky',
     left: 0,
     zIndex: 2,
@@ -118,7 +119,7 @@ export function MonthsTable({
             {sortedItems.length > 0 && (
               <>
                 {/* 항목명 행 */}
-                <div style={{ display: 'flex', borderBottom: '1px solid #b3b8c1', background: '#f9fafb' }}>
+                <div style={{ display: 'flex', borderBottom: `1px solid ${DS.color.border.strong}`, background: DS.color.bg.subtle }}>
                   <div style={monthHeaderStyle}>월</div>
                   {sortedItems.map((item) => {
                     const isCollapsed = collapsedItems.has(item.id)
@@ -134,7 +135,7 @@ export function MonthsTable({
                           color: JELLY.text,
                           background: getItemColumnBg(item.person, 'header'),
                           textAlign: 'center',
-                          borderRight: '1px solid #b3b8c1',
+                          borderRight: `1px solid ${DS.color.border.strong}`,
                           overflow: 'hidden',
                           whiteSpace: 'nowrap',
                           position: 'relative',
@@ -165,7 +166,7 @@ export function MonthsTable({
                             cursor: 'pointer',
                             fontSize: 12,
                             lineHeight: 1,
-                            color: '#9ca3af',
+                            color: DS.color.text.muted,
                             padding: 0,
                             display: 'flex',
                             alignItems: 'center',
@@ -197,7 +198,7 @@ export function MonthsTable({
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
                             </div>
                             {item.category === '투자' && (
-                              <div style={{ display: 'flex', gap: 4, fontSize: 9, color: '#9ca3af', fontWeight: 400 }}>
+                              <div style={{ display: 'flex', gap: 4, fontSize: 9, color: DS.color.text.muted, fontWeight: 400 }}>
                                 <span>총 잔고</span><span>·</span><span>평가 손익</span>
                               </div>
                             )}
@@ -213,9 +214,9 @@ export function MonthsTable({
                       fontSize: 12,
                       fontWeight: 600,
                       color: JELLY.text,
-                      background: '#f9fafb',
+                      background: DS.color.bg.subtle,
                       textAlign: 'center',
-                      borderLeft: '2px solid #b3b8c1',
+                      borderLeft: `2px solid ${DS.color.border.strong}`,
                       minHeight: 36,
                       display: 'flex',
                       alignItems: 'center',
@@ -227,8 +228,8 @@ export function MonthsTable({
                 </div>
 
                 {/* 카테고리 행 */}
-                <div style={{ display: 'flex', borderBottom: '2px solid #b3b8c1', background: '#fafbfc' }}>
-                  <div style={{ ...monthHeaderStyle, background: '#fafbfc' }} />
+                <div style={{ display: 'flex', borderBottom: `2px solid ${DS.color.border.strong}`, background: DS.color.bg.subtle }}>
+                  <div style={{ ...monthHeaderStyle, background: DS.color.bg.subtle }} />
                   {sortedItems.map((item) => {
                     const isCollapsed = collapsedItems.has(item.id)
                     const colWidth = itemColWidths[item.id] ?? 100
@@ -240,10 +241,10 @@ export function MonthsTable({
                           flex: `0 0 ${colWidth}px`,
                           padding: '4px 4px 6px 4px',
                           fontSize: 10,
-                          color: '#9ca3af',
+                          color: DS.color.text.muted,
                           background: getItemColumnBg(item.person, 'header'),
                           textAlign: 'center',
-                          borderRight: '1px solid #b3b8c1',
+                          borderRight: `1px solid ${DS.color.border.strong}`,
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
@@ -262,7 +263,7 @@ export function MonthsTable({
                                 : item.category
                             }</div>
                             {item.defaultAmount && item.savingsType !== 'deposit' ? (
-                              <div style={{ fontSize: 9, color: '#6b7280', fontWeight: 500 }}>
+                              <div style={{ fontSize: 9, color: DS.color.text.secondary, fontWeight: 500 }}>
                                 +{item.defaultAmount.toLocaleString('ko-KR')}
                               </div>
                             ) : null}
@@ -275,8 +276,8 @@ export function MonthsTable({
                     style={{
                       ...sumColStyleBase,
                       padding: '0 12px',
-                      background: '#fafbfc',
-                      borderLeft: '2px solid #b3b8c1',
+                      background: DS.color.bg.subtle,
+                      borderLeft: `2px solid ${DS.color.border.strong}`,
                       minHeight: 36,
                       display: 'flex',
                       alignItems: 'center',
@@ -288,7 +289,7 @@ export function MonthsTable({
 
             {/* 월별 행 (다년도 통합 · 연도별 접기) */}
             {sortedItems.length === 0 ? (
-              <div style={{ padding: '32px 16px', textAlign: 'center', color: '#9ca3af', fontSize: 14 }}>
+              <div style={{ padding: '32px 16px', textAlign: 'center', color: DS.color.text.muted, fontSize: 14 }}>
                 아래 '+ 추가' 버튼으로 자산 항목을 추가해주세요.
               </div>
             ) : (
@@ -302,15 +303,15 @@ export function MonthsTable({
                     <div
                       onClick={() => toggleYear(group.year)}
                       style={{
-                        background: isCurrentYearGroup ? 'rgba(79, 140, 255, 0.14)' : '#f3f4f6',
+                        background: isCurrentYearGroup ? 'rgba(79, 140, 255, 0.14)' : DS.color.bg.muted,
                         cursor: 'pointer',
                         userSelect: 'none',
-                        borderTop: groupIdx === 0 ? 'none' : '2px solid #b3b8c1',
+                        borderTop: groupIdx === 0 ? 'none' : `2px solid ${DS.color.border.strong}`,
                         borderBottom: isCollapsed
                           ? isLastGroup
                             ? 'none'
-                            : '1px solid #d1d5db'
-                          : '1px solid #b3b8c1',
+                            : `1px solid ${DS.color.border.default}`
+                          : `1px solid ${DS.color.border.strong}`,
                       }}
                     >
                       <div
@@ -325,7 +326,7 @@ export function MonthsTable({
                           // 외부 행이 이미 동일 배경을 가지므로 중복 적용하면 반투명 색이 겹쳐 짙어짐 → 투명 유지
                         }}
                       >
-                        <span style={{ fontSize: 11, color: isCurrentYearGroup ? PRIMARY : '#6b7280' }}>
+                        <span style={{ fontSize: 11, color: isCurrentYearGroup ? PRIMARY : DS.color.text.secondary }}>
                           {isCollapsed ? '▶' : '▼'}
                         </span>
                         <span style={{ fontSize: 13, fontWeight: 700, color: isCurrentYearGroup ? PRIMARY : JELLY.text }}>
@@ -336,7 +337,7 @@ export function MonthsTable({
                             style={{
                               fontSize: 9,
                               fontWeight: 600,
-                              color: '#fff',
+                              color: DS.color.text.inverse,
                               background: PRIMARY,
                               padding: '1px 6px',
                               borderRadius: 999,
@@ -363,22 +364,22 @@ export function MonthsTable({
                           key={`${yr}-${mi}`}
                           style={{
                             display: 'flex',
-                            borderBottom: isLastRow ? 'none' : '1px solid #d1d5db',
+                            borderBottom: isLastRow ? 'none' : `1px solid ${DS.color.border.default}`,
                             // 반투명 색 아래에 흰색 베이스를 깔아 다른 컬럼이 비치지 않도록 처리
                             background: isCurrent
-                              ? 'linear-gradient(rgba(79, 140, 255, 0.06), rgba(79, 140, 255, 0.06)), #fff'
+                              ? `linear-gradient(rgba(79, 140, 255, 0.06), rgba(79, 140, 255, 0.06)), ${DS.color.bg.secondary}`
                               : isFuture
-                                ? 'linear-gradient(rgba(243,244,246,0.5), rgba(243,244,246,0.5)), #fff'
+                                ? `linear-gradient(rgba(243,244,246,0.5), rgba(243,244,246,0.5)), ${DS.color.bg.secondary}`
                                 : undefined,
                           }}
                         >
                           <div
                             style={{
                               ...monthHeaderStyle,
-                              color: isCurrent ? PRIMARY : isFuture ? '#9ca3af' : undefined,
+                              color: isCurrent ? PRIMARY : isFuture ? DS.color.text.muted : undefined,
                               fontWeight: isCurrent ? 700 : 600,
                               background: isCurrent
-                                ? 'linear-gradient(rgba(79, 140, 255, 0.10), rgba(79, 140, 255, 0.10)), #fff'
+                                ? `linear-gradient(rgba(79, 140, 255, 0.10), rgba(79, 140, 255, 0.10)), ${DS.color.bg.secondary}`
                                 : monthHeaderStyle.background,
                               padding: '4px 6px',
                               lineHeight: 1.1,
@@ -396,9 +397,9 @@ export function MonthsTable({
                           style={{
                             flex: `0 0 ${colWidth}px`,
                             padding: 0,
-                            borderRight: '1px solid #d1d5db',
+                            borderRight: `1px solid ${DS.color.border.default}`,
                             background: isCollapsed
-                              ? '#fafbfc'
+                              ? DS.color.bg.subtle
                               : getItemColumnBg(item.person, 'cell'),
                             display: 'flex',
                             alignItems: 'center',
@@ -406,11 +407,11 @@ export function MonthsTable({
                           }}
                         >
                           {isCollapsed ? (
-                            <span style={{ fontSize: 10, color: '#d1d5db' }}>…</span>
+                            <span style={{ fontSize: 10, color: DS.color.border.default }}>…</span>
                           ) : item.category === '투자' ? (
                             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
                               {/* 총 잔고 행 */}
-                              <div style={{ borderBottom: '1px solid #e5e7eb', background: 'rgba(249,250,251,0.7)' }}>
+                              <div style={{ borderBottom: `1px solid ${DS.color.border.subtle}`, background: 'rgba(249,250,251,0.7)' }}>
                                 <AmountCell
                                   value={displayValue}
                                   onChange={(v) => {
@@ -453,15 +454,15 @@ export function MonthsTable({
                         justifyContent: 'flex-end',
                         fontSize: 12,
                         fontWeight: 600,
-                        color: total > 0 ? PRIMARY : '#d1d5db',
-                        borderLeft: '2px solid #b3b8c1',
+                        color: total > 0 ? PRIMARY : DS.color.border.default,
+                        borderLeft: `2px solid ${DS.color.border.strong}`,
                         minHeight: 36,
                         // 반투명 배경의 sticky 셀에서 뒤쪽 컬럼이 비치지 않도록 항상 white를 베이스로 깔고 위에 색을 얹음
                         background: isCurrent
-                          ? 'linear-gradient(rgba(79, 140, 255, 0.10), rgba(79, 140, 255, 0.10)), #fff'
+                          ? `linear-gradient(rgba(79, 140, 255, 0.10), rgba(79, 140, 255, 0.10)), ${DS.color.bg.secondary}`
                           : isFuture
-                            ? 'linear-gradient(rgba(243,244,246,0.95), rgba(243,244,246,0.95)), #fff'
-                            : '#ffffff',
+                            ? `linear-gradient(rgba(243,244,246,0.95), rgba(243,244,246,0.95)), ${DS.color.bg.secondary}`
+                            : DS.color.bg.secondary,
                       }}
                     >
                             {total > 0 ? total.toLocaleString('ko-KR') : '—'}
@@ -478,8 +479,8 @@ export function MonthsTable({
             {sortedItems.length > 0 && (onAddYear || (onRemoveLastYear && extraFutureYears > 0)) && (
               <div
                 style={{
-                  borderTop: '1px solid #d1d5db',
-                  background: '#fafbfc',
+                  borderTop: `1px solid ${DS.color.border.default}`,
+                  background: DS.color.bg.subtle,
                 }}
               >
                 <div
@@ -522,9 +523,9 @@ export function MonthsTable({
                         fontWeight: 500,
                         padding: '6px 12px',
                         borderRadius: 999,
-                        border: '1px solid #e5e7eb',
-                        background: '#fff',
-                        color: '#6b7280',
+                        border: `1px solid ${DS.color.border.subtle}`,
+                        background: DS.color.bg.secondary,
+                        color: DS.color.text.secondary,
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}

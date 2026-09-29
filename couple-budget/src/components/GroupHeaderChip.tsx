@@ -1,5 +1,6 @@
 import { CHIP_COLOR_PRESETS, isChipPresetPastel } from '@/components/PersonUI'
 import { JELLY } from '@/styles/jellyGlass'
+import { DS } from '@/design-system/tokens'
 
 function hexToRgba(hex: string, alpha: number): string {
   const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i)
@@ -9,7 +10,7 @@ function hexToRgba(hex: string, alpha: number): string {
 
 function getVibrantFromPastel(pastel: string): string {
   const found = CHIP_COLOR_PRESETS.find((p) => p.pastel.toLowerCase() === pastel?.trim().toLowerCase())
-  return found?.vibrant ?? '#ffffff'
+  return found?.vibrant ?? DS.color.bg.secondary
 }
 
 interface GroupHeaderChipProps {
@@ -29,7 +30,7 @@ export function GroupHeaderChip({ label, total, color, useUserChipStyle, totalCo
     useUserChipStyle && isPastel
       ? color!
       : color
-        ? color === '#111827'
+        ? color === DS.color.text.primary
           ? 'oklch(0.9 0.018 250 / 1)'
           : color.startsWith('oklch(')
             ? color
@@ -56,7 +57,7 @@ export function GroupHeaderChip({ label, total, color, useUserChipStyle, totalCo
         {label}
       </span>
       {total != null && total > 0 && (
-        <span style={{ color: totalColor ?? '#059669', fontWeight: 700, fontSize: 13 }}>₩{fmt(total)}</span>
+        <span style={{ color: totalColor ?? DS.color.positive.main, fontWeight: 700, fontSize: 13 }}>₩{fmt(total)}</span>
       )}
     </div>
   )

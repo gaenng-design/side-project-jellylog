@@ -25,6 +25,7 @@ import { useSettlementStore } from '@/store/useSettlementStore'
 import { useAssetStore } from '@/store/useAssetStore'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
 import { GitHubDataSync } from '@/services/github-sync'
+import { DS } from '@/design-system/tokens'
 
 const saveIcon = '💾'
 const syncIcon = '🔄'
@@ -327,7 +328,7 @@ function AppShell() {
               left: 0,
               right: 0,
               height: 3,
-              background: 'linear-gradient(90deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%)',
+              background: `linear-gradient(90deg, ${DS.color.info} 0%, #60a5fa 50%, ${DS.color.info} 100%)`,
               animation: 'progress 1.5s ease-in-out infinite',
               zIndex: 10000,
             }}
@@ -368,7 +369,7 @@ function AppShell() {
                   ...jellySidebarShell,
                 }
               : {
-                  background: '#1A1D21',
+                  background: DS.color.sidebar.bg,
                   height: 'calc(100vh - 44px)',
                   maxHeight: 'calc(100vh - 44px)',
                   borderRadius: 26,
@@ -414,7 +415,7 @@ function AppShell() {
                 borderRadius: JELLY.radiusControl,
                 border: '1px solid rgba(255,255,255,0.12)',
                 background: 'rgba(255,255,255,0.06)',
-                color: '#F9FAFB',
+                color: DS.color.bg.subtle,
                 cursor: 'pointer',
                 padding: 0,
               }}
@@ -434,10 +435,10 @@ function AppShell() {
                 style={{
                   flexShrink: 0,
                   padding: '8px 12px',
-                  border: '1px solid #FFFFFF',
+                  border: `1px solid ${DS.color.bg.secondary}`,
                   background: '#0F1419',
                   borderRadius: JELLY.radiusControl,
-                  color: '#FFFFFF',
+                  color: DS.color.text.inverse,
                   cursor: syncing ? 'not-allowed' : 'pointer',
                   fontSize: 12,
                   fontWeight: 500,
@@ -471,7 +472,7 @@ function AppShell() {
                   border: 'none',
                   background: saving ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
                   borderRadius: JELLY.radiusControl,
-                  color: '#fff',
+                  color: DS.color.text.inverse,
                   cursor: saving ? 'not-allowed' : 'pointer',
                   fontSize: 12,
                   fontWeight: 500,
@@ -503,7 +504,7 @@ function AppShell() {
             >
               {!iconOnlyNav && (
                 <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: '#F9FAFB', letterSpacing: '-0.02em' }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: DS.color.bg.subtle, letterSpacing: '-0.02em' }}>
                     Jelly log
                   </div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>승윤 & 경은</div>
@@ -535,7 +536,7 @@ function AppShell() {
                     textDecoration: 'none',
                     fontSize: 14,
                     fontWeight: isActive ? 600 : 500,
-                    color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
+                    color: isActive ? DS.color.bg.secondary : 'rgba(255,255,255,0.55)',
                     background: isActive ? 'rgba(79, 140, 255, 0.28)' : 'transparent',
                     border: isActive ? '1px solid rgba(79, 140, 255, 0.35)' : '1px solid transparent',
                     boxShadow: isActive ? '0 4px 16px rgba(0,0,0,0.2)' : 'none',
@@ -573,10 +574,10 @@ function AppShell() {
                   style={{
                     flex: 1,
                     padding: '10px 12px',
-                    border: '1px solid #FFFFFF',
+                    border: `1px solid ${DS.color.bg.secondary}`,
                     background: '#0F1419',
                     borderRadius: JELLY.radiusControl,
-                    color: '#FFFFFF',
+                    color: DS.color.text.inverse,
                     cursor: syncing ? 'not-allowed' : 'pointer',
                     fontSize: 13,
                     fontWeight: 500,
@@ -611,7 +612,7 @@ function AppShell() {
                     border: 'none',
                     background: saving ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.8)',
                     borderRadius: JELLY.radiusControl,
-                    color: '#fff',
+                    color: DS.color.text.inverse,
                     cursor: saving ? 'not-allowed' : 'pointer',
                     fontSize: 13,
                     fontWeight: 500,
@@ -675,7 +676,7 @@ function AppShell() {
               bottom: 0,
               width: 'min(320px, 88vw)',
               zIndex: 1001,
-              background: '#1A1D21',
+              background: DS.color.sidebar.bg,
               boxShadow: '8px 0 32px rgba(0,0,0,0.35)',
               display: 'flex',
               flexDirection: 'column',
@@ -694,7 +695,7 @@ function AppShell() {
               }}
             >
               <div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: '#F9FAFB', letterSpacing: '-0.02em' }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: DS.color.bg.subtle, letterSpacing: '-0.02em' }}>
                   Jelly log
                 </div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>승윤 & 경은</div>
@@ -739,7 +740,7 @@ function AppShell() {
                     textDecoration: 'none',
                     fontSize: 15,
                     fontWeight: isActive ? 600 : 500,
-                    color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.75)',
+                    color: isActive ? DS.color.bg.secondary : 'rgba(255,255,255,0.75)',
                     background: isActive ? 'rgba(79, 140, 255, 0.28)' : 'rgba(255,255,255,0.04)',
                     border: isActive ? '1px solid rgba(79, 140, 255, 0.35)' : '1px solid transparent',
                     boxShadow: isActive ? '0 4px 16px rgba(0,0,0,0.2)' : 'none',

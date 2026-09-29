@@ -141,8 +141,8 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                 const yPos = padT + innerH * (1 - p)
                 return (
                   <g key={i}>
-                    <line x1={padL} x2={W - padR} y1={yPos} y2={yPos} stroke="#e5e7eb" strokeDasharray={p === 0 ? '0' : '3 3'} />
-                    <text x={padL - 6} y={yPos + 4} fontSize="10" fill="#9ca3af" textAnchor="end" style={tabularNums}>
+                    <line x1={padL} x2={W - padR} y1={yPos} y2={yPos} stroke={DS.color.border.subtle} strokeDasharray={p === 0 ? '0' : '3 3'} />
+                    <text x={padL - 6} y={yPos + 4} fontSize="10" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
                       {p === 0 ? 0 : `${Math.round((maxVal * p) / 10000)}만`}
                     </text>
                   </g>
@@ -183,7 +183,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                         width={barW}
                         height={(v / maxVal) * innerH}
                         fill="none"
-                        stroke="#ef4444"
+                        stroke={DS.color.negative.main}
                         strokeWidth={1.5}
                         rx={2}
                       />
@@ -193,11 +193,11 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
               })}
               {/* 목표 라인 */}
               {sharedLivingCostTarget > 0 && (
-                <path d={targetPath} fill="none" stroke="#9ca3af" strokeWidth={1.5} strokeDasharray="4 3" />
+                <path d={targetPath} fill="none" stroke={DS.color.text.muted} strokeWidth={1.5} strokeDasharray="4 3" />
               )}
               {/* x축 라벨 */}
               {Array.from({ length: 12 }, (_, i) => (
-                <text key={i} x={pointX(i)} y={H - 6} fontSize="10" fill="#9ca3af" textAnchor="middle">
+                <text key={i} x={pointX(i)} y={H - 6} fontSize="10" fill={DS.color.text.muted} textAnchor="middle">
                   {i + 1}월
                 </text>
               ))}
@@ -250,7 +250,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                 const ty = Math.max(padT, pointY(Math.max(used, tgt)) - boxH - 6)
                 return (
                   <g pointerEvents="none">
-                    <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill="#111827" opacity={0.92} />
+                    <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill={DS.color.text.primary} opacity={0.92} />
                     {lines.map((l, li) => {
                       const isHeader = li === 0
                       const isCat = li >= (tgt > 0 ? 3 : 2)
@@ -260,7 +260,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                           x={tx + padX}
                           y={ty + padY + (li + 1) * lineH - 3}
                           fontSize={isCat ? 10 : 10.5}
-                          fill={isHeader ? '#9ca3af' : isCat ? '#d1d5db' : '#fff'}
+                          fill={isHeader ? DS.color.text.muted : isCat ? DS.color.border.default : DS.color.bg.secondary}
                           style={tabularNums}
                         >
                           {l}
@@ -308,7 +308,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                     display: 'inline-block',
                     width: 12,
                     height: 8,
-                    border: '1.5px solid #ef4444',
+                    border: `1.5px solid ${DS.color.negative.main}`,
                     boxSizing: 'border-box',
                   }}
                 />
@@ -316,7 +316,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
               </div>
               {sharedLivingCostTarget > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ display: 'inline-block', width: 12, height: 2, borderTop: '2px dashed #9ca3af' }} />
+                  <span style={{ display: 'inline-block', width: 12, height: 2, borderTop: `2px dashed ${DS.color.text.muted}` }} />
                   목표 라인
                 </div>
               )}
@@ -350,7 +350,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                       >
                         {category}
                       </span>
-                      <div style={{ flex: 1, height: 6, background: '#f3f4f6', borderRadius: 999, overflow: 'hidden' }}>
+                      <div style={{ flex: 1, height: 6, background: DS.color.bg.muted, borderRadius: 999, overflow: 'hidden' }}>
                         <div
                           style={{
                             width: `${pct}%`,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { JELLY } from '@/styles/jellyGlass'
+import { DS } from '@/design-system/tokens'
 
 interface AccountNumberInlineProps {
   value: string | undefined
@@ -69,7 +70,7 @@ export function AccountNumberInline({
           alignItems: 'center',
           gap: 6,
           cursor: disabled ? 'default' : 'pointer',
-          color: '#6b7280',
+          color: DS.color.text.secondary,
           flexShrink: 0,
           userSelect: 'none',
         }}
@@ -81,7 +82,7 @@ export function AccountNumberInline({
           disabled={disabled}
           style={{ width: 14, height: 14, cursor: disabled ? 'default' : 'pointer', margin: 0 }}
         />
-        계좌번호 <span style={{ color: '#9ca3af' }}>(선택)</span>
+        계좌번호 <span style={{ color: DS.color.text.muted }}>(선택)</span>
       </label>
       {expanded && (
         <input
@@ -100,8 +101,8 @@ export function AccountNumberInline({
             height: 28,
             padding: '0 10px',
             borderRadius: JELLY.radiusControl,
-            border: '1px solid #e5e7eb',
-            background: '#fff',
+            border: `1px solid ${DS.color.border.subtle}`,
+            background: DS.color.bg.secondary,
             fontSize: 12,
             outline: 'none',
             boxSizing: 'border-box',

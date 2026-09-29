@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { jellyCardStyle, jellyPrimaryButton } from '@/styles/jellyGlass'
+import { DS } from '@/design-system/tokens'
 
 export function PasswordProtection({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -48,7 +49,7 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
         <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
           부부 가계부
         </h1>
-        <p style={{ fontSize: 14, color: '#999', marginBottom: 32, textAlign: 'center' }}>
+        <p style={{ fontSize: 14, color: DS.color.text.muted, marginBottom: 32, textAlign: 'center' }}>
           접근 비밀번호를 입력해주세요
         </p>
 
@@ -65,10 +66,10 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
                 padding: '12px 16px 12px 16px',
                 paddingRight: '44px',
                 fontSize: 14,
-                border: '1px solid #ddd',
+                border: `1px solid ${DS.color.border.default}`,
                 borderRadius: 8,
-                background: '#fff',
-                color: '#333',
+                background: DS.color.bg.secondary,
+                color: DS.color.text.body,
                 boxSizing: 'border-box',
               }}
               onKeyPress={(e) => {
@@ -120,7 +121,7 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
                 padding: '10px 12px',
                 borderRadius: 8,
                 fontSize: 12,
-                color: '#dc2626',
+                color: DS.color.negative.main,
                 background: 'rgba(220, 38, 38, 0.1)',
               }}
             >

@@ -3,6 +3,7 @@ import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 import { PRIMARY } from '@/styles/formControls'
 import { MONTHS, fmtSum } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
+import { DS } from '@/design-system/tokens'
 
 /** 상단 요약 — 이번 달 총 합계·가용 금액·전월 대비 증감 + 명의별 자산 */
 export function AssetSummaryHeader({ model }: { model: AssetModel }) {
@@ -45,29 +46,29 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
         }}
       >
         <div style={{ flex: 1, minWidth: 160 }}>
-          <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+          <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
             {currentYear}년 {MONTHS[currentMonth]} · 총 합계
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{fmtSum(monthTotal)}</div>
         </div>
         <div style={{ flex: 1, minWidth: 160 }}>
-          <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+          <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
             💰 가용 금액
-            <span style={{ color: '#9ca3af', marginLeft: 4 }}>(묶이지 않은 돈)</span>
+            <span style={{ color: DS.color.text.muted, marginLeft: 4 }}>(묶이지 않은 돈)</span>
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: JELLY.text }}>{fmtSum(availableTotal)}</div>
         </div>
         {hasPrevData && (
           <div style={{ flex: 1, minWidth: 160 }}>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+            <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
               📈 이번 달 증감
-              <span style={{ color: '#9ca3af', marginLeft: 4 }}>({prevLabel})</span>
+              <span style={{ color: DS.color.text.muted, marginLeft: 4 }}>({prevLabel})</span>
             </div>
             <div
               style={{
                 fontSize: 26,
                 fontWeight: 700,
-                color: monthDiff >= 0 ? '#059669' : '#dc2626',
+                color: monthDiff >= 0 ? DS.color.positive.main : DS.color.negative.main,
               }}
             >
               {monthDiff >= 0 ? '+' : ''}{fmtSum(monthDiff)}
@@ -111,7 +112,7 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 12, color: '#374151', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span style={{ fontSize: 12, color: DS.color.text.body, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {personAName}
             </span>
           </div>
@@ -143,7 +144,7 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 12, color: '#374151', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span style={{ fontSize: 12, color: DS.color.text.body, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {personBName}
             </span>
           </div>
@@ -158,7 +159,7 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
               minWidth: 140,
               padding: '10px 14px',
               borderRadius: 12,
-              background: '#f3f4f6',
+              background: DS.color.bg.muted,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'flex-start',
@@ -172,11 +173,11 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
                   width: 8,
                   height: 8,
                   borderRadius: '50%',
-                  background: '#9ca3af',
+                  background: DS.color.text.muted,
                   flexShrink: 0,
                 }}
               />
-              <span style={{ fontSize: 12, color: '#374151', fontWeight: 600 }}>공유</span>
+              <span style={{ fontSize: 12, color: DS.color.text.body, fontWeight: 600 }}>공유</span>
             </div>
             <div style={{ fontSize: 16, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
               {fmtSum(sharedTotal)}

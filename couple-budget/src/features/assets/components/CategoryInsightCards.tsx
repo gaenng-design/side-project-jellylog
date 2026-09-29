@@ -5,6 +5,7 @@ import type { AssetItem } from '@/types'
 import { fmtMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
 import { AfterTaxToggle } from './AfterTaxToggle'
+import { DS } from '@/design-system/tokens'
 
 /** 카테고리 탭 인사이트 카드 — 명의별 (저축: 만기 수령액, 투자: 수익률) */
 export function CategoryInsightCards({ model, categoryFilter, filteredItems }: { model: AssetModel; categoryFilter: string; filteredItems: AssetItem[] }) {
@@ -38,7 +39,7 @@ export function CategoryInsightCards({ model, categoryFilter, filteredItems }: {
           const groupItems = insightItems.filter((i) => i.person === personKey)
           if (groupItems.length === 0) return null
           const groupLabel = personKey === 'A' ? personAName : personKey === 'B' ? personBName : '공유'
-          const groupColor = personKey ? getPersonColor(personKey) : '#9ca3af'
+          const groupColor = personKey ? getPersonColor(personKey) : DS.color.text.muted
 
           if (categoryFilter === '저축') {
             const totalBalance = groupItems.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
@@ -67,28 +68,28 @@ export function CategoryInsightCards({ model, categoryFilter, filteredItems }: {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: groupColor, display: 'inline-block', flexShrink: 0 }} />
                   <span style={{ fontSize: 12, fontWeight: 700, color: groupColor }}>{groupLabel}</span>
-                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
+                  <span style={{ fontSize: 11, color: DS.color.text.muted, marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: '#6b7280' }}>현재 잔액</span>
-                  <span style={{ fontSize: 11, color: '#374151', fontWeight: 500 }}>{fmtMan(Math.round(totalBalance / 10000))}원</span>
+                  <span style={{ fontSize: 11, color: DS.color.text.secondary }}>현재 잔액</span>
+                  <span style={{ fontSize: 11, color: DS.color.text.body, fontWeight: 500 }}>{fmtMan(Math.round(totalBalance / 10000))}원</span>
                 </div>
                 {totalMaturityInterest > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 11, color: '#6b7280' }}>만기 예상 이자{interestAfterTax ? ' (세후)' : ''}</span>
-                    <span style={{ fontSize: 11, color: '#059669', fontWeight: 500 }}>+{fmtMan(Math.round(totalMaturityInterest / 10000))}원</span>
+                    <span style={{ fontSize: 11, color: DS.color.text.secondary }}>만기 예상 이자{interestAfterTax ? ' (세후)' : ''}</span>
+                    <span style={{ fontSize: 11, color: DS.color.positive.main, fontWeight: 500 }}>+{fmtMan(Math.round(totalMaturityInterest / 10000))}원</span>
                   </div>
                 )}
                 {totalMaturityAmount > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>만기 수령액</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: `1px solid ${DS.color.bg.muted}`, marginTop: 4 }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: DS.color.text.body }}>만기 수령액</span>
                     <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{fmtMan(Math.round(totalMaturityAmount / 10000))}원</span>
                   </div>
                 )}
                 {nearestDday !== null && (
-                  <div style={{ fontSize: 11, marginTop: 8, color: nearestDday <= 0 ? '#059669' : nearestDday <= 30 ? '#f59e0b' : '#9ca3af' }}>
+                  <div style={{ fontSize: 11, marginTop: 8, color: nearestDday <= 0 ? DS.color.positive.main : nearestDday <= 30 ? DS.color.warning.main : DS.color.text.muted }}>
                     {nearestDday <= 0 ? '✓ 최근 만기 도달' : `가장 빠른 만기 D-${nearestDday}`}
-                    <span style={{ marginLeft: 4, color: '#9ca3af' }}>· {nearestMaturity}</span>
+                    <span style={{ marginLeft: 4, color: DS.color.text.muted }}>· {nearestMaturity}</span>
                   </div>
                 )}
               </div>
@@ -98,31 +99,31 @@ export function CategoryInsightCards({ model, categoryFilter, filteredItems }: {
             const totalBalance = groupItems.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
             const totalBasis = totalBalance - totalPnl
             const pnlPct = totalBasis !== 0 ? Math.round((totalPnl / totalBasis) * 1000) / 10 : 0
-            const pnlColor = totalPnl === 0 ? '#6b7280' : totalPnl > 0 ? '#059669' : '#dc2626'
+            const pnlColor = totalPnl === 0 ? DS.color.text.secondary : totalPnl > 0 ? DS.color.positive.main : DS.color.negative.main
             return (
               <div
                 key={String(personKey)}
-                style={{ ...jellyCardStyle, padding: '14px 16px', flex: '1 1 200px', minWidth: 180, border: totalPnl < 0 ? '1.5px solid #fca5a5' : undefined }}
+                style={{ ...jellyCardStyle, padding: '14px 16px', flex: '1 1 200px', minWidth: 180, border: totalPnl < 0 ? `1.5px solid ${DS.color.negative.border}` : undefined }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: groupColor, display: 'inline-block', flexShrink: 0 }} />
                   <span style={{ fontSize: 12, fontWeight: 700, color: groupColor }}>{groupLabel}</span>
-                  <span style={{ fontSize: 11, color: '#9ca3af', marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
+                  <span style={{ fontSize: 11, color: DS.color.text.muted, marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: '#6b7280' }}>원금</span>
-                  <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(totalBasis / 10000))}원</span>
+                  <span style={{ fontSize: 11, color: DS.color.text.secondary }}>원금</span>
+                  <span style={{ fontSize: 11, color: DS.color.text.body }}>{fmtMan(Math.round(totalBasis / 10000))}원</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: '#6b7280' }}>평가 손익</span>
+                  <span style={{ fontSize: 11, color: DS.color.text.secondary }}>평가 손익</span>
                   <span style={{ fontSize: 11, fontWeight: 600, color: pnlColor }}>
                     {totalPnl === 0 ? '—' : `${totalPnl > 0 ? '+' : ''}${fmtMan(Math.round(totalPnl / 10000))}원`}
                     {pnlPct !== 0 && <span style={{ fontSize: 10, marginLeft: 4, color: pnlColor }}>({pnlPct > 0 ? '+' : ''}{pnlPct}%)</span>}
                   </span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #e5e7eb', marginTop: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>총 잔고</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>{fmtMan(Math.round(totalBalance / 10000))}원</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: `1px solid ${DS.color.border.subtle}`, marginTop: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: DS.color.text.body }}>총 잔고</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: DS.color.text.body }}>{fmtMan(Math.round(totalBalance / 10000))}원</span>
                 </div>
               </div>
             )

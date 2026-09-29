@@ -36,6 +36,7 @@ import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { downloadYearBudgetExcel } from '@/lib/yearExcelExport'
 import type { Person } from '@/types'
 import type { FixedTemplate, InvestTemplate } from '@/types'
+import { DS } from '@/design-system/tokens'
 
 const INVEST_CATEGORIES = ['저축', '투자']
 const PERSON_ORDER = ['공금', 'A', 'B'] as const
@@ -97,9 +98,9 @@ function SortableTemplateRow(props: {
               fontSize: 11,
               padding: '6px 10px',
               borderRadius: JELLY.radiusControl,
-              border: '1px solid #fecaca',
-              background: '#fef2f2',
-              color: '#b91c1c',
+              border: `1px solid ${DS.color.negative.border}`,
+              background: DS.color.negative.soft,
+              color: DS.color.negative.strong,
               cursor: 'pointer',
               flexShrink: 0,
             }}
@@ -111,7 +112,7 @@ function SortableTemplateRow(props: {
         personBName={props.personBName}
         showSeparatePersonSelect={props.tpl.person === '공금'}
         dragHandle={
-          <div {...attributes} {...listeners} style={{ padding: '4px 2px', cursor: isDragging ? 'grabbing' : 'grab', opacity: isDragging ? 0.5 : 1, color: '#d1d5db' }}>
+          <div {...attributes} {...listeners} style={{ padding: '4px 2px', cursor: isDragging ? 'grabbing' : 'grab', opacity: isDragging ? 0.5 : 1, color: DS.color.border.default }}>
             ⋮
           </div>
         }
@@ -155,9 +156,9 @@ function SortableInvestRow(props: {
               fontSize: 11,
               padding: '6px 10px',
               borderRadius: JELLY.radiusControl,
-              border: '1px solid #fecaca',
-              background: '#fef2f2',
-              color: '#b91c1c',
+              border: `1px solid ${DS.color.negative.border}`,
+              background: DS.color.negative.soft,
+              color: DS.color.negative.strong,
               cursor: 'pointer',
               flexShrink: 0,
             }}
@@ -166,7 +167,7 @@ function SortableInvestRow(props: {
           </button>
         }
         dragHandle={
-          <div {...attributes} {...listeners} style={{ padding: '4px 2px', cursor: isDragging ? 'grabbing' : 'grab', opacity: isDragging ? 0.5 : 1, color: '#d1d5db' }}>
+          <div {...attributes} {...listeners} style={{ padding: '4px 2px', cursor: isDragging ? 'grabbing' : 'grab', opacity: isDragging ? 0.5 : 1, color: DS.color.border.default }}>
             ⋮
           </div>
         }
@@ -217,7 +218,7 @@ function UserSettings() {
     <>
     <div style={settingsSectionCardWithBleedTitleStyle}>
       <div style={settingsSectionTitleWrapForViewport(narrow)}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>유저 설정</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary }}>유저 설정</div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr', gap: 24 }}>
         {/* 유저 1 */}
@@ -284,7 +285,7 @@ function UserSettings() {
             borderRadius: JELLY.radiusControl,
             border: 'none',
             background: PRIMARY,
-            color: '#fff',
+            color: DS.color.text.inverse,
             fontSize: 14,
             fontWeight: 600,
             cursor: 'pointer',
@@ -304,8 +305,8 @@ function UserSettings() {
           left: '50%',
           transform: 'translateX(-50%)',
           padding: '12px 20px',
-          background: '#111827',
-          color: '#fff',
+          background: DS.color.text.primary,
+          color: DS.color.text.inverse,
           borderRadius: JELLY.radiusControl,
           fontSize: 14,
           fontWeight: 500,
@@ -370,8 +371,8 @@ function GoalCard({
       style={{
         padding: 14,
         borderRadius: JELLY.radiusControl,
-        border: '1px solid #e5e7eb',
-        background: '#fff',
+        border: `1px solid ${DS.color.border.subtle}`,
+        background: DS.color.bg.secondary,
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
@@ -433,9 +434,9 @@ function GoalCard({
             fontSize: 12,
             padding: '4px 12px',
             borderRadius: JELLY.radiusControl,
-            border: '1px solid #fecaca',
-            background: '#fff',
-            color: '#b91c1c',
+            border: `1px solid ${DS.color.negative.border}`,
+            background: DS.color.bg.secondary,
+            color: DS.color.negative.strong,
             cursor: 'pointer',
             fontFamily: 'inherit',
           }}
@@ -510,8 +511,8 @@ function AssetGoalSettings() {
                 fontSize: 12,
                 padding: '6px 12px',
                 borderRadius: JELLY.radiusControl,
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
+                border: `1px solid ${DS.color.border.subtle}`,
+                background: DS.color.bg.subtle,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -526,8 +527,8 @@ function AssetGoalSettings() {
               padding: '24px 16px',
               textAlign: 'center',
               fontSize: 13,
-              color: '#9ca3af',
-              border: '1px dashed #e5e7eb',
+              color: DS.color.text.muted,
+              border: `1px dashed ${DS.color.border.subtle}`,
               borderRadius: JELLY.radiusControl,
             }}
           >
@@ -545,7 +546,7 @@ function AssetGoalSettings() {
             ))}
           </div>
         )}
-        <p style={{ fontSize: 11, color: '#9ca3af', margin: '12px 0 0', lineHeight: 1.5 }}>
+        <p style={{ fontSize: 11, color: DS.color.text.muted, margin: '12px 0 0', lineHeight: 1.5 }}>
           대시보드 상단에 각 목표의 진행률이 카드로 표시됩니다.
         </p>
       </div>
@@ -559,8 +560,8 @@ function AssetGoalSettings() {
             left: '50%',
             transform: 'translateX(-50%)',
             padding: '12px 20px',
-            background: '#111827',
-            color: '#fff',
+            background: DS.color.text.primary,
+            color: DS.color.text.inverse,
             borderRadius: JELLY.radiusControl,
             fontSize: 14,
             fontWeight: 500,
@@ -605,7 +606,7 @@ function SharedLivingCostSettings() {
                 onChange={(v) => updateSettings({ sharedExpenseCycleStartDay: v ?? 1 })}
               />
             </div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>
+            <div style={{ fontSize: 12, color: DS.color.text.secondary }}>
               매월 <strong>{settings.sharedExpenseCycleStartDay ?? 1}일</strong>부터 다음 달{' '}
               <strong>
                 {(() => {
@@ -615,7 +616,7 @@ function SharedLivingCostSettings() {
               </strong>
               까지가 한 사이클
               {(settings.sharedExpenseCycleStartDay ?? 1) > 1 && (
-                <span style={{ color: '#9ca3af' }}>
+                <span style={{ color: DS.color.text.muted }}>
                   {' '}
                   (사이클이 끝나는 달 탭에 표시됨)
                 </span>
@@ -695,7 +696,7 @@ function SharedLivingCostSettings() {
                           width: 7,
                           height: 7,
                           borderRadius: '50%',
-                          background: '#fff',
+                          background: DS.color.bg.secondary,
                           boxShadow: '0 1px 2px rgba(15, 23, 42, 0.2)',
                         }}
                       />
@@ -872,11 +873,11 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
               style={{
                 padding: 16,
                 textAlign: 'center',
-                color: '#9ca3af',
+                color: DS.color.text.muted,
                 fontSize: 12,
-                background: '#fff',
+                background: DS.color.bg.secondary,
                 borderRadius: 12,
-                border: '1px solid #e5e7eb',
+                border: `1px solid ${DS.color.border.subtle}`,
               }}
             >
               카테고리가 없습니다. 아래에서 추가해주세요.
@@ -904,12 +905,12 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
                         ? 'rgba(79, 140, 255, 0.04)'
                         : isDragOver
                           ? 'rgba(79, 140, 255, 0.08)'
-                          : '#fff',
+                          : DS.color.bg.secondary,
                       opacity: isDragging ? 0.4 : 1,
                       cursor: isEditing ? 'auto' : 'grab',
                       transition: 'background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease',
                       borderRadius: 12,
-                      border: `1px solid ${isDragOver ? PRIMARY : '#e5e7eb'}`,
+                      border: `1px solid ${isDragOver ? PRIMARY : DS.color.border.subtle}`,
                       boxShadow: isDragging
                         ? '0 4px 12px rgba(79, 140, 255, 0.15)'
                         : '0 1px 2px rgba(0,0,0,0.03)',
@@ -925,7 +926,7 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
                         flexShrink: 0,
                         padding: '4px 2px',
                         cursor: isEditing ? 'auto' : 'grab',
-                        color: '#d1d5db',
+                        color: DS.color.border.default,
                         fontSize: 16,
                         lineHeight: 1,
                         userSelect: 'none',
@@ -976,7 +977,7 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
                           border: `1.5px solid ${PRIMARY}`,
                           fontSize: 13,
                           outline: 'none',
-                          background: '#fff',
+                          background: DS.color.bg.secondary,
                           fontFamily: 'inherit',
                         }}
                       />
@@ -992,9 +993,9 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
                         flexShrink: 0,
                         padding: '4px 10px',
                         borderRadius: 6,
-                        border: '1px solid #fca5a5',
-                        background: '#fff',
-                        color: '#ef4444',
+                        border: `1px solid ${DS.color.negative.border}`,
+                        background: DS.color.bg.secondary,
+                        color: DS.color.negative.main,
                         fontSize: 12,
                         cursor: 'pointer',
                       }}
@@ -1020,12 +1021,12 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
               height: 40,
               padding: '0 12px',
               borderRadius: JELLY.radiusControl,
-              border: '1px solid #e5e7eb',
+              border: `1px solid ${DS.color.border.subtle}`,
               fontSize: 13,
               outline: 'none',
               boxSizing: 'border-box',
               fontFamily: 'inherit',
-              background: '#fff',
+              background: DS.color.bg.secondary,
               color: JELLY.text,
             }}
           />
@@ -1037,8 +1038,8 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
               padding: '0 16px',
               borderRadius: JELLY.radiusControl,
               border: 'none',
-              background: newCat.trim() ? PRIMARY : '#e5e7eb',
-              color: newCat.trim() ? '#fff' : '#9ca3af',
+              background: newCat.trim() ? PRIMARY : DS.color.border.subtle,
+              color: newCat.trim() ? DS.color.bg.secondary : DS.color.text.muted,
               fontSize: 13,
               fontWeight: 600,
               cursor: newCat.trim() ? 'pointer' : 'default',
@@ -1054,10 +1055,10 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
             style={{
               padding: '8px 12px',
               borderRadius: 6,
-              background: '#fee2e2',
-              color: '#991b1b',
+              background: DS.color.negative.soft,
+              color: DS.color.negative.strong,
               fontSize: 12,
-              border: '1px solid #fca5a5',
+              border: `1px solid ${DS.color.negative.border}`,
             }}
           >
             {error}
@@ -1073,7 +1074,7 @@ function CategorySettingsModal({ open, onClose }: { open: boolean; onClose: () =
             borderRadius: 8,
             border: 'none',
             background: PRIMARY,
-            color: '#fff',
+            color: DS.color.text.inverse,
             fontSize: 13,
             fontWeight: 600,
             cursor: 'pointer',
@@ -1183,7 +1184,7 @@ function FixedTemplateSettings() {
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>고정지출 템플릿</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary }}>고정지출 템플릿</div>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
             <button
               type="button"
@@ -1192,8 +1193,8 @@ function FixedTemplateSettings() {
                 fontSize: 12,
                 padding: '6px 12px',
                 borderRadius: JELLY.radiusControl,
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
+                border: `1px solid ${DS.color.border.subtle}`,
+                background: DS.color.bg.subtle,
                 cursor: 'pointer',
                 flexShrink: 0,
               }}
@@ -1210,8 +1211,8 @@ function FixedTemplateSettings() {
                 fontSize: 12,
                 padding: '6px 12px',
                 borderRadius: JELLY.radiusControl,
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
+                border: `1px solid ${DS.color.border.subtle}`,
+                background: DS.color.bg.subtle,
                 cursor: 'pointer',
                 flexShrink: 0,
               }}
@@ -1240,7 +1241,7 @@ function FixedTemplateSettings() {
                     total={grouped[personKey]?.reduce((s, t) => s + t.defaultAmount, 0)}
                     color={
                       personKey === '공금'
-                        ? '#111827'
+                        ? DS.color.text.primary
                         : personKey === 'A'
                           ? settings.user1Color
                           : settings.user2Color
@@ -1267,7 +1268,7 @@ function FixedTemplateSettings() {
             </DndContext>
         ))}
       </div>
-      <div style={{ marginTop: 10, fontSize: 11, color: '#6b7280' }}>
+      <div style={{ marginTop: 10, fontSize: 11, color: DS.color.text.secondary }}>
         지출 계획 화면의 고정지출 카드에 반영됩니다.
       </div>
 
@@ -1341,7 +1342,7 @@ function FixedTemplateSettings() {
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>
-              계좌번호 <span style={{ color: '#9ca3af' }}>(선택)</span>
+              계좌번호 <span style={{ color: DS.color.text.muted }}>(선택)</span>
             </div>
             <input
               value={fixedAddForm.accountNumber ?? ''}
@@ -1359,9 +1360,9 @@ function FixedTemplateSettings() {
               minHeight: MODAL_SEPARATE_CHIP_H,
               padding: '0 12px',
               borderRadius: JELLY.radiusControl,
-              border: '1px solid #e5e7eb',
-              background: '#f9fafb',
-              color: '#9ca3af',
+              border: `1px solid ${DS.color.border.subtle}`,
+              background: DS.color.bg.subtle,
+              color: DS.color.text.muted,
               cursor: 'pointer' as const,
               display: 'inline-flex' as const,
               alignItems: 'center',
@@ -1375,7 +1376,7 @@ function FixedTemplateSettings() {
             const separateCaption = (
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: JELLY.text }}>별도 정산으로 등록</div>
-                <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>최종 정산에서만 반영됩니다.</div>
+                <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 2 }}>최종 정산에서만 반영됩니다.</div>
               </div>
             )
             return (
@@ -1387,7 +1388,7 @@ function FixedTemplateSettings() {
                   gap: 8,
                   padding: '10px 12px',
                   borderRadius: JELLY.radiusControl,
-                  background: '#f9fafb',
+                  background: DS.color.bg.subtle,
                   minWidth: 0,
                 }}
               >
@@ -1418,9 +1419,9 @@ function FixedTemplateSettings() {
                       customChipBg={sepChipBg}
                       compactHeight={MODAL_SEPARATE_CHIP_H}
                       title="별도 정산 담당 선택 · ↗ 누르면 해제"
-                      compactLeading={<span style={{ color: '#fff', fontSize: 12, lineHeight: 1 }}>↗</span>}
+                      compactLeading={<span style={{ color: DS.color.text.inverse, fontSize: 12, lineHeight: 1 }}>↗</span>}
                       onCompactLeadingClick={() => setFixedAddForm((f) => ({ ...f, isSeparate: false }))}
-                      compactCaretColor="#fff"
+                      compactCaretColor={DS.color.bg.secondary}
                     />
                     {separateCaption}
                   </>
@@ -1450,7 +1451,7 @@ function FixedTemplateSettings() {
                           border: 'none',
                           background: 'none',
                           cursor: 'pointer',
-                          color: '#fff',
+                          color: DS.color.text.inverse,
                           fontSize: 12,
                           fontWeight: 700,
                           lineHeight: 1,
@@ -1502,8 +1503,8 @@ function FixedTemplateSettings() {
             style={{
               padding: '8px 14px',
               borderRadius: JELLY.radiusControl,
-              border: '1px solid #e5e7eb',
-              background: '#fff',
+              border: `1px solid ${DS.color.border.subtle}`,
+              background: DS.color.bg.secondary,
               fontSize: 13,
               cursor: 'pointer',
             }}
@@ -1521,8 +1522,8 @@ function FixedTemplateSettings() {
               fontSize: 13,
               fontWeight: 600,
               cursor: !fixedAddForm.description || !fixedAddForm.amount ? 'not-allowed' : 'pointer',
-              background: !fixedAddForm.description || !fixedAddForm.amount ? '#e5e7eb' : '#111827',
-              color: !fixedAddForm.description || !fixedAddForm.amount ? '#9ca3af' : '#fff',
+              background: !fixedAddForm.description || !fixedAddForm.amount ? DS.color.border.subtle : DS.color.text.primary,
+              color: !fixedAddForm.description || !fixedAddForm.amount ? DS.color.text.muted : DS.color.bg.secondary,
             }}
           >
             추가
@@ -1615,7 +1616,7 @@ function InvestTemplateSettings() {
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>투자·저축 템플릿</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary }}>투자·저축 템플릿</div>
           <button
             type="button"
             onClick={() => {
@@ -1626,8 +1627,8 @@ function InvestTemplateSettings() {
               fontSize: 12,
               padding: '6px 12px',
               borderRadius: JELLY.radiusControl,
-              border: '1px solid #e5e7eb',
-              background: '#f9fafb',
+              border: `1px solid ${DS.color.border.subtle}`,
+              background: DS.color.bg.subtle,
               cursor: 'pointer',
               flexShrink: 0,
             }}
@@ -1679,7 +1680,7 @@ function InvestTemplateSettings() {
           </DndContext>
         ))}
       </div>
-      <div style={{ marginTop: 10, fontSize: 11, color: '#6b7280' }}>
+      <div style={{ marginTop: 10, fontSize: 11, color: DS.color.text.secondary }}>
         지출 계획 화면의 투자·저축 카드 기본값으로 사용됩니다.
       </div>
 
@@ -1745,18 +1746,18 @@ function InvestTemplateSettings() {
                   title="만기일 선택"
                   style={{
                     padding: '8px 12px',
-                    border: '1px solid #e5e7eb',
+                    border: `1px solid ${DS.color.border.subtle}`,
                     borderRadius: JELLY.radiusControl,
-                    background: '#fff',
+                    background: DS.color.bg.secondary,
                     cursor: 'pointer',
                     fontSize: 13,
-                    color: '#6b7280',
+                    color: DS.color.text.secondary,
                   }}
                 >
                   📅 날짜 선택
                 </button>
                 {maturityDate && (
-                  <span style={{ fontSize: 13, color: '#111827' }}>{formatInvestMaturityLabel(maturityDate)}</span>
+                  <span style={{ fontSize: 13, color: DS.color.text.primary }}>{formatInvestMaturityLabel(maturityDate)}</span>
                 )}
                 {maturityDate && (
                   <button
@@ -1766,10 +1767,10 @@ function InvestTemplateSettings() {
                       fontSize: 12,
                       padding: '4px 8px',
                       borderRadius: JELLY.radiusControl,
-                      border: '1px solid #e5e7eb',
-                      background: '#f9fafb',
+                      border: `1px solid ${DS.color.border.subtle}`,
+                      background: DS.color.bg.subtle,
                       cursor: 'pointer',
-                      color: '#6b7280',
+                      color: DS.color.text.secondary,
                     }}
                   >
                     지우기
@@ -1784,7 +1785,7 @@ function InvestTemplateSettings() {
           </div>
           <div>
             <div style={{ fontSize: 12, marginBottom: 4 }}>
-              계좌번호 <span style={{ color: '#9ca3af' }}>(선택)</span>
+              계좌번호 <span style={{ color: DS.color.text.muted }}>(선택)</span>
             </div>
             <input
               value={accountNumber}
@@ -1804,8 +1805,8 @@ function InvestTemplateSettings() {
             style={{
               padding: '8px 14px',
               borderRadius: JELLY.radiusControl,
-              border: '1px solid #e5e7eb',
-              background: '#fff',
+              border: `1px solid ${DS.color.border.subtle}`,
+              background: DS.color.bg.secondary,
               fontSize: 13,
               cursor: 'pointer',
             }}
@@ -1823,8 +1824,8 @@ function InvestTemplateSettings() {
               fontSize: 13,
               fontWeight: 600,
               cursor: !desc || !amount ? 'not-allowed' : 'pointer',
-              background: !desc || !amount ? '#e5e7eb' : PRIMARY,
-              color: !desc || !amount ? '#9ca3af' : '#fff',
+              background: !desc || !amount ? DS.color.border.subtle : PRIMARY,
+              color: !desc || !amount ? DS.color.text.muted : DS.color.bg.secondary,
             }}
           >
             추가
@@ -1848,9 +1849,9 @@ function YearExcelExportSection() {
       <div style={settingsSectionTitleWrapForViewport(narrow)}>
         <div style={{ fontSize: 15, fontWeight: 700, color: JELLY.text }}>엑셀보내기</div>
       </div>
-      <p style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.55, margin: '12px 0 12px' }}>
+      <p style={{ fontSize: 13, color: DS.color.text.body, lineHeight: 1.55, margin: '12px 0 12px' }}>
         선택한 연도의 수입·고정·별도·투자·정산 스냅샷을 한 파일로 받습니다. 맨 앞에 공통 설정 시트가 붙고,{' '}
-        <strong style={{ color: '#111827' }}>데이터가 있는 달만</strong> 월별 시트가 추가됩니다.
+        <strong style={{ color: DS.color.text.primary }}>데이터가 있는 달만</strong> 월별 시트가 추가됩니다.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: JELLY.text }}>
@@ -1885,7 +1886,7 @@ function YearExcelExportSection() {
             padding: '10px 18px',
             borderRadius: JELLY.radiusControl,
             border: `1px solid ${PRIMARY}`,
-            background: '#fff',
+            background: DS.color.bg.secondary,
             color: PRIMARY,
             fontSize: 14,
             fontWeight: 600,
@@ -1896,7 +1897,7 @@ function YearExcelExportSection() {
         </button>
       </div>
       {exportErr ? (
-        <div style={{ marginTop: 10, fontSize: 13, color: '#b91c1c' }}>{exportErr}</div>
+        <div style={{ marginTop: 10, fontSize: 13, color: DS.color.negative.strong }}>{exportErr}</div>
       ) : null}
     </div>
   )

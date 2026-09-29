@@ -4,13 +4,14 @@ import { JELLY } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { SUB_CHART_COLORS, SUB_FIXED_ACCENT, SUB_INVEST_ACCENT } from '@/styles/oklchSubColors'
 import { useSettlementStore, EMPTY_USER_PAY_CHECKS, type UserPayChecks } from '@/store/useSettlementStore'
+import { DS } from '@/design-system/tokens'
 
 const CHART_COLORS = SUB_CHART_COLORS
 
 /** 고정/투자는 서브 OKLCH, 공동생활비는 포인트(버튼) 컬러 */
 // 그룹 헤더 색상은 grayscale 톤으로 통일 (블루/엑센트 제거)
-const FIXED_EXPENSE_SUMMARY_COLOR = '#374151'
-const INVEST_SUMMARY_COLOR = '#374151'
+const FIXED_EXPENSE_SUMMARY_COLOR = DS.color.text.body
+const INVEST_SUMMARY_COLOR = DS.color.text.body
 // 색상 변수 사용 표시 (lint 경고 방지)
 void SUB_FIXED_ACCENT
 void SUB_INVEST_ACCENT
@@ -19,9 +20,9 @@ function compositionSegmentColor(c: { label: string; amount: number }): string {
   if (c.label === '고정지출') return '#da5969'
   if (c.label === '별도지출') return '#e88896'
   if (c.label === '공동생활비') return '#737dea'
-  if (c.label === '투자·저축') return '#3b82f6'
+  if (c.label === '투자·저축') return DS.color.info
   if (c.label === '용돈') return '#6f6f78'
-  return '#9ca3af'
+  return DS.color.text.muted
 }
 
 const incomeBarOuterStyle: CSSProperties = {
@@ -35,7 +36,7 @@ const incomeBarTrackStyle: CSSProperties = {
   height: 40,
   borderRadius: 9999,
   overflow: 'hidden',
-  background: '#f3f4f6',
+  background: DS.color.bg.muted,
   border: '1px solid rgba(15, 23, 42, 0.06)',
   boxSizing: 'border-box',
 }
@@ -45,7 +46,7 @@ const fmt = (n: number) => n.toLocaleString('ko-KR') + '원'
 type InvestLineItem = { label: string; amount: number }
 
 // ── 영수증 카드 스타일 ─────────────────────────────────────────────────────────
-const RECEIPT_BG = '#FFFFFF'
+const RECEIPT_BG = DS.color.bg.secondary
 const RECEIPT_BORDER = '#E2D5B0'
 const RECEIPT_DASH = '1px dashed #D4C4A0'
 const RECEIPT_TEXT = '#2A1F0E'
@@ -247,7 +248,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#6b7280',
+          color: DS.color.text.secondary,
         }}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -265,8 +266,8 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
             bottom: 'calc(100% + 6px)',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: '#1f2937',
-            color: '#fff',
+            background: DS.color.text.primary,
+            color: DS.color.text.inverse,
             padding: '10px 12px',
             borderRadius: 8,
             fontSize: 11,
@@ -282,7 +283,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {label && <div style={{ color: '#9ca3af', fontSize: 10 }}>{label}</div>}
+          {label && <div style={{ color: DS.color.text.muted, fontSize: 10 }}>{label}</div>}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span
               style={{
@@ -307,7 +308,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
                 fontWeight: 600,
                 border: '1px solid rgba(255,255,255,0.25)',
                 background: copied ? '#10b981' : 'rgba(255,255,255,0.12)',
-                color: '#fff',
+                color: DS.color.text.inverse,
                 borderRadius: 6,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
@@ -330,7 +331,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
               transform: 'translateX(-50%) rotate(45deg)',
               width: 8,
               height: 8,
-              background: '#1f2937',
+              background: DS.color.text.primary,
             }}
           />
         </span>
@@ -560,7 +561,7 @@ function IncomeStackedBar(props: { chartData: { label: string; amount: number; p
                   style={{
                     fontSize: 11,
                     fontWeight: 700,
-                    color: '#fff',
+                    color: DS.color.text.inverse,
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -618,7 +619,7 @@ export function SettlementResultView({
         style={{
           marginBottom: 20,
           ...settingsSectionCardStyle,
-          background: settlementMemo || memoEditing ? '#fffbeb' : settingsSectionCardStyle.background,
+          background: settlementMemo || memoEditing ? DS.color.warning.soft : settingsSectionCardStyle.background,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: memoEditing || settlementMemo ? 8 : 0 }}>
@@ -636,9 +637,9 @@ export function SettlementResultView({
                 fontSize: 11,
                 padding: '4px 10px',
                 borderRadius: 999,
-                border: '1px solid #e5e7eb',
-                background: '#fff',
-                color: '#6b7280',
+                border: `1px solid ${DS.color.border.subtle}`,
+                background: DS.color.bg.secondary,
+                color: DS.color.text.secondary,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -659,8 +660,8 @@ export function SettlementResultView({
                 width: '100%',
                 padding: '10px 12px',
                 borderRadius: 8,
-                border: '1px solid #e5e7eb',
-                background: '#fff',
+                border: `1px solid ${DS.color.border.subtle}`,
+                background: DS.color.bg.secondary,
                 fontSize: 13,
                 outline: 'none',
                 boxSizing: 'border-box',
@@ -681,8 +682,8 @@ export function SettlementResultView({
                   fontSize: 12,
                   padding: '6px 12px',
                   borderRadius: 8,
-                  border: '1px solid #e5e7eb',
-                  background: '#fff',
+                  border: `1px solid ${DS.color.border.subtle}`,
+                  background: DS.color.bg.secondary,
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                 }}
@@ -701,7 +702,7 @@ export function SettlementResultView({
                   borderRadius: 8,
                   border: 'none',
                   background: PRIMARY,
-                  color: '#fff',
+                  color: DS.color.text.inverse,
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                   fontWeight: 600,
@@ -712,7 +713,7 @@ export function SettlementResultView({
             </div>
           </>
         ) : settlementMemo ? (
-          <div style={{ fontSize: 13, color: '#374151', whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>
+          <div style={{ fontSize: 13, color: DS.color.text.body, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>
             {settlementMemo}
           </div>
         ) : null}
@@ -720,7 +721,7 @@ export function SettlementResultView({
 
       <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 8 }}>이번 달 수입 구성</div>
-        <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 14 }}>
+        <div style={{ fontSize: 13, color: DS.color.text.secondary, marginBottom: 14 }}>
           수입 <span style={{ fontWeight: 700, color: JELLY.text }}>{fmt(totalIncome)}</span>
         </div>
         <IncomeStackedBar chartData={chartData} totalIncome={totalIncome} />
@@ -828,25 +829,25 @@ export function SettlementResultView({
               return (
                 <>
                   <div>
-                    · 고정지출 합계는 <strong style={{ color: '#374151' }}>{fmt(total)}</strong>이며 절반씩 부담하므로, 1인당{' '}
-                    <strong style={{ color: '#374151' }}>{fmt(halfEach)}</strong>을 부담합니다.
+                    · 고정지출 합계는 <strong style={{ color: DS.color.text.body }}>{fmt(total)}</strong>이며 절반씩 부담하므로, 1인당{' '}
+                    <strong style={{ color: DS.color.text.body }}>{fmt(halfEach)}</strong>을 부담합니다.
                   </div>
                   <div>
-                    · <strong style={{ color: '#374151' }}>{personAName}</strong>이{' '}
-                    <strong style={{ color: '#374151' }}>{fmt(sepA)}</strong>을 별도 정산하여 공동 통장에는{' '}
+                    · <strong style={{ color: DS.color.text.body }}>{personAName}</strong>이{' '}
+                    <strong style={{ color: DS.color.text.body }}>{fmt(sepA)}</strong>을 별도 정산하여 공동 통장에는{' '}
                     <strong style={{ color: PRIMARY }}>{fmt(depositA)}</strong>을{' '}
                     {depositA > 0 ? '입금하면 됩니다.' : '입금하지 않아도 됩니다.'}
                   </div>
-                  <div style={{ paddingLeft: 12, fontSize: 11, color: '#9ca3af' }}>
+                  <div style={{ paddingLeft: 12, fontSize: 11, color: DS.color.text.muted }}>
                     * 별도 정산한 항목: {renderItems(itemsA)}
                   </div>
                   <div>
-                    · <strong style={{ color: '#374151' }}>{personBName}</strong>가{' '}
-                    <strong style={{ color: '#374151' }}>{fmt(sepB)}</strong>을 별도 정산하여 공동 통장에는{' '}
+                    · <strong style={{ color: DS.color.text.body }}>{personBName}</strong>가{' '}
+                    <strong style={{ color: DS.color.text.body }}>{fmt(sepB)}</strong>을 별도 정산하여 공동 통장에는{' '}
                     <strong style={{ color: PRIMARY }}>{fmt(depositB)}</strong>을{' '}
                     {depositB > 0 ? '부담합니다.' : '부담하지 않아도 됩니다.'}
                   </div>
-                  <div style={{ paddingLeft: 12, fontSize: 11, color: '#9ca3af' }}>
+                  <div style={{ paddingLeft: 12, fontSize: 11, color: DS.color.text.muted }}>
                     * 별도 정산한 항목: {renderItems(itemsB)}
                   </div>
                 </>
@@ -860,11 +861,11 @@ export function SettlementResultView({
         <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 10 }}>별도지출 - 송금 정산</div>
           <div style={{ fontSize: 12, color: JELLY.textMuted, lineHeight: 1.65, marginBottom: 8 }}>
-            별도 지출 카드 합계 <strong style={{ color: '#374151' }}>{fmt(summary.separateExpenseCard5090.total)}</strong>
+            별도 지출 카드 합계 <strong style={{ color: DS.color.text.body }}>{fmt(summary.separateExpenseCard5090.total)}</strong>
             은 두 사람이 동일하게{' '}
-            <strong style={{ color: '#374151' }}>{fmt(summary.separateExpenseCard5090.fairShareEach)}</strong>씩 부담합니다.
-            실제 낸 금액은 <strong style={{ color: '#374151' }}>{personAName}</strong>{' '}
-            {fmt(summary.separateExpenseCard5090.paidA)} · <strong style={{ color: '#374151' }}>{personBName}</strong>{' '}
+            <strong style={{ color: DS.color.text.body }}>{fmt(summary.separateExpenseCard5090.fairShareEach)}</strong>씩 부담합니다.
+            실제 낸 금액은 <strong style={{ color: DS.color.text.body }}>{personAName}</strong>{' '}
+            {fmt(summary.separateExpenseCard5090.paidA)} · <strong style={{ color: DS.color.text.body }}>{personBName}</strong>{' '}
             {fmt(summary.separateExpenseCard5090.paidB)}입니다.
           </div>
           {summary.separateExpenseCard5090.transferAmount > 0 &&
@@ -929,10 +930,10 @@ export function SettlementResultView({
             별도지출 - 반반 정산
           </div>
           <div style={{ fontSize: 12, color: JELLY.textMuted, lineHeight: 1.65 }}>
-            공금으로 결제한 별도 지출 합계 <strong style={{ color: '#374151' }}>{fmt(summary.sharedFundExpense.total)}</strong>은
+            공금으로 결제한 별도 지출 합계 <strong style={{ color: DS.color.text.body }}>{fmt(summary.sharedFundExpense.total)}</strong>은
             공동 통장에서 빠지므로 두 사람이 자동으로{' '}
             <strong style={{ color: PRIMARY }}>{fmt(summary.sharedFundExpense.halfEach)}</strong>씩 부담합니다.
-            <span style={{ display: 'block', marginTop: 4, color: '#9ca3af' }}>(개별 송금 없음)</span>
+            <span style={{ display: 'block', marginTop: 4, color: DS.color.text.muted }}>(개별 송금 없음)</span>
           </div>
         </div>
       ) : null}
@@ -1010,7 +1011,7 @@ export function SettlementResultView({
                   borderBottom: '2px dashed rgba(255,255,255,0.45)',
                 }}
               >
-                <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>{name}</div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: DS.color.text.inverse }}>{name}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.72)', marginTop: 4 }}>이번 달 각자 낼 돈</div>
               </div>
               {/* 영수증 바디 */}
@@ -1128,7 +1129,7 @@ export function SettlementResultView({
                               }}
                             >
                               {item.description}{' '}
-                              <span style={{ fontSize: 10, color: '#9ca3af' }}>(별도 정산)</span>
+                              <span style={{ fontSize: 10, color: DS.color.text.muted }}>(별도 정산)</span>
                               {item.accountNumber && (
                                 <AccountTooltip account={item.accountNumber} label={item.description} />
                               )}
@@ -1252,13 +1253,13 @@ export function SettlementResultView({
                   marginTop: 10,
                   width: '100%',
                   padding: '8px 12px',
-                  border: '1px solid #e5e7eb',
-                  background: '#fafafa',
+                  border: `1px solid ${DS.color.border.subtle}`,
+                  background: DS.color.bg.subtle,
                   borderRadius: 8,
                   cursor: 'pointer',
                   fontSize: 12,
                   fontWeight: 500,
-                  color: '#6b7280',
+                  color: DS.color.text.secondary,
                   fontFamily: 'inherit',
                   display: 'flex',
                   alignItems: 'center',
@@ -1297,12 +1298,12 @@ export function SettlementResultView({
                     style={{
                       marginTop: 12,
                       padding: '14px 16px',
-                      background: '#f9fafb',
-                      border: '1px solid #e5e7eb',
+                      background: DS.color.bg.subtle,
+                      border: `1px solid ${DS.color.border.subtle}`,
                       borderRadius: 10,
                       fontSize: 12,
                       lineHeight: 1.7,
-                      color: '#374151',
+                      color: DS.color.text.body,
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 10,
@@ -1345,7 +1346,7 @@ export function SettlementResultView({
                         이번 달 투자/저축은 총 <strong>{fmt(u.invest)}</strong>입니다.
                       </div>
                     )}
-                    <div style={{ paddingTop: 8, borderTop: '1px dashed #d1d5db' }}>
+                    <div style={{ paddingTop: 8, borderTop: `1px dashed ${DS.color.border.default}` }}>
                       이번 달 고정지출, 별도 지출, 공동 생활비, 투자/저축에 내는 돈은 총{' '}
                       <strong>{fmt(u.total)}</strong>이므로 최종 용돈은{' '}
                       <strong style={{ color: allowanceValueColor(u.allowance) }}>{fmt(u.allowance)}</strong>입니다.

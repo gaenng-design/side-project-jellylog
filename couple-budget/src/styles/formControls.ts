@@ -45,7 +45,7 @@ export const INPUT_HEIGHT = 40
 export const SETTINGS_TEMPLATE_ROW_HEIGHT = 34
 export const INPUT_BORDER_RADIUS = JELLY.radiusControl
 export const INPUT_FONT_SIZE = 14
-export const INPUT_BORDER = '1px solid #E5E7EB'
+export const INPUT_BORDER = `1px solid ${DS.color.border.subtle}`
 export const AMOUNT_INPUT_MIN_WIDTH = 100
 
 /** 카테고리명 `CustomSelect` 트리거 너비(설정·지출 계획·행 컴포넌트 통일) */
@@ -75,7 +75,7 @@ export const buttonWriteDeleteStyle: CSSProperties = {
   borderRadius: JELLY.radiusControl,
   border: '1px solid rgba(252, 165, 165, 0.55)',
   background: 'rgba(254, 242, 242, 0.95)',
-  color: '#991b1b',
+  color: DS.color.negative.strong,
   fontSize: 13,
   fontWeight: 600,
   cursor: 'pointer',
@@ -94,7 +94,7 @@ export const settingsSectionCardWithBleedTitleStyle: CSSProperties = {
   padding: '0 16px 16px',
 }
 
-const cardSurface = (jellyCardStyle.background ?? '#FFFFFF') as string
+const cardSurface = (jellyCardStyle.background ?? DS.color.bg.secondary) as string
 
 /**
  * 설정 카드 상단 제목 행 — 메인 스크롤 시 카드가 뷰에 있는 동안 상단에 고정.
@@ -182,7 +182,7 @@ export const settingsTemplateDeleteButtonStyle: CSSProperties = {
   borderRadius: JELLY.radiusControl,
   border: '1px solid rgba(252, 165, 165, 0.45)',
   background: 'rgba(254, 242, 242, 0.9)',
-  color: '#b91c1c',
+  color: DS.color.negative.strong,
   cursor: 'pointer',
   flexShrink: 0,
   boxShadow: '0 2px 8px rgba(239, 68, 68, 0.06)',
@@ -191,7 +191,7 @@ export const settingsTemplateDeleteButtonStyle: CSSProperties = {
 /** 드롭다운 트리거 공통 스타일 토큰 */
 export const DROPDOWN_PADDING_REGULAR = '0 12px'
 export const DROPDOWN_PADDING_COMPACT = '0 8px'
-export const DROPDOWN_CARET_COLOR = '#6b7280'
+export const DROPDOWN_CARET_COLOR = DS.color.text.secondary
 export const DROPDOWN_CARET_FONT_SIZE_REGULAR = 12
 export const DROPDOWN_CARET_FONT_SIZE_COMPACT = 10
 export const DROPDOWN_ITEM_PADDING_REGULAR = '0 14px'

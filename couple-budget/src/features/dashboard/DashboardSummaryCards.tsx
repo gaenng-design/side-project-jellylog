@@ -230,7 +230,7 @@ export function DashboardSummaryCards() {
                 style={{
                   width: '100%',
                   height: 10,
-                  background: '#f3f4f6',
+                  background: DS.color.bg.muted,
                   borderRadius: 999,
                   overflow: 'hidden',
                 }}
@@ -240,7 +240,7 @@ export function DashboardSummaryCards() {
                     width: `${Math.min(progress * 100, 100)}%`,
                     height: '100%',
                     background: achieved
-                      ? '#16a34a'
+                      ? DS.color.positive.main
                       : `linear-gradient(90deg, ${PRIMARY}, #60A5FA)`,
                     borderRadius: 999,
                     transition: 'width 0.4s ease',
@@ -260,12 +260,12 @@ export function DashboardSummaryCards() {
               >
                 <span style={{ ...tabularNums }}>
                   {achieved ? (
-                    <span style={{ color: '#16a34a', fontWeight: 600 }}>🎉 목표 달성!</span>
+                    <span style={{ color: DS.color.positive.main, fontWeight: 600 }}>🎉 목표 달성!</span>
                   ) : (
                     <>남은 금액 <span style={{ fontWeight: 600, color: DS.color.text.primary }}>{fmt(remaining)}원</span></>
                   )}
                 </span>
-                <span style={{ ...tabularNums, fontWeight: 600, color: achieved ? '#16a34a' : PRIMARY }}>
+                <span style={{ ...tabularNums, fontWeight: 600, color: achieved ? DS.color.positive.main : PRIMARY }}>
                   {(progress * 100).toFixed(1)}%
                 </span>
               </div>
@@ -295,7 +295,7 @@ export function DashboardSummaryCards() {
       <Card variant="data" padding={4} hoverLift={false}>
         <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
           📈 올해 자산 성장
-          <span style={{ color: '#9ca3af', marginLeft: 4 }}>
+          <span style={{ color: DS.color.text.muted, marginLeft: 4 }}>
             ({stats.baselineMonthIdx === 0 ? '연초' : `${stats.baselineMonthIdx + 1}월`} 대비)
           </span>
         </div>
@@ -307,9 +307,9 @@ export function DashboardSummaryCards() {
                 fontWeight: 700,
                 color:
                   stats.ytdDelta > 0
-                    ? '#16a34a'
+                    ? DS.color.positive.main
                     : stats.ytdDelta < 0
-                      ? '#ef4444'
+                      ? DS.color.negative.main
                       : DS.color.text.primary,
                 ...tabularNums,
               }}
@@ -324,8 +324,8 @@ export function DashboardSummaryCards() {
           </>
         ) : (
           <>
-            <div style={{ fontSize: 22, fontWeight: 700, color: '#9ca3af', ...tabularNums }}>—</div>
-            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: DS.color.text.muted, ...tabularNums }}>—</div>
+            <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 4 }}>
               올해 입력된 자산 데이터가 없습니다
             </div>
           </>
@@ -334,7 +334,7 @@ export function DashboardSummaryCards() {
 
       {/* 3. 카테고리별 자산 구성 */}
       {stats.totalAsset > 0 && (() => {
-        const catColors: Record<string, string> = { 저축: '#3b82f6', 투자: '#8b5cf6', 부동산: '#f59e0b' }
+        const catColors: Record<string, string> = { 저축: DS.color.category.savings, 투자: DS.color.category.invest, 부동산: DS.color.category.realEstate }
         return (
           <Card variant="data" padding={4} hoverLift={false} style={{ gridColumn: '1 / -1' }}>
             <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 8 }}>
@@ -359,7 +359,7 @@ export function DashboardSummaryCards() {
                     style={{
                       width: `${pct}%`,
                       height: '100%',
-                      background: catColors[cat] ?? '#9ca3af',
+                      background: catColors[cat] ?? DS.color.text.muted,
                       flexShrink: 0,
                       borderRadius: 999,
                     }}
@@ -378,7 +378,7 @@ export function DashboardSummaryCards() {
                         width: 8,
                         height: 8,
                         borderRadius: '50%',
-                        background: catColors[cat] ?? '#9ca3af',
+                        background: catColors[cat] ?? DS.color.text.muted,
                         flexShrink: 0,
                       }}
                     />
@@ -407,7 +407,7 @@ export function DashboardSummaryCards() {
             style={{
               fontSize: 22,
               fontWeight: 700,
-              color: stats.investPnl > 0 ? '#16a34a' : stats.investPnl < 0 ? '#ef4444' : DS.color.text.primary,
+              color: stats.investPnl > 0 ? DS.color.positive.main : stats.investPnl < 0 ? DS.color.negative.main : DS.color.text.primary,
               ...tabularNums,
             }}
           >
@@ -421,7 +421,7 @@ export function DashboardSummaryCards() {
                 <span
                   style={{
                     fontWeight: 600,
-                    color: stats.investPnl >= 0 ? '#16a34a' : '#ef4444',
+                    color: stats.investPnl >= 0 ? DS.color.positive.main : DS.color.negative.main,
                   }}
                 >
                   {stats.investPnl >= 0 ? '+' : ''}
@@ -442,7 +442,7 @@ export function DashboardSummaryCards() {
           style={{
             fontSize: 22,
             fontWeight: 700,
-            color: sharedOver ? '#ef4444' : DS.color.text.primary,
+            color: sharedOver ? DS.color.negative.main : DS.color.text.primary,
             ...tabularNums,
           }}
         >
@@ -455,7 +455,7 @@ export function DashboardSummaryCards() {
                 marginTop: 8,
                 width: '100%',
                 height: 6,
-                background: '#f3f4f6',
+                background: DS.color.bg.muted,
                 borderRadius: 999,
                 overflow: 'hidden',
               }}
@@ -464,7 +464,7 @@ export function DashboardSummaryCards() {
                 style={{
                   width: `${Math.min(sharedProgress * 100, 100)}%`,
                   height: '100%',
-                  background: sharedOver ? '#ef4444' : PRIMARY,
+                  background: sharedOver ? DS.color.negative.main : PRIMARY,
                   borderRadius: 999,
                   transition: 'width 0.3s ease',
                 }}
@@ -473,7 +473,7 @@ export function DashboardSummaryCards() {
             <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
               목표 {fmt(stats.sharedExpenseTarget)}원 ·{' '}
               {sharedOver ? (
-                <span style={{ color: '#ef4444', fontWeight: 600 }}>
+                <span style={{ color: DS.color.negative.main, fontWeight: 600 }}>
                   ⚠ {fmt(stats.sharedExpenseUsed - stats.sharedExpenseTarget)} 초과
                 </span>
               ) : (
@@ -482,7 +482,7 @@ export function DashboardSummaryCards() {
             </div>
           </>
         ) : (
-          <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>설정 페이지에서 목표 설정</div>
+          <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 4 }}>설정 페이지에서 목표 설정</div>
         )}
       </Card>
 

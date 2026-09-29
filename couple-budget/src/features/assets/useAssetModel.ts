@@ -10,6 +10,7 @@ import {
   buildFirstEntryMap,
   INTEREST_TAX_RATE,
 } from '@/lib/assetCalc'
+import { DS } from '@/design-system/tokens'
 
 /**
  * 자산 탭 공용 데이터·계산 모음.
@@ -44,7 +45,7 @@ export function useAssetModel() {
   const getPersonColor = (person?: 'A' | 'B') => {
     if (person === 'A') return personAColor
     if (person === 'B') return personBColor
-    return '#9ca3af'
+    return DS.color.text.muted
   }
   const getPersonLabel = (person?: 'A' | 'B') => {
     if (person === 'A') return personAName
@@ -57,7 +58,7 @@ export function useAssetModel() {
    * - cell: 데이터 셀용 (아주 연함)
    */
   const getItemColumnBg = (person?: 'A' | 'B', intensity: 'header' | 'cell' = 'cell') => {
-    if (!person) return intensity === 'header' ? '#f9fafb' : 'transparent'
+    if (!person) return intensity === 'header' ? DS.color.bg.subtle : 'transparent'
     const color = person === 'A' ? personAColor : personBColor
     const pct = intensity === 'header' ? 18 : 7
     return `color-mix(in srgb, ${color} ${pct}%, white)`

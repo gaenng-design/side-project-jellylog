@@ -3,6 +3,7 @@ import { useAppStore, YEAR_PICKER_MIN } from '@/store/useAppStore'
 import { INPUT_BORDER_RADIUS, PRIMARY, PRIMARY_LIGHT } from '@/styles/formControls'
 import { YearSelectDropdown } from '@/components/YearSelectDropdown'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
+import { DS } from '@/design-system/tokens'
 
 interface MonthPickerProps {
   onBeforeChange?: (ym: string) => boolean | void
@@ -59,8 +60,8 @@ export function MonthPicker({ onBeforeChange, omitYearDropdown = false }: MonthP
           maxWidth: '100%',
           minHeight: 40,
           borderRadius: INPUT_BORDER_RADIUS,
-          background: '#fff',
-          border: '1px solid #e5e7eb',
+          background: DS.color.bg.secondary,
+          border: `1px solid ${DS.color.border.subtle}`,
           boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
           boxSizing: 'border-box',
           overflow: 'hidden',
@@ -114,7 +115,7 @@ export function MonthPicker({ onBeforeChange, omitYearDropdown = false }: MonthP
                     borderRadius: 10,
                     border: active ? `1px solid rgba(79, 140, 255, 0.45)` : '1px solid transparent',
                     background: active ? PRIMARY_LIGHT : 'transparent',
-                    color: active ? PRIMARY : '#9ca3af',
+                    color: active ? PRIMARY : DS.color.text.muted,
                     cursor: 'pointer',
                     transition: 'background 0.15s ease, color 0.15s ease, border-color 0.15s ease',
                     fontFamily: 'inherit',

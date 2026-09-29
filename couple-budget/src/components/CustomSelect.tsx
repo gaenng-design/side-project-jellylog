@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT, DROPDOWN_PADDING_COMPACT, DROPDOWN_PADDING_REGULAR, DROPDOWN_CARET_COLOR, DROPDOWN_CARET_FONT_SIZE_COMPACT, DROPDOWN_CARET_FONT_SIZE_REGULAR, DROPDOWN_ITEM_PADDING_COMPACT, DROPDOWN_ITEM_PADDING_REGULAR } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
 import { DropdownArrowIcon } from './DropdownArrowIcon'
+import { DS } from '@/design-system/tokens'
 
 interface CustomSelectProps {
   options: string[]
@@ -35,7 +36,7 @@ interface CustomSelectProps {
 
 /** Modal 오버레이(12000) 위에 포털 드롭다운이 보이도록 */
 const dropdownStyle = {
-  background: '#fff',
+  background: DS.color.bg.secondary,
   border: INPUT_BORDER,
   borderRadius: INPUT_BORDER_RADIUS,
   boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
@@ -140,10 +141,10 @@ export function CustomSelect({
 
   const triggerHeight = compact ? (heightProp ?? compactHeight ?? INPUT_HEIGHT) : (heightProp ?? INPUT_HEIGHT)
 
-  const caretColor = compactCaretColor ?? '#6b7280'
+  const caretColor = compactCaretColor ?? DS.color.text.secondary
   const fixedTriggerW = triggerWidth != null
   const leadingDividerBg =
-    caretColor === '#fff' || caretColor.toLowerCase() === '#ffffff'
+    caretColor === DS.color.bg.secondary || caretColor.toLowerCase() === DS.color.bg.secondary
       ? 'rgba(255,255,255,0.35)'
       : 'rgba(15, 23, 42, 0.1)'
 
@@ -183,9 +184,9 @@ export function CustomSelect({
               gap: 6,
               fontSize: 12,
               borderRadius: compactAutoWidth && customChipBg ? JELLY.radiusUserChip : INPUT_BORDER_RADIUS,
-              border: `1px solid ${open || (value && (customChipBg || customBgColor)) ? (customBgColor ?? PRIMARY) : '#e5e7eb'}`,
-              background: value && customChipBg ? customChipBg : value && customBgColor ? hexToRgba(customBgColor, 0.2) : '#fff',
-              color: value && customChipBg ? (customBgColor ?? PRIMARY) : value && customBgColor ? customBgColor : (value ? '#111827' : '#6b7280'),
+              border: `1px solid ${open || (value && (customChipBg || customBgColor)) ? (customBgColor ?? PRIMARY) : DS.color.border.subtle}`,
+              background: value && customChipBg ? customChipBg : value && customBgColor ? hexToRgba(customBgColor, 0.2) : DS.color.bg.secondary,
+              color: value && customChipBg ? (customBgColor ?? PRIMARY) : value && customBgColor ? customBgColor : (value ? DS.color.text.primary : DS.color.text.secondary),
               cursor: 'pointer',
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -261,7 +262,7 @@ export function CustomSelect({
                   alignItems: 'center',
                   fontSize: 12,
                   cursor: 'pointer',
-                  color: opt === value ? PRIMARY : '#374151',
+                  color: opt === value ? PRIMARY : DS.color.text.body,
                   background: opt === value ? PRIMARY_LIGHT : 'transparent',
                   fontWeight: opt === value ? 600 : 400,
                 }}
@@ -305,11 +306,11 @@ export function CustomSelect({
             width: '100%',
             height: triggerHeight,
             padding: DROPDOWN_PADDING_REGULAR,
-            border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
+            border: `1px solid ${open ? PRIMARY : DS.color.border.subtle}`,
             borderRadius: INPUT_BORDER_RADIUS,
             fontSize: INPUT_FONT_SIZE,
-            color: value ? '#111827' : '#6b7280',
-            background: '#fff',
+            color: value ? DS.color.text.primary : DS.color.text.secondary,
+            background: DS.color.bg.secondary,
             textAlign: 'left',
             cursor: 'pointer',
             display: 'flex',
@@ -351,7 +352,7 @@ export function CustomSelect({
                 alignItems: 'center',
                 fontSize: INPUT_FONT_SIZE,
                 cursor: 'pointer',
-                color: opt === value ? PRIMARY : '#374151',
+                color: opt === value ? PRIMARY : DS.color.text.body,
                 background: opt === value ? PRIMARY_LIGHT : 'transparent',
                 fontWeight: opt === value ? 600 : 400,
               }}

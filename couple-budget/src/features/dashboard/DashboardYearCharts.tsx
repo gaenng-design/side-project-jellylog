@@ -72,7 +72,7 @@ function FixedCategoryDonut({
             key={s.idx}
             d={s.d}
             fill={s.color}
-            stroke="#fff"
+            stroke={DS.color.bg.secondary}
             strokeWidth={1}
             opacity={hoverIdx === null || hoverIdx === s.idx ? 1 : 0.32}
             style={{ cursor: 'pointer', transition: 'opacity 0.15s' }}
@@ -158,7 +158,7 @@ function fmtAxis(n: number): string {
 
 /** 원형 그래프 조각 색 (DS 프라이머리 톤 + 대비) */
 const FIXED_DONUT_PALETTE = [
-  '#4F8CFF',
+  DS.color.primary,
   '#60A5FA',
   '#34D399',
   '#FBBF24',
@@ -499,9 +499,9 @@ function MonthlyIncomeBarChart({ values }: { values: number[] }) {
         const ty = Math.max(PAD_T, y - h - 6)
         return (
           <g pointerEvents="none">
-            <rect x={tx} y={ty} width={w} height={h} rx={6} fill="#111827" opacity={0.92} />
-            <text x={tx + 8} y={ty + 14} fontSize={10.5} fill="#9ca3af" style={tabularNums}>{monthLabel}</text>
-            <text x={tx + 8} y={ty + 28} fontSize={11} fill="#fff" style={{ ...tabularNums, fontWeight: 600 }}>{valueLabel}</text>
+            <rect x={tx} y={ty} width={w} height={h} rx={6} fill={DS.color.text.primary} opacity={0.92} />
+            <text x={tx + 8} y={ty + 14} fontSize={10.5} fill={DS.color.text.muted} style={tabularNums}>{monthLabel}</text>
+            <text x={tx + 8} y={ty + 28} fontSize={11} fill={DS.color.bg.secondary} style={{ ...tabularNums, fontWeight: 600 }}>{valueLabel}</text>
           </g>
         )
       })()}
@@ -586,7 +586,7 @@ function InvestCumulativeChart({ cumulative, lastMonthIdx }: { cumulative: numbe
         points={linePts}
       />
       {pts.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r={4} fill="#fff" stroke={DS.color.success} strokeWidth={2} />
+        <circle key={i} cx={p.x} cy={p.y} r={4} fill={DS.color.bg.secondary} stroke={DS.color.success} strokeWidth={2} />
       ))}
       {MONTH_LABELS.map((label, i) => {
         const x = PAD_L + i * stepX
@@ -641,9 +641,9 @@ function InvestCumulativeChart({ cumulative, lastMonthIdx }: { cumulative: numbe
         const ty = Math.max(PAD_T, cy - h - 6)
         return (
           <g pointerEvents="none">
-            <rect x={tx} y={ty} width={w} height={h} rx={6} fill="#111827" opacity={0.92} />
-            <text x={tx + 8} y={ty + 14} fontSize={10.5} fill="#9ca3af" style={tabularNums}>{`${monthLabel} 누적`}</text>
-            <text x={tx + 8} y={ty + 28} fontSize={11} fill="#fff" style={{ ...tabularNums, fontWeight: 600 }}>{valueLabel}</text>
+            <rect x={tx} y={ty} width={w} height={h} rx={6} fill={DS.color.text.primary} opacity={0.92} />
+            <text x={tx + 8} y={ty + 14} fontSize={10.5} fill={DS.color.text.muted} style={tabularNums}>{`${monthLabel} 누적`}</text>
+            <text x={tx + 8} y={ty + 28} fontSize={11} fill={DS.color.bg.secondary} style={{ ...tabularNums, fontWeight: 600 }}>{valueLabel}</text>
           </g>
         )
       })()}

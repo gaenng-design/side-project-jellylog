@@ -27,7 +27,7 @@ export function Card(props: {
     variant === 'highlight'
       ? {
           background: DS.color.gradient,
-          color: '#fff',
+          color: DS.color.text.inverse,
         }
       : variant === 'data'
         ? { background: DS.color.bg.secondary }

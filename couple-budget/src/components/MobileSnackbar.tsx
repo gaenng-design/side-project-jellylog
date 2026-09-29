@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { DS } from '@/design-system/tokens'
 
 /** App.tsx 모바일 GNB: padding 10+10 + 행 44 + border 1 */
 const MOBILE_GNB_HEIGHT_PX = 65
@@ -7,7 +8,7 @@ const BELOW_GNB_GAP_PX = 8
 export type SnackbarTone = 'ok' | 'err' | 'hint'
 
 const TONE_TEXT: Record<SnackbarTone, string> = {
-  err: '#FCA5A5',
+  err: DS.color.negative.border,
   ok: '#6EE7B7',
   hint: '#FACC15',
 }

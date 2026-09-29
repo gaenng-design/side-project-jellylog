@@ -5,6 +5,7 @@ import { addMonths } from '@/lib/assetCalc'
 import { useChartTooltip } from '@/features/dashboard/useChartTooltip'
 import { fmtWonAsMan, fmtSignedMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
+import { DS } from '@/design-system/tokens'
 
 /** 과거 몇 개월 · 미래 몇 개월을 보여줄지 */
 const PAST_MONTHS = 11
@@ -85,8 +86,8 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
   return (
     <div style={{ ...jellyCardStyle, padding: '14px 16px', marginBottom: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, color: '#111827' }}>자산 추이</div>
-        <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#6b7280' }}>
+        <div style={{ fontWeight: 700, fontSize: 13, color: DS.color.text.primary }}>자산 추이</div>
+        <div style={{ display: 'flex', gap: 12, fontSize: 11, color: DS.color.text.secondary }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <svg width="16" height="4" aria-hidden><line x1="0" x2="16" y1="2" y2="2" stroke={PRIMARY} strokeWidth="2" /></svg>
             총 자산
@@ -111,8 +112,8 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
           {/* 가로 그리드 + Y축 라벨 */}
           {ticks.map((t, i) => (
             <g key={t}>
-              <line x1={padL} x2={W - padR} y1={y(t)} y2={y(t)} stroke="#e5e7eb" strokeDasharray={i === 0 ? undefined : '3 3'} />
-              <text x={padL - 8} y={y(t) + 4} fontSize="10" fill="#9ca3af" textAnchor="end" style={tabularNums}>
+              <line x1={padL} x2={W - padR} y1={y(t)} y2={y(t)} stroke={DS.color.border.subtle} strokeDasharray={i === 0 ? undefined : '3 3'} />
+              <text x={padL - 8} y={y(t) + 4} fontSize="10" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
                 {fmtWonAsMan(t)}
               </text>
             </g>
@@ -126,7 +127,7 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
           <path d={projectedPath} fill="none" stroke={PRIMARY} strokeWidth={2} strokeDasharray="4 4" strokeLinecap="round" />
 
           {/* 현재 달 포인트 */}
-          <circle cx={x(PAST_MONTHS)} cy={y(points[PAST_MONTHS].total)} r={5} fill="#fff" stroke={PRIMARY} strokeWidth={2.5} />
+          <circle cx={x(PAST_MONTHS)} cy={y(points[PAST_MONTHS].total)} r={5} fill={DS.color.bg.secondary} stroke={PRIMARY} strokeWidth={2.5} />
 
           {/* X축 라벨 */}
           {points.map((p, i) => {
@@ -138,7 +139,7 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
                 x={x(i)}
                 y={H - 8}
                 fontSize="10"
-                fill={isCurrent ? PRIMARY : '#9ca3af'}
+                fill={isCurrent ? PRIMARY : DS.color.text.muted}
                 fontWeight={isCurrent ? 700 : 400}
                 textAnchor="middle"
               >
@@ -150,8 +151,8 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
           {/* 크로스헤어 + 포인트 */}
           {activeIdx !== null && (
             <g pointerEvents="none">
-              <line x1={x(activeIdx)} x2={x(activeIdx)} y1={padT} y2={padT + innerH} stroke="#9ca3af" strokeWidth={1} />
-              <circle cx={x(activeIdx)} cy={y(points[activeIdx].total)} r={4.5} fill={PRIMARY} stroke="#fff" strokeWidth={2} />
+              <line x1={x(activeIdx)} x2={x(activeIdx)} y1={padT} y2={padT + innerH} stroke={DS.color.text.muted} strokeWidth={1} />
+              <circle cx={x(activeIdx)} cy={y(points[activeIdx].total)} r={4.5} fill={PRIMARY} stroke={DS.color.bg.secondary} strokeWidth={2} />
             </g>
           )}
 
@@ -191,9 +192,9 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
             const ty = Math.min(Math.max(padT, y(p.total) - boxH - 8), padT + innerH - boxH)
             return (
               <g pointerEvents="none">
-                <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill="#111827" opacity={0.92} />
+                <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill={DS.color.text.primary} opacity={0.92} />
                 {lines.map((l, li) => (
-                  <text key={li} x={tx + 10} y={ty + 6 + (li + 1) * lineH - 3} fontSize="11" fill={li === 0 ? '#9ca3af' : '#fff'} style={tabularNums}>
+                  <text key={li} x={tx + 10} y={ty + 6 + (li + 1) * lineH - 3} fontSize="11" fill={li === 0 ? DS.color.text.muted : DS.color.bg.secondary} style={tabularNums}>
                     {l}
                   </text>
                 ))}

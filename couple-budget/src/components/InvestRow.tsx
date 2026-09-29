@@ -6,6 +6,7 @@ import { PersonToggle } from '@/components/PersonUI'
 import { CATEGORY_SELECT_TRIGGER_WIDTH, inputBaseStyle } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
+import { DS } from '@/design-system/tokens'
 
 const INVEST_CATEGORIES = ['저축', '투자']
 
@@ -80,12 +81,12 @@ export function InvestRow({
         title="만기일 선택"
         style={{
           padding: 8,
-          border: '1px solid #e5e7eb',
+          border: `1px solid ${DS.color.border.subtle}`,
           borderRadius: JELLY.radiusControl,
-          background: '#fff',
+          background: DS.color.bg.secondary,
           cursor: disabled ? 'default' : 'pointer',
           fontSize: 14,
-          color: '#6b7280',
+          color: DS.color.text.secondary,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -94,7 +95,7 @@ export function InvestRow({
         📅
       </button>
       {row.maturityDate && (
-        <span style={{ fontSize: 13, color: '#111827', minWidth: 72 }}>
+        <span style={{ fontSize: 13, color: DS.color.text.primary, minWidth: 72 }}>
           {formatMaturityDate(row.maturityDate)}
         </span>
       )}
@@ -123,7 +124,7 @@ export function InvestRow({
           gap: 8,
           padding: '10px 12px',
           borderRadius: JELLY.radiusControl,
-          background: '#f9fafb',
+          background: DS.color.bg.subtle,
           minWidth: 0,
           opacity: disabled ? 0.6 : 1,
         }}
@@ -195,7 +196,7 @@ export function InvestRow({
         gap: 4,
         padding: '10px 12px',
         borderRadius: JELLY.radiusControl,
-        background: '#f9fafb',
+        background: DS.color.bg.subtle,
         minWidth: 0,
         opacity: disabled ? 0.6 : 1,
       }}

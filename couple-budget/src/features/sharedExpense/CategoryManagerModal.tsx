@@ -4,6 +4,7 @@ import { Modal } from '@/components/Modal'
 import { jellyInputSurface } from '@/styles/jellyGlass'
 import { PRIMARY, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE } from '@/styles/formControls'
 import { CATEGORY_COLORS, resolveCategoryColor } from '@/lib/categoryColors'
+import { DS } from '@/design-system/tokens'
 
 interface CategoryManagerModalProps {
   open: boolean
@@ -124,11 +125,11 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
               style={{
                 padding: 16,
                 textAlign: 'center',
-                color: '#9ca3af',
+                color: DS.color.text.muted,
                 fontSize: 12,
-                background: '#fff',
+                background: DS.color.bg.secondary,
                 borderRadius: 12,
-                border: '1px solid #e5e7eb',
+                border: `1px solid ${DS.color.border.subtle}`,
               }}
             >
               카테고리가 없습니다. 아래에서 추가해주세요.
@@ -158,13 +159,13 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                         ? 'rgba(79, 140, 255, 0.04)'
                         : isDragOver
                           ? 'rgba(79, 140, 255, 0.08)'
-                          : '#fff',
+                          : DS.color.bg.secondary,
                       opacity: isDragging ? 0.4 : 1,
                       cursor: isEditing ? 'auto' : 'grab',
                       transition: 'background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease',
                       borderRadius: isPickerOpen ? '12px 12px 0 0' : 12,
-                      border: `1px solid ${isDragOver ? PRIMARY : '#e5e7eb'}`,
-                      borderBottom: isPickerOpen ? '1px solid #f3f4f6' : undefined,
+                      border: `1px solid ${isDragOver ? PRIMARY : DS.color.border.subtle}`,
+                      borderBottom: isPickerOpen ? `1px solid ${DS.color.bg.muted}` : undefined,
                       boxShadow: isDragging
                         ? '0 4px 12px rgba(79, 140, 255, 0.15)'
                         : '0 1px 2px rgba(0,0,0,0.03)',
@@ -180,7 +181,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                         flexShrink: 0,
                         padding: '4px 2px',
                         cursor: isEditing ? 'auto' : 'grab',
-                        color: '#d1d5db',
+                        color: DS.color.border.default,
                         fontSize: 16,
                         lineHeight: 1,
                         userSelect: 'none',
@@ -238,7 +239,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                           border: `1.5px solid ${PRIMARY}`,
                           fontSize: 13,
                           outline: 'none',
-                          background: '#fff',
+                          background: DS.color.bg.secondary,
                           fontFamily: 'inherit',
                         }}
                       />
@@ -278,9 +279,9 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                         flexShrink: 0,
                         padding: '4px 10px',
                         borderRadius: 6,
-                        border: '1px solid #fca5a5',
-                        background: '#fff',
-                        color: '#ef4444',
+                        border: `1px solid ${DS.color.negative.border}`,
+                        background: DS.color.bg.secondary,
+                        color: DS.color.negative.main,
                         fontSize: 12,
                         cursor: 'pointer',
                       }}
@@ -293,8 +294,8 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                   {isPickerOpen && (
                     <div
                       style={{
-                        background: '#fff',
-                        border: '1px solid #e5e7eb',
+                        background: DS.color.bg.secondary,
+                        border: `1px solid ${DS.color.border.subtle}`,
                         borderTop: 'none',
                         borderRadius: '0 0 12px 12px',
                         padding: '12px 14px',
@@ -365,7 +366,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
               outline: 'none',
               boxSizing: 'border-box',
               ...jellyInputSurface,
-              color: '#232d3c',
+              color: DS.color.text.primary,
             }}
           />
           <button
@@ -376,8 +377,8 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
               padding: '0 16px',
               borderRadius: INPUT_BORDER_RADIUS,
               border: 'none',
-              background: newName.trim() ? PRIMARY : '#e5e7eb',
-              color: newName.trim() ? '#fff' : '#9ca3af',
+              background: newName.trim() ? PRIMARY : DS.color.border.subtle,
+              color: newName.trim() ? DS.color.bg.secondary : DS.color.text.muted,
               fontSize: 13,
               fontWeight: 600,
               cursor: newName.trim() ? 'pointer' : 'default',
@@ -393,10 +394,10 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
             style={{
               padding: '8px 12px',
               borderRadius: 6,
-              background: '#fee2e2',
-              color: '#991b1b',
+              background: DS.color.negative.soft,
+              color: DS.color.negative.strong,
               fontSize: 12,
-              border: '1px solid #fca5a5',
+              border: `1px solid ${DS.color.negative.border}`,
             }}
           >
             {error}
@@ -412,7 +413,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
             borderRadius: 8,
             border: 'none',
             background: PRIMARY,
-            color: '#fff',
+            color: DS.color.text.inverse,
             fontSize: 13,
             fontWeight: 600,
             cursor: 'pointer',

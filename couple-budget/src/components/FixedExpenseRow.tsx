@@ -8,6 +8,7 @@ import { CATEGORY_SELECT_TRIGGER_WIDTH, inputBaseStyle } from '@/styles/formCont
 import { JELLY } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import type { Person } from '@/types'
+import { DS } from '@/design-system/tokens'
 
 /** 뷰포트 ≤600px 일 때만 플렉스 줄바꿈용 래퍼 */
 function FlexRowCell({
@@ -99,9 +100,9 @@ export function FixedExpenseRow({
         minHeight: ROW_CHIP_HEIGHT,
         padding: '0 12px',
         borderRadius: JELLY.radiusControl,
-        border: '1px solid #e5e7eb',
-        background: '#f9fafb',
-        color: '#9ca3af',
+        border: `1px solid ${DS.color.border.subtle}`,
+        background: DS.color.bg.subtle,
+        color: DS.color.text.muted,
         cursor: disabled ? 'default' : 'pointer',
         display: 'inline-flex',
         alignItems: 'center',
@@ -129,9 +130,9 @@ export function FixedExpenseRow({
       customChipBg={chipBg}
       compactHeight={ROW_CHIP_HEIGHT}
       title="별도 정산 담당 선택 · ↗ 누르면 해제"
-      compactLeading={<span style={{ color: '#fff', fontSize: 12, lineHeight: 1 }}>↗</span>}
+      compactLeading={<span style={{ color: DS.color.text.inverse, fontSize: 12, lineHeight: 1 }}>↗</span>}
       onCompactLeadingClick={() => !disabled && onUpdate({ isSeparate: false })}
-      compactCaretColor="#fff"
+      compactCaretColor={DS.color.bg.secondary}
     />
   )
 
@@ -162,7 +163,7 @@ export function FixedExpenseRow({
           border: 'none',
           background: 'none',
           cursor: disabled ? 'default' : 'pointer',
-          color: '#fff',
+          color: DS.color.text.inverse,
           fontSize: 12,
           fontWeight: 700,
           lineHeight: 1,
@@ -215,7 +216,7 @@ export function FixedExpenseRow({
         gap: 4,
         padding: '10px 12px',
         borderRadius: JELLY.radiusControl,
-        background: '#f9fafb',
+        background: DS.color.bg.subtle,
         minWidth: 0,
         opacity: disabled ? 0.6 : 1,
       }}

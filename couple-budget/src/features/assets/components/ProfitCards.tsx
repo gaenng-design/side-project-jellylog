@@ -3,6 +3,7 @@ import type { AssetItem } from '@/types'
 import { fmtMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
 import { AfterTaxToggle } from './AfterTaxToggle'
+import { DS } from '@/design-system/tokens'
 
 /** 전체 탭: 수익 현황 (투자 손익 · 저축 만기 예상 이자) */
 export function ProfitCards({ model }: { model: AssetModel }) {
@@ -25,12 +26,12 @@ export function ProfitCards({ model }: { model: AssetModel }) {
     return s + (bal - getPnl(item, currentYear, currentMonth))
   }, 0)
   const totalInvestPnlPct = totalInvestBasis !== 0 ? Math.round((totalInvestPnl / totalInvestBasis) * 1000) / 10 : 0
-  const investPnlColor = totalInvestPnl === 0 ? '#6b7280' : totalInvestPnl > 0 ? '#059669' : '#dc2626'
-  const savingsMaturityColor = totalMaturityInterest > 0 ? '#059669' : '#6b7280'
+  const investPnlColor = totalInvestPnl === 0 ? DS.color.text.secondary : totalInvestPnl > 0 ? DS.color.positive.main : DS.color.negative.main
+  const savingsMaturityColor = totalMaturityInterest > 0 ? DS.color.positive.main : DS.color.text.secondary
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, color: '#111827' }}>수익 현황</div>
+        <div style={{ fontWeight: 700, fontSize: 13, color: DS.color.text.primary }}>수익 현황</div>
         {savingsMaturityItems.length > 0 && <AfterTaxToggle model={model} />}
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -41,19 +42,19 @@ export function ProfitCards({ model }: { model: AssetModel }) {
             padding: '14px 16px',
             flex: '1 1 180px',
             minWidth: 160,
-            border: totalInvestPnl !== 0 ? `1.5px solid ${totalInvestPnl > 0 ? '#a7f3d0' : '#fca5a5'}` : undefined,
+            border: totalInvestPnl !== 0 ? `1.5px solid ${totalInvestPnl > 0 ? DS.color.positive.border : DS.color.negative.border}` : undefined,
           }}>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>총 투자 수익</div>
+            <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 6 }}>총 투자 수익</div>
             <div style={{ fontSize: 22, fontWeight: 700, color: investPnlColor, marginBottom: 6 }}>
               {totalInvestPnl === 0 ? '—' : `${totalInvestPnl > 0 ? '+' : ''}${fmtMan(Math.round(totalInvestPnl / 10000))}원`}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6' }}>
-              <span style={{ fontSize: 11, color: '#9ca3af' }}>원금</span>
-              <span style={{ fontSize: 11, color: '#374151' }}>{fmtMan(Math.round(totalInvestBasis / 10000))}원</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: `1px solid ${DS.color.bg.muted}` }}>
+              <span style={{ fontSize: 11, color: DS.color.text.muted }}>원금</span>
+              <span style={{ fontSize: 11, color: DS.color.text.body }}>{fmtMan(Math.round(totalInvestBasis / 10000))}원</span>
             </div>
             {totalInvestPnlPct !== 0 && (
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                <span style={{ fontSize: 11, color: '#9ca3af' }}>수익률</span>
+                <span style={{ fontSize: 11, color: DS.color.text.muted }}>수익률</span>
                 <span style={{ fontSize: 11, fontWeight: 600, color: investPnlColor }}>{totalInvestPnlPct > 0 ? '+' : ''}{totalInvestPnlPct}%</span>
               </div>
             )}
@@ -67,20 +68,20 @@ export function ProfitCards({ model }: { model: AssetModel }) {
               padding: '14px 16px',
               flex: '1 1 200px',
               minWidth: 200,
-              border: totalMaturityInterest > 0 ? '1.5px solid #a7f3d0' : undefined,
+              border: totalMaturityInterest > 0 ? `1.5px solid ${DS.color.positive.border}` : undefined,
             }}>
-              <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>저축 수익 (만기 예상 이자{interestAfterTax ? ' · 세후' : ''})</div>
+              <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 6 }}>저축 수익 (만기 예상 이자{interestAfterTax ? ' · 세후' : ''})</div>
               <div style={{ fontSize: 22, fontWeight: 700, color: savingsMaturityColor, marginBottom: 10 }}>
                 {totalMaturityInterest === 0 ? '—' : `+${fmtMan(Math.round(totalMaturityInterest / 10000))}원`}
               </div>
-              <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ borderTop: `1px solid ${DS.color.bg.muted}`, paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {savingsMaturityItems.map(({ item, result }) => (
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                      <span style={{ fontSize: 11, color: '#374151', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
-                      <span style={{ fontSize: 10, color: '#9ca3af' }}>{item.maturityDate}</span>
+                      <span style={{ fontSize: 11, color: DS.color.text.body, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
+                      <span style={{ fontSize: 10, color: DS.color.text.muted }}>{item.maturityDate}</span>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#059669', flexShrink: 0 }}>+{fmtMan(Math.round(result.interest / 10000))}원</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: DS.color.positive.main, flexShrink: 0 }}>+{fmtMan(Math.round(result.interest / 10000))}원</span>
                   </div>
                 ))}
               </div>

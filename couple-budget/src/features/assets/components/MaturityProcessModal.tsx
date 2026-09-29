@@ -8,6 +8,7 @@ import { ym, addMonths } from '@/lib/assetCalc'
 import type { AssetItem } from '@/types'
 import { MONTHS, fmtSum } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
+import { DS } from '@/design-system/tokens'
 
 const NO_TRANSFER = '옮기지 않음 (현금으로 수령)'
 
@@ -48,7 +49,7 @@ export function MaturityProcessModal({ model, item, onClose }: { model: AssetMod
 
   const infoRow = (label: string, value: string, strong = false) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: strong ? 13 : 12, marginBottom: 4 }}>
-      <span style={{ color: '#6b7280' }}>{label}</span>
+      <span style={{ color: DS.color.text.secondary }}>{label}</span>
       <span style={{ color: strong ? PRIMARY : JELLY.text, fontWeight: strong ? 700 : 500 }}>{value}</span>
     </div>
   )
@@ -56,7 +57,7 @@ export function MaturityProcessModal({ model, item, onClose }: { model: AssetMod
   return (
     <Modal open title={`${item.name} 만기 처리`} onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <div style={{ background: '#f9fafb', borderRadius: 10, padding: '10px 12px' }}>
+        <div style={{ background: DS.color.bg.subtle, borderRadius: 10, padding: '10px 12px' }}>
           {infoRow('만기일', item.maturityDate ?? '—')}
           {maturity && infoRow('원금', fmtSum(Math.round(maturity.principal)))}
           {maturity && infoRow(interestAfterTax ? '이자 (세후)' : '이자 (세전)', `+${fmtSum(Math.round(maturity.interest))}`)}
@@ -64,16 +65,16 @@ export function MaturityProcessModal({ model, item, onClose }: { model: AssetMod
         </div>
 
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>실제 받은 금액</div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>실제 받은 금액</div>
           <AmountInput value={received} onChange={setReceived} height={40} />
         </div>
 
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: '#6b7280' }}>받은 돈을 옮길 곳</div>
+          <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>받은 돈을 옮길 곳</div>
           <CustomSelect options={options} value={target} onChange={setTarget} compact compactFill compactHeight={40} />
         </div>
 
-        <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.6, background: 'rgba(79, 140, 255, 0.06)', borderRadius: 10, padding: '10px 12px' }}>
+        <div style={{ fontSize: 12, color: DS.color.text.body, lineHeight: 1.6, background: 'rgba(79, 140, 255, 0.06)', borderRadius: 10, padding: '10px 12px' }}>
           · {monthLabel}부터 <b>{item.name}</b>은(는) 0원으로 표시돼요.
           {targetItem && receivedAmount > 0 && (
             <>
@@ -88,14 +89,14 @@ export function MaturityProcessModal({ model, item, onClose }: { model: AssetMod
         <button
           type="button"
           onClick={onClose}
-          style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: '1px solid #b3b8c1', background: '#fff', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.strong}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           취소
         </button>
         <button
           type="button"
           onClick={confirm}
-          style={{ padding: '8px 16px', borderRadius: JELLY.radiusControl, border: 'none', background: PRIMARY, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ padding: '8px 16px', borderRadius: JELLY.radiusControl, border: 'none', background: PRIMARY, color: DS.color.text.inverse, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           만기 처리
         </button>

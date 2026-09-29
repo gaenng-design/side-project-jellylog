@@ -12,6 +12,7 @@ import { resolveCategoryColor } from '@/lib/categoryColors'
 import { getCycleRange, getEntryDisplayDate } from '@/lib/sharedExpenseCycle'
 import { CategoryManagerModal } from './CategoryManagerModal'
 import type { SharedExpenseEntry } from '@/types'
+import { DS } from '@/design-system/tokens'
 
 const fmtSum = (n: number) => n.toLocaleString('ko-KR') + '원'
 const DAY_OF_WEEK = ['일', '월', '화', '수', '목', '금', '토']
@@ -55,8 +56,8 @@ function EntryRow({
         padding: '12px 16px',
         borderTop: showTopBorder
           ? borderStrong
-            ? '1px solid #d1d5db'
-            : '1px solid #f3f4f6'
+            ? `1px solid ${DS.color.border.default}`
+            : `1px solid ${DS.color.bg.muted}`
           : 'none',
         background: excluded ? 'rgba(243, 244, 246, 0.5)' : undefined,
       }}
@@ -68,7 +69,7 @@ function EntryRow({
           width: 70,
           fontSize: 12,
           fontWeight: 500,
-          color: entry.day == null ? '#9ca3af' : JELLY.text,
+          color: entry.day == null ? DS.color.text.muted : JELLY.text,
           textAlign: 'center',
           ...fadedStyle,
         }}
@@ -119,8 +120,8 @@ function EntryRow({
                 marginLeft: 6,
                 fontSize: 10,
                 fontWeight: 600,
-                color: entry.cardSettled ? '#15803d' : '#c2410c',
-                background: entry.cardSettled ? '#dcfce7' : '#fff7ed',
+                color: entry.cardSettled ? DS.color.positive.main : DS.color.warning.text,
+                background: entry.cardSettled ? DS.color.positive.soft : DS.color.warning.soft,
                 padding: '1px 6px',
                 borderRadius: 999,
                 textDecoration: 'none',
@@ -137,8 +138,8 @@ function EntryRow({
                 marginLeft: 6,
                 fontSize: 10,
                 fontWeight: 600,
-                color: '#6b7280',
-                background: '#e5e7eb',
+                color: DS.color.text.secondary,
+                background: DS.color.border.subtle,
                 padding: '1px 6px',
                 borderRadius: 999,
                 textDecoration: 'none',
@@ -153,7 +154,7 @@ function EntryRow({
           <div
             style={{
               fontSize: 11,
-              color: '#9ca3af',
+              color: DS.color.text.muted,
               marginTop: 2,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -192,11 +193,11 @@ function EntryRow({
           flex: '0 0 auto',
           width: 28,
           height: 28,
-          border: '1px solid #e5e7eb',
-          background: '#fff',
+          border: `1px solid ${DS.color.border.subtle}`,
+          background: DS.color.bg.secondary,
           borderRadius: 6,
           cursor: 'pointer',
-          color: '#ef4444',
+          color: DS.color.negative.main,
           fontSize: 12,
           display: 'flex',
           alignItems: 'center',
@@ -217,9 +218,9 @@ function EntryRow({
           height: 28,
           padding: '0 10px',
           borderRadius: 6,
-          border: excluded ? '1px solid #6b7280' : '1px solid #e5e7eb',
-          background: excluded ? '#374151' : '#fff',
-          color: excluded ? '#fff' : '#6b7280',
+          border: excluded ? `1px solid ${DS.color.text.secondary}` : `1px solid ${DS.color.border.subtle}`,
+          background: excluded ? DS.color.text.body : DS.color.bg.secondary,
+          color: excluded ? DS.color.bg.secondary : DS.color.text.secondary,
           fontSize: 11,
           fontWeight: 600,
           cursor: 'pointer',
@@ -274,7 +275,7 @@ function CreditCardSection({
         padding: 0,
         overflow: 'hidden',
         marginBottom: 14,
-        border: '1px solid #fed7aa',
+        border: `1px solid ${DS.color.warning.border}`,
       }}
     >
       <button
@@ -287,7 +288,7 @@ function CreditCardSection({
           justifyContent: 'space-between',
           gap: 8,
           padding: '12px 16px',
-          background: '#fff7ed',
+          background: DS.color.warning.soft,
           border: 'none',
           cursor: 'pointer',
           fontFamily: 'inherit',
@@ -295,18 +296,18 @@ function CreditCardSection({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#c2410c' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: DS.color.warning.text }}>
             💳 후불 신용 카드
           </span>
-          <span style={{ fontSize: 11, color: '#9a3412' }}>
+          <span style={{ fontSize: 11, color: DS.color.warning.text }}>
             결제완료 {settledCount}/{totalCount}건
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, color: '#c2410c', fontWeight: 600 }}>
+          <span style={{ fontSize: 11, color: DS.color.warning.text, fontWeight: 600 }}>
             미결제 {pendingAmount.toLocaleString('ko-KR')}원
           </span>
-          <span style={{ fontSize: 12, color: '#c2410c' }}>{open ? '▼' : '▶'}</span>
+          <span style={{ fontSize: 12, color: DS.color.warning.text }}>{open ? '▼' : '▶'}</span>
         </div>
       </button>
       {open && (
@@ -322,9 +323,9 @@ function CreditCardSection({
                   alignItems: 'center',
                   gap: 10,
                   padding: '10px 16px',
-                  borderTop: idx === 0 ? 'none' : '1px solid #fed7aa',
+                  borderTop: idx === 0 ? 'none' : `1px solid ${DS.color.warning.border}`,
                   cursor: 'pointer',
-                  background: settled ? '#fefce8' : '#fff',
+                  background: settled ? DS.color.warning.soft : DS.color.bg.secondary,
                   opacity: e.excluded ? 0.5 : 1,
                 }}
               >
@@ -340,7 +341,7 @@ function CreditCardSection({
                     width: 60,
                     fontSize: 11,
                     fontWeight: 500,
-                    color: e.day == null ? '#9ca3af' : '#374151',
+                    color: e.day == null ? DS.color.text.muted : DS.color.text.body,
                     textAlign: 'center',
                     textDecoration: settled ? 'line-through' : 'none',
                   }}
@@ -362,7 +363,7 @@ function CreditCardSection({
                 >
                   {item?.name ?? '(이름 없음)'}
                   {e.excluded && (
-                    <span style={{ marginLeft: 6, fontSize: 10, color: '#9ca3af' }}>(제외)</span>
+                    <span style={{ marginLeft: 6, fontSize: 10, color: DS.color.text.muted }}>(제외)</span>
                   )}
                 </div>
                 <div
@@ -370,7 +371,7 @@ function CreditCardSection({
                     flex: '0 0 auto',
                     fontSize: 13,
                     fontWeight: 600,
-                    color: settled ? '#15803d' : '#c2410c',
+                    color: settled ? DS.color.positive.main : DS.color.warning.text,
                     whiteSpace: 'nowrap',
                     fontVariantNumeric: 'tabular-nums',
                   }}
@@ -385,9 +386,9 @@ function CreditCardSection({
               style={{
                 padding: '8px 16px',
                 fontSize: 11,
-                color: '#6b7280',
-                background: '#fefce8',
-                borderTop: '1px solid #fed7aa',
+                color: DS.color.text.secondary,
+                background: DS.color.warning.soft,
+                borderTop: `1px solid ${DS.color.warning.border}`,
                 textAlign: 'right',
                 fontVariantNumeric: 'tabular-nums',
               }}
@@ -503,7 +504,7 @@ function AddEntryForm({
             outline: 'none',
             boxSizing: 'border-box',
             ...jellyInputSurface,
-            color: '#232d3c',
+            color: DS.color.text.primary,
           }}
         />
 
@@ -541,7 +542,7 @@ function AddEntryForm({
             boxSizing: 'border-box',
             textAlign: 'left',
             ...jellyInputSurface,
-            color: '#232d3c',
+            color: DS.color.text.primary,
           }}
           title={`${yearMonth} 결제일 (1-31, 선택)`}
         />
@@ -567,7 +568,7 @@ function AddEntryForm({
             boxSizing: 'border-box',
             textAlign: 'right',
             ...jellyInputSurface,
-            color: '#232d3c',
+            color: DS.color.text.primary,
           }}
         />
 
@@ -607,7 +608,7 @@ function AddEntryForm({
             outline: 'none',
             boxSizing: 'border-box',
             ...jellyInputSurface,
-            color: '#232d3c',
+            color: DS.color.text.primary,
           }}
         />
         <button
@@ -620,9 +621,9 @@ function AddEntryForm({
             height: 36,
             padding: '0 14px',
             borderRadius: INPUT_BORDER_RADIUS,
-            border: creditCard ? '1px solid #c2410c' : '1px solid #e5e7eb',
-            background: creditCard ? '#fff7ed' : '#fff',
-            color: creditCard ? '#c2410c' : '#6b7280',
+            border: creditCard ? `1px solid ${DS.color.warning.text}` : `1px solid ${DS.color.border.subtle}`,
+            background: creditCard ? DS.color.warning.soft : DS.color.bg.secondary,
+            color: creditCard ? DS.color.warning.text : DS.color.text.secondary,
             fontSize: 12,
             fontWeight: 600,
             fontFamily: 'inherit',
@@ -643,9 +644,9 @@ function AddEntryForm({
             height: 36,
             padding: '0 14px',
             borderRadius: INPUT_BORDER_RADIUS,
-            border: excluded ? '1px solid #6b7280' : '1px solid #e5e7eb',
-            background: excluded ? '#374151' : '#fff',
-            color: excluded ? '#fff' : '#6b7280',
+            border: excluded ? `1px solid ${DS.color.text.secondary}` : `1px solid ${DS.color.border.subtle}`,
+            background: excluded ? DS.color.text.body : DS.color.bg.secondary,
+            color: excluded ? DS.color.bg.secondary : DS.color.text.secondary,
             fontSize: 12,
             fontWeight: 600,
             fontFamily: 'inherit',
@@ -899,8 +900,8 @@ export function SharedExpensePage() {
             minWidth: 0,
             minHeight: 40,
             borderRadius: INPUT_BORDER_RADIUS,
-            background: '#fff',
-            border: '1px solid #e5e7eb',
+            background: DS.color.bg.secondary,
+            border: `1px solid ${DS.color.border.subtle}`,
             boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
             boxSizing: 'border-box',
             overflow: 'hidden',
@@ -951,7 +952,7 @@ export function SharedExpensePage() {
                       borderRadius: 10,
                       border: active ? '1px solid rgba(79, 140, 255, 0.45)' : '1px solid transparent',
                       background: active ? PRIMARY_LIGHT : 'transparent',
-                      color: active ? PRIMARY : '#9ca3af',
+                      color: active ? PRIMARY : DS.color.text.muted,
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                       whiteSpace: 'nowrap',
@@ -972,7 +973,7 @@ export function SharedExpensePage() {
       {/* 합계 카드: 사용액 / 목표(공동 생활비 설정) */}
       {(() => {
         const overBudget = sharedLivingCostTarget > 0 && monthTotal > sharedLivingCostTarget
-        const usedColor = overBudget ? '#ef4444' : PRIMARY
+        const usedColor = overBudget ? DS.color.negative.main : PRIMARY
         const ratio = sharedLivingCostTarget > 0 ? Math.min(monthTotal / sharedLivingCostTarget, 1) : 0
         return (
           <div
@@ -987,7 +988,7 @@ export function SharedExpensePage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 2 }}>
+                <div style={{ fontSize: 12, color: DS.color.text.secondary, marginBottom: 2 }}>
                   {monthLabel} 사용액 / 목표
                 </div>
                 <div
@@ -1001,34 +1002,34 @@ export function SharedExpensePage() {
                   }}
                 >
                   <span style={{ color: usedColor }}>{fmtSum(monthTotal)}</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: '#9ca3af' }}>/</span>
-                  <span style={{ fontSize: 18, fontWeight: 600, color: '#6b7280' }}>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: DS.color.text.muted }}>/</span>
+                  <span style={{ fontSize: 18, fontWeight: 600, color: DS.color.text.secondary }}>
                     {sharedLivingCostTarget > 0 ? fmtSum(sharedLivingCostTarget) : '미설정'}
                   </span>
                 </div>
                 {overBudget && (
-                  <div style={{ fontSize: 12, color: '#ef4444', fontWeight: 600, marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: DS.color.negative.main, fontWeight: 600, marginTop: 4 }}>
                     ⚠️ 목표를 {fmtSum(monthTotal - sharedLivingCostTarget)} 초과했습니다
                   </div>
                 )}
                 {!overBudget && sharedLivingCostTarget > 0 && (
-                  <div style={{ fontSize: 12, color: '#0d9488', fontWeight: 600, marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: DS.color.positive.main, fontWeight: 600, marginTop: 4 }}>
                     남은 금액 {fmtSum(sharedLivingCostTarget - monthTotal)}
                   </div>
                 )}
                 {sharedLivingCostTarget === 0 && (
-                  <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 4 }}>
                     설정 페이지에서 월 공동 생활비를 설정하면 목표 대비 사용량을 볼 수 있습니다
                   </div>
                 )}
                 {monthExcludedTotal > 0 && (
-                  <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 4 }}>
                     제외 {fmtSum(monthExcludedTotal)} (합계에 미반영)
                   </div>
                 )}
               </div>
               {isFutureMonth && (
-                <div style={{ fontSize: 12, color: '#9ca3af' }}>미래 월은 입력할 수 없습니다</div>
+                <div style={{ fontSize: 12, color: DS.color.text.muted }}>미래 월은 입력할 수 없습니다</div>
               )}
             </div>
 
@@ -1038,7 +1039,7 @@ export function SharedExpensePage() {
                 style={{
                   width: '100%',
                   height: 6,
-                  background: '#f3f4f6',
+                  background: DS.color.bg.muted,
                   borderRadius: 999,
                   overflow: 'hidden',
                 }}
@@ -1084,9 +1085,9 @@ export function SharedExpensePage() {
             fontFamily: 'inherit',
             outline: 'none',
             boxSizing: 'border-box',
-            border: '1px solid #e5e7eb',
-            background: '#fff',
-            color: '#232d3c',
+            border: `1px solid ${DS.color.border.subtle}`,
+            background: DS.color.bg.secondary,
+            color: DS.color.text.primary,
           }}
         />
         <div style={{ minWidth: 120 }}>
@@ -1102,9 +1103,9 @@ export function SharedExpensePage() {
 
         {/* 필터 합계 (카테고리 드롭다운 바로 옆) */}
         {(filterCategory !== '전체' || searchQuery.trim()) && (
-          <div style={{ fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: 12, color: DS.color.text.secondary, whiteSpace: 'nowrap' }}>
             필터 합계: <strong style={{ color: PRIMARY }}>{fmtSum(filteredTotal)}</strong>{' '}
-            <span style={{ color: '#9ca3af' }}>({filteredEntries.length}건)</span>
+            <span style={{ color: DS.color.text.muted }}>({filteredEntries.length}건)</span>
           </div>
         )}
 
@@ -1117,8 +1118,8 @@ export function SharedExpensePage() {
             height: 36,
             padding: 3,
             borderRadius: 10,
-            background: '#f3f4f6',
-            border: '1px solid #e5e7eb',
+            background: DS.color.bg.muted,
+            border: `1px solid ${DS.color.border.subtle}`,
             gap: 2,
             marginLeft: 'auto',
             flexShrink: 0,
@@ -1138,8 +1139,8 @@ export function SharedExpensePage() {
                   height: '100%',
                   borderRadius: 8,
                   border: 'none',
-                  background: active ? '#fff' : 'transparent',
-                  color: active ? PRIMARY : '#6b7280',
+                  background: active ? DS.color.bg.secondary : 'transparent',
+                  color: active ? PRIMARY : DS.color.text.secondary,
                   fontSize: 12,
                   fontWeight: active ? 700 : 500,
                   cursor: 'pointer',
@@ -1171,7 +1172,7 @@ export function SharedExpensePage() {
             ...jellyCardStyle,
             padding: '40px 24px',
             textAlign: 'center',
-            color: '#9ca3af',
+            color: DS.color.text.muted,
             fontSize: 14,
             lineHeight: 1.6,
           }}
@@ -1186,7 +1187,7 @@ export function SharedExpensePage() {
             ...jellyCardStyle,
             padding: '32px 24px',
             textAlign: 'center',
-            color: '#9ca3af',
+            color: DS.color.text.muted,
             fontSize: 13,
           }}
         >
@@ -1415,9 +1416,9 @@ export function SharedExpensePage() {
                 height: 36,
                 padding: '0 14px',
                 borderRadius: JELLY.radiusControl,
-                border: editForm.creditCard ? '1px solid #c2410c' : '1px solid #e5e7eb',
-                background: editForm.creditCard ? '#fff7ed' : '#fff',
-                color: editForm.creditCard ? '#c2410c' : '#6b7280',
+                border: editForm.creditCard ? `1px solid ${DS.color.warning.text}` : `1px solid ${DS.color.border.subtle}`,
+                background: editForm.creditCard ? DS.color.warning.soft : DS.color.bg.secondary,
+                color: editForm.creditCard ? DS.color.warning.text : DS.color.text.secondary,
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -1434,9 +1435,9 @@ export function SharedExpensePage() {
                   height: 36,
                   padding: '0 14px',
                   borderRadius: JELLY.radiusControl,
-                  border: editForm.cardSettled ? '1px solid #15803d' : '1px solid #e5e7eb',
-                  background: editForm.cardSettled ? '#dcfce7' : '#fff',
-                  color: editForm.cardSettled ? '#15803d' : '#6b7280',
+                  border: editForm.cardSettled ? `1px solid ${DS.color.positive.main}` : `1px solid ${DS.color.border.subtle}`,
+                  background: editForm.cardSettled ? DS.color.positive.soft : DS.color.bg.secondary,
+                  color: editForm.cardSettled ? DS.color.positive.main : DS.color.text.secondary,
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -1453,9 +1454,9 @@ export function SharedExpensePage() {
                 height: 36,
                 padding: '0 14px',
                 borderRadius: JELLY.radiusControl,
-                border: editForm.excluded ? '1px solid #6b7280' : '1px solid #e5e7eb',
-                background: editForm.excluded ? '#374151' : '#fff',
-                color: editForm.excluded ? '#fff' : '#6b7280',
+                border: editForm.excluded ? `1px solid ${DS.color.text.secondary}` : `1px solid ${DS.color.border.subtle}`,
+                background: editForm.excluded ? DS.color.text.body : DS.color.bg.secondary,
+                color: editForm.excluded ? DS.color.bg.secondary : DS.color.text.secondary,
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -1473,10 +1474,10 @@ export function SharedExpensePage() {
             style={{
               padding: '8px 14px',
               borderRadius: JELLY.radiusControl,
-              border: '1px solid #fca5a5',
-              background: '#fff',
+              border: `1px solid ${DS.color.negative.border}`,
+              background: DS.color.bg.secondary,
               fontSize: 13,
-              color: '#ef4444',
+              color: DS.color.negative.main,
               cursor: 'pointer',
             }}
           >
@@ -1489,8 +1490,8 @@ export function SharedExpensePage() {
               style={{
                 padding: '8px 14px',
                 borderRadius: JELLY.radiusControl,
-                border: '1px solid #e5e7eb',
-                background: '#fff',
+                border: `1px solid ${DS.color.border.subtle}`,
+                background: DS.color.bg.secondary,
                 fontSize: 13,
                 cursor: 'pointer',
               }}
@@ -1506,8 +1507,8 @@ export function SharedExpensePage() {
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: editForm.name.trim() && editForm.amount ? 'pointer' : 'not-allowed',
-                background: editForm.name.trim() && editForm.amount ? PRIMARY : '#e5e7eb',
-                color: editForm.name.trim() && editForm.amount ? '#fff' : '#9ca3af',
+                background: editForm.name.trim() && editForm.amount ? PRIMARY : DS.color.border.subtle,
+                color: editForm.name.trim() && editForm.amount ? DS.color.bg.secondary : DS.color.text.muted,
               }}
             >
               저장
@@ -1525,11 +1526,11 @@ export function SharedExpensePage() {
 const archiveBtnStyle: React.CSSProperties = {
   padding: '8px 14px',
   borderRadius: 8,
-  border: '1px solid #e5e7eb',
-  background: '#fff',
+  border: `1px solid ${DS.color.border.subtle}`,
+  background: DS.color.bg.secondary,
   fontSize: 12,
   fontWeight: 500,
-  color: '#374151',
+  color: DS.color.text.body,
   cursor: 'pointer',
   whiteSpace: 'nowrap',
   flexShrink: 0,
@@ -1545,5 +1546,5 @@ const modalInputStyle: React.CSSProperties = {
   outline: 'none',
   boxSizing: 'border-box',
   ...jellyInputSurface,
-  color: '#232d3c',
+  color: DS.color.text.primary,
 }

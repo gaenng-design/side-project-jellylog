@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { JELLY } from '@/styles/jellyGlass'
 import { PRIMARY } from '@/styles/formControls'
+import { DS } from '@/design-system/tokens'
 
 /** 월별 금액 셀 — 클릭하면 입력 모드 */
 export function AmountCell({
@@ -53,7 +54,7 @@ export function AmountCell({
           textAlign: 'right',
           outline: 'none',
           boxSizing: 'border-box',
-          background: '#fff',
+          background: DS.color.bg.secondary,
           fontFamily: 'inherit',
           color: JELLY.text,
         }}
@@ -74,8 +75,8 @@ export function AmountCell({
         padding: '0 8px',
         fontSize: 12,
         color: projected
-          ? (value === 0 ? '#d1d5db' : '#9ca3af')  // 예측값: 회색
-          : (value === 0 ? '#d1d5db' : JELLY.text),
+          ? (value === 0 ? DS.color.border.default : DS.color.text.muted)  // 예측값: 회색
+          : (value === 0 ? DS.color.border.default : JELLY.text),
         cursor: (disabled || projected) ? 'default' : 'pointer',
         userSelect: 'none',
         background: projected
@@ -145,7 +146,7 @@ export function SignedAmountCell({
           textAlign: 'right',
           outline: 'none',
           boxSizing: 'border-box',
-          background: '#fff',
+          background: DS.color.bg.secondary,
           fontFamily: 'inherit',
           color: JELLY.text,
         }}
@@ -167,7 +168,7 @@ export function SignedAmountCell({
         justifyContent: 'flex-end',
         padding: '0 8px',
         fontSize: 12,
-        color: isNeg ? '#dc2626' : isPos ? '#059669' : '#d1d5db',
+        color: isNeg ? DS.color.negative.main : isPos ? DS.color.positive.main : DS.color.border.default,
         cursor: (disabled || projected) ? 'default' : 'pointer',
         userSelect: 'none',
         background: 'transparent',

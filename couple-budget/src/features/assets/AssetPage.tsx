@@ -16,6 +16,7 @@ import { AddItemModal } from './components/AddItemModal'
 import { EditItemModal } from './components/EditItemModal'
 import { MonthlyBalanceModal } from './components/MonthlyBalanceModal'
 import { MaturityAlerts } from './components/MaturityAlerts'
+import { DS } from '@/design-system/tokens'
 
 export function AssetPage() {
   const model = useAssetModel()
@@ -59,7 +60,7 @@ export function AssetPage() {
               borderRadius: 999,
               border: 'none',
               background: PRIMARY,
-              color: '#fff',
+              color: DS.color.text.inverse,
               cursor: 'pointer',
               fontFamily: 'inherit',
               whiteSpace: 'nowrap',
@@ -87,7 +88,7 @@ export function AssetPage() {
 
       {/* 항목 접기 안내 */}
       {sortedItems.length > 0 && collapsedItems.size > 0 && (
-        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 8 }}>
+        <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 8 }}>
           접힌 항목 {collapsedItems.size}개 · 총합은 변경되지 않습니다.
           <button
             type="button"
@@ -96,8 +97,8 @@ export function AssetPage() {
               marginLeft: 8,
               padding: '2px 8px',
               fontSize: 11,
-              border: '1px solid #b3b8c1',
-              background: '#fff',
+              border: `1px solid ${DS.color.border.strong}`,
+              background: DS.color.bg.secondary,
               borderRadius: 6,
               cursor: 'pointer',
               color: PRIMARY,

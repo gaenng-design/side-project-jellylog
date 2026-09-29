@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE } from '@/styles/formControls'
 import { JELLY, jellyInputSurface } from '@/styles/jellyGlass'
+import { DS } from '@/design-system/tokens'
 
 /** 포맷된 문자열에서 왼쪽부터 `digitOffset`개의 숫자 뒤에 해당하는 문자 인덱스(커서 위치) */
 function cursorIndexAfterDigitOffset(formatted: string, digitOffset: number): number {
@@ -98,7 +99,7 @@ export function AmountInput({
             : {
                 ...jellyInputSurface,
               }),
-          color: '#232d3c',
+          color: DS.color.text.primary,
         }}
       />
       <span

@@ -15,6 +15,7 @@ import {
 import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { DropdownArrowIcon } from './DropdownArrowIcon'
+import { DS } from '@/design-system/tokens'
 
 type YearSelectDropdownProps = {
   value: number
@@ -50,9 +51,9 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
     minHeight: INPUT_HEIGHT,
     padding: DROPDOWN_PADDING_COMPACT,
     borderRadius: INPUT_BORDER_RADIUS,
-    border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
-    background: '#fff',
-    color: '#111827',
+    border: `1px solid ${open ? PRIMARY : DS.color.border.subtle}`,
+    background: DS.color.bg.secondary,
+    color: DS.color.text.primary,
     fontSize: 12,
     fontWeight: 500,
     lineHeight: 1,
@@ -74,7 +75,7 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
   const panelStyle =
     variant === 'dark'
       ? {
-          background: '#ffffff',
+          background: DS.color.bg.secondary,
           border: '1px solid rgba(15, 23, 42, 0.06)',
           boxShadow: '0 8px 24px rgba(15, 23, 42, 0.1)',
         }

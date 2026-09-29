@@ -9,6 +9,7 @@ import {
   jellyInputSurface,
 } from '@/styles/jellyGlass'
 import { pageTitleH1Style, settingsSectionCardWithBleedTitleStyle, settingsSectionTitleWrapForViewport } from '@/styles/formControls'
+import { DS } from '@/design-system/tokens'
 
 export function GitHubSyncPanel() {
   const narrow = useNarrowLayout()
@@ -100,7 +101,7 @@ export function GitHubSyncPanel() {
               href="https://github.com/settings/tokens"
               target="_blank"
               rel="noreferrer"
-              style={{ color: '#3b82f6', textDecoration: 'none' }}
+              style={{ color: DS.color.info, textDecoration: 'none' }}
             >
               GitHub Personal Access Token
             </a>
@@ -230,7 +231,7 @@ export function GitHubSyncPanel() {
                 padding: '10px 12px',
                 borderRadius: 8,
                 fontSize: 12,
-                color: message.tone === 'ok' ? '#059669' : '#dc2626',
+                color: message.tone === 'ok' ? DS.color.positive.main : DS.color.negative.main,
                 background: message.tone === 'ok' ? 'rgba(5, 150, 105, 0.1)' : 'rgba(220, 38, 38, 0.1)',
                 lineHeight: 1.5,
               }}
@@ -268,9 +269,9 @@ export function GitHubSyncPanel() {
           style={{
             padding: '10px 18px',
             borderRadius: 12,
-            border: '1px solid #4f8cff',
-            background: '#ffffff',
-            color: '#4f8cff',
+            border: `1px solid ${DS.color.primary}`,
+            background: DS.color.bg.secondary,
+            color: DS.color.primary,
             cursor: 'pointer',
             fontSize: 14,
             fontWeight: 600,
@@ -286,7 +287,7 @@ export function GitHubSyncPanel() {
             padding: '12px 16px',
             ...jellyCardStyle,
             fontSize: 13,
-            color: message.tone === 'ok' ? '#059669' : '#dc2626',
+            color: message.tone === 'ok' ? DS.color.positive.main : DS.color.negative.main,
             background: message.tone === 'ok' ? 'rgba(5, 150, 105, 0.1)' : 'rgba(220, 38, 38, 0.1)',
             lineHeight: 1.5,
             marginTop: narrow ? 20 : 0,

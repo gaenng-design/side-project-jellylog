@@ -2,6 +2,7 @@ import { ASSET_CATEGORIES } from '@/store/useAssetStore'
 import { PRIMARY, INPUT_BORDER_RADIUS } from '@/styles/formControls'
 import { fmtMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
+import { DS } from '@/design-system/tokens'
 
 /** 카테고리 필터 탭 (+ 항목 추가 버튼) */
 export function CategoryTabs({ model, categoryFilter, onSelect, onAddItem }: { model: AssetModel; categoryFilter: string; onSelect: (cat: string) => void; onAddItem: () => void }) {
@@ -26,11 +27,11 @@ export function CategoryTabs({ model, categoryFilter, onSelect, onAddItem }: { m
             style={{
               padding: '6px 14px',
               borderRadius: 20,
-              border: active ? `1.5px solid ${PRIMARY}` : '1.5px solid #e5e7eb',
-              background: active ? `rgba(79,140,255,0.1)` : '#fff',
+              border: active ? `1.5px solid ${PRIMARY}` : `1.5px solid ${DS.color.border.subtle}`,
+              background: active ? `rgba(79,140,255,0.1)` : DS.color.bg.secondary,
               fontSize: 12,
               fontWeight: active ? 600 : 400,
-              color: active ? PRIMARY : '#6b7280',
+              color: active ? PRIMARY : DS.color.text.secondary,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -39,7 +40,7 @@ export function CategoryTabs({ model, categoryFilter, onSelect, onAddItem }: { m
           >
             {cat}
             {total > 0 && (
-              <span style={{ fontSize: 11, color: active ? PRIMARY : '#9ca3af' }}>
+              <span style={{ fontSize: 11, color: active ? PRIMARY : DS.color.text.muted }}>
                 {fmtMan(Math.round(total / 10000))}
               </span>
             )}

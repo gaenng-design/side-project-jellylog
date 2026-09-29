@@ -17,6 +17,7 @@ import {
   DROPDOWN_ITEM_PADDING_REGULAR,
 } from '@/styles/formControls'
 import { DropdownArrowIcon } from './DropdownArrowIcon'
+import { DS } from '@/design-system/tokens'
 
 const DAY_OPTIONS = [
   { value: undefined as number | undefined, label: '미정' },
@@ -32,7 +33,7 @@ function formatPayDay(v: number | null | undefined): string {
 
 /** Modal 오버레이(12000) 위에 보이도록 — CustomSelect 포털과 동일 계열 */
 const dropdownStyle = {
-  background: '#fff',
+  background: DS.color.bg.secondary,
   border: INPUT_BORDER,
   borderRadius: INPUT_BORDER_RADIUS,
   boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
@@ -133,9 +134,9 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
         gap: 6,
         fontSize: 12,
         borderRadius: INPUT_BORDER_RADIUS,
-        border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
-        background: '#fff',
-        color: displayValue ? '#111827' : '#6b7280',
+        border: `1px solid ${open ? PRIMARY : DS.color.border.subtle}`,
+        background: DS.color.bg.secondary,
+        color: displayValue ? DS.color.text.primary : DS.color.text.secondary,
         cursor: disabled ? 'not-allowed' : 'pointer',
         whiteSpace: 'nowrap' as const,
         overflow: 'hidden',
@@ -146,11 +147,11 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
         height: INPUT_HEIGHT,
         ...triggerFixedW,
         padding: DROPDOWN_PADDING_REGULAR,
-        border: `1px solid ${open ? PRIMARY : '#e5e7eb'}`,
+        border: `1px solid ${open ? PRIMARY : DS.color.border.subtle}`,
         borderRadius: INPUT_BORDER_RADIUS,
         fontSize: INPUT_FONT_SIZE,
-        color: displayValue ? '#111827' : '#6b7280',
-        background: '#fff',
+        color: displayValue ? DS.color.text.primary : DS.color.text.secondary,
+        background: DS.color.bg.secondary,
         textAlign: 'left' as const,
         cursor: disabled ? 'not-allowed' : 'pointer',
         display: 'flex',
@@ -221,7 +222,7 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
                     alignItems: 'center',
                     fontSize: compact ? 12 : INPUT_FONT_SIZE,
                     cursor: 'pointer',
-                    color: isSelected ? PRIMARY : '#374151',
+                    color: isSelected ? PRIMARY : DS.color.text.body,
                     background: isSelected ? PRIMARY_LIGHT : 'transparent',
                     fontWeight: isSelected ? 600 : 400,
                   }}

@@ -8,6 +8,7 @@ import { ym } from '@/lib/assetCalc'
 import type { AssetItem } from '@/types'
 import { MONTHS, fmtSum, savingsTypeLabel } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
+import { DS } from '@/design-system/tokens'
 
 /** 부호 있는 금액 표시 (예: -120000 → "-120,000") */
 const formatSigned = (v: string): string => {
@@ -73,7 +74,7 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
     const isEstimated = getEntry(item.id, currentYM) === 0 && parseAmount(balances[item.id] ?? '') !== 0
     const sub = item.category === '저축' ? savingsTypeLabel(item.savingsType) : null
     return (
-      <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '10px 0', borderTop: '1px solid #f3f4f6' }}>
+      <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '10px 0', borderTop: `1px solid ${DS.color.bg.muted}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ flex: '1 1 0', minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -87,11 +88,11 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
             </div>
             {(sub || isEstimated) && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, paddingLeft: 14 }}>
-                {sub && <span style={{ fontSize: 11, color: '#9ca3af' }}>{sub}</span>}
+                {sub && <span style={{ fontSize: 11, color: DS.color.text.muted }}>{sub}</span>}
                 {isEstimated && (
                   <span
                     title="이번 달 입력값이 없어 추정한 금액입니다"
-                    style={{ fontSize: 10, color: '#6b7280', background: '#f3f4f6', borderRadius: 999, padding: '1px 6px' }}
+                    style={{ fontSize: 10, color: DS.color.text.secondary, background: DS.color.bg.muted, borderRadius: 999, padding: '1px 6px' }}
                   >
                     추정
                   </span>
@@ -109,7 +110,7 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
         </div>
         {item.category === '투자' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ flex: '1 1 0', fontSize: 11, color: '#6b7280', paddingLeft: 14 }}>평가 손익 (+/−)</span>
+            <span style={{ flex: '1 1 0', fontSize: 11, color: DS.color.text.secondary, paddingLeft: 14 }}>평가 손익 (+/−)</span>
             <div style={{ flex: '0 0 52%' }}>
               <input
                 value={formatSigned(pnls[item.id] ?? '')}
@@ -139,27 +140,27 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
 
   return (
     <Modal open title={`${currentYear}년 ${MONTHS[currentMonth]} 잔액 입력`} onClose={onClose}>
-      <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>
+      <div style={{ fontSize: 12, color: DS.color.text.secondary, marginBottom: 8 }}>
         통장·증권 앱에 보이는 이번 달 잔액을 입력하세요. 비어 있던 칸은 추정값으로 채워져 있어요.
       </div>
       {activeItems.length === 0 ? (
-        <div style={{ padding: '24px 0', textAlign: 'center', fontSize: 13, color: '#9ca3af' }}>
+        <div style={{ padding: '24px 0', textAlign: 'center', fontSize: 13, color: DS.color.text.muted }}>
           입력할 자산 항목이 없습니다.
         </div>
       ) : (
         categories.map((cat) => (
           <div key={cat} style={{ marginTop: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#374151', marginBottom: 2 }}>{cat}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: DS.color.text.body, marginBottom: 2 }}>{cat}</div>
             {activeItems.filter((i) => i.category === cat).map(row)}
           </div>
         ))
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTop: '1px solid #e5e7eb' }}>
-        <span style={{ fontSize: 12, color: '#6b7280' }}>합계</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTop: `1px solid ${DS.color.border.subtle}` }}>
+        <span style={{ fontSize: 12, color: DS.color.text.secondary }}>합계</span>
         <span style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>{fmtSum(total)}</span>
       </div>
-      <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 6 }}>
+      <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 6 }}>
         저장하면 추정값도 이번 달 실제 값으로 확정됩니다.
       </div>
 
@@ -167,7 +168,7 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
         <button
           type="button"
           onClick={onClose}
-          style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: '1px solid #b3b8c1', background: '#fff', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.strong}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           취소
         </button>
@@ -175,7 +176,7 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
           type="button"
           onClick={save}
           disabled={activeItems.length === 0}
-          style={{ padding: '8px 16px', borderRadius: JELLY.radiusControl, border: 'none', background: PRIMARY, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ padding: '8px 16px', borderRadius: JELLY.radiusControl, border: 'none', background: PRIMARY, color: DS.color.text.inverse, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           저장
         </button>

@@ -153,8 +153,8 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
               {/* 가로 그리드 */}
               {yTicks.map((t, i) => (
                 <g key={i}>
-                  <line x1={padL} x2={W - padR} y1={t.y} y2={t.y} stroke="#e5e7eb" strokeDasharray={i === 0 ? '0' : '3 3'} />
-                  <text x={padL - 6} y={t.y + 4} fontSize="10" fill="#9ca3af" textAnchor="end" style={tabularNums}>
+                  <line x1={padL} x2={W - padR} y1={t.y} y2={t.y} stroke={DS.color.border.subtle} strokeDasharray={i === 0 ? '0' : '3 3'} />
+                  <text x={padL - 6} y={t.y + 4} fontSize="10" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
                     {formatKRShort(t.value)}
                   </text>
                 </g>
@@ -173,7 +173,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
                       cx={pointX(i)}
                       cy={pointY(v)}
                       r={isCurrent ? 5 : 3}
-                      fill="#fff"
+                      fill={DS.color.bg.secondary}
                       stroke={PRIMARY}
                       strokeWidth={isCurrent ? 2.5 : 1.8}
                     />
@@ -182,7 +182,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
               })}
               {/* x축 라벨 */}
               {MONTHS_LABEL.map((m, i) => (
-                <text key={i} x={pointX(i)} y={H - 6} fontSize="10" fill="#9ca3af" textAnchor="middle">
+                <text key={i} x={pointX(i)} y={H - 6} fontSize="10" fill={DS.color.text.muted} textAnchor="middle">
                   {m}월
                 </text>
               ))}
@@ -225,14 +225,14 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
                 const ty = Math.max(padT, pointY(total) - boxH - 6)
                 return (
                   <g pointerEvents="none">
-                    <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill="#111827" opacity={0.92} />
+                    <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill={DS.color.text.primary} opacity={0.92} />
                     {lines.map((l, li) => (
                       <text
                         key={li}
                         x={tx + padX}
                         y={ty + padY + (li + 1) * lineH - 3}
                         fontSize="10.5"
-                        fill={li === 0 ? '#9ca3af' : '#fff'}
+                        fill={li === 0 ? DS.color.text.muted : DS.color.bg.secondary}
                         style={tabularNums}
                       >
                         {l}
