@@ -1008,13 +1008,48 @@ export function AssetPage() {
     if (yr * 100 + monthIdx <= editableBoundary) {
       return getEffectiveEntry(item, yr, monthIdx)
     }
-    // 미래 달: 현재 달의 유효값을 베이스로 defaultAmount * 경과개월 적용
+    // 미래 달: 현재 달의 유효값을 베이스로 계산
     const base = getEffectiveEntry(item, currentYear, currentMonth)
     const gap = (yr - currentYear) * 12 + (monthIdx - currentMonth)
-    if (item.defaultAmount && item.defaultAmount > 0) {
-      return base + item.defaultAmount * gap
+    const rate = (item.category === '저축' && item.interestRate) ? item.interestRate / 100 : 0
+    const monthly = item.defaultAmount && item.defaultAmount > 0 ? item.defaultAmount : 0
+    if (rate > 0 && item.category === '저축') {
+      if (item.savingsType === 'deposit') {
+        // 예금: 원금에 단리 이자 적용
+        return base * (1 + rate * gap / 12)
+      } else if (item.savingsType === 'installment') {
+        // 적금: 현재 잔액 이자 + 납입분 + 납입분 이자
+        const interestOnBase = base * rate * gap / 12
+        const futureDeposits = monthly * gap
+        const interestOnFuture = monthly * (rate / 12) * (gap * (gap - 1) / 2)
+        return base + interestOnBase + futureDeposits + interestOnFuture
+      }
     }
+    if (monthly > 0) return base + monthly * gap
     return base
+  }
+
+  /** 저축 항목의 누적 이자 (원금 대비 수익 계산용) */
+  const getSavingsCumulativeInterest = (item: AssetItem, yr: number, mi: number): number => {
+    if (item.category !== '저축' || !item.interestRate || item.savingsType === 'checking') return 0
+    const rate = item.interestRate / 100
+    // 가장 오래된 entry 찾기
+    const itemEntries = entries.filter((e) => e.itemId === item.id)
+    if (itemEntries.length === 0) return 0
+    const earliest = itemEntries.reduce((min, e) => (e.yearMonth < min ? e.yearMonth : min), itemEntries[0].yearMonth)
+    const [eYr, eMo] = earliest.split('-').map(Number)
+    const startYr = eYr
+    const startMi = eMo - 1
+    const elapsed = (yr - startYr) * 12 + (mi - startMi)
+    if (elapsed <= 0) return 0
+    const principal = getEntry(item.id, ym(startYr, startMi))
+    if (item.savingsType === 'deposit') {
+      return principal * rate * elapsed / 12
+    } else {
+      // 적금: 매달 납입분 이자 누적 = monthly × rate/12 × Σ(elapsed, elapsed-1, ..., 1)
+      const monthly = item.defaultAmount ?? 0
+      return monthly * (rate / 12) * elapsed * (elapsed + 1) / 2
+    }
   }
 
   const personAName = settings.personAName || '유저 1'
@@ -1614,6 +1649,16 @@ export function AssetPage() {
         const summaryTotals = summaryMonths.map(({ yr, mi }) =>
           sortedItems.reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
         )
+        // 원금 대비 수익: 투자 P&L + 저축 누적 이자
+        const summaryGains = summaryMonths.map(({ yr, mi }) => {
+          const investPnl = sortedItems
+            .filter((item) => item.category === '투자')
+            .reduce((sum, item) => sum + getCostBasisEntry(item.id, ym(yr, mi)), 0)
+          const savingsInterest = sortedItems
+            .filter((item) => item.category === '저축')
+            .reduce((sum, item) => sum + getSavingsCumulativeInterest(item, yr, mi), 0)
+          return investPnl + savingsInterest
+        })
         return (
           <div style={{ marginBottom: 16, background: '#f9fafb', borderRadius: 10, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
             <div style={{ padding: '10px 14px', fontWeight: 700, fontSize: 13, color: '#111827', borderBottom: '1px solid #e5e7eb', background: '#fff' }}>
@@ -1626,6 +1671,7 @@ export function AssetPage() {
                     <th style={{ padding: '6px 12px', textAlign: 'left', color: '#6b7280', fontWeight: 500, minWidth: 80 }}>월</th>
                     <th style={{ padding: '6px 12px', textAlign: 'right', color: '#6b7280', fontWeight: 500, minWidth: 90 }}>총 자산</th>
                     <th style={{ padding: '6px 12px', textAlign: 'right', color: '#6b7280', fontWeight: 500, minWidth: 80 }}>전월 대비</th>
+                    <th style={{ padding: '6px 12px', textAlign: 'right', color: '#6b7280', fontWeight: 500, minWidth: 90 }}>원금 대비 수익</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1633,6 +1679,8 @@ export function AssetPage() {
                     const total = summaryTotals[idx]
                     const prev = idx > 0 ? summaryTotals[idx - 1] : null
                     const delta = prev !== null ? total - prev : null
+                    const gain = summaryGains[idx]
+                    const gainColor = gain === 0 ? '#9ca3af' : gain > 0 ? '#059669' : '#dc2626'
                     const isCurrentMonth = idx === summaryMonths.length - 1
                     return (
                       <tr key={label} style={{ borderTop: '1px solid #e5e7eb', background: isCurrentMonth ? '#eff6ff' : undefined }}>
@@ -1644,6 +1692,9 @@ export function AssetPage() {
                         </td>
                         <td style={{ padding: '6px 12px', textAlign: 'right', color: delta === null ? '#9ca3af' : delta >= 0 ? '#059669' : '#dc2626', fontWeight: 500 }}>
                           {delta === null ? '—' : `${delta >= 0 ? '+' : ''}${fmtMan(Math.round(Math.abs(delta / 10000)))}원`}
+                        </td>
+                        <td style={{ padding: '6px 12px', textAlign: 'right', color: gainColor, fontWeight: 600 }}>
+                          {gain === 0 ? '—' : `${gain > 0 ? '+' : ''}${fmtMan(Math.round(gain / 10000))}원`}
                         </td>
                       </tr>
                     )
