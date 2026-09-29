@@ -15,6 +15,7 @@ import { AssetMonthsSection } from './components/AssetMonthsSection'
 import { AddItemModal } from './components/AddItemModal'
 import { EditItemModal } from './components/EditItemModal'
 import { MonthlyBalanceModal } from './components/MonthlyBalanceModal'
+import { MaturityAlerts } from './components/MaturityAlerts'
 
 export function AssetPage() {
   const model = useAssetModel()
@@ -70,6 +71,8 @@ export function AssetPage() {
       </div>
 
       <AssetSummaryHeader model={model} />
+
+      <MaturityAlerts model={model} />
 
       <CategoryTabs
         model={model}
