@@ -1786,14 +1786,25 @@ export function AssetPage() {
                     {plannedDeposits === 0 ? '—' : `+${fmtMan(Math.round(plannedDeposits / 10000))}원`}
                   </span>
                 </div>
-                {savingsInterestD !== 0 && (
+                {savingsInterestD > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: savingsInterestD > 0 ? '#059669' : '#dc2626', flexShrink: 0 }} />
+                      <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: '#059669', flexShrink: 0 }} />
                       <span style={{ fontSize: 12, color: '#374151' }}>저축 이자</span>
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: savingsInterestD > 0 ? '#059669' : '#dc2626' }}>
-                      {`${savingsInterestD > 0 ? '+' : ''}${fmtMan(Math.round(savingsInterestD / 10000))}원`}
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>
+                      {`+${fmtMan(Math.round(savingsInterestD / 10000))}원`}
+                    </span>
+                  </div>
+                )}
+                {savingsInterestD < 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: '#dc2626', flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, color: '#374151' }}>저축 출금·감소</span>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#dc2626' }}>
+                      {`${fmtMan(Math.round(savingsInterestD / 10000))}원`}
                     </span>
                   </div>
                 )}
