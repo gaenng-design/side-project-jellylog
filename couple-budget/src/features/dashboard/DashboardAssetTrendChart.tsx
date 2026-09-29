@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { DS } from '@/design-system/tokens'
 import { Card } from '@/design-system/components/Card'
-import { useAssetStore } from '@/store/useAssetStore'
+import { useAssetStore, ASSET_CATEGORIES } from '@/store/useAssetStore'
+import type { AssetItem } from '@/types'
 import { useAppStore } from '@/store/useAppStore'
 import { PRIMARY } from '@/styles/formControls'
 import { useChartTooltip } from './useChartTooltip'
@@ -50,9 +51,25 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
   const [curYStr, curMStr] = currentYearMonth.split('-')
   const currentYear = parseInt(curYStr, 10)
   const currentMonth = parseInt(curMStr, 10) - 1
-  void entries
-
   const { totalSeries, availableSeries, max, lastIdx } = useMemo(() => {
+    const getItemAmount = (item: AssetItem, ymStr: string): number => {
+      const stored = getEntry(item.id, ymStr)
+      if (stored !== 0) return stored
+      if (item.closedYM && ymStr >= item.closedYM) return 0
+      const itemEntries = entries.filter((e) => e.itemId === item.id)
+      if (itemEntries.length === 0) return 0
+      const prevEntry = [...itemEntries]
+        .sort((a, b) => a.yearMonth.localeCompare(b.yearMonth))
+        .reverse()
+        .find((e) => e.yearMonth <= ymStr)
+      if (!prevEntry) return 0
+      if (!item.defaultAmount || item.defaultAmount <= 0) return prevEntry.amount
+      const [py, pm] = prevEntry.yearMonth.split('-').map(Number)
+      const [ty, tm] = ymStr.split('-').map(Number)
+      return prevEntry.amount + item.defaultAmount * ((ty - py) * 12 + (tm - pm))
+    }
+
+    const assetItems = items.filter((i) => ASSET_CATEGORIES.includes(i.category))
     const total: (number | null)[] = []
     const avail: (number | null)[] = []
     let last = 11
@@ -65,16 +82,16 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
         continue
       }
       const monthYM = ym(year, mi)
-      const t = items.reduce((sum, item) => sum + getEntry(item.id, monthYM), 0)
-      const a = items
+      const t = assetItems.reduce((sum, item) => sum + getItemAmount(item, monthYM), 0)
+      const a = assetItems
         .filter((item) => !item.locked)
-        .reduce((sum, item) => sum + getEntry(item.id, monthYM), 0)
+        .reduce((sum, item) => sum + getItemAmount(item, monthYM), 0)
       total.push(t)
       avail.push(a)
     }
     const maxVal = Math.max(...total.map((v) => v ?? 0), 1)
     return { totalSeries: total, availableSeries: avail, max: maxVal, lastIdx: last }
-  }, [items, getEntry, year, currentYear, currentMonth])
+  }, [items, entries, getEntry, year, currentYear, currentMonth])
 
   const allZero = totalSeries.every((v) => v === null || v === 0)
   const { activeIdx, svgRef, setHover, setClick } = useChartTooltip()

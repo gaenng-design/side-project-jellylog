@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { DS } from '@/design-system/tokens'
 import { Card } from '@/design-system/components/Card'
 import { useAppStore } from '@/store/useAppStore'
-import { useAssetStore } from '@/store/useAssetStore'
+import { useAssetStore, ASSET_CATEGORIES } from '@/store/useAssetStore'
+import type { AssetItem } from '@/types'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { PRIMARY } from '@/styles/formControls'
@@ -38,35 +39,67 @@ export function DashboardSummaryCards() {
   const items = useAssetStore((s) => s.items)
   const entries = useAssetStore((s) => s.entries)
   const getEntry = useAssetStore((s) => s.getEntry)
-  void entries
+  const getCostBasisEntry = useAssetStore((s) => s.getCostBasisEntry)
 
   // 공동 생활비 store
   const sharedEntries = useSharedExpenseStore((s) => s.entries)
   const sharedMonthlyOverride = usePlanExtraStore((s) => s.sharedLivingCostByMonth[currentYM])
 
   const stats = useMemo(() => {
-    // 이번 달 총 자산
-    const totalAsset = items.reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
-    // 가용 자산 (locked 아닌 항목만) — 더 이상 카드로 노출하지 않지만 잠긴 돈 표시에 필요
-    const availableAsset = items
+    const getItemAmount = (item: AssetItem, ymStr: string): number => {
+      const stored = getEntry(item.id, ymStr)
+      if (stored !== 0) return stored
+      if (item.closedYM && ymStr >= item.closedYM) return 0
+      const itemEntries = entries.filter((e) => e.itemId === item.id)
+      if (itemEntries.length === 0) return 0
+      const prevEntry = [...itemEntries]
+        .sort((a, b) => a.yearMonth.localeCompare(b.yearMonth))
+        .reverse()
+        .find((e) => e.yearMonth <= ymStr)
+      if (!prevEntry) return 0
+      if (!item.defaultAmount || item.defaultAmount <= 0) return prevEntry.amount
+      const [py, pm] = prevEntry.yearMonth.split('-').map(Number)
+      const [ty, tm] = ymStr.split('-').map(Number)
+      return prevEntry.amount + item.defaultAmount * ((ty - py) * 12 + (tm - pm))
+    }
+
+    const assetItems = items.filter((i) => ASSET_CATEGORIES.includes(i.category))
+
+    // 이번 달 총 자산 (carry-forward 적용)
+    const totalAsset = assetItems.reduce((sum, item) => sum + getItemAmount(item, currentYM), 0)
+    // 가용 자산 (locked 아닌 항목만)
+    const availableAsset = assetItems
       .filter((item) => !item.locked)
-      .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
-    // 저축·투자 자산 (카테고리: 저축 또는 투자)
-    const savingsAsset = items
+      .reduce((sum, item) => sum + getItemAmount(item, currentYM), 0)
+    // 저축·투자 자산
+    const savingsAsset = assetItems
       .filter((item) => item.category === '저축' || item.category === '투자')
-      .reduce((sum, item) => sum + getEntry(item.id, currentYM), 0)
+      .reduce((sum, item) => sum + getItemAmount(item, currentYM), 0)
     // 전월 총 자산
-    const prevTotalAsset = items.reduce((sum, item) => sum + getEntry(item.id, prevYM), 0)
+    const prevTotalAsset = assetItems.reduce((sum, item) => sum + getItemAmount(item, prevYM), 0)
     const assetDelta = totalAsset - prevTotalAsset
 
-    // 연초(1월) 총 자산 — 데이터가 없으면 같은 연도 중 가장 이른 입력 월 사용
+    // 카테고리별 자산 합계
+    const categoryTotals = ASSET_CATEGORIES.map((cat) => ({
+      cat,
+      total: assetItems
+        .filter((i) => i.category === cat)
+        .reduce((sum, item) => sum + getItemAmount(item, currentYM), 0),
+    }))
+
+    // 투자 총 손익
+    const investItems = assetItems.filter((i) => i.category === '투자')
+    const investPnl = investItems.reduce((s, item) => s + getCostBasisEntry(item.id, currentYM), 0)
+    const investBalance = investItems.reduce((s, item) => s + getItemAmount(item, currentYM), 0)
+    const investBasis = investBalance - investPnl
+
+    // 연초(1월) 총 자산 — 데이터가 없으면 가장 이른 입력 월 사용
     let baselineYM = ym(year, 0)
-    let baselineAsset = items.reduce((sum, item) => sum + getEntry(item.id, baselineYM), 0)
+    let baselineAsset = assetItems.reduce((sum, item) => sum + getItemAmount(item, baselineYM), 0)
     if (baselineAsset === 0) {
-      // 1월 데이터가 없으면 현재 달까지 거슬러 올라가며 가장 이른 입력 월 탐색
       for (let mi = 1; mi <= monthIdx; mi++) {
         const candidate = ym(year, mi)
-        const sum = items.reduce((s, item) => s + getEntry(item.id, candidate), 0)
+        const sum = assetItems.reduce((s, item) => s + getItemAmount(item, candidate), 0)
         if (sum > 0) {
           baselineYM = candidate
           baselineAsset = sum
@@ -82,7 +115,6 @@ export function DashboardSummaryCards() {
     const sharedExpenseUsed = sharedEntries
       .filter((e) => e.yearMonth === currentYM && !e.excluded)
       .reduce((sum, e) => sum + e.amount, 0)
-    // 공동 생활비 목표 (월별 override 우선, 없으면 설정값)
     const sharedExpenseTarget = sharedMonthlyOverride ?? sharedLivingCostTarget
 
     return {
@@ -98,8 +130,12 @@ export function DashboardSummaryCards() {
       ytdPct,
       sharedExpenseUsed,
       sharedExpenseTarget,
+      categoryTotals,
+      investPnl,
+      investBalance,
+      investBasis,
     }
-  }, [items, getEntry, currentYM, prevYM, year, monthIdx, sharedEntries, sharedMonthlyOverride, sharedLivingCostTarget])
+  }, [items, entries, getEntry, getCostBasisEntry, currentYM, prevYM, year, monthIdx, sharedEntries, sharedMonthlyOverride, sharedLivingCostTarget])
 
   const sharedProgress =
     stats.sharedExpenseTarget > 0
@@ -305,7 +341,108 @@ export function DashboardSummaryCards() {
         )}
       </Card>
 
-      {/* 3. 공동 생활비 진행 */}
+      {/* 3. 카테고리별 자산 구성 */}
+      {stats.totalAsset > 0 && (() => {
+        const catColors: Record<string, string> = { 저축: '#3b82f6', 투자: '#8b5cf6', 부동산: '#f59e0b' }
+        return (
+          <Card variant="data" padding={4} hoverLift={false} style={{ gridColumn: '1 / -1' }}>
+            <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 8 }}>
+              🗂 카테고리별 자산 구성
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                width: '100%',
+                height: 14,
+                borderRadius: 999,
+                overflow: 'hidden',
+                gap: 2,
+              }}
+            >
+              {stats.categoryTotals.map(({ cat, total }) => {
+                const pct = stats.totalAsset > 0 ? (total / stats.totalAsset) * 100 : 0
+                if (pct < 0.5) return null
+                return (
+                  <div
+                    key={cat}
+                    style={{
+                      width: `${pct}%`,
+                      height: '100%',
+                      background: catColors[cat] ?? '#9ca3af',
+                      flexShrink: 0,
+                      borderRadius: 999,
+                    }}
+                  />
+                )
+              })}
+            </div>
+            <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap' }}>
+              {stats.categoryTotals.map(({ cat, total }) => {
+                const pct = stats.totalAsset > 0 ? (total / stats.totalAsset) * 100 : 0
+                return (
+                  <div key={cat} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: catColors[cat] ?? '#9ca3af',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: 11, color: DS.color.text.secondary }}>{cat}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: DS.color.text.primary, ...tabularNums }}>
+                      {fmt(total)}원
+                    </span>
+                    <span style={{ fontSize: 11, color: DS.color.text.secondary, ...tabularNums }}>
+                      ({pct.toFixed(1)}%)
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </Card>
+        )
+      })()}
+
+      {/* 4. 투자 총 손익 */}
+      {stats.investBalance > 0 && (
+        <Card variant="data" padding={4} hoverLift={false}>
+          <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
+            💹 투자 총 손익
+          </div>
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 700,
+              color: stats.investPnl > 0 ? '#16a34a' : stats.investPnl < 0 ? '#ef4444' : DS.color.text.primary,
+              ...tabularNums,
+            }}
+          >
+            {stats.investPnl > 0 ? '+' : stats.investPnl < 0 ? '-' : ''}
+            {fmt(Math.abs(stats.investPnl))}원
+          </div>
+          <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
+            원금 {fmt(stats.investBasis)}원
+            {stats.investBasis > 0 && (
+              <> · 수익률{' '}
+                <span
+                  style={{
+                    fontWeight: 600,
+                    color: stats.investPnl >= 0 ? '#16a34a' : '#ef4444',
+                  }}
+                >
+                  {stats.investPnl >= 0 ? '+' : ''}
+                  {((stats.investPnl / stats.investBasis) * 100).toFixed(2)}%
+                </span>
+              </>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* 5. 공동 생활비 진행 */}
       <Card variant="data" padding={4} hoverLift={false}>
         <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
           🏠 이번 달 공동 생활비
