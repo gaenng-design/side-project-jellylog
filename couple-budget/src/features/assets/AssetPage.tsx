@@ -1531,6 +1531,9 @@ export function AssetPage() {
               } else if (item.category === '투자') {
                 const pnl = getCostBasisEntry(item.id, currentYM)  // 평가 손익 (signed)
                 const isLoss = pnl < 0
+                const costBasis = currentVal - pnl  // 원금 = 잔고 - 손익
+                const pnlPct = costBasis !== 0 ? Math.round((pnl / costBasis) * 1000) / 10 : 0
+                const pnlColor = pnl === 0 ? '#6b7280' : isLoss ? '#dc2626' : '#059669'
                 return (
                   <div
                     key={item.id}
@@ -1545,9 +1548,9 @@ export function AssetPage() {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                       <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{item.name}</span>
-                      {isLoss && (
-                        <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 10, background: '#fef2f2', color: '#dc2626', fontWeight: 600 }}>
-                          손실
+                      {pnl !== 0 && (
+                        <span style={{ fontSize: 11, fontWeight: 700, color: pnlColor }}>
+                          {pnl > 0 ? '+' : ''}{pnlPct}%
                         </span>
                       )}
                     </div>
@@ -1557,8 +1560,8 @@ export function AssetPage() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #f3f4f6', marginTop: 4 }}>
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>평가 손익</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: pnl === 0 ? '#6b7280' : isLoss ? '#dc2626' : '#059669' }}>
-                        {pnl > 0 ? '+' : ''}{pnl === 0 ? '—' : fmtMan(Math.round(pnl / 10000)) + '원'}
+                      <span style={{ fontSize: 13, fontWeight: 700, color: pnlColor }}>
+                        {pnl === 0 ? '—' : (pnl > 0 ? '+' : '') + fmtMan(Math.round(pnl / 10000)) + '원'}
                       </span>
                     </div>
                   </div>
