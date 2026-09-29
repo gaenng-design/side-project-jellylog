@@ -5,7 +5,7 @@ import type { AssetItem, AssetEntry } from '@/types'
 let _id = Date.now()
 const uid = () => `asset-${_id++}`
 
-export const ASSET_CATEGORIES = ['저축', '투자', '부동산', '주식']
+export const ASSET_CATEGORIES = ['저축', '투자', '부동산']
 
 interface AssetState {
   items: AssetItem[]
