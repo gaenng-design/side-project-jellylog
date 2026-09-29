@@ -1152,14 +1152,18 @@ export function AssetPage() {
 
   /** 카테고리별 현재 월 합계 */
   const calcCategoryTotal = (cat: string) => {
-    const its = cat === '전체' ? sortedItems : sortedItems.filter((i) => i.category === cat)
+    const its = sortedItems.filter((i) =>
+      cat === '전체' ? ASSET_CATEGORIES.includes(i.category) : i.category === cat
+    )
     return its.reduce((sum, item) => sum + getProjectedValue(currentYear, item, currentMonth), 0)
   }
 
   /** 특정 연도의 월별 합계 계산 (모든 항목 - 접힘 여부와 무관) */
   const calcMonthTotals = (yr: number) =>
     Array.from({ length: 12 }, (_, mi) =>
-      sortedItems.reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
+      sortedItems
+        .filter((item) => ASSET_CATEGORIES.includes(item.category))
+        .reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
     )
 
   // 현재 연도 월별 합계 (summary 카드용)
@@ -1252,15 +1256,15 @@ export function AssetPage() {
         const monthTotal = currentYearMonthTotals[currentMonth]
         const sumByPerson = (p?: 'A' | 'B') =>
           sortedItems
-            .filter((item) => item.person === p)
+            .filter((item) => ASSET_CATEGORIES.includes(item.category) && item.person === p)
             .reduce((sum, item) => sum + getProjectedValue(currentYear, item, currentMonth), 0)
         const availableTotal = sortedItems
-          .filter((item) => !item.locked)
+          .filter((item) => ASSET_CATEGORIES.includes(item.category) && !item.locked)
           .reduce((sum, item) => sum + getProjectedValue(currentYear, item, currentMonth), 0)
         const personATotal = sumByPerson('A')
         const personBTotal = sumByPerson('B')
         const sharedTotal = sortedItems
-          .filter((item) => !item.person)
+          .filter((item) => ASSET_CATEGORIES.includes(item.category) && !item.person)
           .reduce((sum, item) => sum + getProjectedValue(currentYear, item, currentMonth), 0)
 
         // 전월 합계 (1월이면 전년 12월)
@@ -1953,7 +1957,9 @@ export function AssetPage() {
           summaryMonths.push({ yr, mi, label })
         }
         const summaryTotals = summaryMonths.map(({ yr, mi }) =>
-          sortedItems.reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
+          sortedItems
+            .filter((item) => ASSET_CATEGORIES.includes(item.category))
+            .reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
         )
         // 원금 대비 수익: 투자 P&L + 저축 누적 이자
         const summaryGains = summaryMonths.map(({ yr, mi }) => {
