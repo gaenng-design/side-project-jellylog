@@ -9,6 +9,7 @@ import { CategoryInsightCards } from './components/CategoryInsightCards'
 import { OverviewCards } from './components/OverviewCards'
 import { ProfitCards } from './components/ProfitCards'
 import { MonthlySummaryTable } from './components/MonthlySummaryTable'
+import { AssetTrendChart } from './components/AssetTrendChart'
 import { AssetMonthsSection } from './components/AssetMonthsSection'
 import { AddItemModal } from './components/AddItemModal'
 import { EditItemModal } from './components/EditItemModal'
@@ -83,6 +84,7 @@ export function AssetPage() {
         <>
           <OverviewCards model={model} />
           <ProfitCards model={model} />
+          <AssetTrendChart model={model} />
           <MonthlySummaryTable model={model} />
         </>
       )}
