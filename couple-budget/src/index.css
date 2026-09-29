@@ -6,6 +6,12 @@
   box-sizing: border-box;
 }
 
+/* 두 번 탭해서 확대되는 동작 방지 (스크롤·일반 탭은 그대로) */
+html,
+body {
+  touch-action: manipulation;
+}
+
 html,
 body,
 #root {

@@ -2,6 +2,9 @@ import './index.css'
 import './design-system/ds.css'
 import { bootApp } from '@/services/appBoot'
 
+// iOS Safari: 핀치 확대 제스처 차단 (viewport 설정만으로는 막히지 않는 경우가 있음)
+document.addEventListener('gesturestart', (e) => e.preventDefault())
+
 // Initialize application (load persisted stores from localStorage)
 await bootApp()
 
