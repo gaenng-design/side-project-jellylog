@@ -17,6 +17,7 @@ import { EditItemModal } from './components/EditItemModal'
 import { MonthlyBalanceModal } from './components/MonthlyBalanceModal'
 import { MaturityAlerts } from './components/MaturityAlerts'
 import { DS } from '@/design-system/tokens'
+import { Button } from '@/design-system/components'
 
 export function AssetPage() {
   const model = useAssetModel()
@@ -50,24 +51,9 @@ export function AssetPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
         <h1 style={{ ...pageTitleH1Style, margin: 0 }}>자산</h1>
         {sortedItems.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setShowBalanceModal(true)}
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              padding: '8px 14px',
-              borderRadius: 999,
-              border: 'none',
-              background: PRIMARY,
-              color: DS.color.text.inverse,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <Button variant="primary" size="sm" onClick={() => setShowBalanceModal(true)} style={{ padding: '8px 14px', fontSize: 13 }}>
             ✏️ {MONTHS[currentMonth]} 잔액 입력
-          </button>
+          </Button>
         )}
       </div>
 

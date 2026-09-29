@@ -9,6 +9,7 @@ import type { AssetItem } from '@/types'
 import { MONTHS, fmtSum } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
 import { DS } from '@/design-system/tokens'
+import { Button } from '@/design-system/components'
 
 const NO_TRANSFER = '옮기지 않음 (현금으로 수령)'
 
@@ -86,20 +87,10 @@ export function MaturityProcessModal({ model, item, onClose }: { model: AssetMod
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
-        <button
-          type="button"
-          onClick={onClose}
-          style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.strong}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
-        >
-          취소
-        </button>
-        <button
-          type="button"
-          onClick={confirm}
-          style={{ padding: '8px 16px', borderRadius: JELLY.radiusControl, border: 'none', background: PRIMARY, color: DS.color.text.inverse, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-        >
+        <Button onClick={onClose}>취소</Button>
+        <Button variant="primary" onClick={confirm}>
           만기 처리
-        </button>
+        </Button>
       </div>
     </Modal>
   )

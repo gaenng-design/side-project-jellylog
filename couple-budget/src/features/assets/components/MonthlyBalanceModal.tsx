@@ -9,6 +9,7 @@ import type { AssetItem } from '@/types'
 import { MONTHS, fmtSum, savingsTypeLabel } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
 import { DS } from '@/design-system/tokens'
+import { Button } from '@/design-system/components'
 
 /** 부호 있는 금액 표시 (예: -120000 → "-120,000") */
 const formatSigned = (v: string): string => {
@@ -165,21 +166,10 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-        <button
-          type="button"
-          onClick={onClose}
-          style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.strong}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
-        >
-          취소
-        </button>
-        <button
-          type="button"
-          onClick={save}
-          disabled={activeItems.length === 0}
-          style={{ padding: '8px 16px', borderRadius: JELLY.radiusControl, border: 'none', background: PRIMARY, color: DS.color.text.inverse, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-        >
+        <Button onClick={onClose}>취소</Button>
+        <Button variant="primary" onClick={save} disabled={activeItems.length === 0}>
           저장
-        </button>
+        </Button>
       </div>
     </Modal>
   )

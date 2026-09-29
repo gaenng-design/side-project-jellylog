@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { ASSET_CATEGORIES } from '@/store/useAssetStore'
 import { CustomSelect } from '@/components/CustomSelect'
 import { AmountInput } from '@/components/AmountInput'
-import { jellyPrimaryButton, jellyInputSurface } from '@/styles/jellyGlass'
+import { jellyInputSurface } from '@/styles/jellyGlass'
 import { PRIMARY, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE } from '@/styles/formControls'
 import { SAVINGS_TYPES, savingsTypeLabel, type SavingsType } from '../assetFormat'
 import { ToggleSwitch } from './ToggleSwitch'
 import { DS } from '@/design-system/tokens'
+import { Button } from '@/design-system/components'
 
 export function AddItemModal({ onAdd, personAName, personBName, initialCategory, onClose }: {
   onAdd: (params: {
@@ -183,15 +184,10 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
 
         {/* 버튼 */}
         <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-          <button type="button" onClick={onClose} style={{ flex: 1, height: 44, borderRadius: INPUT_BORDER_RADIUS, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: 14, cursor: 'pointer', color: DS.color.text.secondary, fontFamily: 'inherit' }}>
-            취소
-          </button>
-          <button
-            type="button" onClick={handleAdd}
-            style={{ ...jellyPrimaryButton, flex: 2, height: 44, fontSize: 14, opacity: canSubmit ? 1 : 0.45, cursor: canSubmit ? 'pointer' : 'default' }}
-          >
+          <Button onClick={onClose} style={{ flex: 1, height: 44, fontSize: 14 }}>취소</Button>
+          <Button variant="primary" onClick={handleAdd} disabled={!canSubmit} style={{ flex: 2, height: 44, fontSize: 14 }}>
             추가
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { addMonths, monthDiff, parseYM } from '@/lib/assetCalc'
 import { fmtMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
 import { DS } from '@/design-system/tokens'
+import { DeltaText } from '@/design-system/components'
 
 /** 표시할 최대 개월 수 (가장 이른 입력 월부터 현재까지, 최소 12개월) */
 const MAX_MONTHS = 60
@@ -16,12 +17,11 @@ const td: React.CSSProperties = { padding: '6px 12px', textAlign: 'right', white
 
 /** 금액 증감 표기 (만원 단위, 0이면 '—') */
 function Delta({ value, bold }: { value: number | null; bold?: boolean }) {
-  if (value === null || Math.round(value / 10000) === 0) return <span style={{ color: DS.color.text.muted }}>—</span>
-  const color = value > 0 ? DS.color.positive.main : DS.color.negative.main
+  if (value === null || Math.round(value / 10000) === 0) return <DeltaText value={0}>—</DeltaText>
   return (
-    <span style={{ color, fontWeight: bold ? 600 : 500 }}>
+    <DeltaText value={value} style={{ fontWeight: bold ? 600 : 500 }}>
       {value > 0 ? '+' : '-'}{fmtMan(Math.round(Math.abs(value) / 10000))}원
-    </span>
+    </DeltaText>
   )
 }
 

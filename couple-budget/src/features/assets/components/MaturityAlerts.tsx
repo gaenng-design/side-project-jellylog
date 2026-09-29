@@ -7,6 +7,7 @@ import { fmtWonAsMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
 import { MaturityProcessModal } from './MaturityProcessModal'
 import { DS } from '@/design-system/tokens'
+import { Button } from '@/design-system/components'
 
 /** 만기 알림을 보여주기 시작하는 시점 (만기 D-30) */
 const NOTICE_DAYS = 30
@@ -78,24 +79,9 @@ export function MaturityAlerts({ model }: { model: AssetModel }) {
               </div>
             </div>
             {matured ? (
-              <button
-                type="button"
-                onClick={() => setProcessing(item)}
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  padding: '6px 12px',
-                  borderRadius: 999,
-                  border: 'none',
-                  background: PRIMARY,
-                  color: DS.color.text.inverse,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  flexShrink: 0,
-                }}
-              >
+              <Button variant="primary" size="sm" onClick={() => setProcessing(item)} style={{ flexShrink: 0 }}>
                 만기 처리
-              </button>
+              </Button>
             ) : (
               <span style={{ fontSize: 11, color: DS.color.warning.text, flexShrink: 0 }}>수령 계좌를 미리 정해두세요</span>
             )}

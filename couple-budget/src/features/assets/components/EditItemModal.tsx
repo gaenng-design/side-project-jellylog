@@ -3,12 +3,13 @@ import { ASSET_CATEGORIES } from '@/store/useAssetStore'
 import { CustomSelect } from '@/components/CustomSelect'
 import { AmountInput } from '@/components/AmountInput'
 import { Modal } from '@/components/Modal'
-import { JELLY, jellyInputSurface } from '@/styles/jellyGlass'
+import { jellyInputSurface } from '@/styles/jellyGlass'
 import { PRIMARY, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE } from '@/styles/formControls'
 import type { AssetItem } from '@/types'
 import { SAVINGS_TYPES, savingsTypeLabel, type SavingsType } from '../assetFormat'
 import { ToggleSwitch } from './ToggleSwitch'
 import { DS } from '@/design-system/tokens'
+import { Button } from '@/design-system/components'
 
 /** 항목 수정 모달 — 열릴 때 item 값으로 폼을 채운다 (item이 바뀌면 key로 다시 마운트) */
 export function EditItemModal({
@@ -236,41 +237,22 @@ export function EditItemModal({
 
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 18 }}>
         {/* 삭제 버튼 */}
-        <button
+        <Button
+          variant="danger"
           onClick={() => {
             if (window.confirm(`'${item.name}' 항목을 삭제할까요?\n모든 금액 데이터도 함께 삭제됩니다.`)) {
               onDelete()
             }
           }}
-          style={{
-            padding: '8px 14px',
-            borderRadius: JELLY.radiusControl,
-            border: `1px solid ${DS.color.negative.border}`,
-            background: DS.color.bg.secondary,
-            fontSize: 13,
-            color: DS.color.negative.main,
-            cursor: 'pointer',
-          }}
         >
           삭제
-        </button>
+        </Button>
 
         <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '8px 14px',
-              borderRadius: JELLY.radiusControl,
-              border: `1px solid ${DS.color.border.strong}`,
-              background: DS.color.bg.secondary,
-              fontSize: 13,
-              cursor: 'pointer',
-            }}
-          >
-            취소
-          </button>
-
-          <button
+          <Button onClick={onClose}>취소</Button>
+          <Button
+            variant="primary"
+            disabled={!canSave}
             onClick={() => {
               if (canSave) {
                 const isDepositForm = editForm.category === '저축' && editForm.savingsType === 'deposit'
@@ -289,19 +271,9 @@ export function EditItemModal({
                 })
               }
             }}
-            style={{
-              padding: '8px 16px',
-              borderRadius: JELLY.radiusControl,
-              border: 'none',
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: canSave ? 'pointer' : 'not-allowed',
-              background: canSave ? PRIMARY : DS.color.border.subtle,
-              color: canSave ? DS.color.bg.secondary : DS.color.text.muted,
-            }}
           >
             저장
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>

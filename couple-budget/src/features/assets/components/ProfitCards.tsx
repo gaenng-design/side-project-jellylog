@@ -1,9 +1,10 @@
 import { jellyCardStyle } from '@/styles/jellyGlass'
 import type { AssetItem } from '@/types'
-import { fmtMan } from '../assetFormat'
+import { fmtMan, fmtWonAsMan, fmtSignedMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
 import { AfterTaxToggle } from './AfterTaxToggle'
 import { DS } from '@/design-system/tokens'
+import { StatCard, InfoRow } from '@/design-system/components'
 
 /** 전체 탭: 수익 현황 (투자 손익 · 저축 만기 예상 이자) */
 export function ProfitCards({ model }: { model: AssetModel }) {
@@ -37,28 +38,20 @@ export function ProfitCards({ model }: { model: AssetModel }) {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
         {/* 총 투자 수익 카드 */}
         {investItems.length > 0 && (
-          <div style={{
-            ...jellyCardStyle,
-            padding: '14px 16px',
-            flex: '1 1 180px',
-            minWidth: 160,
-            border: totalInvestPnl !== 0 ? `1.5px solid ${totalInvestPnl > 0 ? DS.color.positive.border : DS.color.negative.border}` : undefined,
-          }}>
-            <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 6 }}>총 투자 수익</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: investPnlColor, marginBottom: 6 }}>
-              {totalInvestPnl === 0 ? '—' : `${totalInvestPnl > 0 ? '+' : ''}${fmtMan(Math.round(totalInvestPnl / 10000))}원`}
+          <StatCard
+            label="총 투자 수익"
+            value={fmtSignedMan(totalInvestPnl)}
+            valueColor={investPnlColor}
+            tone={totalInvestPnl > 0 ? 'positive' : totalInvestPnl < 0 ? 'negative' : 'neutral'}
+            style={{ flex: '1 1 180px', minWidth: 160 }}
+          >
+            <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${DS.color.border.subtle}` }}>
+              <InfoRow label="원금" value={fmtWonAsMan(totalInvestBasis)} />
+              {totalInvestPnlPct !== 0 && (
+                <InfoRow label="수익률" value={`${totalInvestPnlPct > 0 ? '+' : ''}${totalInvestPnlPct}%`} valueColor={investPnlColor} />
+              )}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: `1px solid ${DS.color.bg.muted}` }}>
-              <span style={{ fontSize: 11, color: DS.color.text.muted }}>원금</span>
-              <span style={{ fontSize: 11, color: DS.color.text.body }}>{fmtMan(Math.round(totalInvestBasis / 10000))}원</span>
-            </div>
-            {totalInvestPnlPct !== 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                <span style={{ fontSize: 11, color: DS.color.text.muted }}>수익률</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: investPnlColor }}>{totalInvestPnlPct > 0 ? '+' : ''}{totalInvestPnlPct}%</span>
-              </div>
-            )}
-          </div>
+          </StatCard>
         )}
         {/* 저축 수익 (만기 예상 이자) 카드 */}
         {savingsWithMaturity.length > 0 && (() => {
