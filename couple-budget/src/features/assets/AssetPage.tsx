@@ -462,7 +462,7 @@ function MonthsTable({
                           <>
                             <div>{
                               item.category === '저축'
-                                ? (item.savingsType === 'deposit' ? '예금' : item.savingsType === 'checking' ? '입출금' : '적금')
+                                ? (item.savingsType === 'deposit' ? '예금' : item.savingsType === 'checking' ? '입출금' : item.savingsType === 'subscription' ? '청약' : '적금')
                                 : item.category
                             }</div>
                             {item.defaultAmount ? (
@@ -1031,7 +1031,7 @@ export function AssetPage() {
 
   /** 저축 항목의 누적 이자 (원금 대비 수익 계산용) */
   const getSavingsCumulativeInterest = (item: AssetItem, yr: number, mi: number): number => {
-    if (item.category !== '저축' || !item.interestRate || item.savingsType === 'checking') return 0
+    if (item.category !== '저축' || !item.interestRate || item.savingsType === 'checking' || item.savingsType === 'subscription') return 0
     const rate = item.interestRate / 100
     // 가장 오래된 entry 찾기
     const itemEntries = entries.filter((e) => e.itemId === item.id)
@@ -1511,7 +1511,7 @@ export function AssetPage() {
                   maturityAmount = currentVal + monthlyDeposit * remainingMonths
                 }
                 const interest = maturityAmount - currentVal - (item.defaultAmount ?? 0) * remainingMonths
-                const typeLabel = item.savingsType === 'deposit' ? '예금' : '적금'
+                const typeLabel = item.savingsType === 'deposit' ? '예금' : item.savingsType === 'subscription' ? '청약' : '적금'
                 return (
                   <div
                     key={item.id}
@@ -1540,8 +1540,8 @@ export function AssetPage() {
                         )}
                         <span style={{
                           fontSize: 10, padding: '2px 7px', borderRadius: 10,
-                          background: item.savingsType === 'deposit' ? '#f0fdf4' : '#eff6ff',
-                          color: item.savingsType === 'deposit' ? '#059669' : PRIMARY,
+                          background: item.savingsType === 'deposit' ? '#f0fdf4' : item.savingsType === 'subscription' ? '#fefce8' : '#eff6ff',
+                          color: item.savingsType === 'deposit' ? '#059669' : item.savingsType === 'subscription' ? '#d97706' : PRIMARY,
                           fontWeight: 600,
                         }}>{typeLabel}</span>
                       </div>
@@ -2029,8 +2029,8 @@ export function AssetPage() {
               <div>
                 <div style={{ fontSize: 12, marginBottom: 4 }}>종류 <span style={{ color: '#ef4444' }}>*</span></div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {(['installment', 'deposit', 'checking'] as const).map((type) => {
-                    const label = type === 'installment' ? '적금' : type === 'deposit' ? '예금' : '입출금'
+                  {(['installment', 'deposit', 'checking', 'subscription'] as const).map((type) => {
+                    const label = type === 'installment' ? '적금' : type === 'deposit' ? '예금' : type === 'subscription' ? '청약' : '입출금'
                     const active = editForm.savingsType === type
                     return (
                       <button
@@ -2058,7 +2058,7 @@ export function AssetPage() {
               </div>
               {/* 연이율 */}
               <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>연이율 % {editForm.savingsType !== 'checking' && <span style={{ color: '#ef4444' }}>*</span>}</div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>연이율 % {editForm.savingsType !== 'checking' && editForm.savingsType !== 'subscription' && <span style={{ color: '#ef4444' }}>*</span>}</div>
                 <input
                   type="number"
                   min="0"
@@ -2083,7 +2083,7 @@ export function AssetPage() {
               </div>
               {/* 만기일 */}
               <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 {editForm.savingsType !== 'checking' && <span style={{ color: '#ef4444' }}>*</span>}</div>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 {editForm.savingsType !== 'checking' && editForm.savingsType !== 'subscription' && <span style={{ color: '#ef4444' }}>*</span>}</div>
                 <input
                   type="date"
                   value={editForm.maturityDate}
@@ -2147,7 +2147,7 @@ export function AssetPage() {
 
             <button
               onClick={() => {
-                const savingsValid = editForm.category !== '저축' || editForm.savingsType === 'checking' || (!!editForm.interestRate && !!editForm.maturityDate)
+                const savingsValid = editForm.category !== '저축' || editForm.savingsType === 'checking' || editForm.savingsType === 'subscription' || (!!editForm.interestRate && !!editForm.maturityDate)
                 if (editingItem && editForm.name.trim() && savingsValid) {
                   const newDefaultAmount = editForm.defaultAmount ? parseInt(editForm.defaultAmount.replace(/,/g, ''), 10) : undefined
                   const newPerson = editForm.person === '공유' ? undefined : editForm.person as 'A' | 'B'
@@ -2171,9 +2171,9 @@ export function AssetPage() {
                 border: 'none',
                 fontSize: 13,
                 fontWeight: 600,
-                cursor: editForm.name.trim() && (editForm.category !== '저축' || editForm.savingsType === 'checking' || (!!editForm.interestRate && !!editForm.maturityDate)) ? 'pointer' : 'not-allowed',
-                background: editForm.name.trim() && (editForm.category !== '저축' || editForm.savingsType === 'checking' || (!!editForm.interestRate && !!editForm.maturityDate)) ? PRIMARY : '#e5e7eb',
-                color: editForm.name.trim() && (editForm.category !== '저축' || editForm.savingsType === 'checking' || (!!editForm.interestRate && !!editForm.maturityDate)) ? '#fff' : '#9ca3af',
+                cursor: editForm.name.trim() && (editForm.category !== '저축' || editForm.savingsType === 'checking' || editForm.savingsType === 'subscription' || (!!editForm.interestRate && !!editForm.maturityDate)) ? 'pointer' : 'not-allowed',
+                background: editForm.name.trim() && (editForm.category !== '저축' || editForm.savingsType === 'checking' || editForm.savingsType === 'subscription' || (!!editForm.interestRate && !!editForm.maturityDate)) ? PRIMARY : '#e5e7eb',
+                color: editForm.name.trim() && (editForm.category !== '저축' || editForm.savingsType === 'checking' || editForm.savingsType === 'subscription' || (!!editForm.interestRate && !!editForm.maturityDate)) ? '#fff' : '#9ca3af',
               }}
             >
               저장

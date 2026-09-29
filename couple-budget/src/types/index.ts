@@ -91,8 +91,8 @@ export interface AssetItem {
   maturityDate?: string
   /** 연이율 % (예: 3.5 → 3.5%) */
   interestRate?: number
-  /** 저축 종류: 적금(installment) | 예금(deposit) | 입출금(checking) */
-  savingsType?: 'installment' | 'deposit' | 'checking'
+  /** 저축 종류: 적금(installment) | 예금(deposit) | 입출금(checking) | 청약(subscription) */
+  savingsType?: 'installment' | 'deposit' | 'checking' | 'subscription'
   /** 투자 수익률 % (예: -5.2 → 원금 대비 -5.2%) */
   returnRate?: number
 
