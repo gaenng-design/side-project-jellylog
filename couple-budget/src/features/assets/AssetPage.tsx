@@ -1723,10 +1723,10 @@ export function AssetPage() {
           .filter((item) => item.savingsType !== 'deposit')
           .reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
         const savingsInterestD = savingsCurD - savingsPrevD - savingsDepD
-        const investCurD = investItemsD.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
-        const investPrevD = investItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
-        const investDepD = investItemsD.reduce((s, item) => s + (item.defaultAmount ?? 0), 0)
-        const investPnlD = investCurD - investPrevD - investDepD
+        const investCurPnl = investItemsD.reduce((s, item) => s + getCostBasisEntry(item.id, currentYM), 0)
+        const prevYM2 = prevYr + '-' + String(prevMi + 1).padStart(2, '0')
+        const investPrevPnl = investItemsD.reduce((s, item) => s + getCostBasisEntry(item.id, prevYM2), 0)
+        const investPnlD = investCurPnl - investPrevPnl
         const deltaColor = actualDelta === 0 ? '#6b7280' : actualDelta > 0 ? '#059669' : '#dc2626'
         const prevLabel = currentMonth > 0 ? `${MONTHS[currentMonth - 1]}` : `${currentYear - 1}년 12월`
 
