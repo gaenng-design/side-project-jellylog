@@ -115,13 +115,13 @@ function FixedCategoryDonut({
             <div style={{ fontSize: 16, fontWeight: 700, color: DS.color.text.primary, ...tabularNums }}>
               {hovered.pct < 10 ? hovered.pct.toFixed(1) : Math.round(hovered.pct)}%
             </div>
-            <div style={{ fontSize: 10, color: DS.color.text.secondary, marginTop: 2, ...tabularNums }}>
+            <div style={{ fontSize: DS.font.size.micro, color: DS.color.text.secondary, marginTop: 2, ...tabularNums }}>
               {hovered.amount.toLocaleString('ko-KR')}원
             </div>
           </>
         ) : (
           <>
-            <div style={{ fontSize: 10, color: DS.color.text.secondary, marginBottom: 2 }}>합계</div>
+            <div style={{ fontSize: DS.font.size.micro, color: DS.color.text.secondary, marginBottom: 2 }}>합계</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: DS.color.text.primary, ...tabularNums }}>
               {total.toLocaleString('ko-KR')}원
             </div>
@@ -432,7 +432,7 @@ function MonthlyIncomeBarChart({ values }: { values: number[] }) {
               x={PAD_L - 8}
               y={y + 4}
               textAnchor="end"
-              fontSize={10}
+              fontSize={11}
               fill={DS.color.text.secondary}
               style={{ ...tabularNums, fontFamily: DS.font.family }}
             >
@@ -500,7 +500,7 @@ function MonthlyIncomeBarChart({ values }: { values: number[] }) {
         return (
           <g pointerEvents="none">
             <rect x={tx} y={ty} width={w} height={h} rx={6} fill={DS.color.text.primary} opacity={0.92} />
-            <text x={tx + 8} y={ty + 14} fontSize={10.5} fill={DS.color.text.muted} style={tabularNums}>{monthLabel}</text>
+            <text x={tx + 8} y={ty + 14} fontSize={11} fill={DS.color.text.muted} style={tabularNums}>{monthLabel}</text>
             <text x={tx + 8} y={ty + 28} fontSize={11} fill={DS.color.bg.secondary} style={{ ...tabularNums, fontWeight: 600 }}>{valueLabel}</text>
           </g>
         )
@@ -567,7 +567,7 @@ function InvestCumulativeChart({ cumulative, lastMonthIdx }: { cumulative: numbe
               x={PAD_L - 8}
               y={y + 4}
               textAnchor="end"
-              fontSize={10}
+              fontSize={11}
               fill={DS.color.text.secondary}
               style={{ ...tabularNums, fontFamily: DS.font.family }}
             >
@@ -642,7 +642,7 @@ function InvestCumulativeChart({ cumulative, lastMonthIdx }: { cumulative: numbe
         return (
           <g pointerEvents="none">
             <rect x={tx} y={ty} width={w} height={h} rx={6} fill={DS.color.text.primary} opacity={0.92} />
-            <text x={tx + 8} y={ty + 14} fontSize={10.5} fill={DS.color.text.muted} style={tabularNums}>{`${monthLabel} 누적`}</text>
+            <text x={tx + 8} y={ty + 14} fontSize={11} fill={DS.color.text.muted} style={tabularNums}>{`${monthLabel} 누적`}</text>
             <text x={tx + 8} y={ty + 28} fontSize={11} fill={DS.color.bg.secondary} style={{ ...tabularNums, fontWeight: 600 }}>{valueLabel}</text>
           </g>
         )

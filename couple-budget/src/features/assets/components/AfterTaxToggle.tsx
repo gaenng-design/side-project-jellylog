@@ -11,7 +11,7 @@ export function AfterTaxToggle({ model }: { model: AssetModel }) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        padding: '4px 10px',
+        padding: '0 12px',
         borderRadius: DS.radius.chip,
         border: `1px solid ${interestAfterTax ? DS.color.primary : DS.color.border.subtle}`,
         background: interestAfterTax ? DS.color.primarySoft : DS.color.bg.secondary,

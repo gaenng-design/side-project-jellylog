@@ -72,7 +72,7 @@ export function ProfitCards({ model }: { model: AssetModel }) {
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                       <span style={{ fontSize: 11, color: DS.color.text.body, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
-                      <span style={{ fontSize: 10, color: DS.color.text.muted }}>{item.maturityDate}</span>
+                      <span style={{ fontSize: DS.font.size.micro, color: DS.color.text.muted }}>{item.maturityDate}</span>
                     </div>
                     <span style={{ fontSize: 11, fontWeight: 600, color: DS.color.positive.main, flexShrink: 0 }}>+{fmtMan(Math.round(result.interest / 10000))}원</span>
                   </div>

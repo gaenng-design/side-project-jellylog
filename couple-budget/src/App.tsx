@@ -308,10 +308,10 @@ function AppShell() {
 
   return (
     <div
+      className="app-shell"
       style={{
         display: 'flex',
         flexDirection: narrow ? 'column' : 'row',
-        height: '100vh',
         overflow: narrow ? 'hidden' : undefined,
         ...jellyShellBackground,
         fontFamily: jellyFontStack,
@@ -382,7 +382,10 @@ function AppShell() {
             alignItems: narrow ? 'center' : 'stretch',
             gap: narrow ? 0 : undefined,
             /* narrow 높이(≈65px) 바꾸면 MobileSnackbar 의 MOBILE_GNB_HEIGHT_PX 도 맞출 것 */
-            padding: narrow ? '10px 12px' : iconOnlyNav ? '20px 12px' : '28px 16px 24px',
+            // 노치·상태 표시줄 영역(safe-area)만큼 위쪽 여백을 더한다
+            padding: narrow
+              ? 'calc(10px + env(safe-area-inset-top, 0px)) calc(12px + env(safe-area-inset-right, 0px)) 10px calc(12px + env(safe-area-inset-left, 0px))'
+              : iconOnlyNav ? '20px 12px' : '28px 16px 24px',
             transition: 'width 0.2s ease, padding 0.2s ease',
             overflow: narrow ? 'visible' : 'hidden',
             boxSizing: 'border-box',
@@ -680,7 +683,7 @@ function AppShell() {
               boxShadow: '8px 0 32px rgba(0,0,0,0.35)',
               display: 'flex',
               flexDirection: 'column',
-              padding: '20px 16px 24px',
+              padding: 'calc(20px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px))',
               boxSizing: 'border-box',
             }}
           >
@@ -759,7 +762,9 @@ function AppShell() {
         style={{
           flex: 1,
           overflow: 'auto',
-          padding: narrow ? '0 14px 24px' : '36px clamp(24px, 4vw, 48px)',
+          padding: narrow
+            ? '0 calc(14px + env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px))'
+            : '36px clamp(24px, 4vw, 48px)',
           background: 'transparent',
           minWidth: 0,
           minHeight: narrow ? 0 : undefined,

@@ -154,7 +154,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
               {yTicks.map((t, i) => (
                 <g key={i}>
                   <line x1={padL} x2={W - padR} y1={t.y} y2={t.y} stroke={DS.color.border.subtle} strokeDasharray={i === 0 ? '0' : '3 3'} />
-                  <text x={padL - 6} y={t.y + 4} fontSize="10" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
+                  <text x={padL - 6} y={t.y + 4} fontSize="11" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
                     {formatKRShort(t.value)}
                   </text>
                 </g>
@@ -182,7 +182,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
               })}
               {/* x축 라벨 */}
               {MONTHS_LABEL.map((m, i) => (
-                <text key={i} x={pointX(i)} y={H - 6} fontSize="10" fill={DS.color.text.muted} textAnchor="middle">
+                <text key={i} x={pointX(i)} y={H - 6} fontSize="11" fill={DS.color.text.muted} textAnchor="middle">
                   {m}월
                 </text>
               ))}
@@ -231,7 +231,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
                         key={li}
                         x={tx + padX}
                         y={ty + padY + (li + 1) * lineH - 3}
-                        fontSize="10.5"
+                        fontSize="11"
                         fill={li === 0 ? DS.color.text.muted : DS.color.bg.secondary}
                         style={tabularNums}
                       >

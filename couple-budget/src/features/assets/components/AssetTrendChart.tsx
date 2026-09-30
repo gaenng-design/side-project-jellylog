@@ -113,7 +113,7 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
           {ticks.map((t, i) => (
             <g key={t}>
               <line x1={padL} x2={W - padR} y1={y(t)} y2={y(t)} stroke={DS.color.border.subtle} strokeDasharray={i === 0 ? undefined : '3 3'} />
-              <text x={padL - 8} y={y(t) + 4} fontSize="10" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
+              <text x={padL - 8} y={y(t) + 4} fontSize="11" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
                 {fmtWonAsMan(t)}
               </text>
             </g>
@@ -138,7 +138,7 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
                 key={i}
                 x={x(i)}
                 y={H - 8}
-                fontSize="10"
+                fontSize="11"
                 fill={isCurrent ? PRIMARY : DS.color.text.muted}
                 fontWeight={isCurrent ? 700 : 400}
                 textAnchor="middle"

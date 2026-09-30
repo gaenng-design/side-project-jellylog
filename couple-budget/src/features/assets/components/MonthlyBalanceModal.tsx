@@ -93,7 +93,7 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
                 {isEstimated && (
                   <span
                     title="이번 달 입력값이 없어 추정한 금액입니다"
-                    style={{ fontSize: 10, color: DS.color.text.secondary, background: DS.color.bg.muted, borderRadius: 999, padding: '1px 6px' }}
+                    style={{ fontSize: DS.font.size.micro, color: DS.color.text.secondary, background: DS.color.bg.muted, borderRadius: 999, padding: '1px 6px' }}
                   >
                     추정
                   </span>

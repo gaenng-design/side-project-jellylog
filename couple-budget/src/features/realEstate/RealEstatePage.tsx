@@ -760,7 +760,7 @@ function PlanSelectorBar({
               >
                 {purchasedPlanId === p.id && (
                   <span style={{
-                    fontSize: 10, background: DS.color.positive.main, color: DS.color.text.inverse,
+                    fontSize: DS.font.size.micro, background: DS.color.positive.main, color: DS.color.text.inverse,
                     borderRadius: 4, padding: '1px 5px', fontWeight: 700, letterSpacing: '0.02em',
                   }}>매매</span>
                 )}

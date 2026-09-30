@@ -3,10 +3,12 @@ import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 import { PRIMARY } from '@/styles/formControls'
 import { MONTHS, fmtSum } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
+import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { DS } from '@/design-system/tokens'
 
 /** 상단 요약 — 이번 달 총 합계·가용 금액·전월 대비 증감 + 명의별 자산 */
 export function AssetSummaryHeader({ model }: { model: AssetModel }) {
+  const narrow = useNarrowLayout()
   const { currentYear, currentMonth, personAName, personBName, getPersonColor, getItemColumnBg, sortedItems, getProjectedValue, calcMonthTotals, currentYearMonthTotals } = model
   const monthTotal = currentYearMonthTotals[currentMonth]
   const sumByPerson = (p?: 'A' | 'B') =>
@@ -38,35 +40,38 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
       <div
         style={{
           ...jellyCardStyle,
-          padding: '16px 20px',
+          padding: narrow ? '14px 16px' : '16px 20px',
           display: 'flex',
-          gap: 24,
+          gap: narrow ? 12 : 24,
+          rowGap: narrow ? 14 : 24,
           flexWrap: 'wrap',
           alignItems: 'flex-end',
         }}
       >
-        <div style={{ flex: 1, minWidth: 160 }}>
+        {/* 모바일: 총 합계는 한 줄 전체, 가용 금액·증감은 나란히 (세로 공간 절약) */}
+        <div style={{ flex: narrow ? '1 1 100%' : 1, minWidth: narrow ? 0 : 160 }}>
           <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
             {currentYear}년 {MONTHS[currentMonth]} · 총 합계
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{fmtSum(monthTotal)}</div>
         </div>
-        <div style={{ flex: 1, minWidth: 160 }}>
+        <div style={{ flex: narrow ? '1 1 150px' : 1, minWidth: narrow ? 0 : 160 }}>
           <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
             💰 가용 금액
-            <span style={{ color: DS.color.text.muted, marginLeft: 4 }}>(묶이지 않은 돈)</span>
+            {!narrow && <span style={{ color: DS.color.text.muted, marginLeft: 4 }}>(묶이지 않은 돈)</span>}
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: JELLY.text }}>{fmtSum(availableTotal)}</div>
+          <div style={{ fontSize: narrow ? 18 : 26, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>{fmtSum(availableTotal)}</div>
         </div>
         {hasPrevData && (
-          <div style={{ flex: 1, minWidth: 160 }}>
+          <div style={{ flex: narrow ? '1 1 150px' : 1, minWidth: narrow ? 0 : 160 }}>
             <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
               📈 이번 달 증감
               <span style={{ color: DS.color.text.muted, marginLeft: 4 }}>({prevLabel})</span>
             </div>
             <div
               style={{
-                fontSize: 26,
+                whiteSpace: 'nowrap',
+                fontSize: narrow ? 18 : 26,
                 fontWeight: 700,
                 color: monthDiff >= 0 ? DS.color.positive.main : DS.color.negative.main,
               }}

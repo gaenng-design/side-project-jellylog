@@ -283,7 +283,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {label && <div style={{ color: DS.color.text.muted, fontSize: 10 }}>{label}</div>}
+          {label && <div style={{ color: DS.color.text.muted, fontSize: DS.font.size.micro }}>{label}</div>}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span
               style={{
@@ -304,7 +304,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
               style={{
                 flexShrink: 0,
                 padding: '3px 8px',
-                fontSize: 10,
+                fontSize: DS.font.size.micro,
                 fontWeight: 600,
                 border: '1px solid rgba(255,255,255,0.25)',
                 background: copied ? '#10b981' : 'rgba(255,255,255,0.12)',
@@ -1129,7 +1129,7 @@ export function SettlementResultView({
                               }}
                             >
                               {item.description}{' '}
-                              <span style={{ fontSize: 10, color: DS.color.text.muted }}>(별도 정산)</span>
+                              <span style={{ fontSize: DS.font.size.micro, color: DS.color.text.muted }}>(별도 정산)</span>
                               {item.accountNumber && (
                                 <AccountTooltip account={item.accountNumber} label={item.description} />
                               )}

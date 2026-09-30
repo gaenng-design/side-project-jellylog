@@ -79,7 +79,7 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
     >
       <div style={{
         background: DS.color.bg.secondary, borderRadius: 16, padding: '24px 20px',
-        width: '100%', maxWidth: 400, maxHeight: '90vh', overflowY: 'auto',
+        width: '100%', maxWidth: 400, maxHeight: '85dvh', overflowY: 'auto',
         boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
         display: 'flex', flexDirection: 'column', gap: 16,
       }}>

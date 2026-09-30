@@ -149,6 +149,7 @@ export function MonthsTable({
                         {/* 접기/펼치기 토글 (셀 좌측 끝 절대 위치) */}
                         <button
                           type="button"
+                          data-compact
                           onClick={(e) => {
                             e.stopPropagation()
                             toggleCollapse(item.id)
@@ -198,7 +199,7 @@ export function MonthsTable({
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
                             </div>
                             {item.category === '투자' && (
-                              <div style={{ display: 'flex', gap: 4, fontSize: 9, color: DS.color.text.muted, fontWeight: 400 }}>
+                              <div style={{ display: 'flex', gap: 4, fontSize: DS.font.size.micro, color: DS.color.text.muted, fontWeight: 400 }}>
                                 <span>총 잔고</span><span>·</span><span>평가 손익</span>
                               </div>
                             )}
@@ -240,7 +241,7 @@ export function MonthsTable({
                         style={{
                           flex: `0 0 ${colWidth}px`,
                           padding: '4px 4px 6px 4px',
-                          fontSize: 10,
+                          fontSize: DS.font.size.micro,
                           color: DS.color.text.muted,
                           background: getItemColumnBg(item.person, 'header'),
                           textAlign: 'center',
@@ -263,7 +264,7 @@ export function MonthsTable({
                                 : item.category
                             }</div>
                             {item.defaultAmount && item.savingsType !== 'deposit' ? (
-                              <div style={{ fontSize: 9, color: DS.color.text.secondary, fontWeight: 500 }}>
+                              <div style={{ fontSize: DS.font.size.micro, color: DS.color.text.secondary, fontWeight: 500 }}>
                                 +{item.defaultAmount.toLocaleString('ko-KR')}
                               </div>
                             ) : null}
@@ -335,7 +336,7 @@ export function MonthsTable({
                         {isCurrentYearGroup && (
                           <span
                             style={{
-                              fontSize: 9,
+                              fontSize: DS.font.size.micro,
                               fontWeight: 600,
                               color: DS.color.text.inverse,
                               background: PRIMARY,
@@ -407,7 +408,7 @@ export function MonthsTable({
                           }}
                         >
                           {isCollapsed ? (
-                            <span style={{ fontSize: 10, color: DS.color.border.default }}>…</span>
+                            <span style={{ fontSize: DS.font.size.micro, color: DS.color.border.default }}>…</span>
                           ) : item.category === '투자' ? (
                             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
                               {/* 총 잔고 행 */}

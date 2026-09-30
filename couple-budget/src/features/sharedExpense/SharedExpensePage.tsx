@@ -118,7 +118,7 @@ function EntryRow({
               title={entry.cardSettled ? '후불 카드 — 결제 완료' : '후불 카드 — 결제 예정'}
               style={{
                 marginLeft: 6,
-                fontSize: 10,
+                fontSize: DS.font.size.micro,
                 fontWeight: 600,
                 color: entry.cardSettled ? DS.color.positive.main : DS.color.warning.text,
                 background: entry.cardSettled ? DS.color.positive.soft : DS.color.warning.soft,
@@ -136,7 +136,7 @@ function EntryRow({
             <span
               style={{
                 marginLeft: 6,
-                fontSize: 10,
+                fontSize: DS.font.size.micro,
                 fontWeight: 600,
                 color: DS.color.text.secondary,
                 background: DS.color.border.subtle,
@@ -363,7 +363,7 @@ function CreditCardSection({
                 >
                   {item?.name ?? '(이름 없음)'}
                   {e.excluded && (
-                    <span style={{ marginLeft: 6, fontSize: 10, color: DS.color.text.muted }}>(제외)</span>
+                    <span style={{ marginLeft: 6, fontSize: DS.font.size.micro, color: DS.color.text.muted }}>(제외)</span>
                   )}
                 </div>
                 <div

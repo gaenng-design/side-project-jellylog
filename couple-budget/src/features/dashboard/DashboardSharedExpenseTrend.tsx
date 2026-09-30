@@ -142,7 +142,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                 return (
                   <g key={i}>
                     <line x1={padL} x2={W - padR} y1={yPos} y2={yPos} stroke={DS.color.border.subtle} strokeDasharray={p === 0 ? '0' : '3 3'} />
-                    <text x={padL - 6} y={yPos + 4} fontSize="10" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
+                    <text x={padL - 6} y={yPos + 4} fontSize="11" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
                       {p === 0 ? 0 : `${Math.round((maxVal * p) / 10000)}만`}
                     </text>
                   </g>
@@ -197,7 +197,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
               )}
               {/* x축 라벨 */}
               {Array.from({ length: 12 }, (_, i) => (
-                <text key={i} x={pointX(i)} y={H - 6} fontSize="10" fill={DS.color.text.muted} textAnchor="middle">
+                <text key={i} x={pointX(i)} y={H - 6} fontSize="11" fill={DS.color.text.muted} textAnchor="middle">
                   {i + 1}월
                 </text>
               ))}
@@ -338,7 +338,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                       <span
                         style={{
                           flexShrink: 0,
-                          fontSize: 10,
+                          fontSize: DS.font.size.micro,
                           fontWeight: 600,
                           color: fg,
                           background: bg,

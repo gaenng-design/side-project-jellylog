@@ -5,16 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>부부 가계부</title>
     <!-- PWA -->
-    <meta name="theme-color" content="#4f8cff" />
+    <meta name="theme-color" content="#1a1d21" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <!-- 어두운 상단 바가 상태 표시줄까지 이어지도록 (상단 바에서 safe-area 만큼 여백을 준다) -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="가계부" />
     <link rel="apple-touch-icon" href="/pwa-icon.svg" />
     <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
+    <!-- 웹폰트: 화면 표시를 막지 않도록 비동기로 불러오고, 도착 전에는 시스템 글꼴로 먼저 보여준다 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Figma MCP html-to-design: 로컬 캡처 시 필요. 불필요하면 제거해도 됩니다. -->
-    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    </noscript>
   </head>
   <body>
     <div id="root"></div>

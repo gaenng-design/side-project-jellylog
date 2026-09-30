@@ -5,6 +5,7 @@ import { PRIMARY } from '@/styles/formControls'
 import { addMonths, monthDiff, parseYM } from '@/lib/assetCalc'
 import { fmtMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
+import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { DS } from '@/design-system/tokens'
 import { DeltaText } from '@/design-system/components'
 
@@ -27,7 +28,15 @@ function Delta({ value, bold }: { value: number | null; bold?: boolean }) {
 
 /** 전체 탭: 월별 자산 현황 표 — 연도별로 접었다 펼 수 있음 */
 export function MonthlySummaryTable({ model }: { model: AssetModel }) {
+  const narrow = useNarrowLayout()
   const { currentYear, currentMonth, sortedItems, firstEntryYM, getProjectedValue, getPnl, getSavingsCumulativeInterest } = model
+
+  // 모바일: 셀 여백을 줄이고 '월' 열을 왼쪽에 고정해 가로로 밀어도 어느 달인지 보이게 한다
+  const cellPad = narrow ? '8px 8px' : '6px 12px'
+  const thS: React.CSSProperties = { ...th, padding: cellPad }
+  const tdS: React.CSSProperties = { ...td, padding: cellPad }
+  const stickyMonth = (bg: string): React.CSSProperties =>
+    narrow ? { position: 'sticky', left: 0, zIndex: 1, background: bg } : {}
 
   // 가장 이른 입력 월 ~ 현재 (최소 12개월)
   const earliest = Object.values(firstEntryYM).sort()[0]
@@ -83,12 +92,12 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr style={{ background: DS.color.bg.muted }}>
-              <th style={{ ...th, textAlign: 'left', minWidth: 80 }}>월</th>
-              <th style={th}>총 자산</th>
-              <th style={th}>전월 대비</th>
-              <th style={th}>전월 대비 저축</th>
-              <th style={th}>전월 대비 투자</th>
-              <th style={th}>원금 대비 수익</th>
+              <th style={{ ...thS, textAlign: 'left', minWidth: narrow ? 52 : 80, ...stickyMonth(DS.color.bg.muted) }}>월</th>
+              <th style={thS}>총 자산</th>
+              <th style={thS}>전월 대비</th>
+              <th style={thS}>{narrow ? '저축 증감' : '전월 대비 저축'}</th>
+              <th style={thS}>{narrow ? '투자 증감' : '전월 대비 투자'}</th>
+              <th style={thS}>{narrow ? '수익' : '원금 대비 수익'}</th>
             </tr>
           </thead>
           <tbody>
@@ -102,18 +111,18 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
                   onClick={() => toggle(yr)}
                   style={{ borderTop: `1px solid ${DS.color.border.subtle}`, background: yr === currentYear ? 'rgba(79, 140, 255, 0.10)' : DS.color.bg.subtle, cursor: 'pointer', userSelect: 'none' }}
                 >
-                  <td colSpan={isOpen ? 6 : 1} style={{ padding: '7px 12px', fontWeight: 700, color: yr === currentYear ? PRIMARY : DS.color.text.body, whiteSpace: 'nowrap' }}>
-                    <span style={{ fontSize: 10, marginRight: 6 }}>{isOpen ? '▼' : '▶'}</span>
+                  <td colSpan={isOpen ? 6 : 1} style={{ padding: narrow ? '9px 8px' : '7px 12px', fontWeight: 700, color: yr === currentYear ? PRIMARY : DS.color.text.body, whiteSpace: 'nowrap', ...stickyMonth(yr === currentYear ? DS.color.primarySoft : DS.color.bg.subtle) }}>
+                    <span style={{ fontSize: DS.font.size.micro, marginRight: 6 }}>{isOpen ? '▼' : '▶'}</span>
                     {yr}년
                   </td>
                   {/* 접힌 연도: 연말(또는 최근 달) 총 자산과 연간 증감을 한 줄로 요약 */}
                   {!isOpen && (
                     <>
-                      <td style={{ ...td, fontWeight: 600, color: DS.color.text.primary }}>{fmtMan(Math.round(last.total / 10000))}원</td>
-                      <td style={td}><Delta value={diff(last.total, yearMonths[0].prev?.total)} /></td>
-                      <td style={td}><Delta value={diff(last.savings, yearMonths[0].prev?.savings)} /></td>
-                      <td style={td}><Delta value={diff(last.invest, yearMonths[0].prev?.invest)} /></td>
-                      <td style={td}><Delta value={last.gain} bold /></td>
+                      <td style={{ ...tdS, fontWeight: 600, color: DS.color.text.primary }}>{fmtMan(Math.round(last.total / 10000))}원</td>
+                      <td style={tdS}><Delta value={diff(last.total, yearMonths[0].prev?.total)} /></td>
+                      <td style={tdS}><Delta value={diff(last.savings, yearMonths[0].prev?.savings)} /></td>
+                      <td style={tdS}><Delta value={diff(last.invest, yearMonths[0].prev?.invest)} /></td>
+                      <td style={tdS}><Delta value={last.gain} bold /></td>
                     </>
                   )}
                 </tr>,
@@ -122,14 +131,14 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
                       const isCurrent = m.year === currentYear && m.monthIdx === currentMonth
                       return (
                         <tr key={`${m.year}-${m.monthIdx}`} style={{ borderTop: `1px solid ${DS.color.border.subtle}`, background: isCurrent ? DS.color.primarySoft : undefined }}>
-                          <td style={{ ...td, textAlign: 'left', color: isCurrent ? DS.color.primaryDark : DS.color.text.body, fontWeight: isCurrent ? 600 : 400 }}>
-                            {m.year}년 {m.monthIdx + 1}월
+                          <td style={{ ...tdS, textAlign: 'left', color: isCurrent ? DS.color.primaryDark : DS.color.text.body, fontWeight: isCurrent ? 600 : 400, ...stickyMonth(isCurrent ? DS.color.primarySoft : DS.color.bg.secondary) }}>
+                            {narrow ? `${m.monthIdx + 1}월` : `${m.year}년 ${m.monthIdx + 1}월`}
                           </td>
-                          <td style={{ ...td, fontWeight: 600, color: DS.color.text.primary }}>{fmtMan(Math.round(m.total / 10000))}원</td>
-                          <td style={td}><Delta value={diff(m.total, m.prev?.total)} /></td>
-                          <td style={td}><Delta value={diff(m.savings, m.prev?.savings)} /></td>
-                          <td style={td}><Delta value={diff(m.invest, m.prev?.invest)} /></td>
-                          <td style={td}><Delta value={m.gain} bold /></td>
+                          <td style={{ ...tdS, fontWeight: 600, color: DS.color.text.primary }}>{fmtMan(Math.round(m.total / 10000))}원</td>
+                          <td style={tdS}><Delta value={diff(m.total, m.prev?.total)} /></td>
+                          <td style={tdS}><Delta value={diff(m.savings, m.prev?.savings)} /></td>
+                          <td style={tdS}><Delta value={diff(m.invest, m.prev?.invest)} /></td>
+                          <td style={tdS}><Delta value={m.gain} bold /></td>
                         </tr>
                       )
                     })
@@ -139,7 +148,7 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
           </tbody>
         </table>
       </div>
-      <div style={{ padding: '6px 14px 8px', fontSize: 10, color: DS.color.text.muted, borderTop: `1px solid ${DS.color.border.subtle}` }}>
+      <div style={{ padding: '6px 14px 8px', fontSize: DS.font.size.micro, color: DS.color.text.muted, borderTop: `1px solid ${DS.color.border.subtle}` }}>
         연도를 누르면 접고 펼 수 있어요. 접힌 연도의 증감은 연초 대비 연말(현재 연도는 최근 달) 변화예요.
       </div>
     </div>

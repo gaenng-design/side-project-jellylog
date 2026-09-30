@@ -25,7 +25,7 @@ function FlexRowCell({
 }
 
 /** 삭제 버튼과 동일한 높이 (padding 6*2 + font 11 ≈ 26) */
-const ROW_CHIP_HEIGHT = 26
+const ROW_CHIP_HEIGHT = 32
 /** 사용자 칩 최대 넓이 */
 const USER_CHIP_MAX_WIDTH = 68
 /** 금액 인풋 넓이 */

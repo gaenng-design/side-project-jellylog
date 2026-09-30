@@ -69,6 +69,8 @@ export const DS = {
     title2: { size: 20, weight: 600 as const, lineHeight: 1.3 },
     body: { size: 14, weight: 400 as const, lineHeight: 1.5 },
     caption: { size: 12, weight: 500 as const, lineHeight: 1.45 },
+    /** 글자 크기 스케일 — 모바일 가독성을 위해 11px 미만은 쓰지 않는다 */
+    size: { micro: 11, caption: 12, small: 13, body: 14, large: 16, title: 20, display: 26 },
   },
   space: [4, 8, 12, 16, 20, 24, 32, 40, 48, 64] as const,
   grid: {

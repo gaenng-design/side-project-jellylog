@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 *,
 *::before,
 *::after {
@@ -51,4 +49,24 @@ code {
   textarea {
     font-size: 16px !important;
   }
+}
+
+/* ── 모바일 공통 ── */
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 터치 기기: 버튼·선택칸 터치 영역을 40px 이상으로 (작은 아이콘 버튼은 data-compact 로 제외) */
+@media (pointer: coarse) {
+  button:not([data-compact]),
+  select {
+    min-height: 40px;
+  }
+}
+
+/* 앱 전체 높이: 주소창이 접히고 펴져도 맞도록 dvh 사용 (미지원 브라우저는 vh) */
+.app-shell {
+  height: 100vh;
+  height: 100dvh;
 }
