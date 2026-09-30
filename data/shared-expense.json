@@ -1049,6 +1049,30 @@
       "name": "쿠팡 - 깔라만시",
       "category": "식료품",
       "order": 174
+    },
+    {
+      "id": "shared-expense-1790754536945",
+      "name": "목포항",
+      "category": "외식비",
+      "order": 175
+    },
+    {
+      "id": "shared-expense-1790754536947",
+      "name": "Cu 수지한성점",
+      "category": "식료품",
+      "order": 176
+    },
+    {
+      "id": "shared-expense-1790754536949",
+      "name": "수지 CU",
+      "category": "식료품",
+      "order": 177
+    },
+    {
+      "id": "shared-expense-1790754536951",
+      "name": "10/8 글램핑",
+      "category": "여행",
+      "order": 178
     }
   ],
   "entries": [
@@ -2302,6 +2326,34 @@
       "day": 28,
       "amount": 34000,
       "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790754536946",
+      "itemId": "shared-expense-1790754536945",
+      "yearMonth": "2026-10",
+      "day": 26,
+      "amount": 61000
+    },
+    {
+      "id": "shared-expense-1790754536948",
+      "itemId": "shared-expense-1790754536947",
+      "yearMonth": "2026-10",
+      "day": 26,
+      "amount": 3300
+    },
+    {
+      "id": "shared-expense-1790754536950",
+      "itemId": "shared-expense-1790754536949",
+      "yearMonth": "2026-10",
+      "day": 27,
+      "amount": 10800
+    },
+    {
+      "id": "shared-expense-1790754536952",
+      "itemId": "shared-expense-1790754536951",
+      "yearMonth": "2026-10",
+      "day": 29,
+      "amount": 149000
     }
   ],
   "categories": [
