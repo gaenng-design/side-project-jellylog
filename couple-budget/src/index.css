@@ -19,9 +19,12 @@ body,
 
 body {
   /* tokens.ts 의 DS.font.family 와 같은 값 */
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Pretendard Variable', Pretendard, system-ui, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Segoe UI', Roboto, sans-serif;
+  /* 기본 굵기 500 — 가는 글자가 흐려 보이지 않게. 숫자는 폭이 같은 숫자(tnum)로 금액 정렬 */
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-rendering: optimizeLegibility;
   color: #1a1d1f;
-  -webkit-font-smoothing: antialiased;
   /* 서브 팔레트 (그래프·칩과 동일 토큰, CSS에서 참조용) */
   --sub-oklch-l: 0.7044;
   --sub-oklch-c: 0.1047;

@@ -1,3 +1,5 @@
+// Pretendard 가변 폰트 (앱에 포함 — 외부 서버 없이 필요한 글자 조각만 받아온다)
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
 import './index.css'
 import './design-system/ds.css'
 import { bootApp } from '@/services/appBoot'

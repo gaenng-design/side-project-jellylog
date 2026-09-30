@@ -58,6 +58,12 @@ export default defineConfig({
         // GitHub API 응답은 캐시하지 않음 (실시간 동기화 필요)
         runtimeCaching: [
           {
+            // 폰트 조각(woff2)은 처음 쓸 때 한 번 받아 오래 보관 — 오프라인에서도 같은 서체로 표시
+            urlPattern: /\.woff2$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'font-cache', expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 365 } },
+          },
+          {
             urlPattern: /^https:\/\/api\.github\.com\/.*/,
             handler: 'NetworkOnly',
             options: { cacheName: 'github-api-no-cache' },
