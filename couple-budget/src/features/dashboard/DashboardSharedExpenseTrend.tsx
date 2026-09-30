@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { DS } from '@/design-system/tokens'
 import { Card } from '@/design-system/components/Card'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
@@ -7,7 +7,7 @@ import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { PRIMARY } from '@/styles/formControls'
 import { resolveCategoryColor } from '@/lib/categoryColors'
 import { useChartTooltip } from './useChartTooltip'
-import { fmtAxis, useElementWidth } from './chartKit'
+import { Segmented, fmtAxis, useElementWidth } from './chartKit'
 import type { DashboardPeriod } from './useDashboardData'
 
 const fmt = (n: number) => n.toLocaleString('ko-KR')
@@ -32,6 +32,7 @@ export function DashboardSharedExpenseTrend({ period }: { period: DashboardPerio
   const currentYear = period.year
   const currentMonth = period.monthIdx
   const [wrapRef, W] = useElementWidth()
+  const [scope, setScope] = useState<'year' | 'month'>('year')
 
   const { monthly, monthlyByCategory, target, maxVal, totalUsed, categoryBreakdown } = useMemo(() => {
     const itemCategoryMap = new Map(items.map((it) => [it.id, it.category]))
@@ -109,14 +110,29 @@ export function DashboardSharedExpenseTrend({ period }: { period: DashboardPerio
 
   return (
     <Card variant="data" padding={5} hoverLift={false}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
         <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary }}>공동 생활비 추이</div>
-        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>
+        <Segmented value={scope} onChange={setScope} options={[{ value: 'year', label: '연간' }, { value: 'month', label: `${period.monthIdx + 1}월` }]} />
+      </div>
+      {scope === 'year' && (
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 8 }}>
           {year}년 합계 <strong style={{ color: PRIMARY }}>{fmt(totalUsed)}원</strong>
         </div>
-      </div>
+      )}
 
-      {allZero ? (
+      {scope === 'month' ? (
+        <MonthView
+          label={`${year}년 ${period.monthIdx + 1}월`}
+          used={monthly[period.monthIdx]}
+          prevUsed={period.monthIdx > 0 ? monthly[period.monthIdx - 1] : null}
+          target={target[period.monthIdx]}
+          entries={entries.filter((e) => e.yearMonth === period.ym && !e.excluded)}
+          items={items}
+          categoryColors={categoryColors}
+        />
+      ) : null}
+
+      {scope === 'month' ? null : allZero ? (
         <div
           style={{
             padding: `${DS.space[6]}px 0`,
@@ -373,5 +389,104 @@ export function DashboardSharedExpenseTrend({ period }: { period: DashboardPerio
         </>
       )}
     </Card>
+  )
+}
+
+/** 선택한 달 공동 생활비 — 사용/목표, 카테고리·항목별 사용처 */
+function MonthView({
+  label,
+  used,
+  prevUsed,
+  target,
+  entries,
+  items,
+  categoryColors,
+}: {
+  label: string
+  used: number
+  prevUsed: number | null
+  target: number
+  entries: { itemId: string; amount: number }[]
+  items: { id: string; name: string; category: string }[]
+  categoryColors: Record<string, string>
+}) {
+  const [showAll, setShowAll] = useState(false)
+  const { byCat, byItem } = useMemo(() => {
+    const info = new Map(items.map((it) => [it.id, it]))
+    const cat = new Map<string, number>()
+    const item = new Map<string, { name: string; category: string; amount: number }>()
+    for (const e of entries) {
+      const it = info.get(e.itemId)
+      const c = it?.category ?? '기타'
+      cat.set(c, (cat.get(c) ?? 0) + e.amount)
+      const prev = item.get(e.itemId) ?? { name: it?.name ?? '기타', category: c, amount: 0 }
+      prev.amount += e.amount
+      item.set(e.itemId, prev)
+    }
+    return {
+      byCat: [...cat.entries()].map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount),
+      byItem: [...item.values()].sort((a, b) => b.amount - a.amount),
+    }
+  }, [entries, items])
+
+  if (used === 0) {
+    return <div style={{ padding: `${DS.space[6]}px 0`, textAlign: 'center', fontSize: DS.font.size.body, color: DS.color.text.muted }}>{label}에 입력된 공동 생활비가 없어요</div>
+  }
+  const over = target > 0 && used > target
+  const pct = target > 0 ? Math.min(used / target, 1) : 0
+  const diff = prevUsed !== null && prevUsed > 0 ? used - prevUsed : null
+  const shown = showAll ? byItem : byItem.slice(0, 8)
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: DS.font.size.headline, fontWeight: 700, color: over ? DS.color.negative.main : DS.color.text.primary, ...tabularNums }}>{fmt(used)}원</span>
+        {target > 0 && <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, ...tabularNums }}>/ 목표 {fmt(target)}원</span>}
+      </div>
+      {target > 0 && (
+        <>
+          <div style={{ height: 8, borderRadius: 999, background: DS.color.bg.muted, overflow: 'hidden', margin: '8px 0 4px' }}>
+            <div style={{ width: `${pct * 100}%`, height: '100%', borderRadius: 999, background: over ? DS.color.negative.main : DS.color.primary }} />
+          </div>
+          <div style={{ fontSize: DS.font.size.caption, color: over ? DS.color.negative.main : DS.color.text.secondary, fontWeight: over ? 600 : 400, ...tabularNums }}>
+            {over ? `${fmt(used - target)}원 초과` : `${fmt(target - used)}원 남음`}
+            {diff !== null && <span style={{ color: DS.color.text.muted, fontWeight: 400 }}> · 전월보다 {diff > 0 ? '+' : diff < 0 ? '-' : ''}{fmt(Math.abs(diff))}원</span>}
+          </div>
+        </>
+      )}
+
+      <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.primary, margin: '16px 0 8px' }}>카테고리별</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {byCat.map(({ category, amount }) => {
+          const p = (amount / used) * 100
+          const { bg, fg } = resolveCategoryColor(category, categoryColors)
+          return (
+            <div key={category} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ flexShrink: 0, fontSize: DS.font.size.caption, fontWeight: 600, color: fg, background: bg, padding: '2px 8px', borderRadius: 999, minWidth: 60, textAlign: 'center' }}>{category}</span>
+              <div style={{ flex: 1, height: 6, background: DS.color.bg.muted, borderRadius: 999, overflow: 'hidden' }}>
+                <div style={{ width: `${p}%`, height: '100%', background: fg, borderRadius: 999 }} />
+              </div>
+              <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, minWidth: 96, textAlign: 'right', ...tabularNums }}>{fmt(amount)}원 ({p.toFixed(0)}%)</span>
+            </div>
+          )
+        })}
+      </div>
+
+      <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.primary, margin: '16px 0 8px' }}>항목별</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {shown.map((r, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: DS.font.size.body, ...tabularNums }}>
+            <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: DS.color.text.body }}>
+              {r.name} <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>{r.category}</span>
+            </span>
+            <span style={{ fontWeight: 600, color: DS.color.text.primary, flexShrink: 0 }}>{fmt(r.amount)}원</span>
+          </div>
+        ))}
+        {byItem.length > 8 && (
+          <button type="button" data-compact onClick={() => setShowAll((v) => !v)} style={{ alignSelf: 'center', height: 32, minHeight: 32, padding: '0 14px', borderRadius: DS.radius.chip, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, color: DS.color.text.secondary, fontSize: DS.font.size.caption, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            {showAll ? '접기' : `전체 ${byItem.length}개 보기`}
+          </button>
+        )}
+      </div>
+    </div>
   )
 }

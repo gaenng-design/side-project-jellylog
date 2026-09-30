@@ -237,3 +237,27 @@ export function SvgTooltip({
     </g>
   )
 }
+
+/** 작은 구간 전환 스위치 (연간 / 월 …) */
+export function Segmented<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: { value: T; label: string }[] }) {
+  return (
+    <div role="tablist" style={{ display: 'inline-flex', padding: 2, borderRadius: DS.radius.chip, background: DS.color.bg.muted }}>
+      {options.map((o) => {
+        const on = o.value === value
+        return (
+          <button
+            key={o.value}
+            type="button"
+            role="tab"
+            aria-selected={on}
+            data-compact
+            onClick={() => onChange(o.value)}
+            style={{ height: 28, minHeight: 28, padding: '0 12px', borderRadius: DS.radius.chip, border: 'none', background: on ? DS.color.bg.secondary : 'transparent', color: on ? DS.color.text.primary : DS.color.text.secondary, fontWeight: on ? 700 : 500, fontSize: DS.font.size.caption, boxShadow: on ? DS.shadow[1] : 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+          >
+            {o.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
