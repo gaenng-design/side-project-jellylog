@@ -1019,6 +1019,36 @@
       "name": "쿠팡 - 크림, 새우, 양파, 후추, 향균 스프레이",
       "category": "식료품",
       "order": 169
+    },
+    {
+      "id": "shared-expense-1790754536935",
+      "name": "형수다정민경 글램핑 숙소",
+      "category": "여행",
+      "order": 170
+    },
+    {
+      "id": "shared-expense-1790754536937",
+      "name": "채채네랑 피자",
+      "category": "외식비",
+      "order": 171
+    },
+    {
+      "id": "shared-expense-1790754536939",
+      "name": "쿠팡 - 물티슈",
+      "category": "생활 용품",
+      "order": 172
+    },
+    {
+      "id": "shared-expense-1790754536941",
+      "name": "카드 연회비",
+      "category": "기타",
+      "order": 173
+    },
+    {
+      "id": "shared-expense-1790754536943",
+      "name": "쿠팡 - 깔라만시",
+      "category": "식료품",
+      "order": 174
     }
   ],
   "entries": [
@@ -2238,6 +2268,46 @@
       "yearMonth": "2026-10",
       "day": 27,
       "amount": 74615,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790754536936",
+      "itemId": "shared-expense-1790754536935",
+      "yearMonth": "2026-10",
+      "day": 29,
+      "amount": 83335
+    },
+    {
+      "id": "shared-expense-1790754536938",
+      "itemId": "shared-expense-1790754536937",
+      "yearMonth": "2026-10",
+      "day": 27,
+      "amount": 19700,
+      "memo": "39,400원인데 채채한테 19700원 받음",
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790754536940",
+      "itemId": "shared-expense-1790754536939",
+      "yearMonth": "2026-10",
+      "day": 27,
+      "amount": 7420,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790754536942",
+      "itemId": "shared-expense-1790754536941",
+      "yearMonth": "2026-10",
+      "day": 4,
+      "amount": 20000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1790754536944",
+      "itemId": "shared-expense-1790754536943",
+      "yearMonth": "2026-10",
+      "day": 28,
+      "amount": 34000,
       "creditCard": true
     }
   ],
