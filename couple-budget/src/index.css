@@ -82,3 +82,9 @@ select,
 textarea {
   font-family: inherit;
 }
+
+/* 대시보드 핵심 지표 카드: 모바일 2열, 넓은 화면 3열 (6개가 남김없이 채워지도록) */
+.dash-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 720px) {
+  .dash-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

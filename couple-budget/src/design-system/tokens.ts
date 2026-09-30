@@ -55,6 +55,8 @@ export const DS = {
     warning: { main: '#F59E0B', text: '#D97706', soft: '#FFFBEB', border: '#FED7AA' },
     /** 자산 카테고리 */
     category: { savings: '#3B82F6', invest: '#8B5CF6', realEstate: '#F59E0B' },
+    /** 차트 계열 색 — 카테고리·항목 구분용 (순서대로 사용) */
+    chart: ['#4F8CFF', '#60A5FA', '#34D399', '#FBBF24', '#A78BFA', '#FB7185', '#2DD4BF', '#818CF8', '#F472B6', '#38BDF8', '#4ADE80', '#FACC15', '#94A3B8'],
     /** 글로벌 내비 */
     sidebar: { bg: '#1A1D21' },
     /** 차트 강조용 (텍스트에는 positive.main 사용) */

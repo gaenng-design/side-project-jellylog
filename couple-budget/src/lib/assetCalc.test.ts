@@ -12,6 +12,7 @@ import {
   getSavingsCumulativeInterest,
   INTEREST_TAX_RATE,
   getAssetFocusMonth,
+  getHouseholdFocusMonth,
 } from './assetCalc'
 
 const item = (patch: Partial<AssetItem>): AssetItem => ({
@@ -155,5 +156,19 @@ describe('getAssetFocusMonth', () => {
   })
   it('12월 22일 이후는 다음 해 1월', () => {
     expect(getAssetFocusMonth(new Date(2026, 11, 25))).toEqual({ year: 2027, monthIdx: 0, editableBoundary: 202700 })
+  })
+})
+
+describe('getHouseholdFocusMonth', () => {
+  it('25일 주기는 22일부터 다음 달', () => {
+    expect(getHouseholdFocusMonth(new Date(2026, 8, 21), 25)).toMatchObject({ year: 2026, monthIdx: 8 })
+    expect(getHouseholdFocusMonth(new Date(2026, 8, 22), 25)).toMatchObject({ year: 2026, monthIdx: 9 })
+  })
+  it('시작일 1(달력 월)은 말일까지 이번 달', () => {
+    expect(getHouseholdFocusMonth(new Date(2026, 8, 30), 1)).toMatchObject({ year: 2026, monthIdx: 8 })
+  })
+  it('시작일이 다르면 그에 맞춰 3일 앞당김', () => {
+    expect(getHouseholdFocusMonth(new Date(2026, 8, 7), 10)).toMatchObject({ monthIdx: 9 })
+    expect(getHouseholdFocusMonth(new Date(2026, 8, 6), 10)).toMatchObject({ monthIdx: 8 })
   })
 })

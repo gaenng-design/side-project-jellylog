@@ -76,6 +76,8 @@ export interface AppSettings {
    * key 목록: summary / assetTrend / sharedTrend / income / fixedCategory / investCumulative
    */
   dashboardWidgets?: Record<string, boolean>
+  /** 대시보드 위젯 표시 순서 (위젯 key 배열, 탭 안에서 이 순서대로 배치) */
+  dashboardWidgetOrder?: string[]
 }
 
 interface AppState {

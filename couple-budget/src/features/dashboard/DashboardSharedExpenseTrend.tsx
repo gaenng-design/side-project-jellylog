@@ -7,6 +7,8 @@ import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { PRIMARY } from '@/styles/formControls'
 import { resolveCategoryColor } from '@/lib/categoryColors'
 import { useChartTooltip } from './useChartTooltip'
+import { fmtAxis, useElementWidth } from './chartKit'
+import type { DashboardPeriod } from './useDashboardData'
 
 const fmt = (n: number) => n.toLocaleString('ko-KR')
 const tabularNums: React.CSSProperties = { fontVariantNumeric: 'tabular-nums' }
@@ -20,16 +22,16 @@ function ym(year: number, monthIdx: number) {
  * - 월별 사용액 막대 차트 + 목표 라인
  * - 카테고리별 비중 (이번 달)
  */
-export function DashboardSharedExpenseTrend({ year }: { year: number }) {
+export function DashboardSharedExpenseTrend({ period }: { period: DashboardPeriod }) {
+  const year = period.year
   const entries = useSharedExpenseStore((s) => s.entries)
   const items = useSharedExpenseStore((s) => s.items)
   const categoryColors = useSharedExpenseStore((s) => s.categoryColors)
   const sharedLivingCostTarget = useAppStore((s) => s.settings.sharedLivingCost ?? 0)
   const sharedByMonth = usePlanExtraStore((s) => s.sharedLivingCostByMonth)
-  const currentYearMonth = useAppStore((s) => s.currentYearMonth)
-  const [curYStr, curMStr] = currentYearMonth.split('-')
-  const currentYear = parseInt(curYStr, 10)
-  const currentMonth = parseInt(curMStr, 10) - 1
+  const currentYear = period.year
+  const currentMonth = period.monthIdx
+  const [wrapRef, W] = useElementWidth()
 
   const { monthly, monthlyByCategory, target, maxVal, totalUsed, categoryBreakdown } = useMemo(() => {
     const itemCategoryMap = new Map(items.map((it) => [it.id, it.category]))
@@ -89,9 +91,8 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
   const { activeIdx, svgRef, setHover, setClick } = useChartTooltip()
 
   // SVG 막대 + 목표 라인
-  const W = 720
-  const H = 200
-  const padL = 40
+  const H = 220
+  const padL = 44
   const padR = 16
   const padT = 16
   const padB = 24
@@ -109,7 +110,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
   return (
     <Card variant="data" padding={5} hoverLift={false}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-        <div style={{ fontSize: DS.font.title2.size, fontWeight: DS.font.title2.weight }}>🏠 공동 생활비 추이</div>
+        <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary }}>공동 생활비 추이</div>
         <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>
           {year}년 합계 <strong style={{ color: PRIMARY }}>{fmt(totalUsed)}원</strong>
         </div>
@@ -128,13 +129,13 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
         </div>
       ) : (
         <>
-          <div style={{ overflowX: 'auto' }}>
+          <div ref={wrapRef} style={{ width: '100%' }}>
             <svg
               ref={svgRef}
               width={W}
               height={H}
               viewBox={`0 0 ${W} ${H}`}
-              style={{ display: 'block', minWidth: 480 }}
+              style={{ display: 'block' }}
             >
               {/* 가로 그리드 */}
               {[0, 0.5, 1].map((p, i) => {
@@ -143,7 +144,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                   <g key={i}>
                     <line x1={padL} x2={W - padR} y1={yPos} y2={yPos} stroke={DS.color.border.subtle} strokeDasharray={p === 0 ? '0' : '3 3'} />
                     <text x={padL - 6} y={yPos + 4} fontSize={DS.font.size.caption} fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
-                      {p === 0 ? 0 : `${Math.round((maxVal * p) / 10000)}만`}
+                      {p === 0 ? 0 : fmtAxis(maxVal * p)}
                     </text>
                   </g>
                 )
@@ -198,7 +199,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
               {/* x축 라벨 */}
               {Array.from({ length: 12 }, (_, i) => (
                 <text key={i} x={pointX(i)} y={H - 6} fontSize={DS.font.size.caption} fill={DS.color.text.muted} textAnchor="middle">
-                  {i + 1}월
+                  {W >= 440 ? `${i + 1}월` : i + 1}
                 </text>
               ))}
               {/* 투명 hit 영역 */}
@@ -238,11 +239,11 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                   ...(tgt > 0 ? [`목표 ${fmt(tgt)}원`] : []),
                   ...catLines,
                 ]
-                const lineH = 13
+                const lineH = 16
                 const padX = 8
                 const padY = 6
                 const maxLineLen = Math.max(...lines.map((l) => l.length))
-                const boxW = Math.max(110, maxLineLen * 7 + padX * 2)
+                const boxW = Math.max(110, maxLineLen * 11 + padX * 2)
                 const boxH = lines.length * lineH + padY * 2
                 let tx = pointX(i) + 8
                 if (tx + boxW > W - padR) tx = pointX(i) - boxW - 8
@@ -259,7 +260,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                           key={li}
                           x={tx + padX}
                           y={ty + padY + (li + 1) * lineH - 3}
-                          fontSize={isCat ? 10 : 10.5}
+                          fontSize={DS.font.size.caption}
                           fill={isHeader ? DS.color.text.muted : isCat ? DS.color.border.default : DS.color.bg.secondary}
                           style={tabularNums}
                         >

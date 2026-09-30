@@ -14,17 +14,28 @@ export type GetEntry = (itemId: string, yearMonth: string) => number
 /** 이자소득세 (일반과세 15.4%) */
 export const INTEREST_TAX_RATE = 0.154
 
+/** 주기 시작일을 며칠 앞당겨 "이번 달"로 넘기는지 (시작일이 주말·공휴일일 수 있어서) */
+export const CYCLE_EARLY_START_DAYS = 3
+
 /**
- * 자산 화면의 "이번 달" — 오늘 날짜 기준. 매달 22일부터는 다음 달을 기준으로 삼는다
- * (다음 달 잔액을 미리 입력하는 시기). 자산 탭과 대시보드가 같은 값을 쓰도록 이 함수 하나만 사용한다.
+ * 가계 주기 기준 "이번 달" — 주기는 startDay일 → 다음 달 (startDay-1)일이고, 이름은 끝나는 달이다.
+ * 시작일이 주말·공휴일일 수 있어 CYCLE_EARLY_START_DAYS(3일) 앞당겨 다음 주기로 넘어간다 (25일 시작 → 22일부터).
+ * startDay ≤ 1 이면 달력 월 그대로. 자산 탭·대시보드가 모두 이 함수 하나만 쓴다.
  * editableBoundary: 이 달까지는 입력값/추정값을 쓰고, 이후는 예상값 (yyyy*100 + monthIdx)
  */
-export function getAssetFocusMonth(today: Date = new Date()): { year: number; monthIdx: number; editableBoundary: number } {
-  const d = today.getDate() >= 22 ? new Date(today.getFullYear(), today.getMonth() + 1, 1) : today
+export function getHouseholdFocusMonth(
+  today: Date = new Date(),
+  startDay: number = 25,
+): { year: number; monthIdx: number; editableBoundary: number } {
+  const effectiveStart = startDay <= 1 ? 32 : Math.max(2, startDay - CYCLE_EARLY_START_DAYS)
+  const d = today.getDate() >= effectiveStart ? new Date(today.getFullYear(), today.getMonth() + 1, 1) : today
   const year = d.getFullYear()
   const monthIdx = d.getMonth()
   return { year, monthIdx, editableBoundary: year * 100 + monthIdx }
 }
+
+/** 자산 화면용 별칭 (기본 25일 주기 → 22일부터 다음 달) */
+export const getAssetFocusMonth = getHouseholdFocusMonth
 
 export function ym(year: number, monthIdx: number): string {
   return `${year}-${String(monthIdx + 1).padStart(2, '0')}`

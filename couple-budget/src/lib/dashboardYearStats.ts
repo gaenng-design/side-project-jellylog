@@ -204,3 +204,105 @@ export function cumulativeFromMonthly(monthly: number[]): number[] {
   }
   return out
 }
+
+export interface FixedItemRow {
+  key: string
+  name: string
+  category: string
+  /** 연간 합계 */
+  amount: number
+  /** 월별 금액 (1월~12월) */
+  monthly: number[]
+  pct: number
+}
+
+/**
+ * 연간 고정지출을 "항목별"로 합산 — 같은 카테고리·이름은 한 줄로 합친다.
+ * 템플릿 항목은 월별 금액·제외를 반영하고, 그 달 추가 행(고정 카드에 직접 추가)도 포함한다.
+ */
+export function buildYearFixedItemBreakdown(
+  year: number,
+  startedMonths: string[],
+  templateSnapshotsByMonth: Record<string, { fixed?: FixedTemplate[] } | undefined>,
+  globalSortedTemplates: FixedTemplate[],
+  getFixedMonthlyAmount: (templateId: string, yearMonth: string) => number | undefined,
+  isFixedExcluded: (templateId: string, yearMonth: string) => boolean,
+  extraRowsByMonth: Record<string, { fixed?: { category: string; description: string; amount: number }[] } | undefined>,
+): FixedItemRow[] {
+  const map = new Map<string, FixedItemRow>()
+  const add = (category: string, name: string, month: number, amount: number) => {
+    if (!amount) return
+    const cat = category?.trim() || '기타'
+    const nm = name?.trim() || cat
+    const key = `${cat}::${nm}`
+    let row = map.get(key)
+    if (!row) {
+      row = { key, name: nm, category: cat, amount: 0, monthly: Array(12).fill(0), pct: 0 }
+      map.set(key, row)
+    }
+    row.amount += amount
+    row.monthly[month] += amount
+  }
+  for (let m = 0; m < 12; m++) {
+    const ym = padYearMonth(year, m + 1)
+    if (!startedMonths.includes(ym)) continue
+    for (const tpl of effectiveFixedTemplatesForMonth(ym, templateSnapshotsByMonth, globalSortedTemplates)) {
+      if (isFixedExcluded(tpl.id, ym)) continue
+      add(tpl.category, tpl.description, m, getFixedMonthlyAmount(tpl.id, ym) ?? tpl.defaultAmount)
+    }
+    for (const r of extraRowsByMonth[ym]?.fixed ?? []) add(r.category, r.description, m, r.amount)
+  }
+  const rows = [...map.values()].sort((a, b) => b.amount - a.amount)
+  const total = rows.reduce((s, r) => s + r.amount, 0)
+  return rows.map((r) => ({ ...r, pct: total > 0 ? (r.amount / total) * 100 : 0 }))
+}
+
+/** 시작한 달의 별도 지출 합계 (별도 지출 카드 행) */
+export function monthlySeparateTotal(
+  ym: string,
+  startedMonths: string[],
+  separateRowsByMonth: Record<string, { amount: number }[] | undefined>,
+): number {
+  if (!startedMonths.includes(ym)) return 0
+  return (separateRowsByMonth[ym] ?? []).reduce((s, r) => s + r.amount, 0)
+}
+
+export interface MonthlyFlow {
+  income: number
+  fixed: number
+  separate: number
+  living: number
+  invest: number
+  /** 지출 = 고정 + 별도 + 공동 생활비 (저축·투자 제외) */
+  spending: number
+  /** 남는 돈(용돈) = 수입 − 지출 − 저축·투자 */
+  leftover: number
+  /** 저축률 = 저축·투자 ÷ 수입 (수입 0이면 null) */
+  savingRate: number | null
+  /** 시작하지 않은 달 (집계 대상 아님) */
+  empty: boolean
+}
+
+/** 월별 수입·지출·저축 흐름 — 지출 계획과 같은 식 (수입 − 고정 − 별도 − 공동 생활비 − 저축·투자 = 남는 돈) */
+export function buildMonthlyFlow(parts: {
+  income: number
+  fixed: number
+  separate: number
+  living: number
+  invest: number
+}): MonthlyFlow {
+  const { income, fixed, separate, living, invest } = parts
+  const spending = fixed + separate + living
+  const empty = income === 0 && spending === 0 && invest === 0
+  return {
+    income,
+    fixed,
+    separate,
+    living,
+    invest,
+    spending,
+    leftover: income - spending - invest,
+    savingRate: income > 0 ? (invest / income) * 100 : null,
+    empty,
+  }
+}

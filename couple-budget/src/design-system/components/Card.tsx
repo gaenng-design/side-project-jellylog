@@ -18,8 +18,12 @@ export function Card(props: {
   style?: CSSProperties
   className?: string
   hoverLift?: boolean
+  role?: string
+  tabIndex?: number
+  onClick?: () => void
+  onKeyDown?: (e: React.KeyboardEvent) => void
 }) {
-  const { children, variant = 'default', padding = 5, style, className, hoverLift = true } = props
+  const { children, variant = 'default', padding = 5, style, className, hoverLift = true, role, tabIndex, onClick, onKeyDown } = props
   const p = DS.space[padding]
   const [hover, setHover] = useState(false)
 
@@ -38,6 +42,10 @@ export function Card(props: {
   return (
     <div
       className={className}
+      role={role}
+      tabIndex={tabIndex}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
       style={{
         borderRadius: DS.radius.card,
         padding: p,
