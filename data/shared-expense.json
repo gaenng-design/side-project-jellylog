@@ -2255,14 +2255,6 @@
       "cardSettled": true
     },
     {
-      "id": "shared-expense-1790508574802",
-      "itemId": "shared-expense-1790508574801",
-      "yearMonth": "2026-10",
-      "day": 27,
-      "amount": 7420,
-      "creditCard": true
-    },
-    {
       "id": "shared-expense-1790518917642",
       "itemId": "shared-expense-1790518917641",
       "yearMonth": "2026-10",
@@ -2284,7 +2276,8 @@
       "day": 27,
       "amount": 19700,
       "memo": "39,400원인데 채채한테 19700원 받음",
-      "creditCard": true
+      "creditCard": true,
+      "cardSettled": true
     },
     {
       "id": "shared-expense-1790754536940",
