@@ -7,7 +7,6 @@ import { DeltaText, deltaColor } from '@/design-system/components/DeltaText'
 import { InfoTip } from '@/design-system/components/InfoTip'
 import { useAppStore } from '@/store/useAppStore'
 import { useAssetStore, ASSET_CATEGORIES } from '@/store/useAssetStore'
-import { useSettlementStore } from '@/store/useSettlementStore'
 import { getEffectiveEntry, parseYM, daysUntil, addMonths, ym as toYM } from '@/lib/assetCalc'
 import { isMaturityTracked } from '@/features/assets/components/MaturityAlerts'
 import type { AssetItem } from '@/types'
@@ -202,8 +201,8 @@ export function TodoWidget({ period }: WidgetProps) {
   const entries = useAssetStore((s) => s.entries)
   const getEntry = useAssetStore((s) => s.getEntry)
   const startedMonths = useAppStore((s) => s.startedMonths)
-  const settlements = useSettlementStore((s) => s.settlements)
-  const isSettled = useSettlementStore((s) => s.isSettled)
+  // 지출 계획의 「정산 완료」는 앱 스토어의 settledMonths 에 기록된다
+  const settledMonths = useAppStore((s) => s.settledMonths)
 
   const todos = useMemo(() => {
     const list: { key: string; tone: 'warning' | 'info'; text: string; to: string; ym?: string }[] = []
@@ -213,7 +212,7 @@ export function TodoWidget({ period }: WidgetProps) {
     for (let d = 1; d <= 3; d++) {
       const p = addMonths(year, monthIdx, -d)
       const key = toYM(p.year, p.monthIdx)
-      if (startedMonths.includes(key) && !isSettled(key)) {
+      if (startedMonths.includes(key) && !settledMonths.includes(key)) {
         list.push({ key: `settle-${key}`, tone: 'warning', text: `${p.monthIdx + 1}월 정산이 아직 완료되지 않았어요`, to: '/expense-plan', ym: key })
       }
     }
@@ -235,7 +234,7 @@ export function TodoWidget({ period }: WidgetProps) {
     }
     return list
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, entries, getEntry, startedMonths, settlements, isSettled, period.focusYM])
+  }, [items, entries, getEntry, startedMonths, settledMonths, period.focusYM])
 
   if (todos.length === 0) return null
   return (
