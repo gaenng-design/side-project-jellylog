@@ -5,14 +5,13 @@ import {
   INPUT_BORDER_RADIUS,
   INPUT_HEIGHT,
   PRIMARY,
-  PRIMARY_DARK,
-  PRIMARY_LIGHT,
   DROPDOWN_PADDING_COMPACT,
   DROPDOWN_CARET_COLOR,
   DROPDOWN_CARET_FONT_SIZE_COMPACT,
-  DROPDOWN_ITEM_PADDING_REGULAR,
+  DROPDOWN_PANEL_STYLE,
+  dropdownItemStyle,
+  dropdownItemHover,
 } from '@/styles/formControls'
-import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
 import { DropdownArrowIcon } from './DropdownArrowIcon'
 import { DS } from '@/design-system/tokens'
@@ -67,22 +66,13 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
     whiteSpace: 'nowrap' as const,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+    fontFamily: 'inherit',
   }
 
   const caretColor = DROPDOWN_CARET_COLOR
 
-  const panelStyle =
-    variant === 'dark'
-      ? {
-          background: DS.color.bg.secondary,
-          border: '1px solid rgba(15, 23, 42, 0.06)',
-          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.1)',
-        }
-      : {
-          ...jellyCardStyle,
-          background: 'rgba(255, 255, 255, 0.42)',
-        }
+  /** 다른 드롭다운과 같은 패널 (variant 와 무관) */
+  const panelStyle = DROPDOWN_PANEL_STYLE
 
   const triggerW = triggerRef.current?.offsetWidth ?? CATEGORY_SELECT_TRIGGER_WIDTH
 
@@ -121,28 +111,17 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
             top: '100%',
             marginTop: 8,
             boxSizing: 'border-box',
-            borderRadius: JELLY.radiusControl,
             zIndex: 200,
-            overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            ...(narrow
-              ? {
-                  left: 0,
-                  transform: 'none',
-                  width: 'max-content',
-                  minWidth: Math.max(168, triggerW),
-                  maxWidth: 'min(260px, calc(100vw - 24px))',
-                }
-              : {
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  minWidth: Math.max(120, triggerW),
-                }),
+            // 다른 드롭다운처럼 트리거 왼쪽 정렬, 최소 너비 100
+            left: 0,
+            minWidth: Math.max(100, triggerW),
+            ...(narrow ? { width: 'max-content', maxWidth: 'min(260px, calc(100vw - 24px))' } : null),
             ...panelStyle,
           }}
         >
-          <div style={{ maxHeight: 240, overflowY: 'auto', padding: 6 }}>
+          <div style={{ maxHeight: 220, overflowY: 'auto' }}>
             {years.map((y) => {
               const active = y === value
               return (
@@ -155,21 +134,9 @@ export function YearSelectDropdown({ value, onChange, variant = 'light' }: YearS
                     onChange(y)
                     setOpen(false)
                   }}
-                  style={{
-                    width: '100%',
-                    textAlign: 'left',
-                    padding: DROPDOWN_ITEM_PADDING_REGULAR,
-                    border: 'none',
-                    background: active ? PRIMARY_LIGHT : 'transparent',
-                    color: active ? PRIMARY_DARK : JELLY.text,
-                    fontSize: DS.font.size.body,
-                    fontWeight: active ? 700 : 500,
-                    cursor: 'pointer',
-                    borderRadius: JELLY.radiusControl,
-                    height: INPUT_HEIGHT,
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
+                  style={dropdownItemStyle(active, true)}
+                  onMouseEnter={(e) => dropdownItemHover(e.currentTarget, active, true)}
+                  onMouseLeave={(e) => dropdownItemHover(e.currentTarget, active, false)}
                 >
                   {y}년
                 </button>

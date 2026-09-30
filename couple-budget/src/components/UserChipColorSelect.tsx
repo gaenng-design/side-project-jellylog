@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { CHIP_COLOR_PRESETS } from '@/components/PersonUI'
-import { JELLY, jellyCardStyle } from '@/styles/jellyGlass'
-import { DROPDOWN_CARET_COLOR } from '@/styles/formControls'
+import { JELLY } from '@/styles/jellyGlass'
+import { DROPDOWN_CARET_COLOR, DROPDOWN_PANEL_STYLE } from '@/styles/formControls'
 import { DropdownArrowIcon } from './DropdownArrowIcon'
 import { DS } from '@/design-system/tokens'
 
@@ -12,9 +12,9 @@ interface UserChipColorSelectProps {
 }
 
 const dropdownStyle = {
-  ...jellyCardStyle,
+  ...DROPDOWN_PANEL_STYLE,
   padding: 12,
-  zIndex: 10000,
+  zIndex: 13000,
   minWidth: 200,
 } as const
 

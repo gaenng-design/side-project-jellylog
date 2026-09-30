@@ -197,6 +197,43 @@ export const DROPDOWN_CARET_FONT_SIZE_COMPACT = 10
 export const DROPDOWN_ITEM_PADDING_REGULAR = '0 14px'
 export const DROPDOWN_ITEM_PADDING_COMPACT = '0 12px'
 
+/** 드롭다운 목록 패널 — 모든 드롭다운(CustomSelect·DaySelect·YearSelectDropdown 등)이 같은 패널을 쓴다 */
+export const DROPDOWN_PANEL_STYLE = {
+  background: DS.color.bg.secondary,
+  border: INPUT_BORDER,
+  borderRadius: INPUT_BORDER_RADIUS,
+  boxShadow: DS.shadow[2],
+  overflow: 'hidden',
+} as const
+
+/**
+ * 드롭다운 항목 — 선택됨: 연한 주 색 배경 + 진한 주 색 글자(600), 그 외: 본문색.
+ * 글자 크기는 트리거와 같게(compact=caption, 기본=body). hover 는 dropdownItemHover 로.
+ */
+export function dropdownItemStyle(selected: boolean, compact: boolean): CSSProperties {
+  return {
+    height: INPUT_HEIGHT,
+    padding: compact ? DROPDOWN_ITEM_PADDING_COMPACT : DROPDOWN_ITEM_PADDING_REGULAR,
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    boxSizing: 'border-box',
+    border: 'none',
+    textAlign: 'left',
+    fontFamily: 'inherit',
+    fontSize: compact ? DS.font.size.caption : DS.font.size.body,
+    cursor: 'pointer',
+    color: selected ? DS.color.primaryDark : DS.color.text.body,
+    background: selected ? PRIMARY_LIGHT : 'transparent',
+    fontWeight: selected ? 600 : 400,
+  }
+}
+
+/** hover: 선택되지 않은 항목만 옅은 회색 배경 (선택 항목의 파란 배경과 구분) */
+export function dropdownItemHover(el: HTMLElement, selected: boolean, on: boolean) {
+  if (!selected) el.style.background = on ? DS.color.bg.muted : 'transparent'
+}
+
 export const inputBaseStyle = {
   ...jellyInputSurface,
   height: INPUT_HEIGHT,

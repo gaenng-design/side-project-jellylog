@@ -5,8 +5,9 @@ import { Switch } from '@/design-system/components/Switch'
 import { InfoTip } from '@/design-system/components/InfoTip'
 import { useAppStore } from '@/store/useAppStore'
 import { YearSelectDropdown } from '@/components/YearSelectDropdown'
+import { CustomSelect } from '@/components/CustomSelect'
 import { Modal } from '@/components/Modal'
-import { pageTitleH1Style } from '@/styles/formControls'
+import { CATEGORY_SELECT_TRIGGER_WIDTH, pageTitleH1Style } from '@/styles/formControls'
 import { getHouseholdFocusMonth, ym as toYM } from '@/lib/assetCalc'
 import { getCycleRange } from '@/lib/sharedExpenseCycle'
 import { DashboardSharedExpenseTrend } from './DashboardSharedExpenseTrend'
@@ -84,18 +85,7 @@ function renderWidget(key: DashboardWidgetKey, period: DashboardPeriod, data: Da
   }
 }
 
-const monthSelectStyle = {
-  height: 36,
-  padding: '0 28px 0 12px',
-  borderRadius: DS.radius.control,
-  border: `1px solid ${DS.color.border.subtle}`,
-  background: DS.color.bg.secondary,
-  color: DS.color.text.body,
-  fontSize: DS.font.size.body,
-  fontWeight: 600,
-  fontFamily: 'inherit',
-  cursor: 'pointer',
-} as const
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => `${i + 1}월`)
 
 /** 종합 요약 + 트렌드 시각화 — 연·월 하나를 골라 탭(요약/자산/가계 흐름/지출)별로 본다 */
 export function DashboardPage() {
@@ -155,16 +145,13 @@ export function DashboardPage() {
         <h1 style={{ ...pageTitleH1Style, margin: 0 }}>대시보드</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <YearSelectDropdown value={year} onChange={(y) => setPicked({ year: y, monthIdx })} variant="light" />
-          <select
-            aria-label="기준 월"
-            value={monthIdx}
-            onChange={(e) => setPicked({ year, monthIdx: Number(e.target.value) })}
-            style={monthSelectStyle}
-          >
-            {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={i}>{i + 1}월</option>
-            ))}
-          </select>
+          <CustomSelect
+            compact
+            triggerWidth={CATEGORY_SELECT_TRIGGER_WIDTH}
+            options={MONTH_OPTIONS}
+            value={`${monthIdx + 1}월`}
+            onChange={(v) => setPicked({ year, monthIdx: parseInt(v, 10) - 1 })}
+          />
           {!period.isCurrent && (
             <Button size="sm" variant="soft" onClick={() => setPicked(null)}>이번 달로</Button>
           )}

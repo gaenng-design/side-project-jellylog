@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, type ReactNode, type MouseEvent as ReactMouseEvent } from 'react'
 import { createPortal } from 'react-dom'
-import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT, DROPDOWN_PADDING_COMPACT, DROPDOWN_PADDING_REGULAR, DROPDOWN_CARET_COLOR, DROPDOWN_CARET_FONT_SIZE_COMPACT, DROPDOWN_CARET_FONT_SIZE_REGULAR, DROPDOWN_ITEM_PADDING_COMPACT, DROPDOWN_ITEM_PADDING_REGULAR } from '@/styles/formControls'
+import { INPUT_HEIGHT, INPUT_BORDER_RADIUS, INPUT_FONT_SIZE, INPUT_BORDER, PRIMARY, PRIMARY_LIGHT, DROPDOWN_PADDING_COMPACT, DROPDOWN_PADDING_REGULAR, DROPDOWN_CARET_COLOR, DROPDOWN_CARET_FONT_SIZE_COMPACT, DROPDOWN_CARET_FONT_SIZE_REGULAR, DROPDOWN_ITEM_PADDING_COMPACT, DROPDOWN_ITEM_PADDING_REGULAR, DROPDOWN_PANEL_STYLE, dropdownItemStyle, dropdownItemHover } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
 import { DropdownArrowIcon } from './DropdownArrowIcon'
 import { DS } from '@/design-system/tokens'
@@ -35,13 +35,7 @@ interface CustomSelectProps {
 }
 
 /** Modal 오버레이(12000) 위에 포털 드롭다운이 보이도록 */
-const dropdownStyle = {
-  background: DS.color.bg.secondary,
-  border: INPUT_BORDER,
-  borderRadius: INPUT_BORDER_RADIUS,
-  boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
-  zIndex: 13000,
-} as const
+const dropdownStyle = { ...DROPDOWN_PANEL_STYLE, zIndex: 13000 } as const
 
 function hexToRgba(hex: string, alpha: number): string {
   const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i)
@@ -192,6 +186,7 @@ export function CustomSelect({
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               fontWeight: compactAutoWidth && customChipBg ? 700 : 500,
+              fontFamily: 'inherit',
               boxSizing: 'border-box',
             }}
           >
@@ -255,23 +250,9 @@ export function CustomSelect({
                 role="option"
                 aria-selected={opt === value}
                 onClick={() => { onChange(opt); close() }}
-                style={{
-                  height: INPUT_HEIGHT,
-                  padding: DROPDOWN_ITEM_PADDING_COMPACT,
-                  display: 'flex',
-                  alignItems: 'center',
-                  fontSize: DS.font.size.caption,
-                  cursor: 'pointer',
-                  color: opt === value ? PRIMARY : DS.color.text.body,
-                  background: opt === value ? PRIMARY_LIGHT : 'transparent',
-                  fontWeight: opt === value ? 600 : 400,
-                }}
-                onMouseEnter={(e) => {
-                  if (opt !== value) (e.currentTarget as HTMLDivElement).style.background = PRIMARY_LIGHT
-                }}
-                onMouseLeave={(e) => {
-                  if (opt !== value) (e.currentTarget as HTMLDivElement).style.background = 'transparent'
-                }}
+                style={dropdownItemStyle(opt === value, true)}
+                onMouseEnter={(e) => dropdownItemHover(e.currentTarget, opt === value, true)}
+                onMouseLeave={(e) => dropdownItemHover(e.currentTarget, opt === value, false)}
               >
                 {opt}
               </div>
@@ -318,6 +299,7 @@ export function CustomSelect({
             alignItems: 'center',
             gap: 10,
             fontFamily: 'inherit',
+            fontWeight: 500,
             boxSizing: 'border-box',
           }}
         >
@@ -345,23 +327,9 @@ export function CustomSelect({
               role="option"
               aria-selected={opt === value}
               onClick={() => { onChange(opt); close() }}
-              style={{
-                height: INPUT_HEIGHT,
-                padding: DROPDOWN_ITEM_PADDING_REGULAR,
-                display: 'flex',
-                alignItems: 'center',
-                fontSize: INPUT_FONT_SIZE,
-                cursor: 'pointer',
-                color: opt === value ? PRIMARY : DS.color.text.body,
-                background: opt === value ? PRIMARY_LIGHT : 'transparent',
-                fontWeight: opt === value ? 600 : 400,
-              }}
-              onMouseEnter={(e) => {
-                if (opt !== value) (e.currentTarget as HTMLDivElement).style.background = PRIMARY_LIGHT
-              }}
-              onMouseLeave={(e) => {
-                if (opt !== value) (e.currentTarget as HTMLDivElement).style.background = 'transparent'
-              }}
+              style={dropdownItemStyle(opt === value, false)}
+              onMouseEnter={(e) => dropdownItemHover(e.currentTarget, opt === value, true)}
+              onMouseLeave={(e) => dropdownItemHover(e.currentTarget, opt === value, false)}
             >
               {opt}
             </div>

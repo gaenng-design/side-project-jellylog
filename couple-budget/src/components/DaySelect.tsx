@@ -15,6 +15,9 @@ import {
   DROPDOWN_CARET_FONT_SIZE_REGULAR,
   DROPDOWN_ITEM_PADDING_COMPACT,
   DROPDOWN_ITEM_PADDING_REGULAR,
+  DROPDOWN_PANEL_STYLE,
+  dropdownItemStyle,
+  dropdownItemHover,
 } from '@/styles/formControls'
 import { DropdownArrowIcon } from './DropdownArrowIcon'
 import { DS } from '@/design-system/tokens'
@@ -31,14 +34,8 @@ function formatPayDay(v: number | null | undefined): string {
   return `${v}일`
 }
 
-/** Modal 오버레이(12000) 위에 보이도록 — CustomSelect 포털과 동일 계열 */
-const dropdownStyle = {
-  background: DS.color.bg.secondary,
-  border: INPUT_BORDER,
-  borderRadius: INPUT_BORDER_RADIUS,
-  boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
-  zIndex: 13000,
-} as const
+/** Modal 오버레이(12000) 위에 보이도록 — CustomSelect 포털과 같은 패널 */
+const dropdownStyle = { ...DROPDOWN_PANEL_STYLE, zIndex: 13000 } as const
 
 interface DaySelectProps {
   value?: number | null
@@ -142,6 +139,7 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         fontWeight: 500,
+        fontFamily: 'inherit',
       }
     : {
         height: INPUT_HEIGHT,
@@ -158,6 +156,7 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
         justifyContent: 'space-between',
         alignItems: 'center',
         gap: 8,
+        fontWeight: 500,
         fontFamily: 'inherit',
       }
 
@@ -215,23 +214,9 @@ export function DaySelect({ value, onChange, disabled, compact, width = DAY_SELE
                     onChange(opt.value)
                     close()
                   }}
-                  style={{
-                    height: INPUT_HEIGHT,
-                    padding: compact ? DROPDOWN_ITEM_PADDING_COMPACT : DROPDOWN_ITEM_PADDING_REGULAR,
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontSize: compact ? DS.font.size.caption : INPUT_FONT_SIZE,
-                    cursor: 'pointer',
-                    color: isSelected ? PRIMARY : DS.color.text.body,
-                    background: isSelected ? PRIMARY_LIGHT : 'transparent',
-                    fontWeight: isSelected ? 600 : 400,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = PRIMARY_LIGHT
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'transparent'
-                  }}
+                  style={dropdownItemStyle(isSelected, !!compact)}
+                  onMouseEnter={(e) => dropdownItemHover(e.currentTarget, isSelected, true)}
+                  onMouseLeave={(e) => dropdownItemHover(e.currentTarget, isSelected, false)}
                 >
                   {opt.label}
                 </div>
