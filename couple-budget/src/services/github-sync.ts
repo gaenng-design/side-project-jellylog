@@ -17,6 +17,8 @@ export interface AppData {
   incomes: unknown
   settlements: unknown
   metadata: unknown
+  /** 부동산 계획 (매매 전·후 시나리오) */
+  realEstate?: unknown
 }
 
 export interface GitHubSyncResult {

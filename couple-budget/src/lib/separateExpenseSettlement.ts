@@ -62,3 +62,25 @@ export function computeSeparateExpenseCard5090(rows: SeparateExpenseRowLike[]) {
     transferTo,
   }
 }
+
+/**
+ * 별도 지출 카드를 「개인이 지불」한 항목과 「공금(공동 통장)」 항목으로 나눈다.
+ * - 개인 지불(isSeparate): 낸 사람별 합 → 유저별 "내야할 돈"에 그대로 포함, 나머지는 50:50 송금 정산
+ * - 공금(!isSeparate): 합계의 절반씩 자동 부담
+ * 두 묶음은 서로 겹치지 않는다. (공금 항목을 '낸 사람'으로도 세면 같은 금액이 이중으로 잡힌다.)
+ */
+export function splitSeparateExpenseCard(rows: (SeparateExpenseRowLike & { isExcluded?: boolean })[]) {
+  const active = rows.filter((r) => !r.isExcluded && (r.amount ?? 0) > 0)
+  let personalPaidA = 0
+  let personalPaidB = 0
+  let fundTotal = 0
+  for (const r of active) {
+    if (r.isSeparate) {
+      if (payerForSeparateExpenseRow(r) === 'A') personalPaidA += r.amount
+      else personalPaidB += r.amount
+    } else {
+      fundTotal += r.amount
+    }
+  }
+  return { personalPaidA, personalPaidB, fundTotal, fundHalf: Math.round(fundTotal / 2) }
+}

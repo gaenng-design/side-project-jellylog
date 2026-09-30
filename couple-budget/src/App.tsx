@@ -23,6 +23,7 @@ import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { useSettlementStore } from '@/store/useSettlementStore'
 import { useAssetStore } from '@/store/useAssetStore'
+import { useRealEstatePlanStore } from '@/store/useRealEstatePlanStore'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
 import { GitHubDataSync } from '@/services/github-sync'
 import { DS } from '@/design-system/tokens'
@@ -73,6 +74,7 @@ function AppShell() {
       const settlementState = useSettlementStore.getState()
       const assetState = useAssetStore.getState()
       const sharedExpenseState = useSharedExpenseStore.getState()
+      const realEstateState = useRealEstatePlanStore.getState()
 
       // localStorage repository 데이터 (월별 실제 수입/지출 항목들)
       const readRepo = (key: string): unknown[] => {
@@ -131,6 +133,11 @@ function AppShell() {
           transfers: settlementState.transfers,
           payChecksByMonth: settlementState.payChecksByMonth,
           memoByMonth: settlementState.memoByMonth,
+        },
+        realEstate: {
+          plans: realEstateState.plans,
+          activePlanId: realEstateState.activePlanId,
+          purchasedPlanId: realEstateState.purchasedPlanId,
         },
         metadata: {
           app: appState,
@@ -239,6 +246,16 @@ function AppShell() {
             useSettlementStore.setState({ payChecksByMonth: settlementData.payChecksByMonth })
           if (settlementData.memoByMonth)
             useSettlementStore.setState({ memoByMonth: settlementData.memoByMonth })
+        }
+
+        // 부동산 계획 복원 — 이전 버전으로 저장된 데이터에는 없으므로 있을 때만
+        const realEstate = (result.data as { realEstate?: { plans?: unknown; activePlanId?: string | null; purchasedPlanId?: string | null } }).realEstate
+        if (realEstate && Array.isArray(realEstate.plans)) {
+          useRealEstatePlanStore.setState({
+            plans: realEstate.plans as ReturnType<typeof useRealEstatePlanStore.getState>['plans'],
+            activePlanId: realEstate.activePlanId ?? null,
+            purchasedPlanId: realEstate.purchasedPlanId ?? null,
+          })
         }
 
         const metadata = result.data.metadata as { app?: Parameters<typeof useAppStore.setState>[0] } | undefined

@@ -38,7 +38,7 @@ import { InvestRow } from '@/components/InvestRow'
 import { AccountNumberInline } from '@/components/AccountNumberInline'
 import { DaySelect } from '@/components/DaySelect'
 import { calcSettlementSummary, getSharedLivingByPerson } from '@/lib/calcSettlementSummary'
-import { computeSeparateExpenseCard5090, payerForSeparateExpenseRow } from '@/lib/separateExpenseSettlement'
+import { computeSeparateExpenseCard5090, splitSeparateExpenseCard } from '@/lib/separateExpenseSettlement'
 import { SettlementResultView } from './SettlementResultView'
 import { deletePlanMonthCore } from './deletePlanMonth'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
@@ -2008,6 +2008,12 @@ export function ExpensePlanPage() {
   const totalFixed = fixedRowsForBudget.filter((r) => !r.isExcluded).reduce((s, i) => s + i.amount, 0)
   const totalInvest = investRows.filter((r) => !r.isExcluded).reduce((s, i) => s + i.amount, 0)
 
+  // 이번 달 공동 생활비: 월별로 바꾼 값이 있으면 그 값, 없으면 설정 기본값 (카드 표시·용돈·정산이 같은 값을 쓰도록)
+  const settingsForMonth = useMemo(
+    () => ({ ...settings, sharedLivingCost: sharedLivingCostByMonth[currentYearMonth] ?? settings.sharedLivingCost }),
+    [settings, sharedLivingCostByMonth, currentYearMonth],
+  )
+
   const allowanceBreakdown = useMemo(
     () =>
       computeAllowanceBreakdown(
@@ -2017,8 +2023,8 @@ export function ExpensePlanPage() {
         investRows,
         settings.personAIncomeDay,
         settings.personBIncomeDay,
-        settings.sharedLivingCost ?? 0,
-        settings,
+        settingsForMonth.sharedLivingCost ?? 0,
+        settingsForMonth,
       ),
     [
       incomeRowsEffective,
@@ -2027,10 +2033,7 @@ export function ExpensePlanPage() {
       investRows,
       settings.personAIncomeDay,
       settings.personBIncomeDay,
-      settings.sharedLivingCost,
-      settings.sharedLivingCostRatioMode,
-      settings.sharedLivingCostRatio,
-      settings,
+      settingsForMonth,
     ],
   )
 
@@ -2050,13 +2053,10 @@ export function ExpensePlanPage() {
     const templateSepB = templateSeparateItems
       .filter((i) => sepPersonTemplate(i) === 'B')
       .reduce((s, i) => s + i.amount, 0)
-    const cardActive = separateExpenseExtraRows.filter((r) => !r.isExcluded)
-    const cardPaidA = cardActive
-      .filter((r) => payerForSeparateExpenseRow(r) === 'A')
-      .reduce((s, r) => s + r.amount, 0)
-    const cardPaidB = cardActive
-      .filter((r) => payerForSeparateExpenseRow(r) === 'B')
-      .reduce((s, r) => s + r.amount, 0)
+    // 별도 지출 카드: 개인이 지불한 항목(낸 사람별)과 공금 항목(50:50 자동 부담)을 겹치지 않게 나눈다
+    const cardSplit = splitSeparateExpenseCard(separateExpenseExtraRows)
+    const cardPaidA = cardSplit.personalPaidA
+    const cardPaidB = cardSplit.personalPaidB
     const separateByUserA = templateSepA + cardPaidA
     const separateByUserB = templateSepB + cardPaidB
     // 50:50 송금 정산: 「개인이 지불」 토글된 항목 (한 명이 직접 지불 → 절반 송금)
@@ -2064,10 +2064,8 @@ export function ExpensePlanPage() {
       separateExpenseExtraRows.filter((r) => r.isSeparate),
     )
     // 공금(공동 통장) 별도지출 합계: 토글 OFF 항목 → 자동 50:50 부담
-    const sharedFundExpenseTotal = separateExpenseExtraRows
-      .filter((r) => !r.isExcluded && !r.isSeparate)
-      .reduce((s, r) => s + r.amount, 0)
-    const sharedFundExpenseHalf = Math.round(sharedFundExpenseTotal / 2)
+    const sharedFundExpenseTotal = cardSplit.fundTotal
+    const sharedFundExpenseHalf = cardSplit.fundHalf
     const incomeByPerson = {
       A: incomeRowsEffective.filter((r) => r.person === 'A').reduce((s, r) => s + r.amount, 0),
       B: incomeRowsEffective.filter((r) => r.person === 'B').reduce((s, r) => s + r.amount, 0),
@@ -2118,7 +2116,7 @@ export function ExpensePlanPage() {
         sharedFundExpenseTotal,
         sharedFundExpenseHalf,
       },
-      settings,
+      settingsForMonth,
     )
   }, [
     fixedRows,
@@ -2129,7 +2127,7 @@ export function ExpensePlanPage() {
     totalIncome,
     totalFixed,
     totalInvest,
-    settings,
+    settingsForMonth,
   ])
 
   /** 정산 완료 달: 재진입·설정 복귀 시 로컬 state가 초기화돼도 결과 화면을 유지. 수정하기로 연 편집 중에는 건드리지 않음 */

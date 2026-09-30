@@ -4,7 +4,7 @@ import { Card } from '@/design-system/components/Card'
 import { useAppStore } from '@/store/useAppStore'
 import { useAssetStore, ASSET_CATEGORIES } from '@/store/useAssetStore'
 import type { AssetItem } from '@/types'
-import { getEffectiveEntry, getEffectivePnl, parseYM, getAssetFocusMonth } from '@/lib/assetCalc'
+import { getEffectiveEntry, getEffectivePnl, parseYM, getAssetFocusMonth, daysUntil } from '@/lib/assetCalc'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { PRIMARY } from '@/styles/formControls'
@@ -195,12 +195,11 @@ export function DashboardSummaryCards() {
         const purpose = g.purpose.trim()
         const deadlineLabel = (() => {
           if (!g.deadline) return ''
-          const d = new Date(g.deadline)
-          if (Number.isNaN(d.getTime())) return ''
-          const today = new Date()
-          today.setHours(0, 0, 0, 0)
-          const diffDays = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-          const ymdLabel = `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`
+          // 'YYYY-MM-DD' 를 new Date() 로 읽으면 UTC 자정이라 한국 시간에서 하루가 어긋난다 → 로컬 날짜로 계산
+          const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(g.deadline)
+          if (!m) return ''
+          const diffDays = daysUntil(g.deadline)
+          const ymdLabel = `${Number(m[1])}.${Number(m[2])}.${Number(m[3])}`
           if (diffDays < 0) return `${ymdLabel} (${-diffDays}일 초과)`
           if (diffDays === 0) return `${ymdLabel} (오늘 마감)`
           if (diffDays < 30) return `${ymdLabel} (${diffDays}일 남음)`
