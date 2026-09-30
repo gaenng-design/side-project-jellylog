@@ -64,7 +64,8 @@ export const DS = {
     gradient: 'linear-gradient(135deg, #4F8CFF 0%, #6EA8FF 100%)',
   },
   font: {
-    family: `'Inter', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif`,
+    /** 시스템 글꼴 — 외부 폰트를 받지 않아 즉시 표시된다. iOS: SF + Apple SD Gothic Neo, Android: Roboto + Noto Sans KR, Windows: Segoe UI + 맑은 고딕 */
+    family: `system-ui, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Segoe UI', Roboto, sans-serif`,
     title1: { size: 24, weight: 700 as const, lineHeight: 1.25 },
     title2: { size: 20, weight: 600 as const, lineHeight: 1.3 },
     body: { size: 14, weight: 400 as const, lineHeight: 1.5 },

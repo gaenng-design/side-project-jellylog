@@ -18,7 +18,8 @@ body,
 }
 
 body {
-  font-family: 'Inter', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+  /* tokens.ts 의 DS.font.family 와 같은 값 */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Segoe UI', Roboto, sans-serif;
   color: #1a1d1f;
   -webkit-font-smoothing: antialiased;
   /* 서브 팔레트 (그래프·칩과 동일 토큰, CSS에서 참조용) */

@@ -4,7 +4,7 @@ import { Card } from '@/design-system/components/Card'
 import { useAppStore } from '@/store/useAppStore'
 import { useAssetStore, ASSET_CATEGORIES } from '@/store/useAssetStore'
 import type { AssetItem } from '@/types'
-import { getEffectiveEntry, getEffectivePnl, parseYM } from '@/lib/assetCalc'
+import { getEffectiveEntry, getEffectivePnl, parseYM, getAssetFocusMonth } from '@/lib/assetCalc'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
 import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { PRIMARY } from '@/styles/formControls'
@@ -34,7 +34,10 @@ export function DashboardSummaryCards() {
   const year = parseInt(yearStr, 10)
   const monthIdx = parseInt(monthStr, 10) - 1
   const currentYM = ym(year, monthIdx)
-  const prevYM = monthIdx === 0 ? ym(year - 1, 11) : ym(year, monthIdx - 1)
+  // 자산 수치는 자산 탭과 같은 "이번 달"(22일 이후는 다음 달)을 쓴다. 공동 생활비는 선택한 월(currentYM) 기준
+  const focus = getAssetFocusMonth()
+  const assetYM = ym(focus.year, focus.monthIdx)
+  const assetPrevYM = focus.monthIdx === 0 ? ym(focus.year - 1, 11) : ym(focus.year, focus.monthIdx - 1)
 
   // 자산 store
   const items = useAssetStore((s) => s.items)
@@ -56,17 +59,17 @@ export function DashboardSummaryCards() {
     const assetItems = items.filter((i) => ASSET_CATEGORIES.includes(i.category))
 
     // 이번 달 총 자산 (carry-forward 적용)
-    const totalAsset = assetItems.reduce((sum, item) => sum + getItemAmount(item, currentYM), 0)
+    const totalAsset = assetItems.reduce((sum, item) => sum + getItemAmount(item, assetYM), 0)
     // 가용 자산 (locked 아닌 항목만)
     const availableAsset = assetItems
       .filter((item) => !item.locked)
-      .reduce((sum, item) => sum + getItemAmount(item, currentYM), 0)
+      .reduce((sum, item) => sum + getItemAmount(item, assetYM), 0)
     // 저축·투자 자산
     const savingsAsset = assetItems
       .filter((item) => item.category === '저축' || item.category === '투자')
-      .reduce((sum, item) => sum + getItemAmount(item, currentYM), 0)
+      .reduce((sum, item) => sum + getItemAmount(item, assetYM), 0)
     // 전월 총 자산
-    const prevTotalAsset = assetItems.reduce((sum, item) => sum + getItemAmount(item, prevYM), 0)
+    const prevTotalAsset = assetItems.reduce((sum, item) => sum + getItemAmount(item, assetPrevYM), 0)
     const assetDelta = totalAsset - prevTotalAsset
 
     // 카테고리별 자산 합계
@@ -74,22 +77,22 @@ export function DashboardSummaryCards() {
       cat,
       total: assetItems
         .filter((i) => i.category === cat)
-        .reduce((sum, item) => sum + getItemAmount(item, currentYM), 0),
+        .reduce((sum, item) => sum + getItemAmount(item, assetYM), 0),
     }))
 
     // 투자 총 손익
     const investItems = assetItems.filter((i) => i.category === '투자')
-    const { year: curY, monthIdx: curM } = parseYM(currentYM)
+    const { year: curY, monthIdx: curM } = parseYM(assetYM)
     const investPnl = investItems.reduce((s, item) => s + getEffectivePnl(item, curY, curM, getCostBasisEntry), 0)
-    const investBalance = investItems.reduce((s, item) => s + getItemAmount(item, currentYM), 0)
+    const investBalance = investItems.reduce((s, item) => s + getItemAmount(item, assetYM), 0)
     const investBasis = investBalance - investPnl
 
     // 연초(1월) 총 자산 — 데이터가 없으면 가장 이른 입력 월 사용
-    let baselineYM = ym(year, 0)
+    let baselineYM = ym(focus.year, 0)
     let baselineAsset = assetItems.reduce((sum, item) => sum + getItemAmount(item, baselineYM), 0)
     if (baselineAsset === 0) {
-      for (let mi = 1; mi <= monthIdx; mi++) {
-        const candidate = ym(year, mi)
+      for (let mi = 1; mi <= focus.monthIdx; mi++) {
+        const candidate = ym(focus.year, mi)
         const sum = assetItems.reduce((s, item) => s + getItemAmount(item, candidate), 0)
         if (sum > 0) {
           baselineYM = candidate
@@ -126,7 +129,7 @@ export function DashboardSummaryCards() {
       investBalance,
       investBasis,
     }
-  }, [items, entries, getEntry, getCostBasisEntry, currentYM, prevYM, year, monthIdx, sharedEntries, sharedMonthlyOverride, sharedLivingCostTarget])
+  }, [items, entries, getEntry, getCostBasisEntry, currentYM, assetYM, assetPrevYM, focus.year, focus.monthIdx, sharedEntries, sharedMonthlyOverride, sharedLivingCostTarget])
 
   const sharedProgress =
     stats.sharedExpenseTarget > 0
@@ -277,7 +280,7 @@ export function DashboardSummaryCards() {
       {/* 1. 총 자산 */}
       <Card variant="data" padding={4} hoverLift={false}>
         <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
-          {year}년 {monthIdx + 1}월 · 총 자산
+          {focus.year}년 {focus.monthIdx + 1}월 · 총 자산
         </div>
         <div style={{ fontSize: 22, fontWeight: 700, color: PRIMARY, ...tabularNums }}>
           {fmt(stats.totalAsset)}원

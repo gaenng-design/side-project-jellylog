@@ -42,4 +42,4 @@
 - **안전 영역:** 상단 바·메뉴·본문 하단 여백에 `env(safe-area-inset-*)` 를 더한다 (노치·상태 표시줄·홈 바).
 - **높이 단위:** 앱 전체 높이는 `100dvh` (`.app-shell`), 모달은 `dvh` 로 한정한다.
 - **표:** 모바일에서는 첫 열(월)을 고정하고 가로로 민다. 셀 여백은 8px.
-- **웹폰트:** 화면 표시를 막지 않도록 `<link media="print" onload>` 로 비동기 로딩한다 (`index.html`). CSS `@import` 로 외부 폰트를 불러오지 않는다.
+- **서체:** 시스템 글꼴을 쓴다 (`DS.font.family`: iOS는 SF + Apple SD Gothic Neo, Android는 Roboto + Noto Sans KR, Windows는 Segoe UI + 맑은 고딕). 외부 웹폰트를 불러오지 않는다 — 로딩 지연·서버 의존이 없고 기기 기본 서체 그대로 보인다.

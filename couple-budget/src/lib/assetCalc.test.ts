@@ -11,6 +11,7 @@ import {
   getEffectivePnl,
   getSavingsCumulativeInterest,
   INTEREST_TAX_RATE,
+  getAssetFocusMonth,
 } from './assetCalc'
 
 const item = (patch: Partial<AssetItem>): AssetItem => ({
@@ -144,5 +145,15 @@ describe('getSavingsCumulativeInterest', () => {
     const get = store({ '2026-01': 1_000_000 })
     expect(getSavingsCumulativeInterest(it1, 2026, 3, get, '2026-01')).toBeCloseTo(30_000)
     expect(getSavingsCumulativeInterest(it1, 2027, 0, get, '2026-01')).toBeCloseTo(60_000)
+  })
+})
+
+describe('getAssetFocusMonth', () => {
+  it('21일까지는 이번 달, 22일부터는 다음 달', () => {
+    expect(getAssetFocusMonth(new Date(2026, 8, 21))).toEqual({ year: 2026, monthIdx: 8, editableBoundary: 202608 })
+    expect(getAssetFocusMonth(new Date(2026, 8, 22))).toEqual({ year: 2026, monthIdx: 9, editableBoundary: 202609 })
+  })
+  it('12월 22일 이후는 다음 해 1월', () => {
+    expect(getAssetFocusMonth(new Date(2026, 11, 25))).toEqual({ year: 2027, monthIdx: 0, editableBoundary: 202700 })
   })
 })

@@ -3,8 +3,7 @@ import { DS } from '@/design-system/tokens'
 import { Card } from '@/design-system/components/Card'
 import { useAssetStore, ASSET_CATEGORIES } from '@/store/useAssetStore'
 import type { AssetItem } from '@/types'
-import { getEffectiveEntry, parseYM } from '@/lib/assetCalc'
-import { useAppStore } from '@/store/useAppStore'
+import { getEffectiveEntry, parseYM, getAssetFocusMonth } from '@/lib/assetCalc'
 import { PRIMARY } from '@/styles/formControls'
 import { useChartTooltip } from './useChartTooltip'
 
@@ -48,10 +47,8 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
   const items = useAssetStore((s) => s.items)
   const entries = useAssetStore((s) => s.entries)
   const getEntry = useAssetStore((s) => s.getEntry)
-  const currentYearMonth = useAppStore((s) => s.currentYearMonth)
-  const [curYStr, curMStr] = currentYearMonth.split('-')
-  const currentYear = parseInt(curYStr, 10)
-  const currentMonth = parseInt(curMStr, 10) - 1
+  // 자산 탭과 같은 "이번 달" 기준 (22일 이후는 다음 달)
+  const { year: currentYear, monthIdx: currentMonth } = getAssetFocusMonth()
   const { totalSeries, availableSeries, max, lastIdx } = useMemo(() => {
     /** 자산 탭과 같은 기준 — 입력 없는 달은 직전 입력값 + 월 납입액으로 추정 */
     const getItemAmount = (item: AssetItem, ymStr: string): number => {

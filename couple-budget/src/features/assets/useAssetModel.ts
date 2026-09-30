@@ -9,6 +9,7 @@ import {
   getSavingsCumulativeInterest as cumulativeInterest,
   buildFirstEntryMap,
   INTEREST_TAX_RATE,
+  getAssetFocusMonth,
 } from '@/lib/assetCalc'
 import { DS } from '@/design-system/tokens'
 
@@ -20,16 +21,10 @@ export function useAssetModel() {
   const settings = useAppStore((s) => s.settings)
 
   // 자산 탭의 "현재 달" 경계는 오늘 날짜 고정 — 다른 탭에서 선택한 월에 영향받지 않아야 함
-  // 22일 기준: 22일 이전 → 이번 달 포커싱/편집, 22일 이후 → 다음 달도 편집 허용
+  // 22일 이전 → 이번 달 포커싱/편집, 22일 이후 → 다음 달도 편집 허용 (대시보드와 같은 규칙: getAssetFocusMonth)
   const today = new Date()
   const canEditNextMonth = today.getDate() >= 22
-  const focusDate = canEditNextMonth
-    ? new Date(today.getFullYear(), today.getMonth() + 1, 1)
-    : today
-  const currentYear = focusDate.getFullYear()
-  const currentMonth = focusDate.getMonth() // 0-based
-  // 편집 허용 상한: 22일 이전 → 이번 달까지, 22일 이후 → 다음 달까지
-  const editableBoundary = currentYear * 100 + currentMonth
+  const { year: currentYear, monthIdx: currentMonth, editableBoundary } = getAssetFocusMonth(today)
 
   /** 월이 편집 가능한지 — 이번 달 + 다음 달까지 허용 */
   const isMonthEditable = (yr: number, monthIdx: number): boolean => {
