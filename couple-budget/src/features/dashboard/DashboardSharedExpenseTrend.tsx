@@ -110,7 +110,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
     <Card variant="data" padding={5} hoverLift={false}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
         <div style={{ fontSize: DS.font.title2.size, fontWeight: DS.font.title2.weight }}>🏠 공동 생활비 추이</div>
-        <div style={{ fontSize: 11, color: DS.color.text.secondary }}>
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>
           {year}년 합계 <strong style={{ color: PRIMARY }}>{fmt(totalUsed)}원</strong>
         </div>
       </div>
@@ -142,7 +142,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                 return (
                   <g key={i}>
                     <line x1={padL} x2={W - padR} y1={yPos} y2={yPos} stroke={DS.color.border.subtle} strokeDasharray={p === 0 ? '0' : '3 3'} />
-                    <text x={padL - 6} y={yPos + 4} fontSize="11" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
+                    <text x={padL - 6} y={yPos + 4} fontSize={DS.font.size.caption} fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
                       {p === 0 ? 0 : `${Math.round((maxVal * p) / 10000)}만`}
                     </text>
                   </g>
@@ -197,7 +197,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
               )}
               {/* x축 라벨 */}
               {Array.from({ length: 12 }, (_, i) => (
-                <text key={i} x={pointX(i)} y={H - 6} fontSize="11" fill={DS.color.text.muted} textAnchor="middle">
+                <text key={i} x={pointX(i)} y={H - 6} fontSize={DS.font.size.caption} fill={DS.color.text.muted} textAnchor="middle">
                   {i + 1}월
                 </text>
               ))}
@@ -279,7 +279,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                 display: 'flex',
                 gap: 12,
                 marginTop: 8,
-                fontSize: 11,
+                fontSize: DS.font.size.caption,
                 color: DS.color.text.secondary,
                 flexWrap: 'wrap',
                 alignItems: 'center',
@@ -326,7 +326,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
           {/* 카테고리별 비중 (이번 연도) */}
           {categoryBreakdown.length > 0 && (
             <div style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: DS.color.text.primary }}>
+              <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, marginBottom: 8, color: DS.color.text.primary }}>
                 카테고리별 비중
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -338,7 +338,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                       <span
                         style={{
                           flexShrink: 0,
-                          fontSize: DS.font.size.micro,
+                          fontSize: DS.font.size.caption,
                           fontWeight: 600,
                           color: fg,
                           background: bg,
@@ -360,7 +360,7 @@ export function DashboardSharedExpenseTrend({ year }: { year: number }) {
                           }}
                         />
                       </div>
-                      <span style={{ fontSize: 11, color: DS.color.text.secondary, minWidth: 90, textAlign: 'right', ...tabularNums }}>
+                      <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, minWidth: 90, textAlign: 'right', ...tabularNums }}>
                         {fmt(amount)}원 ({pct.toFixed(0)}%)
                       </span>
                     </div>

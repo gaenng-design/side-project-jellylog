@@ -9,7 +9,7 @@ export const DROPDOWN_ARROW_ICON = '▼'
 /** 화면 상단 메인 제목 — 지출 계획과 동일(크기·굵기·색) */
 export const pageTitleH1Style: CSSProperties = {
   margin: 0,
-  fontSize: 24,
+  fontSize: DS.font.size.headline,
   fontWeight: 700,
   color: DS.color.text.primary,
 }
@@ -44,7 +44,7 @@ export const INPUT_HEIGHT = 40
 /** 설정 > 고정·투자 템플릿 하단 행: 항목 추가 버튼·인풋·드롭다운 동일 높이 */
 export const SETTINGS_TEMPLATE_ROW_HEIGHT = 34
 export const INPUT_BORDER_RADIUS = JELLY.radiusControl
-export const INPUT_FONT_SIZE = 14
+export const INPUT_FONT_SIZE = DS.font.size.body
 export const INPUT_BORDER = `1px solid ${DS.color.border.subtle}`
 export const AMOUNT_INPUT_MIN_WIDTH = 100
 
@@ -76,7 +76,7 @@ export const buttonWriteDeleteStyle: CSSProperties = {
   border: '1px solid rgba(252, 165, 165, 0.55)',
   background: 'rgba(254, 242, 242, 0.95)',
   color: DS.color.negative.strong,
-  fontSize: 13,
+  fontSize: DS.font.size.body,
   fontWeight: 600,
   cursor: 'pointer',
   boxShadow: '0 2px 8px rgba(239, 68, 68, 0.08)',
@@ -177,7 +177,7 @@ export const stickyPlanInvestCardGroupHeaderStyle: CSSProperties = {
 
 /** 설정 템플릿 행 삭제 버튼과 동일 */
 export const settingsTemplateDeleteButtonStyle: CSSProperties = {
-  fontSize: 11,
+  fontSize: DS.font.size.caption,
   padding: '8px 14px',
   borderRadius: JELLY.radiusControl,
   border: '1px solid rgba(252, 165, 165, 0.45)',
@@ -223,7 +223,7 @@ export const settingsTemplateAddRowInputStyle: CSSProperties = {
 
 /** 설정 템플릿 「+ 항목 추가」 공통 버튼 골격(enabled 시 배경·색만 덮어씀) */
 export const settingsTemplateAddItemButtonBase: CSSProperties = {
-  fontSize: 12,
+  fontSize: DS.font.size.caption,
   height: SETTINGS_TEMPLATE_ROW_HEIGHT,
   minHeight: SETTINGS_TEMPLATE_ROW_HEIGHT,
   padding: '0 14px',

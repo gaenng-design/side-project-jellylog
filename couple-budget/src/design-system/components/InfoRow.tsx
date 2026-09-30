@@ -24,12 +24,12 @@ export function InfoRow({
         ...(strong ? { paddingTop: 8, marginTop: 4, borderTop: `1px solid ${DS.color.border.subtle}` } : {}),
       }}
     >
-      <span style={{ fontSize: 11, fontWeight: strong ? 600 : 400, color: strong ? DS.color.text.body : DS.color.text.secondary }}>
+      <span style={{ fontSize: DS.font.size.caption, fontWeight: strong ? 600 : 400, color: strong ? DS.color.text.body : DS.color.text.secondary }}>
         {label}
       </span>
       <span
         style={{
-          fontSize: strong ? 14 : 11,
+          fontSize: strong ? DS.font.size.body : DS.font.size.caption,
           fontWeight: strong ? 700 : 500,
           color: valueColor ?? (strong ? DS.color.primary : DS.color.text.body),
           ...tabularNums,

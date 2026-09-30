@@ -23,7 +23,7 @@ export function Chip({
         border: `1.5px solid ${active ? DS.color.primary : DS.color.border.subtle}`,
         background: active ? DS.color.primarySoft : DS.color.bg.secondary,
         color: active ? DS.color.primaryDark : DS.color.text.secondary,
-        fontSize: 12,
+        fontSize: DS.font.size.caption,
         fontWeight: active ? 600 : 400,
         fontFamily: 'inherit',
         cursor: 'pointer',
@@ -32,7 +32,7 @@ export function Chip({
     >
       {children}
       {suffix != null && (
-        <span style={{ fontSize: 11, fontWeight: 400, color: active ? DS.color.primaryDark : DS.color.text.muted }}>{suffix}</span>
+        <span style={{ fontSize: DS.font.size.caption, fontWeight: 400, color: active ? DS.color.primaryDark : DS.color.text.muted }}>{suffix}</span>
       )}
     </button>
   )

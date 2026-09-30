@@ -65,7 +65,7 @@ export function Switch({
         />
       </span>
       {label != null && (
-        <span style={{ fontSize: 13, color: checked ? DS.color.primaryDark : DS.color.text.muted }}>{label}</span>
+        <span style={{ fontSize: DS.font.size.body, color: checked ? DS.color.primaryDark : DS.color.text.muted }}>{label}</span>
       )}
     </button>
   )

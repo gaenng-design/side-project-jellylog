@@ -56,7 +56,7 @@ export function EditItemModal({
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4 }}>항목명 <span style={{ color: DS.color.negative.main }}>*</span></div>
+          <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>항목명 <span style={{ color: DS.color.negative.main }}>*</span></div>
           <input
             value={editForm.name}
             onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
@@ -78,7 +78,7 @@ export function EditItemModal({
 
         <div style={{ display: 'flex', gap: 8 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리 <span style={{ color: DS.color.negative.main }}>*</span></div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>카테고리 <span style={{ color: DS.color.negative.main }}>*</span></div>
             <CustomSelect
               options={ASSET_CATEGORIES}
               value={editForm.category}
@@ -89,7 +89,7 @@ export function EditItemModal({
             />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>명의 <span style={{ color: DS.color.negative.main }}>*</span></div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>명의 <span style={{ color: DS.color.negative.main }}>*</span></div>
             <CustomSelect
               options={['공유', personAName, personBName]}
               value={editForm.person === 'A' ? personAName : editForm.person === 'B' ? personBName : '공유'}
@@ -106,7 +106,7 @@ export function EditItemModal({
 
         {editForm.category !== '부동산' && !(editForm.category === '저축' && editForm.savingsType === 'deposit') && (
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>정기입금액 (선택)</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>정기입금액 (선택)</div>
             <AmountInput
               value={editForm.defaultAmount}
               onChange={(v) => setEditForm({ ...editForm, defaultAmount: v })}
@@ -118,14 +118,14 @@ export function EditItemModal({
 
         {/* 예금 전용: 원금은 월별 표에서 수정 (defaultAmount는 월 납입액이므로 사용하지 않음) */}
         {editForm.category === '저축' && editForm.savingsType === 'deposit' && (
-          <div style={{ fontSize: 11, color: DS.color.text.secondary }}>
+          <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>
             예금 원금은 월별 표의 금액 칸에서 수정할 수 있어요.
           </div>
         )}
 
         {/* 묶인 돈 토글 */}
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4 }}>묶인 돈</div>
+          <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>묶인 돈</div>
           <ToggleSwitch checked={editForm.locked} onChange={(v) => setEditForm({ ...editForm, locked: v })} />
         </div>
 
@@ -134,7 +134,7 @@ export function EditItemModal({
           <>
             {/* 적금 / 예금 선택 */}
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>종류 <span style={{ color: DS.color.negative.main }}>*</span></div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>종류 <span style={{ color: DS.color.negative.main }}>*</span></div>
               <div style={{ display: 'flex', gap: 8 }}>
                 {SAVINGS_TYPES.map((type) => {
                   const label = savingsTypeLabel(type)
@@ -150,7 +150,7 @@ export function EditItemModal({
                         borderRadius: INPUT_BORDER_RADIUS,
                         border: `1.5px solid ${active ? PRIMARY : DS.color.border.subtle}`,
                         background: active ? 'rgba(79,140,255,0.1)' : DS.color.bg.secondary,
-                        fontSize: 13,
+                        fontSize: DS.font.size.body,
                         fontWeight: active ? 600 : 400,
                         color: active ? PRIMARY : DS.color.text.secondary,
                         cursor: 'pointer',
@@ -165,7 +165,7 @@ export function EditItemModal({
             </div>
             {/* 연이율 */}
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>연이율 % {editForm.savingsType !== 'checking' && editForm.savingsType !== 'subscription' && <span style={{ color: DS.color.negative.main }}>*</span>}</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>연이율 % {editForm.savingsType !== 'checking' && editForm.savingsType !== 'subscription' && <span style={{ color: DS.color.negative.main }}>*</span>}</div>
               <input
                 type="number"
                 min="0"
@@ -191,7 +191,7 @@ export function EditItemModal({
             {/* 만기일: 청약은 불필요 */}
             {editForm.savingsType !== 'subscription' && (
               <div>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 {editForm.savingsType !== 'checking' && <span style={{ color: DS.color.negative.main }}>*</span>}</div>
+                <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>만기일 {editForm.savingsType !== 'checking' && <span style={{ color: DS.color.negative.main }}>*</span>}</div>
                 <input
                   type="date"
                   value={editForm.maturityDate}
@@ -218,7 +218,7 @@ export function EditItemModal({
       {/* 해지/만기 처리 */}
       {editForm.category === '저축' && (
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>해지/만기 처리</div>
+          <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>해지/만기 처리</div>
           <ToggleSwitch
             checked={!!editForm.closedYM}
             onChange={(v) => setEditForm({ ...editForm, closedYM: v ? currentYM : '' })}
@@ -226,7 +226,7 @@ export function EditItemModal({
             offLabel="사용 중"
           />
           {editForm.closedYM && (
-            <div style={{ fontSize: 11, color: DS.color.warning.main, marginTop: 4 }}>
+            <div style={{ fontSize: DS.font.size.caption, color: DS.color.warning.main, marginTop: 4 }}>
               {editForm.closedYM} 이후 자동 이월 중단
             </div>
           )}

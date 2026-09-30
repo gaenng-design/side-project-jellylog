@@ -51,7 +51,7 @@ export function AssetPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
         <h1 style={{ ...pageTitleH1Style, margin: 0 }}>자산</h1>
         {sortedItems.length > 0 && (
-          <Button variant="primary" size="sm" onClick={() => setShowBalanceModal(true)} style={{ padding: '8px 14px', fontSize: 13 }}>
+          <Button variant="primary" size="sm" onClick={() => setShowBalanceModal(true)} style={{ padding: '8px 14px', fontSize: DS.font.size.body }}>
             ✏️ {MONTHS[currentMonth]} 잔액 입력
           </Button>
         )}
@@ -74,7 +74,7 @@ export function AssetPage() {
 
       {/* 항목 접기 안내 */}
       {sortedItems.length > 0 && collapsedItems.size > 0 && (
-        <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 8 }}>
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 8 }}>
           접힌 항목 {collapsedItems.size}개 · 총합은 변경되지 않습니다.
           <button
             type="button"
@@ -82,7 +82,7 @@ export function AssetPage() {
             style={{
               marginLeft: 8,
               padding: '2px 8px',
-              fontSize: 11,
+              fontSize: DS.font.size.caption,
               border: `1px solid ${DS.color.border.strong}`,
               background: DS.color.bg.secondary,
               borderRadius: 6,

@@ -120,7 +120,7 @@ export function MonthPicker({ onBeforeChange, omitYearDropdown = false }: MonthP
                     transition: 'background 0.15s ease, color 0.15s ease, border-color 0.15s ease',
                     fontFamily: 'inherit',
                     whiteSpace: 'nowrap',
-                    fontSize: 13,
+                    fontSize: DS.font.size.body,
                     fontWeight: active ? 700 : 500,
                     lineHeight: 1,
                   }}

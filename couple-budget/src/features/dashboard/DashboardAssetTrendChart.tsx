@@ -121,7 +121,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
         <div style={{ fontSize: DS.font.title2.size, fontWeight: DS.font.title2.weight }}>
           📈 자산 변화 추이
         </div>
-        <div style={{ fontSize: 11, color: DS.color.text.secondary }}>
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>
           {year}년 · 월별 총 자산 / 가용 자산
         </div>
       </div>
@@ -151,7 +151,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
               {yTicks.map((t, i) => (
                 <g key={i}>
                   <line x1={padL} x2={W - padR} y1={t.y} y2={t.y} stroke={DS.color.border.subtle} strokeDasharray={i === 0 ? '0' : '3 3'} />
-                  <text x={padL - 6} y={t.y + 4} fontSize="11" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
+                  <text x={padL - 6} y={t.y + 4} fontSize={DS.font.size.caption} fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
                     {formatKRShort(t.value)}
                   </text>
                 </g>
@@ -179,7 +179,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
               })}
               {/* x축 라벨 */}
               {MONTHS_LABEL.map((m, i) => (
-                <text key={i} x={pointX(i)} y={H - 6} fontSize="11" fill={DS.color.text.muted} textAnchor="middle">
+                <text key={i} x={pointX(i)} y={H - 6} fontSize={DS.font.size.caption} fill={DS.color.text.muted} textAnchor="middle">
                   {m}월
                 </text>
               ))}
@@ -228,7 +228,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
                         key={li}
                         x={tx + padX}
                         y={ty + padY + (li + 1) * lineH - 3}
-                        fontSize="11"
+                        fontSize={DS.font.size.caption}
                         fill={li === 0 ? DS.color.text.muted : DS.color.bg.secondary}
                         style={tabularNums}
                       >
@@ -240,7 +240,7 @@ export function DashboardAssetTrendChart({ year }: { year: number }) {
               })()}
             </svg>
           </div>
-          <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: DS.color.text.secondary }}>
+          <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ display: 'inline-block', width: 12, height: 2, background: PRIMARY }} />
               총 자산

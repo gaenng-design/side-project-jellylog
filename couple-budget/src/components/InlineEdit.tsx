@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { PRIMARY_LIGHT } from '@/styles/formControls'
 import { JELLY } from '@/styles/jellyGlass'
+import { DS } from '@/design-system/tokens'
 
 interface InlineEditProps {
   value: string
@@ -47,7 +48,7 @@ export function InlineEdit({
 
   if (disabled) {
     return (
-      <span style={{ fontSize: 13, color: JELLY.text, textAlign: align, display: 'block' }}>
+      <span style={{ fontSize: DS.font.size.body, color: JELLY.text, textAlign: align, display: 'block' }}>
         {formatter ? formatter(value) : value || placeholder}
       </span>
     )
@@ -70,7 +71,7 @@ export function InlineEdit({
         type={type}
         style={{
           width: inputWidth ?? '100%',
-          fontSize: 13,
+          fontSize: DS.font.size.body,
           border: `1px solid rgba(255,255,255,0.55)`,
           borderRadius: JELLY.radiusControl,
           padding: '4px 10px',
@@ -92,7 +93,7 @@ export function InlineEdit({
       onDoubleClick={() => setEditing(true)}
       title="더블클릭하여 수정"
       style={{
-        fontSize: 13,
+        fontSize: DS.font.size.body,
         color: JELLY.text,
         cursor: 'text',
         textAlign: align,

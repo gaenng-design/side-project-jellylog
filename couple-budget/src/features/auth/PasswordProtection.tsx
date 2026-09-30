@@ -46,10 +46,10 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
       }}
     >
       <div style={{ ...jellyCardStyle, padding: '40px', maxWidth: '400px', width: '100%' }}>
-        <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
+        <h1 style={{ fontSize: DS.font.size.headline, fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
           부부 가계부
         </h1>
-        <p style={{ fontSize: 14, color: DS.color.text.muted, marginBottom: 32, textAlign: 'center' }}>
+        <p style={{ fontSize: DS.font.size.body, color: DS.color.text.muted, marginBottom: 32, textAlign: 'center' }}>
           접근 비밀번호를 입력해주세요
         </p>
 
@@ -65,7 +65,7 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
                 width: '100%',
                 padding: '12px 16px 12px 16px',
                 paddingRight: '44px',
-                fontSize: 14,
+                fontSize: DS.font.size.body,
                 border: `1px solid ${DS.color.border.default}`,
                 borderRadius: 8,
                 background: DS.color.bg.secondary,
@@ -103,7 +103,7 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
                 role="img"
                 aria-hidden
                 style={{
-                  fontSize: 20,
+                  fontSize: DS.font.size.title,
                   lineHeight: 1,
                   display: 'block',
                   userSelect: 'none',
@@ -120,7 +120,7 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
                 marginBottom: 16,
                 padding: '10px 12px',
                 borderRadius: 8,
-                fontSize: 12,
+                fontSize: DS.font.size.caption,
                 color: DS.color.negative.main,
                 background: 'rgba(220, 38, 38, 0.1)',
               }}

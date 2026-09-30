@@ -15,7 +15,7 @@ export function AfterTaxToggle({ model }: { model: AssetModel }) {
         borderRadius: DS.radius.chip,
         border: `1px solid ${interestAfterTax ? DS.color.primary : DS.color.border.subtle}`,
         background: interestAfterTax ? DS.color.primarySoft : DS.color.bg.secondary,
-        fontSize: 11,
+        fontSize: DS.font.size.caption,
         fontWeight: 600,
         whiteSpace: 'nowrap',
       }}
@@ -24,7 +24,7 @@ export function AfterTaxToggle({ model }: { model: AssetModel }) {
         compact
         checked={interestAfterTax}
         onChange={setInterestAfterTax}
-        label={<span style={{ fontSize: 11, fontWeight: 600 }}>세후 이자 <span style={{ fontWeight: 400 }}>(15.4% 차감)</span></span>}
+        label={<span style={{ fontSize: DS.font.size.caption, fontWeight: 600 }}>세후 이자 <span style={{ fontWeight: 400 }}>(15.4% 차감)</span></span>}
       />
     </span>
   )

@@ -222,10 +222,10 @@ export function DashboardSummaryCards() {
                   flexWrap: 'wrap',
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 600, color: DS.color.text.primary }}>
+                <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.primary }}>
                   🎯 {sentence}
                 </div>
-                <div style={{ fontSize: 11, color: DS.color.text.secondary, ...tabularNums }}>
+                <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, ...tabularNums }}>
                   {fmt(current)}원 / {fmt(target)}원
                 </div>
               </div>
@@ -256,7 +256,7 @@ export function DashboardSummaryCards() {
                   justifyContent: 'space-between',
                   alignItems: 'baseline',
                   gap: 8,
-                  fontSize: 11,
+                  fontSize: DS.font.size.caption,
                   color: DS.color.text.secondary,
                   flexWrap: 'wrap',
                 }}
@@ -279,13 +279,13 @@ export function DashboardSummaryCards() {
 
       {/* 1. 총 자산 */}
       <Card variant="data" padding={4} hoverLift={false}>
-        <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 4 }}>
           {focus.year}년 {focus.monthIdx + 1}월 · 총 자산
         </div>
-        <div style={{ fontSize: 22, fontWeight: 700, color: PRIMARY, ...tabularNums }}>
+        <div style={{ fontSize: DS.font.size.headline, fontWeight: 700, color: PRIMARY, ...tabularNums }}>
           {fmt(stats.totalAsset)}원
         </div>
-        <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
           {stats.assetDelta > 0
             ? `▲ ${fmt(stats.assetDelta)} (전월 대비)`
             : stats.assetDelta < 0
@@ -296,7 +296,7 @@ export function DashboardSummaryCards() {
 
       {/* 2. 올해 자산 성장 — 연초(또는 첫 입력 월) 대비 누적 증감 */}
       <Card variant="data" padding={4} hoverLift={false}>
-        <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 4 }}>
           📈 올해 자산 성장
           <span style={{ color: DS.color.text.muted, marginLeft: 4 }}>
             ({stats.baselineMonthIdx === 0 ? '연초' : `${stats.baselineMonthIdx + 1}월`} 대비)
@@ -306,7 +306,7 @@ export function DashboardSummaryCards() {
           <>
             <div
               style={{
-                fontSize: 22,
+                fontSize: DS.font.size.headline,
                 fontWeight: 700,
                 color:
                   stats.ytdDelta > 0
@@ -320,15 +320,15 @@ export function DashboardSummaryCards() {
               {stats.ytdDelta > 0 ? '+' : stats.ytdDelta < 0 ? '-' : ''}
               {fmt(Math.abs(stats.ytdDelta))}원
             </div>
-            <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
+            <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
               {stats.ytdPct > 0 ? '+' : stats.ytdPct < 0 ? '−' : ''}
               {Math.abs(stats.ytdPct).toFixed(1)}% · 기준 {fmt(stats.baselineAsset)}원
             </div>
           </>
         ) : (
           <>
-            <div style={{ fontSize: 22, fontWeight: 700, color: DS.color.text.muted, ...tabularNums }}>—</div>
-            <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 4 }}>
+            <div style={{ fontSize: DS.font.size.headline, fontWeight: 700, color: DS.color.text.muted, ...tabularNums }}>—</div>
+            <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginTop: 4 }}>
               올해 입력된 자산 데이터가 없습니다
             </div>
           </>
@@ -340,7 +340,7 @@ export function DashboardSummaryCards() {
         const catColors: Record<string, string> = { 저축: DS.color.category.savings, 투자: DS.color.category.invest, 부동산: DS.color.category.realEstate }
         return (
           <Card variant="data" padding={4} hoverLift={false} style={{ gridColumn: '1 / -1' }}>
-            <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 8 }}>
+            <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 8 }}>
               🗂 카테고리별 자산 구성
             </div>
             <div
@@ -385,11 +385,11 @@ export function DashboardSummaryCards() {
                         flexShrink: 0,
                       }}
                     />
-                    <span style={{ fontSize: 11, color: DS.color.text.secondary }}>{cat}</span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: DS.color.text.primary, ...tabularNums }}>
+                    <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>{cat}</span>
+                    <span style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.primary, ...tabularNums }}>
                       {fmt(total)}원
                     </span>
-                    <span style={{ fontSize: 11, color: DS.color.text.secondary, ...tabularNums }}>
+                    <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, ...tabularNums }}>
                       ({pct.toFixed(1)}%)
                     </span>
                   </div>
@@ -403,12 +403,12 @@ export function DashboardSummaryCards() {
       {/* 4. 투자 총 손익 */}
       {stats.investBalance > 0 && (
         <Card variant="data" padding={4} hoverLift={false}>
-          <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
+          <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 4 }}>
             💹 투자 총 손익
           </div>
           <div
             style={{
-              fontSize: 22,
+              fontSize: DS.font.size.headline,
               fontWeight: 700,
               color: stats.investPnl > 0 ? DS.color.positive.main : stats.investPnl < 0 ? DS.color.negative.main : DS.color.text.primary,
               ...tabularNums,
@@ -417,7 +417,7 @@ export function DashboardSummaryCards() {
             {stats.investPnl > 0 ? '+' : stats.investPnl < 0 ? '-' : ''}
             {fmt(Math.abs(stats.investPnl))}원
           </div>
-          <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
+          <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
             원금 {fmt(stats.investBasis)}원
             {stats.investBasis > 0 && (
               <> · 수익률{' '}
@@ -438,12 +438,12 @@ export function DashboardSummaryCards() {
 
       {/* 5. 공동 생활비 진행 */}
       <Card variant="data" padding={4} hoverLift={false}>
-        <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 4 }}>
           🏠 이번 달 공동 생활비
         </div>
         <div
           style={{
-            fontSize: 22,
+            fontSize: DS.font.size.headline,
             fontWeight: 700,
             color: sharedOver ? DS.color.negative.main : DS.color.text.primary,
             ...tabularNums,
@@ -473,7 +473,7 @@ export function DashboardSummaryCards() {
                 }}
               />
             </div>
-            <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
+            <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginTop: 4, ...tabularNums }}>
               목표 {fmt(stats.sharedExpenseTarget)}원 ·{' '}
               {sharedOver ? (
                 <span style={{ color: DS.color.negative.main, fontWeight: 600 }}>
@@ -485,7 +485,7 @@ export function DashboardSummaryCards() {
             </div>
           </>
         ) : (
-          <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 4 }}>설정 페이지에서 목표 설정</div>
+          <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginTop: 4 }}>설정 페이지에서 목표 설정</div>
         )}
       </Card>
 

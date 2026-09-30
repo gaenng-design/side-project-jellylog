@@ -61,7 +61,7 @@ export function AccountNumberInline({
         paddingTop: 6,
         marginTop: 4,
         borderTop: '1px dashed rgba(0,0,0,0.06)',
-        fontSize: 11,
+        fontSize: DS.font.size.caption,
       }}
     >
       <label
@@ -103,7 +103,7 @@ export function AccountNumberInline({
             borderRadius: JELLY.radiusControl,
             border: `1px solid ${DS.color.border.subtle}`,
             background: DS.color.bg.secondary,
-            fontSize: 12,
+            fontSize: DS.font.size.caption,
             outline: 'none',
             boxSizing: 'border-box',
             fontFamily: 'inherit',

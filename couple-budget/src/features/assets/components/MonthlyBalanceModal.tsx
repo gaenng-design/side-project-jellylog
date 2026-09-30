@@ -83,17 +83,17 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
                 title={getPersonLabel(item.person)}
                 style={{ width: 8, height: 8, borderRadius: '50%', background: getPersonColor(item.person), flexShrink: 0 }}
               />
-              <span style={{ fontSize: 13, fontWeight: 600, color: JELLY.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: DS.font.size.body, fontWeight: 600, color: JELLY.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {item.name}
               </span>
             </div>
             {(sub || isEstimated) && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, paddingLeft: 14 }}>
-                {sub && <span style={{ fontSize: 11, color: DS.color.text.muted }}>{sub}</span>}
+                {sub && <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>{sub}</span>}
                 {isEstimated && (
                   <span
                     title="이번 달 입력값이 없어 추정한 금액입니다"
-                    style={{ fontSize: DS.font.size.micro, color: DS.color.text.secondary, background: DS.color.bg.muted, borderRadius: 999, padding: '1px 6px' }}
+                    style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, background: DS.color.bg.muted, borderRadius: 999, padding: '1px 6px' }}
                   >
                     추정
                   </span>
@@ -111,7 +111,7 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
         </div>
         {item.category === '투자' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ flex: '1 1 0', fontSize: 11, color: DS.color.text.secondary, paddingLeft: 14 }}>평가 손익 (+/−)</span>
+            <span style={{ flex: '1 1 0', fontSize: DS.font.size.caption, color: DS.color.text.secondary, paddingLeft: 14 }}>평가 손익 (+/−)</span>
             <div style={{ flex: '0 0 52%' }}>
               <input
                 value={formatSigned(pnls[item.id] ?? '')}
@@ -123,7 +123,7 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
                   height: 36,
                   padding: '0 12px',
                   borderRadius: INPUT_BORDER_RADIUS,
-                  fontSize: 13,
+                  fontSize: DS.font.size.body,
                   textAlign: 'right',
                   fontFamily: 'inherit',
                   outline: 'none',
@@ -141,27 +141,27 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
 
   return (
     <Modal open title={`${currentYear}년 ${MONTHS[currentMonth]} 잔액 입력`} onClose={onClose}>
-      <div style={{ fontSize: 12, color: DS.color.text.secondary, marginBottom: 8 }}>
+      <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 8 }}>
         통장·증권 앱에 보이는 이번 달 잔액을 입력하세요. 비어 있던 칸은 추정값으로 채워져 있어요.
       </div>
       {activeItems.length === 0 ? (
-        <div style={{ padding: '24px 0', textAlign: 'center', fontSize: 13, color: DS.color.text.muted }}>
+        <div style={{ padding: '24px 0', textAlign: 'center', fontSize: DS.font.size.body, color: DS.color.text.muted }}>
           입력할 자산 항목이 없습니다.
         </div>
       ) : (
         categories.map((cat) => (
           <div key={cat} style={{ marginTop: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: DS.color.text.body, marginBottom: 2 }}>{cat}</div>
+            <div style={{ fontSize: DS.font.size.caption, fontWeight: 700, color: DS.color.text.body, marginBottom: 2 }}>{cat}</div>
             {activeItems.filter((i) => i.category === cat).map(row)}
           </div>
         ))
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTop: `1px solid ${DS.color.border.subtle}` }}>
-        <span style={{ fontSize: 12, color: DS.color.text.secondary }}>합계</span>
-        <span style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>{fmtSum(total)}</span>
+        <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>합계</span>
+        <span style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: PRIMARY }}>{fmtSum(total)}</span>
       </div>
-      <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 6 }}>
+      <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginTop: 6 }}>
         저장하면 추정값도 이번 달 실제 값으로 확정됩니다.
       </div>
 

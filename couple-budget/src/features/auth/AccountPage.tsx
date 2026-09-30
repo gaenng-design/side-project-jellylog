@@ -5,6 +5,7 @@ import {
   jellyPrimaryButton,
 } from '@/styles/jellyGlass'
 import { PRIMARY, pageTitleH1Style } from '@/styles/formControls'
+import { DS } from '@/design-system/tokens'
 
 export function AccountPage() {
   // This page will be used for GitHub settings in the future
@@ -15,7 +16,7 @@ export function AccountPage() {
     <div style={{ maxWidth: 520, paddingBottom: 40 }}>
       <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>계정</h1>
       <div style={{ ...jellyCardStyle, padding: '16px' }}>
-        <p style={{ fontSize: 14, color: JELLY.text, lineHeight: 1.6, margin: 0 }}>
+        <p style={{ fontSize: DS.font.size.body, color: JELLY.text, lineHeight: 1.6, margin: 0 }}>
           GitHub 동기화 설정은 설정(⚙️) 탭에서 관리합니다.
         </p>
       </div>

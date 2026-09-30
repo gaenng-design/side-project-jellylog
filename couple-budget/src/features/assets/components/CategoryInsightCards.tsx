@@ -67,8 +67,8 @@ export function CategoryInsightCards({ model, categoryFilter, filteredItems }: {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: groupColor, display: 'inline-block', flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: groupColor }}>{groupLabel}</span>
-                  <span style={{ fontSize: 11, color: DS.color.text.muted, marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
+                  <span style={{ fontSize: DS.font.size.caption, fontWeight: 700, color: groupColor }}>{groupLabel}</span>
+                  <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
                 </div>
                 <InfoRow label="현재 잔액" value={fmtWonAsMan(totalBalance)} />
                 {totalMaturityInterest > 0 && (
@@ -80,7 +80,7 @@ export function CategoryInsightCards({ model, categoryFilter, filteredItems }: {
                 )}
                 {totalMaturityAmount > 0 && <InfoRow strong label="만기 수령액" value={fmtWonAsMan(totalMaturityAmount)} />}
                 {nearestDday !== null && (
-                  <div style={{ fontSize: 11, marginTop: 8, color: nearestDday <= 0 ? DS.color.positive.main : nearestDday <= 30 ? DS.color.warning.main : DS.color.text.muted }}>
+                  <div style={{ fontSize: DS.font.size.caption, marginTop: 8, color: nearestDday <= 0 ? DS.color.positive.main : nearestDday <= 30 ? DS.color.warning.main : DS.color.text.muted }}>
                     {nearestDday <= 0 ? '✓ 최근 만기 도달' : `가장 빠른 만기 D-${nearestDday}`}
                     <span style={{ marginLeft: 4, color: DS.color.text.muted }}>· {nearestMaturity}</span>
                   </div>
@@ -100,8 +100,8 @@ export function CategoryInsightCards({ model, categoryFilter, filteredItems }: {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: groupColor, display: 'inline-block', flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: groupColor }}>{groupLabel}</span>
-                  <span style={{ fontSize: 11, color: DS.color.text.muted, marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
+                  <span style={{ fontSize: DS.font.size.caption, fontWeight: 700, color: groupColor }}>{groupLabel}</span>
+                  <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
                 </div>
                 <InfoRow label="원금" value={fmtWonAsMan(totalBasis)} />
                 <InfoRow

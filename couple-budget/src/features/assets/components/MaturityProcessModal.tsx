@@ -49,7 +49,7 @@ export function MaturityProcessModal({ model, item, onClose }: { model: AssetMod
   }
 
   const infoRow = (label: string, value: string, strong = false) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: strong ? 13 : 12, marginBottom: 4 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: strong ? DS.font.size.body : DS.font.size.caption, marginBottom: 4 }}>
       <span style={{ color: DS.color.text.secondary }}>{label}</span>
       <span style={{ color: strong ? PRIMARY : JELLY.text, fontWeight: strong ? 700 : 500 }}>{value}</span>
     </div>
@@ -66,16 +66,16 @@ export function MaturityProcessModal({ model, item, onClose }: { model: AssetMod
         </div>
 
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>실제 받은 금액</div>
+          <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>실제 받은 금액</div>
           <AmountInput value={received} onChange={setReceived} height={40} />
         </div>
 
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>받은 돈을 옮길 곳</div>
+          <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>받은 돈을 옮길 곳</div>
           <CustomSelect options={options} value={target} onChange={setTarget} compact compactFill compactHeight={40} />
         </div>
 
-        <div style={{ fontSize: 12, color: DS.color.text.body, lineHeight: 1.6, background: 'rgba(79, 140, 255, 0.06)', borderRadius: 10, padding: '10px 12px' }}>
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.body, lineHeight: 1.6, background: 'rgba(79, 140, 255, 0.06)', borderRadius: 10, padding: '10px 12px' }}>
           · {monthLabel}부터 <b>{item.name}</b>은(는) 0원으로 표시돼요.
           {targetItem && receivedAmount > 0 && (
             <>

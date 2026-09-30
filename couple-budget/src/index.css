@@ -71,3 +71,11 @@ html {
   height: 100vh;
   height: 100dvh;
 }
+
+/* 폼 요소도 앱 글꼴을 그대로 쓴다 (브라우저 기본 13.33px·다른 글꼴이 섞이지 않게) */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}

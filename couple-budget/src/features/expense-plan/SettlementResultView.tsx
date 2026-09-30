@@ -56,7 +56,7 @@ const userPayTableStyle: CSSProperties = {
   width: '100%',
   borderCollapse: 'collapse',
   tableLayout: 'fixed',
-  fontSize: 13,
+  fontSize: DS.font.size.body,
 }
 
 const tdLabelBase: CSSProperties = {
@@ -78,7 +78,7 @@ const tdAmountBase: CSSProperties = {
 
 const tdFixedGroupHeader: CSSProperties = {
   padding: '10px 8px 6px 0',
-  fontSize: 12,
+  fontSize: DS.font.size.caption,
   fontWeight: 700,
   color: FIXED_EXPENSE_SUMMARY_COLOR,
   borderBottom: RECEIPT_DASH,
@@ -94,7 +94,7 @@ const tdFixedGroupHeaderAmount: CSSProperties = {
 
 const tdInvestGroupHeader: CSSProperties = {
   padding: '10px 8px 6px 0',
-  fontSize: 12,
+  fontSize: DS.font.size.caption,
   fontWeight: 700,
   color: INVEST_SUMMARY_COLOR,
   borderBottom: RECEIPT_DASH,
@@ -115,14 +115,14 @@ const tdTreeChildAmount: CSSProperties = {
 const tdSepCardLabel: CSSProperties = {
   ...tdTreeChildLabel,
   paddingLeft: 20,
-  fontSize: 12,
+  fontSize: DS.font.size.caption,
   color: RECEIPT_MUTED,
   fontWeight: 500,
 }
 
 const tdSepCardAmount: CSSProperties = {
   ...tdTreeChildAmount,
-  fontSize: 12,
+  fontSize: DS.font.size.caption,
   color: RECEIPT_MUTED,
 }
 
@@ -132,7 +132,7 @@ const tdCategorySubtotalLabel: CSSProperties = {
   paddingLeft: 12,
   paddingTop: 10,
   fontWeight: 700,
-  fontSize: 12,
+  fontSize: DS.font.size.caption,
   color: RECEIPT_TEXT,
 }
 
@@ -140,7 +140,7 @@ const tdCategorySubtotalAmount: CSSProperties = {
   ...tdAmountBase,
   paddingTop: 10,
   fontWeight: 700,
-  fontSize: 13,
+  fontSize: DS.font.size.body,
   color: RECEIPT_TEXT,
 }
 
@@ -270,7 +270,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
             color: DS.color.text.inverse,
             padding: '10px 12px',
             borderRadius: 8,
-            fontSize: 11,
+            fontSize: DS.font.size.caption,
             fontWeight: 500,
             lineHeight: 1.5,
             whiteSpace: 'nowrap',
@@ -283,7 +283,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {label && <div style={{ color: DS.color.text.muted, fontSize: DS.font.size.micro }}>{label}</div>}
+          {label && <div style={{ color: DS.color.text.muted, fontSize: DS.font.size.caption }}>{label}</div>}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span
               style={{
@@ -304,7 +304,7 @@ function AccountTooltip({ account, label }: { account: string; label?: string })
               style={{
                 flexShrink: 0,
                 padding: '3px 8px',
-                fontSize: DS.font.size.micro,
+                fontSize: DS.font.size.caption,
                 fontWeight: 600,
                 border: '1px solid rgba(255,255,255,0.25)',
                 background: copied ? '#10b981' : 'rgba(255,255,255,0.12)',
@@ -529,7 +529,7 @@ function IncomeStackedBar(props: { chartData: { label: string; amount: number; p
   const { chartData, totalIncome } = props
   if (totalIncome <= 0 || chartData.length === 0) {
     return (
-      <div style={{ fontSize: 13, color: JELLY.textMuted, padding: '12px 0' }}>수입이 없어 그래프를 표시할 수 없습니다.</div>
+      <div style={{ fontSize: DS.font.size.body, color: JELLY.textMuted, padding: '12px 0' }}>수입이 없어 그래프를 표시할 수 없습니다.</div>
     )
   }
 
@@ -559,7 +559,7 @@ function IncomeStackedBar(props: { chartData: { label: string; amount: number; p
               {showPct ? (
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: DS.font.size.caption,
                     fontWeight: 700,
                     color: DS.color.text.inverse,
                     whiteSpace: 'nowrap',
@@ -612,7 +612,7 @@ export function SettlementResultView({
 
   return (
     <div style={{ paddingBottom: 40 }}>
-      <h2 style={{ fontSize: 18, fontWeight: 700, color: JELLY.text, margin: '0 0 20px' }}>정산 결과</h2>
+      <h2 style={{ fontSize: DS.font.size.title, fontWeight: 700, color: JELLY.text, margin: '0 0 20px' }}>정산 결과</h2>
 
       {/* 정산 메모 카드 — 비어있을 때도 「+ 메모 추가」 버튼으로 노출 */}
       <div
@@ -623,7 +623,7 @@ export function SettlementResultView({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: memoEditing || settlementMemo ? 8 : 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: JELLY.text, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: JELLY.text, display: 'flex', alignItems: 'center', gap: 6 }}>
             📝 정산 메모
           </div>
           {!memoEditing && (
@@ -634,7 +634,7 @@ export function SettlementResultView({
                 setMemoEditing(true)
               }}
               style={{
-                fontSize: 11,
+                fontSize: DS.font.size.caption,
                 padding: '4px 10px',
                 borderRadius: 999,
                 border: `1px solid ${DS.color.border.subtle}`,
@@ -662,7 +662,7 @@ export function SettlementResultView({
                 borderRadius: 8,
                 border: `1px solid ${DS.color.border.subtle}`,
                 background: DS.color.bg.secondary,
-                fontSize: 13,
+                fontSize: DS.font.size.body,
                 outline: 'none',
                 boxSizing: 'border-box',
                 fontFamily: 'inherit',
@@ -679,7 +679,7 @@ export function SettlementResultView({
                   setMemoEditing(false)
                 }}
                 style={{
-                  fontSize: 12,
+                  fontSize: DS.font.size.caption,
                   padding: '6px 12px',
                   borderRadius: 8,
                   border: `1px solid ${DS.color.border.subtle}`,
@@ -697,7 +697,7 @@ export function SettlementResultView({
                   setMemoEditing(false)
                 }}
                 style={{
-                  fontSize: 12,
+                  fontSize: DS.font.size.caption,
                   padding: '6px 12px',
                   borderRadius: 8,
                   border: 'none',
@@ -713,15 +713,15 @@ export function SettlementResultView({
             </div>
           </>
         ) : settlementMemo ? (
-          <div style={{ fontSize: 13, color: DS.color.text.body, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>
+          <div style={{ fontSize: DS.font.size.body, color: DS.color.text.body, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>
             {settlementMemo}
           </div>
         ) : null}
       </div>
 
       <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 8 }}>이번 달 수입 구성</div>
-        <div style={{ fontSize: 13, color: DS.color.text.secondary, marginBottom: 14 }}>
+        <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: JELLY.text, marginBottom: 8 }}>이번 달 수입 구성</div>
+        <div style={{ fontSize: DS.font.size.body, color: DS.color.text.secondary, marginBottom: 14 }}>
           수입 <span style={{ fontWeight: 700, color: JELLY.text }}>{fmt(totalIncome)}</span>
         </div>
         <IncomeStackedBar chartData={chartData} totalIncome={totalIncome} />
@@ -731,7 +731,7 @@ export function SettlementResultView({
             flexWrap: 'wrap',
             gap: '10px 16px',
             marginTop: 14,
-            fontSize: 12,
+            fontSize: DS.font.size.caption,
             color: JELLY.textMuted,
           }}
         >
@@ -765,12 +765,12 @@ export function SettlementResultView({
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text }}>고정 지출 통장에 입금할 돈</div>
+          <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: JELLY.text }}>고정 지출 통장에 입금할 돈</div>
           <button
             type="button"
             onClick={() => setFixedDepositMoreOpen((o) => !o)}
             style={{
-              fontSize: 12,
+              fontSize: DS.font.size.caption,
               padding: '8px 16px',
               borderRadius: JELLY.radiusControl,
               border: JELLY.innerBorderSoft,
@@ -787,14 +787,14 @@ export function SettlementResultView({
         </div>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 140 }}>
-            <div style={{ fontSize: 12, color: JELLY.textMuted, marginBottom: 4 }}>{personAName}</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>
+            <div style={{ fontSize: DS.font.size.caption, color: JELLY.textMuted, marginBottom: 4 }}>{personAName}</div>
+            <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: PRIMARY }}>
               {fmt(fixedDepositByUser.A)}
             </div>
           </div>
           <div style={{ flex: 1, minWidth: 140 }}>
-            <div style={{ fontSize: 12, color: JELLY.textMuted, marginBottom: 4 }}>{personBName}</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>
+            <div style={{ fontSize: DS.font.size.caption, color: JELLY.textMuted, marginBottom: 4 }}>{personBName}</div>
+            <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: PRIMARY }}>
               {fmt(fixedDepositByUser.B)}
             </div>
           </div>
@@ -805,7 +805,7 @@ export function SettlementResultView({
               marginTop: 14,
               paddingTop: 14,
               borderTop: '1px solid rgba(148, 163, 184, 0.22)',
-              fontSize: 12,
+              fontSize: DS.font.size.caption,
               color: JELLY.textMuted,
               lineHeight: 1.65,
               display: 'flex',
@@ -838,7 +838,7 @@ export function SettlementResultView({
                     <strong style={{ color: PRIMARY }}>{fmt(depositA)}</strong>을{' '}
                     {depositA > 0 ? '입금하면 됩니다.' : '입금하지 않아도 됩니다.'}
                   </div>
-                  <div style={{ paddingLeft: 12, fontSize: 11, color: DS.color.text.muted }}>
+                  <div style={{ paddingLeft: 12, fontSize: DS.font.size.caption, color: DS.color.text.muted }}>
                     * 별도 정산한 항목: {renderItems(itemsA)}
                   </div>
                   <div>
@@ -847,7 +847,7 @@ export function SettlementResultView({
                     <strong style={{ color: PRIMARY }}>{fmt(depositB)}</strong>을{' '}
                     {depositB > 0 ? '부담합니다.' : '부담하지 않아도 됩니다.'}
                   </div>
-                  <div style={{ paddingLeft: 12, fontSize: 11, color: DS.color.text.muted }}>
+                  <div style={{ paddingLeft: 12, fontSize: DS.font.size.caption, color: DS.color.text.muted }}>
                     * 별도 정산한 항목: {renderItems(itemsB)}
                   </div>
                 </>
@@ -859,8 +859,8 @@ export function SettlementResultView({
 
       {summary.separateExpenseCard5090 && summary.separateExpenseCard5090.total > 0 ? (
         <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 10 }}>별도지출 - 송금 정산</div>
-          <div style={{ fontSize: 12, color: JELLY.textMuted, lineHeight: 1.65, marginBottom: 8 }}>
+          <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: JELLY.text, marginBottom: 10 }}>별도지출 - 송금 정산</div>
+          <div style={{ fontSize: DS.font.size.caption, color: JELLY.textMuted, lineHeight: 1.65, marginBottom: 8 }}>
             별도 지출 카드 합계 <strong style={{ color: DS.color.text.body }}>{fmt(summary.separateExpenseCard5090.total)}</strong>
             은 두 사람이 동일하게{' '}
             <strong style={{ color: DS.color.text.body }}>{fmt(summary.separateExpenseCard5090.fairShareEach)}</strong>씩 부담합니다.
@@ -877,7 +877,7 @@ export function SettlementResultView({
                 borderRadius: JELLY.radiusControl,
                 background: 'rgba(14, 165, 233, 0.1)',
                 border: '1px solid rgba(14, 165, 233, 0.28)',
-                fontSize: 13,
+                fontSize: DS.font.size.body,
                 fontWeight: 700,
                 color: JELLY.text,
                 lineHeight: 1.5,
@@ -886,7 +886,7 @@ export function SettlementResultView({
               {summary.separateExpenseCard5090.transferFrom === 'A' ? personAName : personBName} →{' '}
               {summary.separateExpenseCard5090.transferTo === 'A' ? personAName : personBName} 송금{' '}
               <span style={{ color: PRIMARY }}>{fmt(summary.separateExpenseCard5090.transferAmount)}</span>
-              <span style={{ display: 'block', marginTop: 6, fontSize: 11, fontWeight: 500, color: JELLY.textMuted }}>
+              <span style={{ display: 'block', marginTop: 6, fontSize: DS.font.size.caption, fontWeight: 500, color: JELLY.textMuted }}>
                 적게 지출한 쪽이 차액의 절반을 내면 실부담이 같아집니다.
               </span>
               {summary.separateExpenseCard5090.transferFrom ? (
@@ -896,7 +896,7 @@ export function SettlementResultView({
                     alignItems: 'center',
                     gap: 8,
                     marginTop: 12,
-                    fontSize: 12,
+                    fontSize: DS.font.size.caption,
                     fontWeight: 600,
                     color: JELLY.text,
                     cursor: 'pointer',
@@ -919,17 +919,17 @@ export function SettlementResultView({
               ) : null}
             </div>
           ) : (
-            <div style={{ fontSize: 12, color: JELLY.textMuted }}>실지출이 같아 추가 송금이 없습니다.</div>
+            <div style={{ fontSize: DS.font.size.caption, color: JELLY.textMuted }}>실지출이 같아 추가 송금이 없습니다.</div>
           )}
         </div>
       ) : null}
 
       {summary.sharedFundExpense && summary.sharedFundExpense.total > 0 ? (
         <div style={{ marginBottom: 20, ...settingsSectionCardStyle }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text, marginBottom: 10 }}>
+          <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: JELLY.text, marginBottom: 10 }}>
             별도지출 - 반반 정산
           </div>
-          <div style={{ fontSize: 12, color: JELLY.textMuted, lineHeight: 1.65 }}>
+          <div style={{ fontSize: DS.font.size.caption, color: JELLY.textMuted, lineHeight: 1.65 }}>
             공금으로 결제한 별도 지출 합계 <strong style={{ color: DS.color.text.body }}>{fmt(summary.sharedFundExpense.total)}</strong>은
             공동 통장에서 빠지므로 두 사람이 자동으로{' '}
             <strong style={{ color: PRIMARY }}>{fmt(summary.sharedFundExpense.halfEach)}</strong>씩 부담합니다.
@@ -939,7 +939,7 @@ export function SettlementResultView({
       ) : null}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: JELLY.text }}>유저별 각자 낼 돈</div>
+        <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: JELLY.text }}>유저별 각자 낼 돈</div>
         <div
           style={{
             display: 'grid',
@@ -976,12 +976,12 @@ export function SettlementResultView({
           const userRowLabelStyle: CSSProperties = {
             ...userTdLabelBase,
             paddingLeft: 4,
-            fontSize: 13,
+            fontSize: DS.font.size.body,
             fontWeight: 500,
           }
           const userRowAmountStyle: CSSProperties = {
             ...userTdAmountBase,
-            fontSize: 13,
+            fontSize: DS.font.size.body,
             fontWeight: 500,
           }
 
@@ -1011,8 +1011,8 @@ export function SettlementResultView({
                   borderBottom: '2px dashed rgba(255,255,255,0.45)',
                 }}
               >
-                <div style={{ fontSize: 17, fontWeight: 700, color: DS.color.text.inverse }}>{name}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.72)', marginTop: 4 }}>이번 달 각자 낼 돈</div>
+                <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.inverse }}>{name}</div>
+                <div style={{ fontSize: DS.font.size.caption, color: 'rgba(255,255,255,0.72)', marginTop: 4 }}>이번 달 각자 낼 돈</div>
               </div>
               {/* 영수증 바디 */}
               <div style={{ padding: '4px 18px 16px' }}>
@@ -1129,7 +1129,7 @@ export function SettlementResultView({
                               }}
                             >
                               {item.description}{' '}
-                              <span style={{ fontSize: DS.font.size.micro, color: DS.color.text.muted }}>(별도 정산)</span>
+                              <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>(별도 정산)</span>
                               {item.accountNumber && (
                                 <AccountTooltip account={item.accountNumber} label={item.description} />
                               )}
@@ -1257,7 +1257,7 @@ export function SettlementResultView({
                   background: DS.color.bg.subtle,
                   borderRadius: 8,
                   cursor: 'pointer',
-                  fontSize: 12,
+                  fontSize: DS.font.size.caption,
                   fontWeight: 500,
                   color: DS.color.text.secondary,
                   fontFamily: 'inherit',
@@ -1301,7 +1301,7 @@ export function SettlementResultView({
                       background: DS.color.bg.subtle,
                       border: `1px solid ${DS.color.border.subtle}`,
                       borderRadius: 10,
-                      fontSize: 12,
+                      fontSize: DS.font.size.caption,
                       lineHeight: 1.7,
                       color: DS.color.text.body,
                       display: 'flex',

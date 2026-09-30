@@ -50,28 +50,28 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
       >
         {/* 모바일: 총 합계는 한 줄 전체, 가용 금액·증감은 나란히 (세로 공간 절약) */}
         <div style={{ flex: narrow ? '1 1 100%' : 1, minWidth: narrow ? 0 : 160 }}>
-          <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
+          <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 4 }}>
             {currentYear}년 {MONTHS[currentMonth]} · 총 합계
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{fmtSum(monthTotal)}</div>
+          <div style={{ fontSize: DS.font.size.headline, fontWeight: 700, color: PRIMARY }}>{fmtSum(monthTotal)}</div>
         </div>
         <div style={{ flex: narrow ? '1 1 150px' : 1, minWidth: narrow ? 0 : 160 }}>
-          <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
+          <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 4 }}>
             💰 가용 금액
             {!narrow && <span style={{ color: DS.color.text.muted, marginLeft: 4 }}>(묶이지 않은 돈)</span>}
           </div>
-          <div style={{ fontSize: narrow ? 18 : 26, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>{fmtSum(availableTotal)}</div>
+          <div style={{ fontSize: narrow ? DS.font.size.title : DS.font.size.headline, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>{fmtSum(availableTotal)}</div>
         </div>
         {hasPrevData && (
           <div style={{ flex: narrow ? '1 1 150px' : 1, minWidth: narrow ? 0 : 160 }}>
-            <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 4 }}>
+            <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 4 }}>
               📈 이번 달 증감
               <span style={{ color: DS.color.text.muted, marginLeft: 4 }}>({prevLabel})</span>
             </div>
             <div
               style={{
                 whiteSpace: 'nowrap',
-                fontSize: narrow ? 18 : 26,
+                fontSize: narrow ? DS.font.size.title : DS.font.size.headline,
                 fontWeight: 700,
                 color: monthDiff >= 0 ? DS.color.positive.main : DS.color.negative.main,
               }}
@@ -117,11 +117,11 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 12, color: DS.color.text.body, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.body, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {personAName}
             </span>
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
             {fmtSum(personATotal)}
           </div>
         </div>
@@ -149,11 +149,11 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 12, color: DS.color.text.body, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.body, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {personBName}
             </span>
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
             {fmtSum(personBTotal)}
           </div>
         </div>
@@ -182,9 +182,9 @@ export function AssetSummaryHeader({ model }: { model: AssetModel }) {
                   flexShrink: 0,
                 }}
               />
-              <span style={{ fontSize: 12, color: DS.color.text.body, fontWeight: 600 }}>공유</span>
+              <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.body, fontWeight: 600 }}>공유</span>
             </div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: JELLY.text, whiteSpace: 'nowrap' }}>
               {fmtSum(sharedTotal)}
             </div>
           </div>

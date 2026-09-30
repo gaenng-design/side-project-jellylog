@@ -42,7 +42,7 @@ export function MaturityAlerts({ model }: { model: AssetModel }) {
 
   return (
     <div style={{ ...jellyCardStyle, padding: '12px 16px', marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: DS.color.text.primary }}>🔔 만기 알림</div>
+      <div style={{ fontSize: DS.font.size.caption, fontWeight: 700, color: DS.color.text.primary }}>🔔 만기 알림</div>
       {alerts.map(({ item, dday }) => {
         const matured = dday <= 0
         const expected = getMaturity(item)?.amount ?? getProjectedValue(currentYear, item, currentMonth)
@@ -61,7 +61,7 @@ export function MaturityAlerts({ model }: { model: AssetModel }) {
           >
             <span
               style={{
-                fontSize: 11,
+                fontSize: DS.font.size.caption,
                 fontWeight: 700,
                 color: DS.color.text.inverse,
                 background: matured ? PRIMARY : '#d97706',
@@ -73,8 +73,8 @@ export function MaturityAlerts({ model }: { model: AssetModel }) {
               {matured ? '만기 도래' : dday === 0 ? 'D-day' : `D-${dday}`}
             </span>
             <div style={{ flex: '1 1 160px', minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: DS.color.text.primary }}>{item.name}</div>
-              <div style={{ fontSize: 11, color: DS.color.text.secondary }}>
+              <div style={{ fontSize: DS.font.size.body, fontWeight: 600, color: DS.color.text.primary }}>{item.name}</div>
+              <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>
                 만기일 {item.maturityDate} · 예상 수령액 {fmtWonAsMan(expected)}
               </div>
             </div>
@@ -83,7 +83,7 @@ export function MaturityAlerts({ model }: { model: AssetModel }) {
                 만기 처리
               </Button>
             ) : (
-              <span style={{ fontSize: 11, color: DS.color.warning.text, flexShrink: 0 }}>수령 계좌를 미리 정해두세요</span>
+              <span style={{ fontSize: DS.font.size.caption, color: DS.color.warning.text, flexShrink: 0 }}>수령 계좌를 미리 정해두세요</span>
             )}
           </div>
         )

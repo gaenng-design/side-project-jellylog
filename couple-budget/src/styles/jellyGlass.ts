@@ -53,6 +53,8 @@ export const jellyCardStyle: CSSProperties = {
 }
 
 export const jellyPrimaryButton: CSSProperties = {
+  fontSize: DS.font.size.body,
+  fontFamily: 'inherit',
   borderRadius: JELLY.radiusControl,
   padding: '11px 22px',
   border: 'none',
@@ -71,6 +73,8 @@ export const jellyPrimaryButtonDisabled: CSSProperties = {
 }
 
 export const jellyGhostButton: CSSProperties = {
+  fontSize: DS.font.size.body,
+  fontFamily: 'inherit',
   borderRadius: JELLY.radiusControl,
   padding: '8px 16px',
   border: JELLY.innerBorderSoft,
@@ -81,6 +85,8 @@ export const jellyGhostButton: CSSProperties = {
 }
 
 export const jellyDangerButton: CSSProperties = {
+  fontSize: DS.font.size.body,
+  fontFamily: 'inherit',
   borderRadius: JELLY.radiusControl,
   padding: '10px 18px',
   border: '1px solid rgba(239, 68, 68, 0.35)',

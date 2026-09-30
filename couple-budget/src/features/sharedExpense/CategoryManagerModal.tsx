@@ -126,7 +126,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                 padding: 16,
                 textAlign: 'center',
                 color: DS.color.text.muted,
-                fontSize: 12,
+                fontSize: DS.font.size.caption,
                 background: DS.color.bg.secondary,
                 borderRadius: 12,
                 border: `1px solid ${DS.color.border.subtle}`,
@@ -182,7 +182,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                         padding: '4px 2px',
                         cursor: isEditing ? 'auto' : 'grab',
                         color: DS.color.border.default,
-                        fontSize: 16,
+                        fontSize: DS.font.size.subtitle,
                         lineHeight: 1,
                         userSelect: 'none',
                         fontWeight: 700,
@@ -201,7 +201,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                       title="클릭하여 색상 변경"
                       style={{
                         flexShrink: 0,
-                        fontSize: 11,
+                        fontSize: DS.font.size.caption,
                         fontWeight: 600,
                         color: currentColor.fg,
                         background: currentColor.bg,
@@ -237,7 +237,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                           padding: '0 10px',
                           borderRadius: 6,
                           border: `1.5px solid ${PRIMARY}`,
-                          fontSize: 13,
+                          fontSize: DS.font.size.body,
                           outline: 'none',
                           background: DS.color.bg.secondary,
                           fontFamily: 'inherit',
@@ -258,7 +258,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                             background: 'transparent',
                             borderRadius: 6,
                             cursor: 'pointer',
-                            fontSize: 14,
+                            fontSize: DS.font.size.body,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -282,7 +282,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                         border: `1px solid ${DS.color.negative.border}`,
                         background: DS.color.bg.secondary,
                         color: DS.color.negative.main,
-                        fontSize: 12,
+                        fontSize: DS.font.size.caption,
                         cursor: 'pointer',
                       }}
                     >
@@ -320,7 +320,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
                             }}
                             title={`색상 ${colorIdx + 1}`}
                             style={{
-                              fontSize: 11,
+                              fontSize: DS.font.size.caption,
                               fontWeight: 600,
                               color: color.fg,
                               background: color.bg,
@@ -379,7 +379,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
               border: 'none',
               background: newName.trim() ? PRIMARY : DS.color.border.subtle,
               color: newName.trim() ? DS.color.bg.secondary : DS.color.text.muted,
-              fontSize: 13,
+              fontSize: DS.font.size.body,
               fontWeight: 600,
               cursor: newName.trim() ? 'pointer' : 'default',
               flexShrink: 0,
@@ -396,7 +396,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
               borderRadius: 6,
               background: DS.color.negative.soft,
               color: DS.color.negative.strong,
-              fontSize: 12,
+              fontSize: DS.font.size.caption,
               border: `1px solid ${DS.color.negative.border}`,
             }}
           >
@@ -414,7 +414,7 @@ export function CategoryManagerModal({ open, onClose }: CategoryManagerModalProp
             border: 'none',
             background: PRIMARY,
             color: DS.color.text.inverse,
-            fontSize: 13,
+            fontSize: DS.font.size.body,
             fontWeight: 600,
             cursor: 'pointer',
           }}

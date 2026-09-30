@@ -107,7 +107,7 @@ export function AmountInput({
           position: 'absolute',
           right: 12,
           color: '#8a99ae',
-          fontSize: 13,
+          fontSize: DS.font.size.body,
           pointerEvents: 'none',
         }}
       >

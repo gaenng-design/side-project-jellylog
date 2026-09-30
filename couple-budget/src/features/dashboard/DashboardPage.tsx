@@ -97,7 +97,7 @@ export function DashboardPage() {
                 border: `1px solid ${DS.color.border.subtle}`,
                 background: DS.color.bg.secondary,
                 color: DS.color.text.body,
-                fontSize: 12,
+                fontSize: DS.font.size.caption,
                 fontWeight: 600,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
@@ -145,7 +145,7 @@ export function DashboardPage() {
               background: DS.color.bg.subtle,
               borderRadius: 12,
               color: DS.color.text.secondary,
-              fontSize: 14,
+              fontSize: DS.font.size.body,
               lineHeight: 1.6,
             }}
           >
@@ -158,7 +158,7 @@ export function DashboardPage() {
 
       {/* 커스텀 모달 */}
       <Modal open={customizeOpen} title="대시보드 커스텀" onClose={() => setCustomizeOpen(false)}>
-        <p style={{ fontSize: 13, color: DS.color.text.secondary, margin: '0 0 16px', lineHeight: 1.5 }}>
+        <p style={{ fontSize: DS.font.size.body, color: DS.color.text.secondary, margin: '0 0 16px', lineHeight: 1.5 }}>
           대시보드에 표시할 위젯을 선택하세요.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -186,10 +186,10 @@ export function DashboardPage() {
                   style={{ width: 16, height: 16, marginTop: 2, cursor: 'pointer', flexShrink: 0 }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: on ? PRIMARY : DS.color.text.primary }}>
+                  <div style={{ fontSize: DS.font.size.body, fontWeight: 600, color: on ? PRIMARY : DS.color.text.primary }}>
                     {w.label}
                   </div>
-                  <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 2 }}>
+                  <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginTop: 2 }}>
                     {w.description}
                   </div>
                 </div>
@@ -206,7 +206,7 @@ export function DashboardPage() {
               borderRadius: JELLY.radiusControl,
               border: `1px solid ${DS.color.border.subtle}`,
               background: DS.color.bg.secondary,
-              fontSize: 13,
+              fontSize: DS.font.size.body,
               color: DS.color.text.body,
               cursor: 'pointer',
               fontFamily: 'inherit',
@@ -223,7 +223,7 @@ export function DashboardPage() {
               border: 'none',
               background: PRIMARY,
               color: DS.color.text.inverse,
-              fontSize: 13,
+              fontSize: DS.font.size.body,
               fontWeight: 600,
               cursor: 'pointer',
               fontFamily: 'inherit',

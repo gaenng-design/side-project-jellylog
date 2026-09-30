@@ -67,7 +67,7 @@ function EntryRow({
         style={{
           flex: '0 0 auto',
           width: 70,
-          fontSize: 12,
+          fontSize: DS.font.size.caption,
           fontWeight: 500,
           color: entry.day == null ? DS.color.text.muted : JELLY.text,
           textAlign: 'center',
@@ -82,7 +82,7 @@ function EntryRow({
         <div
           style={{
             flex: '0 0 auto',
-            fontSize: 11,
+            fontSize: DS.font.size.caption,
             fontWeight: 600,
             color: fg,
             background: bg,
@@ -103,7 +103,7 @@ function EntryRow({
       >
         <div
           style={{
-            fontSize: 14,
+            fontSize: DS.font.size.body,
             fontWeight: 500,
             color: JELLY.text,
             overflow: 'hidden',
@@ -118,7 +118,7 @@ function EntryRow({
               title={entry.cardSettled ? '후불 카드 — 결제 완료' : '후불 카드 — 결제 예정'}
               style={{
                 marginLeft: 6,
-                fontSize: DS.font.size.micro,
+                fontSize: DS.font.size.caption,
                 fontWeight: 600,
                 color: entry.cardSettled ? DS.color.positive.main : DS.color.warning.text,
                 background: entry.cardSettled ? DS.color.positive.soft : DS.color.warning.soft,
@@ -136,7 +136,7 @@ function EntryRow({
             <span
               style={{
                 marginLeft: 6,
-                fontSize: DS.font.size.micro,
+                fontSize: DS.font.size.caption,
                 fontWeight: 600,
                 color: DS.color.text.secondary,
                 background: DS.color.border.subtle,
@@ -153,7 +153,7 @@ function EntryRow({
         {entry.memo && (
           <div
             style={{
-              fontSize: 11,
+              fontSize: DS.font.size.caption,
               color: DS.color.text.muted,
               marginTop: 2,
               overflow: 'hidden',
@@ -172,7 +172,7 @@ function EntryRow({
         onClick={() => onEdit(entry)}
         style={{
           flex: '0 0 auto',
-          fontSize: 14,
+          fontSize: DS.font.size.body,
           fontWeight: 700,
           color: JELLY.text,
           cursor: 'pointer',
@@ -198,7 +198,7 @@ function EntryRow({
           borderRadius: 6,
           cursor: 'pointer',
           color: DS.color.negative.main,
-          fontSize: 12,
+          fontSize: DS.font.size.caption,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -221,7 +221,7 @@ function EntryRow({
           border: excluded ? `1px solid ${DS.color.text.secondary}` : `1px solid ${DS.color.border.subtle}`,
           background: excluded ? DS.color.text.body : DS.color.bg.secondary,
           color: excluded ? DS.color.bg.secondary : DS.color.text.secondary,
-          fontSize: 11,
+          fontSize: DS.font.size.caption,
           fontWeight: 600,
           cursor: 'pointer',
           fontFamily: 'inherit',
@@ -296,18 +296,18 @@ function CreditCardSection({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: DS.color.warning.text }}>
+          <span style={{ fontSize: DS.font.size.body, fontWeight: 700, color: DS.color.warning.text }}>
             💳 후불 신용 카드
           </span>
-          <span style={{ fontSize: 11, color: DS.color.warning.text }}>
+          <span style={{ fontSize: DS.font.size.caption, color: DS.color.warning.text }}>
             결제완료 {settledCount}/{totalCount}건
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, color: DS.color.warning.text, fontWeight: 600 }}>
+          <span style={{ fontSize: DS.font.size.caption, color: DS.color.warning.text, fontWeight: 600 }}>
             미결제 {pendingAmount.toLocaleString('ko-KR')}원
           </span>
-          <span style={{ fontSize: 12, color: DS.color.warning.text }}>{open ? '▼' : '▶'}</span>
+          <span style={{ fontSize: DS.font.size.caption, color: DS.color.warning.text }}>{open ? '▼' : '▶'}</span>
         </div>
       </button>
       {open && (
@@ -339,7 +339,7 @@ function CreditCardSection({
                   style={{
                     flex: '0 0 auto',
                     width: 60,
-                    fontSize: 11,
+                    fontSize: DS.font.size.caption,
                     fontWeight: 500,
                     color: e.day == null ? DS.color.text.muted : DS.color.text.body,
                     textAlign: 'center',
@@ -352,7 +352,7 @@ function CreditCardSection({
                   style={{
                     flex: 1,
                     minWidth: 0,
-                    fontSize: 13,
+                    fontSize: DS.font.size.body,
                     fontWeight: 500,
                     color: JELLY.text,
                     overflow: 'hidden',
@@ -363,13 +363,13 @@ function CreditCardSection({
                 >
                   {item?.name ?? '(이름 없음)'}
                   {e.excluded && (
-                    <span style={{ marginLeft: 6, fontSize: DS.font.size.micro, color: DS.color.text.muted }}>(제외)</span>
+                    <span style={{ marginLeft: 6, fontSize: DS.font.size.caption, color: DS.color.text.muted }}>(제외)</span>
                   )}
                 </div>
                 <div
                   style={{
                     flex: '0 0 auto',
-                    fontSize: 13,
+                    fontSize: DS.font.size.body,
                     fontWeight: 600,
                     color: settled ? DS.color.positive.main : DS.color.warning.text,
                     whiteSpace: 'nowrap',
@@ -385,7 +385,7 @@ function CreditCardSection({
             <div
               style={{
                 padding: '8px 16px',
-                fontSize: 11,
+                fontSize: DS.font.size.caption,
                 color: DS.color.text.secondary,
                 background: DS.color.warning.soft,
                 borderTop: `1px solid ${DS.color.warning.border}`,
@@ -470,7 +470,7 @@ function AddEntryForm({
 
   return (
     <div style={{ ...jellyCardStyle, padding: 16, marginTop: 16, opacity: disabled ? 0.5 : 1 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: JELLY.text, marginBottom: 10 }}>
+      <div style={{ fontSize: DS.font.size.body, fontWeight: 600, color: JELLY.text, marginBottom: 10 }}>
         + {monthLabel}에 결제 추가
       </div>
 
@@ -578,7 +578,7 @@ function AddEntryForm({
           disabled={disabled || !name.trim() || !amount}
           style={{
             ...jellyPrimaryButton,
-            fontSize: 13,
+            fontSize: DS.font.size.body,
             padding: '0 16px',
             height: 40,
             flexShrink: 0,
@@ -603,7 +603,7 @@ function AddEntryForm({
             height: 36,
             padding: '0 12px',
             borderRadius: INPUT_BORDER_RADIUS,
-            fontSize: 12,
+            fontSize: DS.font.size.caption,
             fontFamily: 'inherit',
             outline: 'none',
             boxSizing: 'border-box',
@@ -624,7 +624,7 @@ function AddEntryForm({
             border: creditCard ? `1px solid ${DS.color.warning.text}` : `1px solid ${DS.color.border.subtle}`,
             background: creditCard ? DS.color.warning.soft : DS.color.bg.secondary,
             color: creditCard ? DS.color.warning.text : DS.color.text.secondary,
-            fontSize: 12,
+            fontSize: DS.font.size.caption,
             fontWeight: 600,
             fontFamily: 'inherit',
             cursor: disabled ? 'default' : 'pointer',
@@ -647,7 +647,7 @@ function AddEntryForm({
             border: excluded ? `1px solid ${DS.color.text.secondary}` : `1px solid ${DS.color.border.subtle}`,
             background: excluded ? DS.color.text.body : DS.color.bg.secondary,
             color: excluded ? DS.color.bg.secondary : DS.color.text.secondary,
-            fontSize: 12,
+            fontSize: DS.font.size.caption,
             fontWeight: 600,
             fontFamily: 'inherit',
             cursor: disabled ? 'default' : 'pointer',
@@ -956,7 +956,7 @@ export function SharedExpensePage() {
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                       whiteSpace: 'nowrap',
-                      fontSize: 13,
+                      fontSize: DS.font.size.body,
                       fontWeight: active ? 700 : 500,
                       lineHeight: 1,
                     }}
@@ -988,12 +988,12 @@ export function SharedExpensePage() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 12, color: DS.color.text.secondary, marginBottom: 2 }}>
+                <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 2 }}>
                   {monthLabel} 사용액 / 목표
                 </div>
                 <div
                   style={{
-                    fontSize: 26,
+                    fontSize: DS.font.size.headline,
                     fontWeight: 700,
                     display: 'flex',
                     alignItems: 'baseline',
@@ -1002,34 +1002,34 @@ export function SharedExpensePage() {
                   }}
                 >
                   <span style={{ color: usedColor }}>{fmtSum(monthTotal)}</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: DS.color.text.muted }}>/</span>
-                  <span style={{ fontSize: 18, fontWeight: 600, color: DS.color.text.secondary }}>
+                  <span style={{ fontSize: DS.font.size.subtitle, fontWeight: 500, color: DS.color.text.muted }}>/</span>
+                  <span style={{ fontSize: DS.font.size.title, fontWeight: 600, color: DS.color.text.secondary }}>
                     {sharedLivingCostTarget > 0 ? fmtSum(sharedLivingCostTarget) : '미설정'}
                   </span>
                 </div>
                 {overBudget && (
-                  <div style={{ fontSize: 12, color: DS.color.negative.main, fontWeight: 600, marginTop: 4 }}>
+                  <div style={{ fontSize: DS.font.size.caption, color: DS.color.negative.main, fontWeight: 600, marginTop: 4 }}>
                     ⚠️ 목표를 {fmtSum(monthTotal - sharedLivingCostTarget)} 초과했습니다
                   </div>
                 )}
                 {!overBudget && sharedLivingCostTarget > 0 && (
-                  <div style={{ fontSize: 12, color: DS.color.positive.main, fontWeight: 600, marginTop: 4 }}>
+                  <div style={{ fontSize: DS.font.size.caption, color: DS.color.positive.main, fontWeight: 600, marginTop: 4 }}>
                     남은 금액 {fmtSum(sharedLivingCostTarget - monthTotal)}
                   </div>
                 )}
                 {sharedLivingCostTarget === 0 && (
-                  <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 4 }}>
+                  <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginTop: 4 }}>
                     설정 페이지에서 월 공동 생활비를 설정하면 목표 대비 사용량을 볼 수 있습니다
                   </div>
                 )}
                 {monthExcludedTotal > 0 && (
-                  <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 4 }}>
+                  <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginTop: 4 }}>
                     제외 {fmtSum(monthExcludedTotal)} (합계에 미반영)
                   </div>
                 )}
               </div>
               {isFutureMonth && (
-                <div style={{ fontSize: 12, color: DS.color.text.muted }}>미래 월은 입력할 수 없습니다</div>
+                <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>미래 월은 입력할 수 없습니다</div>
               )}
             </div>
 
@@ -1081,7 +1081,7 @@ export function SharedExpensePage() {
             height: 36,
             padding: '0 12px',
             borderRadius: 8,
-            fontSize: 13,
+            fontSize: DS.font.size.body,
             fontFamily: 'inherit',
             outline: 'none',
             boxSizing: 'border-box',
@@ -1103,7 +1103,7 @@ export function SharedExpensePage() {
 
         {/* 필터 합계 (카테고리 드롭다운 바로 옆) */}
         {(filterCategory !== '전체' || searchQuery.trim()) && (
-          <div style={{ fontSize: 12, color: DS.color.text.secondary, whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, whiteSpace: 'nowrap' }}>
             필터 합계: <strong style={{ color: PRIMARY }}>{fmtSum(filteredTotal)}</strong>{' '}
             <span style={{ color: DS.color.text.muted }}>({filteredEntries.length}건)</span>
           </div>
@@ -1141,7 +1141,7 @@ export function SharedExpensePage() {
                   border: 'none',
                   background: active ? DS.color.bg.secondary : 'transparent',
                   color: active ? PRIMARY : DS.color.text.secondary,
-                  fontSize: 12,
+                  fontSize: DS.font.size.caption,
                   fontWeight: active ? 700 : 500,
                   cursor: 'pointer',
                   fontFamily: 'inherit',
@@ -1173,7 +1173,7 @@ export function SharedExpensePage() {
             padding: '40px 24px',
             textAlign: 'center',
             color: DS.color.text.muted,
-            fontSize: 14,
+            fontSize: DS.font.size.body,
             lineHeight: 1.6,
           }}
         >
@@ -1188,7 +1188,7 @@ export function SharedExpensePage() {
             padding: '32px 24px',
             textAlign: 'center',
             color: DS.color.text.muted,
-            fontSize: 13,
+            fontSize: DS.font.size.body,
           }}
         >
           필터 조건에 맞는 결제 내역이 없습니다.
@@ -1245,10 +1245,10 @@ export function SharedExpensePage() {
                         minWidth: 0,
                       }}
                     >
-                      <span style={{ fontSize: 14, fontWeight: 700, color: fg }}>{cat}</span>
-                      <span style={{ fontSize: 11, color: fg, opacity: 0.7 }}>{list.length}건</span>
+                      <span style={{ fontSize: DS.font.size.body, fontWeight: 700, color: fg }}>{cat}</span>
+                      <span style={{ fontSize: DS.font.size.caption, color: fg, opacity: 0.7 }}>{list.length}건</span>
                     </div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: fg, whiteSpace: 'nowrap' }}>
+                    <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: fg, whiteSpace: 'nowrap' }}>
                       {fmtSum(subtotal)}
                     </div>
                   </div>
@@ -1332,7 +1332,7 @@ export function SharedExpensePage() {
       <Modal open={editingEntry !== null} title="결제 내역 수정" onClose={() => setEditingEntry(null)}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>카테고리</div>
             <CustomSelect
               options={categories.length > 0 ? categories : ['기타']}
               value={editForm.category}
@@ -1344,7 +1344,7 @@ export function SharedExpensePage() {
           </div>
 
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>항목명</div>
             <input
               value={editForm.name}
               onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
@@ -1355,7 +1355,7 @@ export function SharedExpensePage() {
 
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{ flex: '0 0 100px' }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>결제일</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>결제일</div>
               <input
                 value={editForm.day ? `${editForm.day}일` : ''}
                 onChange={(e) =>
@@ -1381,7 +1381,7 @@ export function SharedExpensePage() {
               />
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>금액</div>
               <input
                 value={editForm.amount}
                 onChange={(e) => {
@@ -1399,7 +1399,7 @@ export function SharedExpensePage() {
           </div>
 
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>메모 (선택)</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>메모 (선택)</div>
             <input
               value={editForm.memo}
               onChange={(e) => setEditForm({ ...editForm, memo: e.target.value })}
@@ -1419,7 +1419,7 @@ export function SharedExpensePage() {
                 border: editForm.creditCard ? `1px solid ${DS.color.warning.text}` : `1px solid ${DS.color.border.subtle}`,
                 background: editForm.creditCard ? DS.color.warning.soft : DS.color.bg.secondary,
                 color: editForm.creditCard ? DS.color.warning.text : DS.color.text.secondary,
-                fontSize: 12,
+                fontSize: DS.font.size.caption,
                 fontWeight: 600,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
@@ -1438,7 +1438,7 @@ export function SharedExpensePage() {
                   border: editForm.cardSettled ? `1px solid ${DS.color.positive.main}` : `1px solid ${DS.color.border.subtle}`,
                   background: editForm.cardSettled ? DS.color.positive.soft : DS.color.bg.secondary,
                   color: editForm.cardSettled ? DS.color.positive.main : DS.color.text.secondary,
-                  fontSize: 12,
+                  fontSize: DS.font.size.caption,
                   fontWeight: 600,
                   cursor: 'pointer',
                   fontFamily: 'inherit',
@@ -1457,7 +1457,7 @@ export function SharedExpensePage() {
                 border: editForm.excluded ? `1px solid ${DS.color.text.secondary}` : `1px solid ${DS.color.border.subtle}`,
                 background: editForm.excluded ? DS.color.text.body : DS.color.bg.secondary,
                 color: editForm.excluded ? DS.color.bg.secondary : DS.color.text.secondary,
-                fontSize: 12,
+                fontSize: DS.font.size.caption,
                 fontWeight: 600,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
@@ -1476,7 +1476,7 @@ export function SharedExpensePage() {
               borderRadius: JELLY.radiusControl,
               border: `1px solid ${DS.color.negative.border}`,
               background: DS.color.bg.secondary,
-              fontSize: 13,
+              fontSize: DS.font.size.body,
               color: DS.color.negative.main,
               cursor: 'pointer',
             }}
@@ -1492,7 +1492,7 @@ export function SharedExpensePage() {
                 borderRadius: JELLY.radiusControl,
                 border: `1px solid ${DS.color.border.subtle}`,
                 background: DS.color.bg.secondary,
-                fontSize: 13,
+                fontSize: DS.font.size.body,
                 cursor: 'pointer',
               }}
             >
@@ -1504,7 +1504,7 @@ export function SharedExpensePage() {
                 padding: '8px 16px',
                 borderRadius: JELLY.radiusControl,
                 border: 'none',
-                fontSize: 13,
+                fontSize: DS.font.size.body,
                 fontWeight: 600,
                 cursor: editForm.name.trim() && editForm.amount ? 'pointer' : 'not-allowed',
                 background: editForm.name.trim() && editForm.amount ? PRIMARY : DS.color.border.subtle,
@@ -1528,7 +1528,7 @@ const archiveBtnStyle: React.CSSProperties = {
   borderRadius: 8,
   border: `1px solid ${DS.color.border.subtle}`,
   background: DS.color.bg.secondary,
-  fontSize: 12,
+  fontSize: DS.font.size.caption,
   fontWeight: 500,
   color: DS.color.text.body,
   cursor: 'pointer',

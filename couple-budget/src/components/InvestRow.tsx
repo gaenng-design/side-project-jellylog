@@ -85,7 +85,7 @@ export function InvestRow({
           borderRadius: JELLY.radiusControl,
           background: DS.color.bg.secondary,
           cursor: disabled ? 'default' : 'pointer',
-          fontSize: 14,
+          fontSize: DS.font.size.body,
           color: DS.color.text.secondary,
           display: 'flex',
           alignItems: 'center',
@@ -95,7 +95,7 @@ export function InvestRow({
         📅
       </button>
       {row.maturityDate && (
-        <span style={{ fontSize: 13, color: DS.color.text.primary, minWidth: 72 }}>
+        <span style={{ fontSize: DS.font.size.body, color: DS.color.text.primary, minWidth: 72 }}>
           {formatMaturityDate(row.maturityDate)}
         </span>
       )}

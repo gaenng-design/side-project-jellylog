@@ -79,15 +79,16 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
   const actualPath = pathOf(0, PAST_MONTHS)
   const projectedPath = pathOf(PAST_MONTHS, points.length - 1)
 
-  // X 라벨: 너비가 좁으면 격월 표시, 1월은 연도 포함
-  const labelEvery = innerW / points.length < 34 ? 2 : 1
+  // X 라벨: 너비가 좁으면 2~3개월 간격으로 표시, 1월은 연도 포함
+  const perPoint = innerW / points.length
+  const labelEvery = perPoint < 22 ? 3 : perPoint < 34 ? 2 : 1
   const colW = innerW / (points.length - 1)
 
   return (
     <div style={{ ...jellyCardStyle, padding: '14px 16px', marginBottom: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, color: DS.color.text.primary }}>자산 추이</div>
-        <div style={{ display: 'flex', gap: 12, fontSize: 11, color: DS.color.text.secondary }}>
+        <div style={{ fontWeight: 700, fontSize: DS.font.size.body, color: DS.color.text.primary }}>자산 추이</div>
+        <div style={{ display: 'flex', gap: 12, fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <svg width="16" height="4" aria-hidden><line x1="0" x2="16" y1="2" y2="2" stroke={PRIMARY} strokeWidth="2" /></svg>
             총 자산
@@ -113,7 +114,7 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
           {ticks.map((t, i) => (
             <g key={t}>
               <line x1={padL} x2={W - padR} y1={y(t)} y2={y(t)} stroke={DS.color.border.subtle} strokeDasharray={i === 0 ? undefined : '3 3'} />
-              <text x={padL - 8} y={y(t) + 4} fontSize="11" fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
+              <text x={padL - 8} y={y(t) + 4} fontSize={DS.font.size.caption} fill={DS.color.text.muted} textAnchor="end" style={tabularNums}>
                 {fmtWonAsMan(t)}
               </text>
             </g>
@@ -138,7 +139,7 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
                 key={i}
                 x={x(i)}
                 y={H - 8}
-                fontSize="11"
+                fontSize={DS.font.size.caption}
                 fill={isCurrent ? PRIMARY : DS.color.text.muted}
                 fontWeight={isCurrent ? 700 : 400}
                 textAnchor="middle"
@@ -194,7 +195,7 @@ export function AssetTrendChart({ model }: { model: AssetModel }) {
               <g pointerEvents="none">
                 <rect x={tx} y={ty} width={boxW} height={boxH} rx={6} fill={DS.color.text.primary} opacity={0.92} />
                 {lines.map((l, li) => (
-                  <text key={li} x={tx + 10} y={ty + 6 + (li + 1) * lineH - 3} fontSize="11" fill={li === 0 ? DS.color.text.muted : DS.color.bg.secondary} style={tabularNums}>
+                  <text key={li} x={tx + 10} y={ty + 6 + (li + 1) * lineH - 3} fontSize={DS.font.size.caption} fill={li === 0 ? DS.color.text.muted : DS.color.bg.secondary} style={tabularNums}>
                     {l}
                   </text>
                 ))}

@@ -108,7 +108,7 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
           background: displayBg,
           color: DS.color.text.inverse,
           textShadow: '0 1px 2px rgba(15, 23, 42, 0.45)',
-          fontSize: 12,
+          fontSize: DS.font.size.caption,
           fontWeight: 700,
           cursor: 'pointer',
         }}
@@ -149,7 +149,7 @@ export function UserChipColorSelect({ value, onChange }: UserChipColorSelectProp
                   background: pastel,
                   color: DS.color.text.inverse,
                   textShadow: '0 1px 2px rgba(15, 23, 42, 0.45)',
-                  fontSize: 12,
+                  fontSize: DS.font.size.caption,
                   fontWeight: 700,
                   cursor: 'pointer',
                   opacity: value === pastel ? 1 : 0.88,

@@ -93,7 +93,7 @@ export function MonthsTable({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 36,
-    fontSize: 11,
+    fontSize: DS.font.size.caption,
     fontWeight: 600,
     color: DS.color.text.secondary,
     background: DS.color.bg.subtle,
@@ -130,7 +130,7 @@ export function MonthsTable({
                         style={{
                           flex: `0 0 ${colWidth}px`,
                           padding: '6px 4px 0 4px',
-                          fontSize: 12,
+                          fontSize: DS.font.size.caption,
                           fontWeight: 600,
                           color: JELLY.text,
                           background: getItemColumnBg(item.person, 'header'),
@@ -165,7 +165,7 @@ export function MonthsTable({
                             border: 'none',
                             background: 'transparent',
                             cursor: 'pointer',
-                            fontSize: 12,
+                            fontSize: DS.font.size.caption,
                             lineHeight: 1,
                             color: DS.color.text.muted,
                             padding: 0,
@@ -194,12 +194,12 @@ export function MonthsTable({
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                               {item.locked && (
-                                <span title="묶인 돈" style={{ fontSize: 11, flexShrink: 0 }}>🔒</span>
+                                <span title="묶인 돈" style={{ fontSize: DS.font.size.caption, flexShrink: 0 }}>🔒</span>
                               )}
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
                             </div>
                             {item.category === '투자' && (
-                              <div style={{ display: 'flex', gap: 4, fontSize: DS.font.size.micro, color: DS.color.text.muted, fontWeight: 400 }}>
+                              <div style={{ display: 'flex', gap: 4, fontSize: DS.font.size.caption, color: DS.color.text.muted, fontWeight: 400 }}>
                                 <span>총 잔고</span><span>·</span><span>평가 손익</span>
                               </div>
                             )}
@@ -212,7 +212,7 @@ export function MonthsTable({
                     style={{
                       ...sumColStyleBase,
                       padding: '0 12px',
-                      fontSize: 12,
+                      fontSize: DS.font.size.caption,
                       fontWeight: 600,
                       color: JELLY.text,
                       background: DS.color.bg.subtle,
@@ -241,7 +241,7 @@ export function MonthsTable({
                         style={{
                           flex: `0 0 ${colWidth}px`,
                           padding: '4px 4px 6px 4px',
-                          fontSize: DS.font.size.micro,
+                          fontSize: DS.font.size.caption,
                           color: DS.color.text.muted,
                           background: getItemColumnBg(item.person, 'header'),
                           textAlign: 'center',
@@ -264,7 +264,7 @@ export function MonthsTable({
                                 : item.category
                             }</div>
                             {item.defaultAmount && item.savingsType !== 'deposit' ? (
-                              <div style={{ fontSize: DS.font.size.micro, color: DS.color.text.secondary, fontWeight: 500 }}>
+                              <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, fontWeight: 500 }}>
                                 +{item.defaultAmount.toLocaleString('ko-KR')}
                               </div>
                             ) : null}
@@ -290,7 +290,7 @@ export function MonthsTable({
 
             {/* 월별 행 (다년도 통합 · 연도별 접기) */}
             {sortedItems.length === 0 ? (
-              <div style={{ padding: '32px 16px', textAlign: 'center', color: DS.color.text.muted, fontSize: 14 }}>
+              <div style={{ padding: '32px 16px', textAlign: 'center', color: DS.color.text.muted, fontSize: DS.font.size.body }}>
                 아래 '+ 추가' 버튼으로 자산 항목을 추가해주세요.
               </div>
             ) : (
@@ -327,16 +327,16 @@ export function MonthsTable({
                           // 외부 행이 이미 동일 배경을 가지므로 중복 적용하면 반투명 색이 겹쳐 짙어짐 → 투명 유지
                         }}
                       >
-                        <span style={{ fontSize: 11, color: isCurrentYearGroup ? PRIMARY : DS.color.text.secondary }}>
+                        <span style={{ fontSize: DS.font.size.caption, color: isCurrentYearGroup ? PRIMARY : DS.color.text.secondary }}>
                           {isCollapsed ? '▶' : '▼'}
                         </span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: isCurrentYearGroup ? PRIMARY : JELLY.text }}>
+                        <span style={{ fontSize: DS.font.size.body, fontWeight: 700, color: isCurrentYearGroup ? PRIMARY : JELLY.text }}>
                           {group.year}년
                         </span>
                         {isCurrentYearGroup && (
                           <span
                             style={{
-                              fontSize: DS.font.size.micro,
+                              fontSize: DS.font.size.caption,
                               fontWeight: 600,
                               color: DS.color.text.inverse,
                               background: PRIMARY,
@@ -408,7 +408,7 @@ export function MonthsTable({
                           }}
                         >
                           {isCollapsed ? (
-                            <span style={{ fontSize: DS.font.size.micro, color: DS.color.border.default }}>…</span>
+                            <span style={{ fontSize: DS.font.size.caption, color: DS.color.border.default }}>…</span>
                           ) : item.category === '투자' ? (
                             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
                               {/* 총 잔고 행 */}
@@ -453,7 +453,7 @@ export function MonthsTable({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'flex-end',
-                        fontSize: 12,
+                        fontSize: DS.font.size.caption,
                         fontWeight: 600,
                         color: total > 0 ? PRIMARY : DS.color.border.default,
                         borderLeft: `2px solid ${DS.color.border.strong}`,
@@ -500,7 +500,7 @@ export function MonthsTable({
                       type="button"
                       onClick={onAddYear}
                       style={{
-                        fontSize: 12,
+                        fontSize: DS.font.size.caption,
                         fontWeight: 600,
                         padding: '6px 14px',
                         borderRadius: 999,
@@ -520,7 +520,7 @@ export function MonthsTable({
                       onClick={onRemoveLastYear}
                       title="마지막에 추가된 연도를 제거"
                       style={{
-                        fontSize: 12,
+                        fontSize: DS.font.size.caption,
                         fontWeight: 500,
                         padding: '6px 12px',
                         borderRadius: 999,

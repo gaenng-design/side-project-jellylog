@@ -58,7 +58,7 @@ export function MobileSnackbar({
         maxWidth: 'calc(100vw - 32px)',
         padding: '12px 16px',
         borderRadius: 14,
-        fontSize: 13,
+        fontSize: DS.font.size.body,
         lineHeight: 1.5,
         fontWeight: 500,
         color: TONE_TEXT[tone],

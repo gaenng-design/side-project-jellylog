@@ -149,8 +149,8 @@ function SectionCard(props: {
           borderTopRightRadius: JELLY.radiusLg,
         }}
       >
-        <span style={{ fontSize: 18 }}>{emoji}</span>
-        <span style={{ fontWeight: 700, fontSize: 15, color: JELLY.text }}>{title}</span>
+        <span style={{ fontSize: DS.font.size.title }}>{emoji}</span>
+        <span style={{ fontWeight: 700, fontSize: DS.font.size.subtitle, color: JELLY.text }}>{title}</span>
         <span style={{ marginLeft: 6, fontWeight: 700, color: totalColor ?? PRIMARY }}>{fmt(total)}</span>
         <div style={{ marginLeft: 'auto' }}>{right}</div>
       </div>
@@ -208,7 +208,7 @@ function IncomeCard(props: {
     excluded
       ? {
           ...excludeBtnLayout,
-          fontSize: 11 as const,
+          fontSize: DS.font.size.caption,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
           border: `1px solid ${PRIMARY}`,
@@ -218,7 +218,7 @@ function IncomeCard(props: {
         }
       : {
           ...excludeBtnLayout,
-          fontSize: 11 as const,
+          fontSize: DS.font.size.caption,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
           border: `1px solid ${DS.color.border.subtle}`,
@@ -259,7 +259,7 @@ function IncomeCard(props: {
             type="button"
             onClick={() => setOpen(true)}
             style={{
-              fontSize: 12,
+              fontSize: DS.font.size.caption,
               padding: '6px 12px',
               borderRadius: JELLY.radiusControl,
               border: `1px solid ${DS.color.border.subtle}`,
@@ -272,7 +272,7 @@ function IncomeCard(props: {
         }
       >
         {rows.length === 0 && (
-          <div style={{ padding: 18, textAlign: 'center', fontSize: 13, color: DS.color.text.muted }}>
+          <div style={{ padding: 18, textAlign: 'center', fontSize: DS.font.size.body, color: DS.color.text.muted }}>
             수입 항목을 추가해주세요.
           </div>
         )}
@@ -317,7 +317,7 @@ function IncomeCard(props: {
                 style={{
                   minWidth: 76,
                   flexShrink: 0,
-                  fontSize: 12,
+                  fontSize: DS.font.size.caption,
                   padding: '6px 0',
                   borderRadius: JELLY.radiusControl,
                   border: `1px solid ${DS.color.border.subtle}`,
@@ -337,14 +337,14 @@ function IncomeCard(props: {
                   <span style={{ flexShrink: 0 }}>
                     <PersonBadge person={row.person} />
                   </span>
-                  <span style={{ minWidth: 80, flexShrink: 0, fontSize: 12, color: DS.color.text.secondary }}>{row.category}</span>
+                  <span style={{ minWidth: 80, flexShrink: 0, fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>{row.category}</span>
                   {!isDefaultSalary && (
                     <span
                       style={{
                         flex: '1 1 140px',
                         minWidth: 0,
                         overflow: 'hidden',
-                        fontSize: 13,
+                        fontSize: DS.font.size.body,
                         color: DS.color.text.primary,
                       }}
                     >
@@ -386,9 +386,9 @@ function IncomeCard(props: {
               <span style={{ flexShrink: 0 }}>
                 <PersonBadge person={row.person} />
               </span>
-              <span style={{ minWidth: 80, flexShrink: 0, fontSize: 12, color: DS.color.text.secondary }}>{row.category}</span>
+              <span style={{ minWidth: 80, flexShrink: 0, fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>{row.category}</span>
               {!isDefaultSalary && (
-                <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', fontSize: 13, color: DS.color.text.primary }}>
+                <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', fontSize: DS.font.size.body, color: DS.color.text.primary }}>
                   {useTextFields ? (
                     <input
                       value={row.description}
@@ -416,11 +416,11 @@ function IncomeCard(props: {
       <Modal open={open} title="수입 추가" onClose={() => setOpen(false)}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>구분</div>
             <PersonToggle value={form.person} onChange={(p) => setForm({ ...form, person: p as Exclude<Person, '공금'> })} options={['A', 'B']} />
           </div>
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>카테고리</div>
             <input
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -429,7 +429,7 @@ function IncomeCard(props: {
             />
           </div>
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>항목명</div>
             <input
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -438,14 +438,14 @@ function IncomeCard(props: {
             />
           </div>
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>금액</div>
             <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
           <button
             onClick={() => setOpen(false)}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             취소
           </button>
@@ -456,7 +456,7 @@ function IncomeCard(props: {
               padding: '8px 16px',
               borderRadius: JELLY.radiusControl,
               border: 'none',
-              fontSize: 13,
+              fontSize: DS.font.size.body,
               fontWeight: 600,
               cursor: !form.description || !form.amount ? 'not-allowed' : 'pointer',
               background: !form.description || !form.amount ? DS.color.border.subtle : PRIMARY,
@@ -623,7 +623,7 @@ function FixedExpenseCard(props: FixedCardProps) {
     excluded
       ? {
           ...planRowActionButtonLayout,
-          fontSize: 11 as const,
+          fontSize: DS.font.size.caption,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
           border: `1px solid ${PRIMARY}`,
@@ -633,7 +633,7 @@ function FixedExpenseCard(props: FixedCardProps) {
         }
       : {
           ...planRowActionButtonLayout,
-          fontSize: 11 as const,
+          fontSize: DS.font.size.caption,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
           border: `1px solid ${DS.color.border.subtle}`,
@@ -644,7 +644,7 @@ function FixedExpenseCard(props: FixedCardProps) {
 
   const planRowDeleteButtonStyle = {
     ...planRowActionButtonLayout,
-    fontSize: 11,
+    fontSize: DS.font.size.caption,
     padding: '6px 8px',
     borderRadius: JELLY.radiusControl,
     border: `1px solid ${DS.color.negative.border}`,
@@ -666,7 +666,7 @@ function FixedExpenseCard(props: FixedCardProps) {
               type="button"
               onClick={() => setOpen(true)}
               style={{
-                fontSize: 12,
+                fontSize: DS.font.size.caption,
                 padding: '6px 12px',
                 borderRadius: JELLY.radiusControl,
                 border: `1px solid ${DS.color.border.subtle}`,
@@ -680,7 +680,7 @@ function FixedExpenseCard(props: FixedCardProps) {
         }
       >
         {rows.length === 0 && (
-          <div style={{ padding: 18, textAlign: 'center', fontSize: 13, color: DS.color.text.muted }}>
+          <div style={{ padding: 18, textAlign: 'center', fontSize: DS.font.size.body, color: DS.color.text.muted }}>
             {emptyMessage}
           </div>
         )}
@@ -794,7 +794,7 @@ function FixedExpenseCard(props: FixedCardProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {!forcePersonPublicFund && !excludePublicFund && (
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>구분</div>
               <PersonToggle
                 value={form.person}
                 onChange={(p) => setForm({ ...form, person: p as Person })}
@@ -803,7 +803,7 @@ function FixedExpenseCard(props: FixedCardProps) {
           )}
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
             <div style={{ flex: '0 0 auto' }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>카테고리</div>
               <CustomSelect
                 options={fixedCategories}
                 value={form.category}
@@ -813,7 +813,7 @@ function FixedExpenseCard(props: FixedCardProps) {
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>항목명</div>
               <input
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -825,23 +825,23 @@ function FixedExpenseCard(props: FixedCardProps) {
           {!hidePayDayInModal ? (
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
               <div style={{ flex: '0 0 auto' }}>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>입금일</div>
+                <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>입금일</div>
                 <DaySelect value={form.payDay} onChange={(v) => setForm((f) => ({ ...f, payDay: v }))} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+                <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>금액</div>
                 <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
               </div>
             </div>
           ) : (
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>금액</div>
               <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
             </div>
           )}
           {!excludePublicFund && !forcePersonPublicFund && (
             <div>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>
                 계좌번호 <span style={{ color: DS.color.text.muted }}>(선택)</span>
               </div>
               <input
@@ -868,7 +868,7 @@ function FixedExpenseCard(props: FixedCardProps) {
               display: 'inline-flex' as const,
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 12,
+              fontSize: DS.font.size.caption,
               fontWeight: 700 as const,
               flexShrink: 0,
               boxSizing: 'border-box' as const,
@@ -876,10 +876,10 @@ function FixedExpenseCard(props: FixedCardProps) {
             }
             const separateCaption = (
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: JELLY.text }}>
+                <div style={{ fontSize: DS.font.size.body, fontWeight: 600, color: JELLY.text }}>
                   {excludePublicFund ? '개인이 지불' : '별도 정산으로 등록'}
                 </div>
-                <div style={{ fontSize: 11, color: DS.color.text.secondary, marginTop: 2 }}>최종 정산에서만 반영됩니다.</div>
+                <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginTop: 2 }}>최종 정산에서만 반영됩니다.</div>
               </div>
             )
             return (
@@ -922,7 +922,7 @@ function FixedExpenseCard(props: FixedCardProps) {
                       customChipBg={sepChipBg}
                       compactHeight={MODAL_SEPARATE_CHIP_H}
                       title="별도 정산 담당 선택 · ↗ 누르면 해제"
-                      compactLeading={<span style={{ color: DS.color.text.inverse, fontSize: 12, lineHeight: 1 }}>↗</span>}
+                      compactLeading={<span style={{ color: DS.color.text.inverse, fontSize: DS.font.size.caption, lineHeight: 1 }}>↗</span>}
                       onCompactLeadingClick={() => setForm((f) => ({ ...f, isSeparate: false }))}
                       compactCaretColor={DS.color.bg.secondary}
                     />
@@ -955,7 +955,7 @@ function FixedExpenseCard(props: FixedCardProps) {
                           background: 'none',
                           cursor: 'pointer',
                           color: DS.color.text.inverse,
-                          fontSize: 12,
+                          fontSize: DS.font.size.caption,
                           fontWeight: 700,
                           lineHeight: 1,
                           fontFamily: 'inherit',
@@ -982,7 +982,7 @@ function FixedExpenseCard(props: FixedCardProps) {
                           whiteSpace: 'nowrap',
                           minWidth: 0,
                           color: sepChipColor,
-                          fontSize: 12,
+                          fontSize: DS.font.size.caption,
                           fontWeight: 700,
                         }}
                       >
@@ -999,7 +999,7 @@ function FixedExpenseCard(props: FixedCardProps) {
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
           <button
             onClick={() => setOpen(false)}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             취소
           </button>
@@ -1010,7 +1010,7 @@ function FixedExpenseCard(props: FixedCardProps) {
               padding: '8px 16px',
               borderRadius: JELLY.radiusControl,
               border: 'none',
-              fontSize: 13,
+              fontSize: DS.font.size.body,
               fontWeight: 600,
               cursor: !form.description || !form.amount ? 'not-allowed' : 'pointer',
               background: !form.description || !form.amount ? DS.color.border.subtle : DS.color.text.primary,
@@ -1143,7 +1143,7 @@ function InvestCard(props: InvestCardProps) {
     excluded
       ? {
           ...investExcludeBtnLayout,
-          fontSize: 11 as const,
+          fontSize: DS.font.size.caption,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
           border: `1px solid ${PRIMARY}`,
@@ -1153,7 +1153,7 @@ function InvestCard(props: InvestCardProps) {
         }
       : {
           ...investExcludeBtnLayout,
-          fontSize: 11 as const,
+          fontSize: DS.font.size.caption,
           padding: '6px 8px' as const,
           borderRadius: JELLY.radiusControl,
           border: `1px solid ${DS.color.border.subtle}`,
@@ -1192,15 +1192,15 @@ function InvestCard(props: InvestCardProps) {
               }),
         }}
       >
-        <span style={{ fontSize: 18 }}>📈</span>
-        <span style={{ fontWeight: 700, fontSize: 15, color: DS.color.text.primary }}>투자·저축</span>
+        <span style={{ fontSize: DS.font.size.title }}>📈</span>
+        <span style={{ fontWeight: 700, fontSize: DS.font.size.subtitle, color: DS.color.text.primary }}>투자·저축</span>
         <span style={{ marginLeft: 6, fontWeight: 700, color: INVEST_GROUP_TOGGLE_COLOR }}>{fmt(total)}</span>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <button
             type="button"
             onClick={() => setAddOpen(true)}
             style={{
-              fontSize: 12,
+              fontSize: DS.font.size.caption,
               padding: '6px 12px',
               borderRadius: JELLY.radiusControl,
               border: `1px solid ${DS.color.border.subtle}`,
@@ -1215,7 +1215,7 @@ function InvestCard(props: InvestCardProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
         {rows.length === 0 && (
-          <div style={{ padding: 18, textAlign: 'center', fontSize: 13, color: DS.color.text.muted }}>
+          <div style={{ padding: 18, textAlign: 'center', fontSize: DS.font.size.body, color: DS.color.text.muted }}>
             투자·저축 항목을 추가해주세요.
           </div>
         )}
@@ -1294,7 +1294,7 @@ function InvestCard(props: InvestCardProps) {
         })}
       </div>
 
-      <div style={{ marginTop: 10, fontSize: 11, color: DS.color.text.secondary }}>
+      <div style={{ marginTop: 10, fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>
         이 달에만 적용되는 추가 항목은 상단「+ 항목 추가」로 등록할 수 있습니다.
       </div>
     </div>
@@ -1302,12 +1302,12 @@ function InvestCard(props: InvestCardProps) {
       <Modal open={addOpen} title="투자·저축 추가" onClose={() => setAddOpen(false)}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4 }}>구분</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>구분</div>
             <PersonToggle value={form.person} onChange={(p) => setForm({ ...form, person: p as Exclude<Person, '공금'> })} options={['A', 'B']} />
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
             <div style={{ flex: '0 0 auto' }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>카테고리</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>카테고리</div>
               <CustomSelect
                 options={INVEST_CATEGORIES}
                 value={form.category}
@@ -1317,7 +1317,7 @@ function InvestCard(props: InvestCardProps) {
               />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>항목명</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>항목명</div>
               <input
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -1328,7 +1328,7 @@ function InvestCard(props: InvestCardProps) {
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
             <div style={{ flex: '0 0 auto' }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>만기일 (선택)</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>만기일 (선택)</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', position: 'relative' }}>
                 <input
                   ref={addFormDateRef}
@@ -1354,21 +1354,21 @@ function InvestCard(props: InvestCardProps) {
                     borderRadius: JELLY.radiusControl,
                     background: DS.color.bg.secondary,
                     cursor: 'pointer',
-                    fontSize: 13,
+                    fontSize: DS.font.size.body,
                     color: DS.color.text.secondary,
                   }}
                 >
                   📅 날짜 선택
                 </button>
                 {form.maturityDate && (
-                  <span style={{ fontSize: 13, color: DS.color.text.primary }}>{formatInvestMaturityLabel(form.maturityDate)}</span>
+                  <span style={{ fontSize: DS.font.size.body, color: DS.color.text.primary }}>{formatInvestMaturityLabel(form.maturityDate)}</span>
                 )}
                 {form.maturityDate && (
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, maturityDate: '' })}
                     style={{
-                      fontSize: 12,
+                      fontSize: DS.font.size.caption,
                       padding: '4px 8px',
                       borderRadius: JELLY.radiusControl,
                       border: `1px solid ${DS.color.border.subtle}`,
@@ -1383,7 +1383,7 @@ function InvestCard(props: InvestCardProps) {
               </div>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, marginBottom: 4 }}>금액</div>
+              <div style={{ fontSize: DS.font.size.caption, marginBottom: 4 }}>금액</div>
               <AmountInput value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} />
             </div>
           </div>
@@ -1392,7 +1392,7 @@ function InvestCard(props: InvestCardProps) {
           <button
             type="button"
             onClick={() => setAddOpen(false)}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             취소
           </button>
@@ -1404,7 +1404,7 @@ function InvestCard(props: InvestCardProps) {
               padding: '8px 16px',
               borderRadius: JELLY.radiusControl,
               border: 'none',
-              fontSize: 13,
+              fontSize: DS.font.size.body,
               fontWeight: 600,
               cursor: !form.description || !form.amount ? 'not-allowed' : 'pointer',
               background: !form.description || !form.amount ? DS.color.border.subtle : PRIMARY,
@@ -1539,10 +1539,10 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
           borderTopRightRadius: JELLY.radiusLg,
         }}
       >
-        <span style={{ fontSize: 18 }}>💰</span>
-        <span style={{ fontWeight: 700, fontSize: 15, color: JELLY.text }}>용돈</span>
+        <span style={{ fontSize: DS.font.size.title }}>💰</span>
+        <span style={{ fontWeight: 700, fontSize: DS.font.size.subtitle, color: JELLY.text }}>용돈</span>
         <span style={{ marginLeft: 6, fontWeight: 700, color: allowanceValueColor(total) }}>{fmt(total)}</span>
-        <span style={{ marginLeft: 6, fontSize: 11, color: DS.color.text.secondary }}>자동 계산</span>
+        <span style={{ marginLeft: 6, fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>자동 계산</span>
       </div>
       {separateExpenseCard5090 && separateExpenseCard5090.transferAmount > 0 && (
         <div
@@ -1552,7 +1552,7 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
             borderRadius: JELLY.radiusControl,
             background: 'rgba(14, 165, 233, 0.08)',
             border: '1px solid rgba(14, 165, 233, 0.25)',
-            fontSize: 12,
+            fontSize: DS.font.size.caption,
             color: JELLY.text,
             lineHeight: 1.5,
           }}
@@ -1604,13 +1604,13 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, minWidth: 0 }}>
                     <PersonBadge person={row.person} />
-                    <span style={{ fontSize: 12, color: DS.color.text.secondary }}>({row.incomeDay}일)</span>
+                    <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>({row.incomeDay}일)</span>
                   </div>
                   <span
                     style={{
                       flexShrink: 0,
                       textAlign: 'right',
-                      fontSize: 15,
+                      fontSize: DS.font.size.subtitle,
                       fontWeight: 700,
                       color: allowanceValueColor(row.allowance),
                     }}
@@ -1618,7 +1618,7 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
                     {fmt(row.allowance)}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: DS.color.text.secondary, lineHeight: 1.5, wordBreak: 'keep-all' }}>{formula}</div>
+                <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, lineHeight: 1.5, wordBreak: 'keep-all' }}>{formula}</div>
               </div>
             )
           }
@@ -1634,15 +1634,15 @@ function AllowanceCard(props: { breakdown: AllowanceBreakdown; personAName: stri
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                 <PersonBadge person={row.person} />
-                <span style={{ fontSize: 12, color: DS.color.text.secondary }}>({row.incomeDay}일)</span>
+                <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>({row.incomeDay}일)</span>
               </div>
-              <span style={{ flex: 1, fontSize: 11, color: DS.color.text.secondary }}>{formula}</span>
+              <span style={{ flex: 1, fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>{formula}</span>
               <span
                 style={{
                   width: AMOUNT_INPUT_MIN_WIDTH,
                   minWidth: AMOUNT_INPUT_MIN_WIDTH,
                   textAlign: 'right',
-                  fontSize: 13,
+                  fontSize: DS.font.size.body,
                   fontWeight: 700,
                   color: allowanceValueColor(row.allowance),
                 }}
@@ -2205,7 +2205,7 @@ export function ExpensePlanPage() {
         {/* 작성되지 않은 달: 작성하기로 진입 */}
         {planState === 'none' && (
           <div style={{ marginTop: 16, padding: 24, background: DS.color.bg.subtle, borderRadius: JELLY.radiusControl, border: `1px dashed ${DS.color.border.subtle}`, textAlign: 'center' }}>
-            <p style={{ fontSize: 14, color: DS.color.text.secondary, margin: '0 0 12px' }}>
+            <p style={{ fontSize: DS.font.size.body, color: DS.color.text.secondary, margin: '0 0 12px' }}>
               이 달의 지출 계획을 작성해보세요.
             </p>
             <button
@@ -2214,7 +2214,7 @@ export function ExpensePlanPage() {
                 startMonth(currentYearMonth)
                 setTemplateSnapshot(currentYearMonth, { fixed: [...fixedTemplates], invest: [...investTemplates] })
               }}
-              style={{ ...jellyPrimaryButton, fontSize: 14 }}
+              style={{ ...jellyPrimaryButton, fontSize: DS.font.size.body }}
             >
               작성하기
             </button>
@@ -2230,7 +2230,7 @@ export function ExpensePlanPage() {
                 <button
                   type="button"
                   onClick={openSettleMemoModal}
-                  style={{ ...jellyPrimaryButton, fontSize: 13 }}
+                  style={{ ...jellyPrimaryButton, fontSize: DS.font.size.body }}
                 >
                   이달 정산하기
                 </button>
@@ -2249,7 +2249,7 @@ export function ExpensePlanPage() {
                   border: `1px solid ${PRIMARY}`,
                   background: PRIMARY_LIGHT,
                   color: PRIMARY,
-                  fontSize: 13,
+                  fontSize: DS.font.size.body,
                   fontWeight: 600,
                   cursor: 'pointer',
                 }}
@@ -2262,7 +2262,7 @@ export function ExpensePlanPage() {
                 <button
                   type="button"
                   onClick={handleEditSettlementComplete}
-                  style={{ ...jellyPrimaryButton, fontSize: 13 }}
+                  style={{ ...jellyPrimaryButton, fontSize: DS.font.size.body }}
                 >
                   수정 완료
                 </button>
@@ -2277,21 +2277,21 @@ export function ExpensePlanPage() {
 
       {/* 작성 중 다른 월 전환 시 저장 확인 모달 */}
       <Modal open={leaveConfirmOpen} title="저장하지 않고 나가시겠습니까?" onClose={handleLeaveCancel}>
-        <p style={{ fontSize: 14, color: DS.color.text.secondary, margin: '0 0 16px' }}>
+        <p style={{ fontSize: DS.font.size.body, color: DS.color.text.secondary, margin: '0 0 16px' }}>
           변경 사항이 저장되지 않습니다.
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button
             type="button"
             onClick={handleLeaveCancel}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             취소
           </button>
           <button
             type="button"
             onClick={handleLeaveWithoutSave}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.negative.main}`, background: DS.color.bg.secondary, color: DS.color.negative.main, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.negative.main}`, background: DS.color.bg.secondary, color: DS.color.negative.main, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             저장 안 하고 나가기
           </button>
@@ -2300,21 +2300,21 @@ export function ExpensePlanPage() {
 
       {/* 작성 삭제 확인 모달 */}
       <Modal open={deleteConfirmOpen} title="작성 삭제" onClose={() => setDeleteConfirmOpen(false)}>
-        <p style={{ fontSize: 14, color: DS.color.text.secondary, margin: '0 0 16px' }}>
+        <p style={{ fontSize: DS.font.size.body, color: DS.color.text.secondary, margin: '0 0 16px' }}>
           이 달의 지출 계획을 삭제하시겠습니까? 수입, 고정지출, 투자·저축 항목이 모두 삭제됩니다.
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button
             type="button"
             onClick={() => setDeleteConfirmOpen(false)}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             취소
           </button>
           <button
             type="button"
             onClick={handleDeletePlan}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: 'none', background: DS.color.negative.main, color: DS.color.text.inverse, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: 'none', background: DS.color.negative.main, color: DS.color.text.inverse, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             삭제
           </button>
@@ -2323,7 +2323,7 @@ export function ExpensePlanPage() {
 
       {/* 정산 메모 입력 모달 — 「이달 정산하기」 클릭 시 표시 */}
       <Modal open={settleMemoModalOpen} title="정산 메모 (선택)" onClose={() => setSettleMemoModalOpen(false)}>
-        <p style={{ fontSize: 13, color: DS.color.text.secondary, margin: '0 0 12px', lineHeight: 1.5 }}>
+        <p style={{ fontSize: DS.font.size.body, color: DS.color.text.secondary, margin: '0 0 12px', lineHeight: 1.5 }}>
           이번 달 정산에 대해 남기고 싶은 메모가 있다면 입력해주세요. 정산 결과 상단에 표시됩니다.
         </p>
         <textarea
@@ -2338,7 +2338,7 @@ export function ExpensePlanPage() {
             borderRadius: JELLY.radiusControl,
             border: `1px solid ${DS.color.border.subtle}`,
             background: DS.color.bg.secondary,
-            fontSize: 13,
+            fontSize: DS.font.size.body,
             outline: 'none',
             boxSizing: 'border-box',
             fontFamily: 'inherit',
@@ -2351,14 +2351,14 @@ export function ExpensePlanPage() {
           <button
             type="button"
             onClick={() => setSettleMemoModalOpen(false)}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             취소
           </button>
           <button
             type="button"
             onClick={() => void handleSettle()}
-            style={{ ...jellyPrimaryButton, fontSize: 13 }}
+            style={{ ...jellyPrimaryButton, fontSize: DS.font.size.body }}
           >
             정산하기
           </button>
@@ -2367,14 +2367,14 @@ export function ExpensePlanPage() {
 
       {/* 정산 삭제 확인 모달 */}
       <Modal open={settleDeleteConfirmOpen} title="정산 삭제" onClose={() => setSettleDeleteConfirmOpen(false)}>
-        <p style={{ fontSize: 14, color: DS.color.text.secondary, margin: '0 0 16px' }}>
+        <p style={{ fontSize: DS.font.size.body, color: DS.color.text.secondary, margin: '0 0 16px' }}>
           정산을 삭제하시겠습니까? 삭제 시 수정 가능한 상태로 돌아갑니다.
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button
             type="button"
             onClick={() => setSettleDeleteConfirmOpen(false)}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             취소
           </button>
@@ -2385,7 +2385,7 @@ export function ExpensePlanPage() {
               unsetSettleMonth(currentYearMonth)
               setSettleDeleteConfirmOpen(false)
             }}
-            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: 'none', background: DS.color.negative.main, color: DS.color.text.inverse, fontSize: 13, cursor: 'pointer' }}
+            style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: 'none', background: DS.color.negative.main, color: DS.color.text.inverse, fontSize: DS.font.size.body, cursor: 'pointer' }}
           >
             삭제
           </button>
@@ -2394,7 +2394,7 @@ export function ExpensePlanPage() {
 
       {/* 다른 월 작성하기 모달 */}
       <Modal open={otherMonthModalOpen} title="다른 월 작성하기" onClose={() => setOtherMonthModalOpen(false)}>
-        <div style={{ fontSize: 14, color: DS.color.text.body }}>
+        <div style={{ fontSize: DS.font.size.body, color: DS.color.text.body }}>
           <p style={{ margin: '0 0 16px', color: DS.color.text.secondary }}>작성할 달을 선택한 뒤 작성하기를 누르세요.</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
             <span style={{ fontWeight: 600 }}>연도</span>
@@ -2420,7 +2420,7 @@ export function ExpensePlanPage() {
                     style={{
                       padding: '6px 10px', borderRadius: JELLY.radiusControl, border: 'none',
                       background: active ? PRIMARY : DS.color.bg.muted, color: active ? DS.color.bg.secondary : DS.color.text.body,
-                      fontSize: 12, fontWeight: active ? 600 : 400, cursor: 'pointer',
+                      fontSize: DS.font.size.caption, fontWeight: active ? 600 : 400, cursor: 'pointer',
                     }}
                   >
                     {label}
@@ -2433,7 +2433,7 @@ export function ExpensePlanPage() {
             <button
               type="button"
               onClick={() => setOtherMonthModalOpen(false)}
-              style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: 13, cursor: 'pointer' }}
+              style={{ padding: '8px 14px', borderRadius: JELLY.radiusControl, border: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary, fontSize: DS.font.size.body, cursor: 'pointer' }}
             >
               취소
             </button>
@@ -2445,7 +2445,7 @@ export function ExpensePlanPage() {
                 setTemplateSnapshot(otherMonthSelected, { fixed: [...fixedTemplates], invest: [...investTemplates] })
                 setOtherMonthModalOpen(false)
               }}
-              style={{ ...jellyPrimaryButton, fontSize: 13 }}
+              style={{ ...jellyPrimaryButton, fontSize: DS.font.size.body }}
             >
               작성하기
             </button>
@@ -2494,8 +2494,8 @@ export function ExpensePlanPage() {
                   border: `2px solid ${DS.color.bg.secondary}`,
                 }}
               >
-                <div style={{ fontSize: 12, color: DS.color.text.secondary, marginBottom: 4 }}>{c.label}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: c.color }}>{fmt(c.value)}</div>
+                <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 4 }}>{c.label}</div>
+                <div style={{ fontSize: DS.font.size.title, fontWeight: 700, color: c.color }}>{fmt(c.value)}</div>
               </div>
             ))}
             <div
@@ -2510,7 +2510,7 @@ export function ExpensePlanPage() {
                 border: `2px solid ${DS.color.bg.secondary}`,
               }}
             >
-              <div style={{ fontSize: 12, color: DS.color.text.secondary, marginBottom: 10 }}>용돈</div>
+              <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 10 }}>용돈</div>
               <div
                 style={{
                   display: 'flex',
@@ -2519,10 +2519,10 @@ export function ExpensePlanPage() {
                   gap: 8,
                 }}
               >
-                <span style={{ fontSize: 12, color: DS.color.text.secondary }}>{settings.personAName || '유저 1'} 용돈</span>
+                <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>{settings.personAName || '유저 1'} 용돈</span>
                 <span
                   style={{
-                    fontSize: 16,
+                    fontSize: DS.font.size.subtitle,
                     fontWeight: 700,
                     color: allowanceValueColor(allowanceBreakdown.allowanceA),
                   }}
@@ -2546,10 +2546,10 @@ export function ExpensePlanPage() {
                   gap: 8,
                 }}
               >
-                <span style={{ fontSize: 12, color: DS.color.text.secondary }}>{settings.personBName || '유저 2'} 용돈</span>
+                <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary }}>{settings.personBName || '유저 2'} 용돈</span>
                 <span
                   style={{
-                    fontSize: 16,
+                    fontSize: DS.font.size.subtitle,
                     fontWeight: 700,
                     color: allowanceValueColor(allowanceBreakdown.allowanceB),
                   }}
@@ -2630,7 +2630,7 @@ export function ExpensePlanPage() {
                     type="button"
                     onClick={() => clearSharedLivingCostForMonth(currentYearMonth)}
                     style={{
-                      fontSize: 11,
+                      fontSize: DS.font.size.caption,
                       padding: '6px 10px',
                       borderRadius: JELLY.radiusControl,
                       border: `1px solid ${DS.color.border.subtle}`,
@@ -2654,7 +2654,7 @@ export function ExpensePlanPage() {
                   flexWrap: 'wrap',
                 }}
               >
-                <div style={{ fontSize: 13, color: DS.color.text.secondary, flexShrink: 0 }}>이번 달 공동 생활비</div>
+                <div style={{ fontSize: DS.font.size.body, color: DS.color.text.secondary, flexShrink: 0 }}>이번 달 공동 생활비</div>
                 <div style={{ flex: 1, minWidth: 160, maxWidth: 240 }}>
                   <AmountInput
                     value={currentValue ? String(currentValue) : ''}
@@ -2666,7 +2666,7 @@ export function ExpensePlanPage() {
                     disabled={!planFieldsEditable}
                   />
                 </div>
-                <div style={{ fontSize: 11, color: DS.color.text.muted, marginLeft: 'auto' }}>
+                <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginLeft: 'auto' }}>
                   기본값: {defaultShared.toLocaleString('ko-KR')}원 (설정 페이지)
                 </div>
               </div>

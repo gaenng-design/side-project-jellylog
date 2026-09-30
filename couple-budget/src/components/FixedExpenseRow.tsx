@@ -107,7 +107,7 @@ export function FixedExpenseRow({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: 12,
+        fontSize: DS.font.size.caption,
         fontWeight: 700,
         flexShrink: 0,
         boxSizing: 'border-box',
@@ -130,7 +130,7 @@ export function FixedExpenseRow({
       customChipBg={chipBg}
       compactHeight={ROW_CHIP_HEIGHT}
       title="별도 정산 담당 선택 · ↗ 누르면 해제"
-      compactLeading={<span style={{ color: DS.color.text.inverse, fontSize: 12, lineHeight: 1 }}>↗</span>}
+      compactLeading={<span style={{ color: DS.color.text.inverse, fontSize: DS.font.size.caption, lineHeight: 1 }}>↗</span>}
       onCompactLeadingClick={() => !disabled && onUpdate({ isSeparate: false })}
       compactCaretColor={DS.color.bg.secondary}
     />
@@ -164,7 +164,7 @@ export function FixedExpenseRow({
           background: 'none',
           cursor: disabled ? 'default' : 'pointer',
           color: DS.color.text.inverse,
-          fontSize: 12,
+          fontSize: DS.font.size.caption,
           fontWeight: 700,
           lineHeight: 1,
           fontFamily: 'inherit',
@@ -191,7 +191,7 @@ export function FixedExpenseRow({
           whiteSpace: 'nowrap',
           minWidth: 0,
           color: chipColor,
-          fontSize: 12,
+          fontSize: DS.font.size.caption,
           fontWeight: 700,
         }}
       >

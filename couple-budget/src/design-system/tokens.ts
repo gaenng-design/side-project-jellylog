@@ -70,8 +70,12 @@ export const DS = {
     title2: { size: 20, weight: 600 as const, lineHeight: 1.3 },
     body: { size: 14, weight: 400 as const, lineHeight: 1.5 },
     caption: { size: 12, weight: 500 as const, lineHeight: 1.45 },
-    /** 글자 크기 스케일 — 모바일 가독성을 위해 11px 미만은 쓰지 않는다 */
-    size: { micro: 11, caption: 12, small: 13, body: 14, large: 16, title: 20, display: 26 },
+    /**
+     * 글자 크기 스케일 — 이 5단계만 쓴다 (숫자를 직접 쓰지 않는다).
+     * caption 12: 보조 설명·라벨·표 머리글 / body 14: 본문·버튼·입력 / subtitle 16: 카드·섹션 제목 /
+     * title 20: 모달·큰 제목 / headline 24: 페이지 제목·핵심 숫자. 모바일 가독성을 위해 12px 미만은 쓰지 않는다.
+     */
+    size: { caption: 12, body: 14, subtitle: 16, title: 20, headline: 24 },
   },
   space: [4, 8, 12, 16, 20, 24, 32, 40, 48, 64] as const,
   grid: {

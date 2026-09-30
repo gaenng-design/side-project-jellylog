@@ -46,7 +46,7 @@ export function GroupHeaderChip({ label, total, color, useUserChipStyle, totalCo
           alignItems: 'center',
           padding: '5px 12px',
           borderRadius: JELLY.radiusUserChip,
-          fontSize: 12,
+          fontSize: DS.font.size.caption,
           fontWeight: 600,
           background: chipBg,
           color: chipColor,
@@ -57,7 +57,7 @@ export function GroupHeaderChip({ label, total, color, useUserChipStyle, totalCo
         {label}
       </span>
       {total != null && total > 0 && (
-        <span style={{ color: totalColor ?? DS.color.positive.main, fontWeight: 700, fontSize: 13 }}>₩{fmt(total)}</span>
+        <span style={{ color: totalColor ?? DS.color.positive.main, fontWeight: 700, fontSize: DS.font.size.body }}>₩{fmt(total)}</span>
       )}
     </div>
   )

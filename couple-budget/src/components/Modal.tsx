@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { JELLY, jellyModalOverlay, jellyModalPanel } from '@/styles/jellyGlass'
+import { DS } from '@/design-system/tokens'
 
 interface ModalProps {
   open: boolean
@@ -87,7 +88,7 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h2 id="modal-title" style={{ margin: 0, fontSize: 17, fontWeight: 700, color: JELLY.text }}>
+          <h2 id="modal-title" style={{ margin: 0, fontSize: DS.font.size.subtitle, fontWeight: 700, color: JELLY.text }}>
             {title}
           </h2>
           <button
@@ -99,7 +100,7 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
               borderRadius: JELLY.radiusControl,
               cursor: 'pointer',
               color: JELLY.textMuted,
-              fontSize: 20,
+              fontSize: DS.font.size.title,
               lineHeight: 1,
               padding: '6px 12px',
               backdropFilter: JELLY.blur,

@@ -95,7 +95,7 @@ export function GitHubSyncPanel() {
         <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>GitHub 동기화 설정</h1>
 
         <div style={{ ...jellyCardStyle, padding: '16px', marginBottom: 20 }}>
-          <p style={{ fontSize: 13, color: JELLY.textMuted, marginBottom: 16, lineHeight: 1.5 }}>
+          <p style={{ fontSize: DS.font.size.body, color: JELLY.textMuted, marginBottom: 16, lineHeight: 1.5 }}>
             개인용 GitHub 저장소에서 데이터를 관리합니다.{' '}
             <a
               href="https://github.com/settings/tokens"
@@ -109,7 +109,7 @@ export function GitHubSyncPanel() {
           </p>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: JELLY.text }}>
+            <label style={{ display: 'block', fontSize: DS.font.size.caption, fontWeight: 600, marginBottom: 6, color: JELLY.text }}>
               GitHub Token
             </label>
             <div style={{ position: 'relative' }}>
@@ -124,7 +124,7 @@ export function GitHubSyncPanel() {
                   width: '100%',
                   padding: '10px 12px 10px 12px',
                   paddingRight: '40px',
-                  fontSize: 13,
+                  fontSize: DS.font.size.body,
                   boxSizing: 'border-box',
                   opacity: verifying ? 0.6 : 1,
                 }}
@@ -156,7 +156,7 @@ export function GitHubSyncPanel() {
                   role="img"
                   aria-hidden
                   style={{
-                    fontSize: 18,
+                    fontSize: DS.font.size.title,
                     lineHeight: 1,
                     display: 'block',
                     userSelect: 'none',
@@ -169,7 +169,7 @@ export function GitHubSyncPanel() {
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: JELLY.text }}>
+            <label style={{ display: 'block', fontSize: DS.font.size.caption, fontWeight: 600, marginBottom: 6, color: JELLY.text }}>
               GitHub Username
             </label>
             <input
@@ -182,7 +182,7 @@ export function GitHubSyncPanel() {
                 ...jellyInputSurface,
                 width: '100%',
                 padding: '10px 12px',
-                fontSize: 13,
+                fontSize: DS.font.size.body,
                 boxSizing: 'border-box',
                 opacity: verifying ? 0.6 : 1,
               }}
@@ -190,7 +190,7 @@ export function GitHubSyncPanel() {
           </div>
 
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: JELLY.text }}>
+            <label style={{ display: 'block', fontSize: DS.font.size.caption, fontWeight: 600, marginBottom: 6, color: JELLY.text }}>
               Repository Name
             </label>
             <input
@@ -203,7 +203,7 @@ export function GitHubSyncPanel() {
                 ...jellyInputSurface,
                 width: '100%',
                 padding: '10px 12px',
-                fontSize: 13,
+                fontSize: DS.font.size.body,
                 boxSizing: 'border-box',
                 opacity: verifying ? 0.6 : 1,
               }}
@@ -230,7 +230,7 @@ export function GitHubSyncPanel() {
                 marginTop: 16,
                 padding: '10px 12px',
                 borderRadius: 8,
-                fontSize: 12,
+                fontSize: DS.font.size.caption,
                 color: message.tone === 'ok' ? DS.color.positive.main : DS.color.negative.main,
                 background: message.tone === 'ok' ? 'rgba(5, 150, 105, 0.1)' : 'rgba(220, 38, 38, 0.1)',
                 lineHeight: 1.5,
@@ -248,14 +248,14 @@ export function GitHubSyncPanel() {
     <div style={{ maxWidth: narrow ? undefined : 520, paddingBottom: narrow ? undefined : 40 }}>
       <div style={narrow ? { ...jellyCardStyle, padding: '16px', marginBottom: 20 } : settingsSectionCardWithBleedTitleStyle}>
         <div style={narrow ? { marginBottom: 12 } : settingsSectionTitleWrapForViewport(narrow)}>
-          <div style={{ fontSize: narrow ? undefined : 15, fontWeight: 700, color: JELLY.text }}>GitHub 동기화</div>
+          <div style={{ fontSize: narrow ? undefined : DS.font.size.subtitle, fontWeight: 700, color: JELLY.text }}>GitHub 동기화</div>
         </div>
 
         <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: JELLY.text, marginBottom: 4 }}>
+          <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: JELLY.text, marginBottom: 4 }}>
             저장소: {owner}/{repo}
           </div>
-          <div style={{ fontSize: 12, color: JELLY.textMuted }}>
+          <div style={{ fontSize: DS.font.size.caption, color: JELLY.textMuted }}>
             마지막 동기화:{' '}
             {lastSync
               ? lastSync.toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })
@@ -273,7 +273,7 @@ export function GitHubSyncPanel() {
             background: DS.color.bg.secondary,
             color: DS.color.primary,
             cursor: 'pointer',
-            fontSize: 14,
+            fontSize: DS.font.size.body,
             fontWeight: 600,
           }}
         >
@@ -286,7 +286,7 @@ export function GitHubSyncPanel() {
           style={{
             padding: '12px 16px',
             ...jellyCardStyle,
-            fontSize: 13,
+            fontSize: DS.font.size.body,
             color: message.tone === 'ok' ? DS.color.positive.main : DS.color.negative.main,
             background: message.tone === 'ok' ? 'rgba(5, 150, 105, 0.1)' : 'rgba(220, 38, 38, 0.1)',
             lineHeight: 1.5,

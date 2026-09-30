@@ -2,6 +2,7 @@ import { useAppStore } from '@/store/useAppStore'
 import { JELLY } from '@/styles/jellyGlass'
 import { SUB_HUES, subOklch } from '@/styles/oklchSubColors'
 import type { Person } from '@/types'
+import { DS } from '@/design-system/tokens'
 
 /** 공금 칩: 낮은 채도의 은은한 서피스 */
 const SHARED_CHIP_BG = 'oklch(0.9 0.018 250 / 1)'
@@ -66,7 +67,7 @@ export function PersonBadge({ person }: { person: Person }) {
         color,
         border: `1px solid rgba(255,255,255,0.55)`,
         textShadow: userTinted ? '0 1px 2px rgba(15, 23, 42, 0.45)' : undefined,
-        fontSize: 11,
+        fontSize: DS.font.size.caption,
         fontWeight: 700,
         whiteSpace: 'nowrap',
         flexShrink: 0,
@@ -114,7 +115,7 @@ export function PersonToggle({
               WebkitBackdropFilter: JELLY.blur,
               color: active ? color : JELLY.textMuted,
               textShadow: active && userTinted ? '0 1px 2px rgba(15, 23, 42, 0.4)' : undefined,
-              fontSize: compact ? 11 : 13,
+              fontSize: compact ? DS.font.size.caption : DS.font.size.body,
               fontWeight: 600,
               cursor: 'pointer',
               transition: 'all 0.18s ease',

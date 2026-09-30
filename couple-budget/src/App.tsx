@@ -443,7 +443,7 @@ function AppShell() {
                   borderRadius: JELLY.radiusControl,
                   color: DS.color.text.inverse,
                   cursor: syncing ? 'not-allowed' : 'pointer',
-                  fontSize: 12,
+                  fontSize: DS.font.size.caption,
                   fontWeight: 500,
                   display: 'flex',
                   alignItems: 'center',
@@ -456,7 +456,7 @@ function AppShell() {
               >
                 <span
                   style={{
-                    fontSize: 20,
+                    fontSize: DS.font.size.title,
                     display: 'inline-block',
                     animation: syncing ? 'spin 1s linear infinite' : 'none',
                   }}
@@ -477,7 +477,7 @@ function AppShell() {
                   borderRadius: JELLY.radiusControl,
                   color: DS.color.text.inverse,
                   cursor: saving ? 'not-allowed' : 'pointer',
-                  fontSize: 12,
+                  fontSize: DS.font.size.caption,
                   fontWeight: 500,
                   display: 'flex',
                   alignItems: 'center',
@@ -488,7 +488,7 @@ function AppShell() {
                   minHeight: 44,
                 }}
               >
-                <span style={{ fontSize: 20, display: 'inline-block' }}>{saveIcon}</span>
+                <span style={{ fontSize: DS.font.size.title, display: 'inline-block' }}>{saveIcon}</span>
               </button>
             </div>
           </div>
@@ -507,13 +507,13 @@ function AppShell() {
             >
               {!iconOnlyNav && (
                 <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: DS.color.bg.subtle, letterSpacing: '-0.02em' }}>
+                  <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.bg.subtle, letterSpacing: '-0.02em' }}>
                     Jelly log
                   </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>승윤 & 경은</div>
+                  <div style={{ fontSize: DS.font.size.caption, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>승윤 & 경은</div>
                 </div>
               )}
-              {iconOnlyNav && <div style={{ fontSize: 20, lineHeight: 1 }}>📒</div>}
+              {iconOnlyNav && <div style={{ fontSize: DS.font.size.title, lineHeight: 1 }}>📒</div>}
             </div>
             <div
               style={{
@@ -537,7 +537,7 @@ function AppShell() {
                     padding: iconOnlyNav ? '10px 12px' : '12px 14px',
                     borderRadius: JELLY.radiusControl,
                     textDecoration: 'none',
-                    fontSize: 14,
+                    fontSize: DS.font.size.body,
                     fontWeight: isActive ? 600 : 500,
                     color: isActive ? DS.color.bg.secondary : 'rgba(255,255,255,0.55)',
                     background: isActive ? 'rgba(79, 140, 255, 0.28)' : 'transparent',
@@ -550,7 +550,7 @@ function AppShell() {
                     flexShrink: 0,
                   })}
                 >
-                  <span style={{ fontSize: 18, lineHeight: 1 }}>{icon}</span>
+                  <span style={{ fontSize: DS.font.size.title, lineHeight: 1 }}>{icon}</span>
                   {!iconOnlyNav && <span>{label}</span>}
                 </NavLink>
               ))}
@@ -582,7 +582,7 @@ function AppShell() {
                     borderRadius: JELLY.radiusControl,
                     color: DS.color.text.inverse,
                     cursor: syncing ? 'not-allowed' : 'pointer',
-                    fontSize: 13,
+                    fontSize: DS.font.size.body,
                     fontWeight: 500,
                     display: 'flex',
                     alignItems: 'center',
@@ -594,7 +594,7 @@ function AppShell() {
                 >
                   <span
                     style={{
-                      fontSize: 16,
+                      fontSize: DS.font.size.subtitle,
                       display: 'inline-block',
                       lineHeight: 1,
                       animation: syncing ? 'spin 1s linear infinite' : 'none',
@@ -617,7 +617,7 @@ function AppShell() {
                     borderRadius: JELLY.radiusControl,
                     color: DS.color.text.inverse,
                     cursor: saving ? 'not-allowed' : 'pointer',
-                    fontSize: 13,
+                    fontSize: DS.font.size.body,
                     fontWeight: 500,
                     display: 'flex',
                     alignItems: 'center',
@@ -627,7 +627,7 @@ function AppShell() {
                     transition: 'all 0.2s',
                   }}
                 >
-                  <span style={{ fontSize: 16, display: 'inline-block' }}>{saveIcon}</span>
+                  <span style={{ fontSize: DS.font.size.subtitle, display: 'inline-block' }}>{saveIcon}</span>
                   {!iconOnlyNav && <span>{saving ? '중…' : '저장하기'}</span>}
                 </button>
               </div>
@@ -644,7 +644,7 @@ function AppShell() {
                 borderRadius: JELLY.radiusControl,
                 color: 'rgba(255,255,255,0.65)',
                 cursor: 'pointer',
-                fontSize: 14,
+                fontSize: DS.font.size.body,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -698,10 +698,10 @@ function AppShell() {
               }}
             >
               <div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: DS.color.bg.subtle, letterSpacing: '-0.02em' }}>
+                <div style={{ fontSize: DS.font.size.title, fontWeight: 700, color: DS.color.bg.subtle, letterSpacing: '-0.02em' }}>
                   Jelly log
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>승윤 & 경은</div>
+                <div style={{ fontSize: DS.font.size.caption, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>승윤 & 경은</div>
               </div>
               <button
                 type="button"
@@ -716,7 +716,7 @@ function AppShell() {
                   background: 'rgba(255,255,255,0.06)',
                   color: 'rgba(255,255,255,0.85)',
                   cursor: 'pointer',
-                  fontSize: 20,
+                  fontSize: DS.font.size.title,
                   lineHeight: 1,
                   display: 'flex',
                   alignItems: 'center',
@@ -741,7 +741,7 @@ function AppShell() {
                     padding: '14px 14px',
                     borderRadius: JELLY.radiusControl,
                     textDecoration: 'none',
-                    fontSize: 15,
+                    fontSize: DS.font.size.subtitle,
                     fontWeight: isActive ? 600 : 500,
                     color: isActive ? DS.color.bg.secondary : 'rgba(255,255,255,0.75)',
                     background: isActive ? 'rgba(79, 140, 255, 0.28)' : 'rgba(255,255,255,0.04)',
@@ -750,7 +750,7 @@ function AppShell() {
                     transition: 'color 0.15s ease, background 0.15s ease, border-color 0.15s ease',
                   })}
                 >
-                  <span style={{ fontSize: 22, lineHeight: 1 }}>{icon}</span>
+                  <span style={{ fontSize: DS.font.size.headline, lineHeight: 1 }}>{icon}</span>
                   <span>{label}</span>
                 </NavLink>
               ))}

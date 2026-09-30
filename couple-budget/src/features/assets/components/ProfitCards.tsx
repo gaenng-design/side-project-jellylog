@@ -32,7 +32,7 @@ export function ProfitCards({ model }: { model: AssetModel }) {
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, color: DS.color.text.primary }}>수익 현황</div>
+        <div style={{ fontWeight: 700, fontSize: DS.font.size.body, color: DS.color.text.primary }}>수익 현황</div>
         {savingsMaturityItems.length > 0 && <AfterTaxToggle model={model} />}
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
@@ -63,18 +63,18 @@ export function ProfitCards({ model }: { model: AssetModel }) {
               minWidth: 200,
               border: totalMaturityInterest > 0 ? `1.5px solid ${DS.color.positive.border}` : undefined,
             }}>
-              <div style={{ fontSize: 11, color: DS.color.text.secondary, marginBottom: 6 }}>저축 수익 (만기 예상 이자{interestAfterTax ? ' · 세후' : ''})</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: savingsMaturityColor, marginBottom: 10 }}>
+              <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 6 }}>저축 수익 (만기 예상 이자{interestAfterTax ? ' · 세후' : ''})</div>
+              <div style={{ fontSize: DS.font.size.headline, fontWeight: 700, color: savingsMaturityColor, marginBottom: 10 }}>
                 {totalMaturityInterest === 0 ? '—' : `+${fmtMan(Math.round(totalMaturityInterest / 10000))}원`}
               </div>
               <div style={{ borderTop: `1px solid ${DS.color.bg.muted}`, paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {savingsMaturityItems.map(({ item, result }) => (
                   <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                      <span style={{ fontSize: 11, color: DS.color.text.body, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
-                      <span style={{ fontSize: DS.font.size.micro, color: DS.color.text.muted }}>{item.maturityDate}</span>
+                      <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.body, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
+                      <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>{item.maturityDate}</span>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: DS.color.positive.main, flexShrink: 0 }}>+{fmtMan(Math.round(result.interest / 10000))}원</span>
+                    <span style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.positive.main, flexShrink: 0 }}>+{fmtMan(Math.round(result.interest / 10000))}원</span>
                   </div>
                 ))}
               </div>

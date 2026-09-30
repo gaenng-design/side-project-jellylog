@@ -62,7 +62,7 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
     flex: 1, height: 36, borderRadius: INPUT_BORDER_RADIUS,
     border: active ? `1.5px solid ${PRIMARY}` : `1px solid ${DS.color.border.subtle}`,
     background: active ? `rgba(79,140,255,0.1)` : DS.color.bg.secondary,
-    fontSize: 12, fontWeight: active ? 600 : 400,
+    fontSize: DS.font.size.caption, fontWeight: active ? 600 : 400,
     color: active ? PRIMARY : DS.color.text.secondary,
     cursor: 'pointer', fontFamily: 'inherit',
   })
@@ -84,19 +84,19 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
         display: 'flex', flexDirection: 'column', gap: 16,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 16, fontWeight: 700, color: DS.color.text.primary }}>항목 추가</span>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: DS.color.text.muted, padding: '0 4px' }}>×</button>
+          <span style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary }}>항목 추가</span>
+          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', fontSize: DS.font.size.title, cursor: 'pointer', color: DS.color.text.muted, padding: '0 4px' }}>×</button>
         </div>
 
         {/* 카테고리 */}
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>카테고리 <span style={{ color: DS.color.negative.main }}>*</span></div>
+          <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>카테고리 <span style={{ color: DS.color.negative.main }}>*</span></div>
           <CustomSelect options={ASSET_CATEGORIES} value={category} onChange={setCategory} compact compactFill compactHeight={40} />
         </div>
 
         {/* 항목명 */}
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>항목명 <span style={{ color: DS.color.negative.main }}>*</span></div>
+          <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>항목명 <span style={{ color: DS.color.negative.main }}>*</span></div>
           <input
             autoFocus value={name} onChange={(e) => setName(e.target.value)}
             placeholder="항목명" onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
@@ -106,7 +106,7 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
 
         {/* 명의 */}
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>명의 <span style={{ color: DS.color.negative.main }}>*</span></div>
+          <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>명의 <span style={{ color: DS.color.negative.main }}>*</span></div>
           <CustomSelect
             options={personOptions.map(o => o.label)}
             value={personOptions.find(o => o.value === person)?.label ?? personAName}
@@ -118,7 +118,7 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
         {/* 저축 종류 */}
         {category === '저축' && (
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>종류 <span style={{ color: DS.color.negative.main }}>*</span></div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>종류 <span style={{ color: DS.color.negative.main }}>*</span></div>
             <div style={{ display: 'flex', gap: 6 }}>
               {SAVINGS_TYPES.map((type) => (
                 <button key={type} type="button" onClick={() => setSavingsType(type)} style={btnStyle(savingsType === type)}>{savingsTypeLabel(type)}</button>
@@ -130,7 +130,7 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
         {/* 예금액 (예금 전용) */}
         {isDeposit && (
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>예금액 <span style={{ color: DS.color.negative.main }}>*</span></div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>예금액 <span style={{ color: DS.color.negative.main }}>*</span></div>
             <AmountInput value={initialAmount} onChange={setInitialAmount} placeholder="예금 원금" height={40} />
           </div>
         )}
@@ -138,7 +138,7 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
         {/* 초기 금액 (예금 외) */}
         {!isDeposit && (
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>초기 금액 (선택)</div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>초기 금액 (선택)</div>
             <AmountInput value={initialAmount} onChange={setInitialAmount} placeholder="이미 보유한 금액" height={40} />
           </div>
         )}
@@ -146,7 +146,7 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
         {/* 정기 납입액 (부동산·예금 제외) */}
         {category !== '부동산' && !isDeposit && (
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>
               {category === '저축' ? '월 납입액' : '월 정기 입금액'} (선택)
             </div>
             <AmountInput value={defaultAmount} onChange={setDefaultAmount} placeholder="0" height={40} />
@@ -156,7 +156,7 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
         {/* 연이율 (저축, checking·subscription 제외) */}
         {needsRateDate && (
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>연이율 % <span style={{ color: DS.color.negative.main }}>*</span></div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>연이율 % <span style={{ color: DS.color.negative.main }}>*</span></div>
             <input
               type="number" min="0" max="100" step="0.1" value={interestRate}
               onChange={(e) => setInterestRate(e.target.value)} placeholder="예: 3.5"
@@ -168,7 +168,7 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
         {/* 만기일 (저축, checking·subscription 제외) */}
         {needsRateDate && (
           <div>
-            <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>만기일 <span style={{ color: DS.color.negative.main }}>*</span></div>
+            <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>만기일 <span style={{ color: DS.color.negative.main }}>*</span></div>
             <input
               type="date" value={maturityDate} onChange={(e) => setMaturityDate(e.target.value)}
               style={{ width: '100%', height: 40, padding: '0 12px', borderRadius: INPUT_BORDER_RADIUS, fontSize: INPUT_FONT_SIZE, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', ...jellyInputSurface, color: DS.color.text.primary }}
@@ -178,14 +178,14 @@ export function AddItemModal({ onAdd, personAName, personBName, initialCategory,
 
         {/* 묶인 돈 */}
         <div>
-          <div style={{ fontSize: 12, marginBottom: 4, color: DS.color.text.secondary }}>묶인 돈</div>
+          <div style={{ fontSize: DS.font.size.caption, marginBottom: 4, color: DS.color.text.secondary }}>묶인 돈</div>
           <ToggleSwitch checked={locked} onChange={setLocked} />
         </div>
 
         {/* 버튼 */}
         <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-          <Button onClick={onClose} style={{ flex: 1, height: 44, fontSize: 14 }}>취소</Button>
-          <Button variant="primary" onClick={handleAdd} disabled={!canSubmit} style={{ flex: 2, height: 44, fontSize: 14 }}>
+          <Button onClick={onClose} style={{ flex: 1, height: 44, fontSize: DS.font.size.body }}>취소</Button>
+          <Button variant="primary" onClick={handleAdd} disabled={!canSubmit} style={{ flex: 2, height: 44, fontSize: DS.font.size.body }}>
             추가
           </Button>
         </div>

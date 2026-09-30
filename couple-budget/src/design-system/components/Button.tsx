@@ -5,8 +5,8 @@ type Variant = 'primary' | 'secondary' | 'danger' | 'soft'
 type Size = 'sm' | 'md'
 
 const SIZE: Record<Size, CSSProperties> = {
-  sm: { padding: '6px 12px', fontSize: 12, borderRadius: DS.radius.chip },
-  md: { padding: '8px 16px', fontSize: 13, borderRadius: DS.radius.control },
+  sm: { padding: '6px 12px', fontSize: DS.font.size.caption, borderRadius: DS.radius.chip },
+  md: { padding: '8px 16px', fontSize: DS.font.size.body, borderRadius: DS.radius.control },
 }
 
 function variantStyle(variant: Variant): CSSProperties {

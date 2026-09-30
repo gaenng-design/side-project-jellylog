@@ -65,7 +65,7 @@ const inputStyle: React.CSSProperties = {
 }
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 12,
+  fontSize: DS.font.size.caption,
   fontWeight: 600,
   color: DS.color.text.secondary,
   marginBottom: 6,
@@ -86,14 +86,14 @@ function ResultRow({
       borderTop: dividerTop ? `1.5px solid ${DS.color.border.subtle}` : `1px solid ${DS.color.bg.muted}`,
       gap: 12,
     }}>
-      <span style={{ fontSize: large ? 15 : 13, fontWeight: large ? 700 : 500, color: highlight ? PRIMARY : DS.color.text.body }}>
+      <span style={{ fontSize: large ? DS.font.size.subtitle : DS.font.size.body, fontWeight: large ? 700 : 500, color: highlight ? PRIMARY : DS.color.text.body }}>
         {label}
       </span>
       <div style={{ textAlign: 'right' }}>
-        <div style={{ fontSize: large ? 18 : 14, fontWeight: large ? 700 : 600, color: highlight ? PRIMARY : DS.color.text.primary }}>
+        <div style={{ fontSize: large ? DS.font.size.title : DS.font.size.body, fontWeight: large ? 700 : 600, color: highlight ? PRIMARY : DS.color.text.primary }}>
           {value}
         </div>
-        {sub && <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 2 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginTop: 2 }}>{sub}</div>}
       </div>
     </div>
   )
@@ -115,7 +115,7 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
       {tabs.map(({ key, label }) => (
         <button key={key} type="button" onClick={() => onChange(key)} style={{
           padding: '8px 24px', borderRadius: 10, border: 'none',
-          fontSize: 14, fontWeight: active === key ? 700 : 500,
+          fontSize: DS.font.size.body, fontWeight: active === key ? 700 : 500,
           color: active === key ? PRIMARY : DS.color.text.secondary,
           background: active === key ? DS.color.bg.secondary : 'transparent',
           boxShadow: active === key ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
@@ -145,7 +145,7 @@ function OptionGroup<T extends string | number | boolean>({
             border: `1.5px solid ${active ? PRIMARY : DS.color.border.subtle}`,
             background: active ? PRIMARY_LIGHT : DS.color.bg.secondary,
             color: active ? PRIMARY : DS.color.text.secondary,
-            fontSize: 13, fontWeight: active ? 700 : 500,
+            fontSize: DS.font.size.body, fontWeight: active ? 700 : 500,
             cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.12s',
           }}>
             {format ? format(opt) : String(opt)}
@@ -174,7 +174,7 @@ function ManInput({ value, onChange, placeholder }: {
       />
       <span style={{
         position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-        fontSize: 12, color: DS.color.text.muted, pointerEvents: 'none',
+        fontSize: DS.font.size.caption, color: DS.color.text.muted, pointerEvents: 'none',
       }}>만원</span>
     </div>
   )
@@ -203,7 +203,7 @@ function EokInput({ value, onChange, placeholder }: {
       />
       <span style={{
         position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-        fontSize: 12, color: DS.color.text.muted, pointerEvents: 'none',
+        fontSize: DS.font.size.caption, color: DS.color.text.muted, pointerEvents: 'none',
       }}>억</span>
     </div>
   )
@@ -326,7 +326,7 @@ function LoanCalcSection({
 
   return (
     <div style={{ marginTop: 20 }}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary, marginBottom: 12 }}>
+      <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary, marginBottom: 12 }}>
         🏦 대출 계산기
       </div>
       <div style={{
@@ -342,7 +342,7 @@ function LoanCalcSection({
             <div>
               <div style={labelStyle}>대출 금액</div>
               <EokInput value={loanMan} onChange={onLoanMan} placeholder="예) 3 (3억)" />
-              {principal > 0 && <div style={{ fontSize: 11, color: PRIMARY, marginTop: 5 }}>= {fmtUnit(principal)}</div>}
+              {principal > 0 && <div style={{ fontSize: DS.font.size.caption, color: PRIMARY, marginTop: 5 }}>= {fmtUnit(principal)}</div>}
             </div>
 
             <div>
@@ -354,7 +354,7 @@ function LoanCalcSection({
                   onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, '') }}
                   placeholder="예) 3.5" style={inputStyle}
                 />
-                <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: DS.color.text.muted, pointerEvents: 'none' }}>%</span>
+                <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: DS.font.size.caption, color: DS.color.text.muted, pointerEvents: 'none' }}>%</span>
               </div>
             </div>
 
@@ -369,7 +369,7 @@ function LoanCalcSection({
                       border: `1.5px solid ${active ? PRIMARY : DS.color.border.subtle}`,
                       background: active ? PRIMARY_LIGHT : DS.color.bg.secondary,
                       color: active ? PRIMARY : DS.color.text.secondary,
-                      fontSize: 13, fontWeight: active ? 700 : 500,
+                      fontSize: DS.font.size.body, fontWeight: active ? 700 : 500,
                       cursor: 'pointer', fontFamily: 'inherit',
                     }}>{yr}년</button>
                   )
@@ -381,7 +381,7 @@ function LoanCalcSection({
                     onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '') }}
                     placeholder="직접" style={{ ...inputStyle, height: 38, paddingRight: 28 }}
                   />
-                  <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: DS.color.text.muted, pointerEvents: 'none' }}>년</span>
+                  <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: DS.font.size.caption, color: DS.color.text.muted, pointerEvents: 'none' }}>년</span>
                 </div>
               </div>
             </div>
@@ -416,8 +416,8 @@ function LoanCalcSection({
                         {active && <span style={{ width: 7, height: 7, borderRadius: '50%', background: DS.color.bg.secondary, boxShadow: '0 1px 2px rgba(15,23,42,0.2)' }} />}
                       </span>
                       <span>
-                        <span style={{ fontSize: 13, fontWeight: active ? 600 : 500, color: DS.color.text.primary }}>{label}</span>
-                        <span style={{ fontSize: 11, color: DS.color.text.muted, marginLeft: 6 }}>{desc}</span>
+                        <span style={{ fontSize: DS.font.size.body, fontWeight: active ? 600 : 500, color: DS.color.text.primary }}>{label}</span>
+                        <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginLeft: 6 }}>{desc}</span>
                       </span>
                     </button>
                   )
@@ -431,14 +431,14 @@ function LoanCalcSection({
 
         {/* 결과 패널 */}
         <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>📊 상환 분석</div>
+          <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>📊 상환 분석</div>
           {!result ? (
-            <div style={{ marginTop: 24, textAlign: 'center', color: DS.color.text.muted, fontSize: 14, padding: '32px 0' }}>
+            <div style={{ marginTop: 24, textAlign: 'center', color: DS.color.text.muted, fontSize: DS.font.size.body, padding: '32px 0' }}>
               대출 금액·이자율·기간을 입력하면<br />결과가 표시됩니다.
             </div>
           ) : (
             <>
-              <div style={{ fontSize: 12, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }}>월 납입금</div>
+              <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }}>월 납입금</div>
               {repayType === 'bullet' ? (
                 <>
                   <ResultRow label="월 이자" value={fmtWon(result.monthlyInterestOnly)} />
@@ -453,12 +453,12 @@ function LoanCalcSection({
                 </>
               )}
 
-              <div style={{ fontSize: 12, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }}>총계</div>
+              <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }}>총계</div>
               <ResultRow label="총 납부액" value={fmtWon(result.totalPayment)} sub={fmtUnit(result.totalPayment)} dividerTop />
               <ResultRow label="원금" value={fmtWon(principal)} />
               <ResultRow label="총 이자" value={fmtWon(result.totalInterest)} sub={`이자율 ${((result.totalInterest / principal) * 100).toFixed(1)}%`} />
 
-              <div style={{ marginTop: 16, padding: '12px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: 12, color: DS.color.text.body, lineHeight: 1.8 }}>
+              <div style={{ marginTop: 16, padding: '12px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: DS.font.size.caption, color: DS.color.text.body, lineHeight: 1.8 }}>
                 <span style={{ fontWeight: 700, color: PRIMARY }}>
                   {repayType === 'bullet' ? '만기일시상환' : repayType === 'equal-installment' ? '원리금균등' : '원금균등'}
                 </span>
@@ -476,14 +476,14 @@ function LoanCalcSection({
                   border: sentFlash ? `1.5px solid ${DS.color.positive.main}` : `1.5px solid ${PRIMARY}`,
                   background: sentFlash ? DS.color.positive.soft : PRIMARY,
                   color: sentFlash ? DS.color.positive.main : DS.color.bg.secondary,
-                  fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                  fontSize: DS.font.size.body, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                   transition: 'all 0.25s',
                 }}
               >
                 {sentFlash ? '✓ 계획 시트에 반영됨' : '이 대출 조건을 계획 시트에 반영 →'}
               </button>
 
-              <div style={{ marginTop: 12, fontSize: 11, color: DS.color.text.muted, lineHeight: 1.6 }}>
+              <div style={{ marginTop: 12, fontSize: DS.font.size.caption, color: DS.color.text.muted, lineHeight: 1.6 }}>
                 * 중도상환수수료 등 부대비용은 포함되지 않습니다.<br />
                 * 금리는 변동될 수 있으며 실제 조건과 다를 수 있습니다.
               </div>
@@ -500,8 +500,8 @@ function LoanCalcSection({
 function PlanFixedRow({ label, value, dim }: { label: string; value: string; dim?: boolean }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderTop: `1px solid ${DS.color.bg.muted}` }}>
-      <span style={{ fontSize: 13, color: DS.color.text.body }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 600, color: dim ? DS.color.text.muted : DS.color.text.primary }}>{value}</span>
+      <span style={{ fontSize: DS.font.size.body, color: DS.color.text.body }}>{label}</span>
+      <span style={{ fontSize: DS.font.size.body, fontWeight: 600, color: dim ? DS.color.text.muted : DS.color.text.primary }}>{value}</span>
     </div>
   )
 }
@@ -518,7 +518,7 @@ function PlanEditRow({
       <input
         type="text" defaultValue={item.name} key={item.id + '-name'}
         onBlur={(e) => onChangeName(e.target.value)}
-        style={{ ...inputStyle, flex: '0 0 130px', height: 38, fontSize: 13 }}
+        style={{ ...inputStyle, flex: '0 0 130px', height: 38, fontSize: DS.font.size.body }}
       />
       <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
         {isEok ? (
@@ -544,12 +544,12 @@ function PlanEditRow({
             placeholder="0" style={{ ...inputStyle, height: 38, paddingRight: 44, width: '100%' }}
           />
         )}
-        <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: DS.color.text.muted, pointerEvents: 'none' }}>{isEok ? '억' : '만원'}</span>
+        <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: DS.font.size.caption, color: DS.color.text.muted, pointerEvents: 'none' }}>{isEok ? '억' : '만원'}</span>
       </div>
       <button type="button" onClick={onRemove} style={{
         flexShrink: 0, width: 32, height: 32, borderRadius: 8,
         border: '1px solid rgba(252,165,165,0.45)', background: 'rgba(254,242,242,0.9)',
-        color: DS.color.negative.strong, fontSize: 16, cursor: 'pointer',
+        color: DS.color.negative.strong, fontSize: DS.font.size.subtitle, cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit',
       }}>×</button>
     </div>
@@ -575,7 +575,7 @@ function AddItemRow({ onAdd }: { onAdd: (name: string) => void }) {
       <button type="button" onClick={add} style={{
         height: 40, padding: '0 18px', borderRadius: INPUT_BORDER_RADIUS,
         border: `1.5px solid ${PRIMARY}`, background: PRIMARY_LIGHT,
-        color: PRIMARY, fontSize: 13, fontWeight: 600,
+        color: PRIMARY, fontSize: DS.font.size.body, fontWeight: 600,
         cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0,
       }}>+ 추가</button>
     </div>
@@ -610,11 +610,11 @@ function PlanSheet({
   const gap          = totalAvail - totalCost // 양수=여유, 음수=부족
   const hasCapital   = capitalItems.some((it) => eokToWon(it.amountMan) > 0)
 
-  const sectionLabel: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: DS.color.text.muted, marginBottom: 4 }
+  const sectionLabel: React.CSSProperties = { fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.muted, marginBottom: 4 }
 
   return (
     <div style={{ marginTop: 20 }}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary, marginBottom: 12 }}>
+      <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary, marginBottom: 12 }}>
         📋 매매 계획 시트
       </div>
       <div style={{ ...jellyCardStyle, padding: '24px 20px' }}>
@@ -633,17 +633,17 @@ function PlanSheet({
         </div>
 
         {!hasPrice && (
-          <div style={{ marginTop: 8, fontSize: 11, color: DS.color.text.muted, textAlign: 'center' }}>
+          <div style={{ marginTop: 8, fontSize: DS.font.size.caption, color: DS.color.text.muted, textAlign: 'center' }}>
             위에서 매매가를 입력하면 취득세·중개수수료가 자동 반영됩니다.
           </div>
         )}
 
         {/* ── 자본 조달 계획 ─────────────────────────────── */}
         <div style={{ marginTop: 28, paddingTop: 20, borderTop: `2px dashed ${DS.color.border.subtle}` }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>
+          <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>
             💰 자본 조달 계획
           </div>
-          <div style={{ fontSize: 12, color: DS.color.text.muted, marginBottom: 12 }}>
+          <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginBottom: 12 }}>
             자기자본을 어디서 마련할지 계획해보세요.
           </div>
 
@@ -672,10 +672,10 @@ function PlanSheet({
                 border: `1.5px solid ${gap >= 0 ? 'rgba(74,222,128,0.5)' : 'rgba(252,165,165,0.55)'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
               }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: gap >= 0 ? DS.color.positive.main : DS.color.negative.strong }}>
+                <span style={{ fontSize: DS.font.size.body, fontWeight: 600, color: gap >= 0 ? DS.color.positive.main : DS.color.negative.strong }}>
                   {gap >= 0 ? '자금 여유' : '자금 부족'}
                 </span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: gap >= 0 ? DS.color.positive.main : DS.color.negative.main }}>
+                <span style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: gap >= 0 ? DS.color.positive.main : DS.color.negative.main }}>
                   {gap >= 0 ? '+' : ''}{fmtWon(gap)}
                 </span>
               </div>
@@ -683,7 +683,7 @@ function PlanSheet({
           </div>
 
           {!hasPrice && (
-            <div style={{ marginTop: 8, fontSize: 11, color: DS.color.text.muted, textAlign: 'center' }}>
+            <div style={{ marginTop: 8, fontSize: DS.font.size.caption, color: DS.color.text.muted, textAlign: 'center' }}>
               매매가를 입력하면 자금 여유/부족 계산이 활성화됩니다.
             </div>
           )}
@@ -752,7 +752,7 @@ function PlanSelectorBar({
                   padding: '6px 14px', borderRadius: 9999, border: 'none',
                   background: active ? PRIMARY : DS.color.bg.tertiary,
                   color: active ? DS.color.bg.secondary : DS.color.text.secondary,
-                  fontSize: 13, fontWeight: active ? 700 : 500,
+                  fontSize: DS.font.size.body, fontWeight: active ? 700 : 500,
                   cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
                   flexShrink: 0, transition: 'all 0.12s',
                   display: 'flex', alignItems: 'center', gap: 4,
@@ -760,7 +760,7 @@ function PlanSelectorBar({
               >
                 {purchasedPlanId === p.id && (
                   <span style={{
-                    fontSize: DS.font.size.micro, background: DS.color.positive.main, color: DS.color.text.inverse,
+                    fontSize: DS.font.size.caption, background: DS.color.positive.main, color: DS.color.text.inverse,
                     borderRadius: 4, padding: '1px 5px', fontWeight: 700, letterSpacing: '0.02em',
                   }}>매매</span>
                 )}
@@ -773,7 +773,7 @@ function PlanSelectorBar({
             style={{
               padding: '6px 12px', borderRadius: 9999, flexShrink: 0,
               border: `1.5px dashed ${DS.color.border.default}`, background: 'transparent',
-              color: DS.color.text.muted, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
+              color: DS.color.text.muted, fontSize: DS.font.size.body, cursor: 'pointer', fontFamily: 'inherit',
               whiteSpace: 'nowrap',
             }}
           >
@@ -791,14 +791,14 @@ function PlanSelectorBar({
               onChange={(e) => setNameInput(e.target.value)}
               onBlur={commitEdit}
               onKeyDown={(e) => { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') setEditingId(null) }}
-              style={{ ...inputStyle, height: 34, flex: 1, fontSize: 13 }}
+              style={{ ...inputStyle, height: 34, flex: 1, fontSize: DS.font.size.body }}
             />
           ) : (
             <button
               type="button" onClick={() => startEdit(activePlan)}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                fontSize: 13, fontWeight: 600, color: DS.color.text.body, padding: '2px 6px',
+                fontSize: DS.font.size.body, fontWeight: 600, color: DS.color.text.body, padding: '2px 6px',
                 borderRadius: 6, textAlign: 'left', flex: 1,
               }}
               title="클릭하여 이름 변경"
@@ -807,13 +807,13 @@ function PlanSelectorBar({
             </button>
           )}
           {savedLabel && (
-            <span style={{ fontSize: 11, color: DS.color.text.muted, whiteSpace: 'nowrap' }}>{savedLabel}</span>
+            <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, whiteSpace: 'nowrap' }}>{savedLabel}</span>
           )}
           {plans.length > 0 && (
             <button type="button" onClick={handleDelete} style={{
               flexShrink: 0, padding: '4px 10px', borderRadius: 8,
               border: '1px solid rgba(252,165,165,0.45)', background: 'rgba(254,242,242,0.9)',
-              color: DS.color.negative.strong, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+              color: DS.color.negative.strong, fontSize: DS.font.size.caption, cursor: 'pointer', fontFamily: 'inherit',
             }}>삭제</button>
           )}
         </div>
@@ -839,12 +839,12 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '48px 0' }}>
         <div style={{ fontSize: 40 }}>🏠</div>
-        <div style={{ fontSize: 16, fontWeight: 700, color: DS.color.text.primary }}>아직 저장된 계획이 없어요</div>
-        <div style={{ fontSize: 13, color: DS.color.text.muted, textAlign: 'center' }}>새 계획을 만들어 매매 시나리오를 분석하고<br />여러 계획을 비교해 보세요.</div>
+        <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary }}>아직 저장된 계획이 없어요</div>
+        <div style={{ fontSize: DS.font.size.body, color: DS.color.text.muted, textAlign: 'center' }}>새 계획을 만들어 매매 시나리오를 분석하고<br />여러 계획을 비교해 보세요.</div>
         <button type="button" onClick={() => createPlan('계획 1')} style={{
           padding: '12px 32px', borderRadius: JELLY.radiusControl,
           background: PRIMARY, color: DS.color.text.inverse, border: 'none',
-          fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+          fontSize: DS.font.size.body, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
         }}>+ 첫 번째 계획 만들기</button>
       </div>
     )
@@ -890,14 +890,14 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
       }}>
         {/* 입력 패널 */}
         <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary, marginBottom: 20 }}>
+          <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary, marginBottom: 20 }}>
             📝 매매 조건 입력
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div>
               <div style={labelStyle}>매매가</div>
               <EokInput value={p.priceMan} onChange={(v) => patchActivePlan({ priceMan: v })} placeholder="예) 7.7 (7억7천)" />
-              {hasPrice && <div style={{ fontSize: 11, color: PRIMARY, marginTop: 5 }}>= {fmtUnit(price)}</div>}
+              {hasPrice && <div style={{ fontSize: DS.font.size.caption, color: PRIMARY, marginTop: 5 }}>= {fmtUnit(price)}</div>}
             </div>
             <div>
               <div style={labelStyle}>계약금 비율</div>
@@ -906,8 +906,8 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
             <div>
               <div style={labelStyle}>취득 후 보유 주택 수</div>
               <OptionGroup options={[1, 2, 3]} value={p.homeCount} onChange={(v) => patchActivePlan({ homeCount: v })} format={(v) => `${v}주택`} />
-              {p.homeCount === 2 && <div style={{ fontSize: 11, color: DS.color.warning.main, marginTop: 6 }}>조정대상지역 기준 8% 적용</div>}
-              {p.homeCount >= 3 && <div style={{ fontSize: 11, color: DS.color.negative.main, marginTop: 6 }}>3주택 이상 12% 적용</div>}
+              {p.homeCount === 2 && <div style={{ fontSize: DS.font.size.caption, color: DS.color.warning.main, marginTop: 6 }}>조정대상지역 기준 8% 적용</div>}
+              {p.homeCount >= 3 && <div style={{ fontSize: DS.font.size.caption, color: DS.color.negative.main, marginTop: 6 }}>3주택 이상 12% 적용</div>}
             </div>
 
             <div style={{ borderTop: `1px solid ${DS.color.border.subtle}`, paddingTop: 18 }}>
@@ -929,17 +929,17 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
 
         {/* 결과 패널 */}
         <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>🧮 예상 비용 분석</div>
+          <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>🧮 예상 비용 분석</div>
           {!hasPrice ? (
-            <div style={{ marginTop: 24, textAlign: 'center', color: DS.color.text.muted, fontSize: 14, padding: '32px 0' }}>
+            <div style={{ marginTop: 24, textAlign: 'center', color: DS.color.text.muted, fontSize: DS.font.size.body, padding: '32px 0' }}>
               매매가를 입력하면 결과가 표시됩니다.
             </div>
           ) : (
             <>
-              <div style={{ fontSize: 12, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }}>매매 대금</div>
+              <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }}>매매 대금</div>
               <ResultRow label="계약금" value={fmtUnit(deposit)} sub={`매매가의 ${p.depositPct}%`} />
               <ResultRow label="중도금 + 잔금" value={fmtUnit(balance)} sub={`매매가의 ${100 - p.depositPct}%`} />
-              <div style={{ fontSize: 12, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }}>추가 비용</div>
+              <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }}>추가 비용</div>
               <ResultRow label="취득세" value={fmtUnit(acqTax)} sub={`${((acqTax / price) * 100).toFixed(2)}%`} />
               <ResultRow label="중개수수료 (상한)" value={fmtUnit(agentFee)} sub={`${((agentFee / price) * 100).toFixed(2)}%`} />
               {p.planItems.filter((it) => (parseInt(it.amountMan || '0', 10) || 0) > 0).map((it) => (
@@ -951,13 +951,13 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
                 <ResultRow label="필요 자기자본" value={fmtUnit(ownCapital)} highlight large dividerTop />
               </div>
               {loan > 0 && (
-                <div style={{ marginTop: 16, padding: '12px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: 12, color: DS.color.text.body, lineHeight: 1.6 }}>
+                <div style={{ marginTop: 16, padding: '12px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: DS.font.size.caption, color: DS.color.text.body, lineHeight: 1.6 }}>
                   <span style={{ fontWeight: 600, color: PRIMARY }}>참고</span>
                   {'  '}LTV {((loan / price) * 100).toFixed(1)}%
                   {'  ·  '}계약금 {fmtUnit(deposit)} + 기타비용 {fmtUnit(otherCosts)} = <span style={{ fontWeight: 700 }}>초기 {fmtUnit(deposit + otherCosts)}</span> 필요
                 </div>
               )}
-              <div style={{ marginTop: 12, fontSize: 11, color: DS.color.text.muted, lineHeight: 1.6 }}>
+              <div style={{ marginTop: 12, fontSize: DS.font.size.caption, color: DS.color.text.muted, lineHeight: 1.6 }}>
                 * 취득세는 주택 수·지역에 따라 달라질 수 있습니다.<br />
                 * 중개수수료는 법정 상한액 기준이며 협의 가능합니다.
               </div>
@@ -993,20 +993,20 @@ function BeforeTab({ narrow }: { narrow: boolean }) {
       <div style={{ marginTop: 20, padding: '20px', background: purchasedPlanId === p.id ? 'rgba(220,252,231,0.8)' : DS.color.bg.tertiary, borderRadius: JELLY.radiusLg, border: purchasedPlanId === p.id ? '1.5px solid rgba(74,222,128,0.6)' : `1.5px dashed ${DS.color.border.default}`, textAlign: 'center' }}>
         {purchasedPlanId === p.id ? (
           <>
-            <div style={{ fontSize: 22, marginBottom: 6 }}>✅</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: DS.color.positive.main, marginBottom: 4 }}>{p.name} · 매매 확정</div>
-            <div style={{ fontSize: 12, color: DS.color.text.body, marginBottom: 14 }}>매매 후 탭에서 월 지출을 확인하세요.</div>
-            <button type="button" onClick={() => setPurchasedPlan(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid rgba(74,222,128,0.6)', background: DS.color.bg.secondary, color: DS.color.positive.main, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <div style={{ fontSize: DS.font.size.headline, marginBottom: 6 }}>✅</div>
+            <div style={{ fontSize: DS.font.size.body, fontWeight: 700, color: DS.color.positive.main, marginBottom: 4 }}>{p.name} · 매매 확정</div>
+            <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.body, marginBottom: 14 }}>매매 후 탭에서 월 지출을 확인하세요.</div>
+            <button type="button" onClick={() => setPurchasedPlan(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid rgba(74,222,128,0.6)', background: DS.color.bg.secondary, color: DS.color.positive.main, fontSize: DS.font.size.body, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               매매 취소
             </button>
           </>
         ) : (
           <>
-            <div style={{ fontSize: 13, color: DS.color.text.secondary, marginBottom: 12 }}>이 시뮬레이션대로 매매를 결정했다면</div>
-            <button type="button" onClick={() => setPurchasedPlan(p.id)} style={{ padding: '11px 32px', borderRadius: JELLY.radiusControl, border: `1.5px solid ${PRIMARY}`, background: PRIMARY, color: DS.color.text.inverse, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <div style={{ fontSize: DS.font.size.body, color: DS.color.text.secondary, marginBottom: 12 }}>이 시뮬레이션대로 매매를 결정했다면</div>
+            <button type="button" onClick={() => setPurchasedPlan(p.id)} style={{ padding: '11px 32px', borderRadius: JELLY.radiusControl, border: `1.5px solid ${PRIMARY}`, background: PRIMARY, color: DS.color.text.inverse, fontSize: DS.font.size.body, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
               이 계획으로 매매 →
             </button>
-            <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 8 }}>매매 후 탭에 월 지출이 자동으로 정리됩니다</div>
+            <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginTop: 8 }}>매매 후 탭에 월 지출이 자동으로 정리됩니다</div>
           </>
         )}
       </div>
@@ -1084,8 +1084,8 @@ function AfterTab({ narrow }: { narrow: boolean }) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '64px 0', textAlign: 'center' }}>
         <div style={{ fontSize: 44 }}>🏠</div>
-        <div style={{ fontSize: 16, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>매매한 계획을 선택해 주세요</div>
-        <div style={{ fontSize: 13, color: DS.color.text.muted, lineHeight: 1.9 }}>
+        <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>매매한 계획을 선택해 주세요</div>
+        <div style={{ fontSize: DS.font.size.body, color: DS.color.text.muted, lineHeight: 1.9 }}>
           매매 전 탭에서 시뮬레이션을 만든 후<br />
           <strong style={{ color: DS.color.text.body }}>이 계획으로 매매 →</strong> 버튼을 누르면<br />
           여기서 월 지출이 자동으로 정리됩니다.
@@ -1113,7 +1113,7 @@ function AfterTab({ narrow }: { narrow: boolean }) {
 
   const totalMonthly = loanMonthly + monthlyHolding
 
-  const secLabel: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }
+  const secLabel: React.CSSProperties = { fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }
   const receiptRow = (label: string, value: string, sub?: string, opts: { highlight?: boolean; large?: boolean; dividerTop?: boolean } = {}) => (
     <ResultRow key={label} label={label} value={value} sub={sub} {...opts} />
   )
@@ -1122,13 +1122,13 @@ function AfterTab({ narrow }: { narrow: boolean }) {
     <div>
       {/* ── 매매 확정 뱃지 ── */}
       <div style={{ marginBottom: 20, padding: '10px 16px', background: 'rgba(220,252,231,0.8)', border: '1.5px solid rgba(74,222,128,0.5)', borderRadius: JELLY.radiusLg, display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-        <span style={{ fontSize: 16 }}>✅</span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: DS.color.positive.main }}>{plan.name} · 매매 확정</span>
+        <span style={{ fontSize: DS.font.size.subtitle }}>✅</span>
+        <span style={{ fontSize: DS.font.size.body, fontWeight: 700, color: DS.color.positive.main }}>{plan.name} · 매매 확정</span>
       </div>
 
       {/* ── 매매 전 계획 요약 ── */}
       <div style={{ ...jellyCardStyle, padding: '20px', borderRadius: JELLY.radiusLg, boxShadow: JELLY.shadowFloat, marginBottom: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: DS.color.text.muted, marginBottom: 10 }}>매매 전 계획 요약</div>
+        <div style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.muted, marginBottom: 10 }}>매매 전 계획 요약</div>
         <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr 1fr' : 'repeat(3, 1fr)', gap: '12px 24px' }}>
           {([
             ['매매가', price > 0 ? fmtUnit(price) : '—'],
@@ -1139,15 +1139,15 @@ function AfterTab({ narrow }: { narrow: boolean }) {
             ['주택 수', `${plan.homeCount}주택`],
           ] as [string, string][]).map(([label, value]) => (
             <div key={label}>
-              <div style={{ fontSize: 11, color: DS.color.text.muted, marginBottom: 2 }}>{label}</div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: DS.color.text.primary }}>{value}</div>
+              <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginBottom: 2 }}>{label}</div>
+              <div style={{ fontSize: DS.font.size.body, fontWeight: 600, color: DS.color.text.primary }}>{value}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── 월 고정 지출 ── */}
-      <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary, marginBottom: 12 }}>📅 월 고정 지출</div>
+      <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary, marginBottom: 12 }}>📅 월 고정 지출</div>
       <div style={{ ...jellyCardStyle, padding: '24px 20px', borderRadius: JELLY.radiusLg, boxShadow: JELLY.shadowFloat }}>
         {loanMonthly > 0 && (
           <>
@@ -1164,7 +1164,7 @@ function AfterTab({ narrow }: { narrow: boolean }) {
             {receiptRow('도시지역분 + 교육세', fmtUnit((pt.city + pt.edu) / 12), '월 환산')}
             {ct
               ? receiptRow('종합부동산세', fmtUnit(ct.total / 12), '월 환산')
-              : <div style={{ fontSize: 11, color: DS.color.text.muted, paddingTop: 6 }}>공시가격 추산 {fmtUnit(estAssessed)} → 종부세 기준({plan.homeCount === 1 ? '12억' : '6억'}) 이하</div>
+              : <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, paddingTop: 6 }}>공시가격 추산 {fmtUnit(estAssessed)} → 종부세 기준({plan.homeCount === 1 ? '12억' : '6억'}) 이하</div>
             }
           </>
         )}
@@ -1176,9 +1176,9 @@ function AfterTab({ narrow }: { narrow: boolean }) {
               {receiptRow('연간 환산', fmtUnit(totalMonthly * 12))}
             </>
           )
-          : <div style={{ textAlign: 'center', color: DS.color.text.muted, fontSize: 14, padding: '24px 0' }}>매매 전 탭에서 대출 정보를 입력하면 계산됩니다.</div>
+          : <div style={{ textAlign: 'center', color: DS.color.text.muted, fontSize: DS.font.size.body, padding: '24px 0' }}>매매 전 탭에서 대출 정보를 입력하면 계산됩니다.</div>
         }
-        <div style={{ fontSize: 11, color: DS.color.text.muted, lineHeight: 1.6, marginTop: 14 }}>
+        <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, lineHeight: 1.6, marginTop: 14 }}>
           * 보유세는 매매가의 70%를 공시가격으로 추산한 값입니다. 실제 공시가격은 부동산공시가격알리미에서 확인하세요.<br />
           * 관리비·보험료 등 생활 지출은 별도입니다.
         </div>
@@ -1208,16 +1208,16 @@ function TradeTab({ narrow }: { narrow: boolean }) {
     ? calcCapitalGainsTax(salePriceWon, acquirePriceWon, acquireCost, holdYears, sIsOne)
     : null
 
-  const sectionTitle: React.CSSProperties = { fontSize: 15, fontWeight: 700, color: DS.color.text.primary, marginBottom: 12 }
-  const secLabel: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }
-  const note: React.CSSProperties = { fontSize: 11, color: DS.color.text.muted, lineHeight: 1.6, marginTop: 12 }
+  const sectionTitle: React.CSSProperties = { fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary, marginBottom: 12 }
+  const secLabel: React.CSSProperties = { fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.muted, marginTop: 16, marginBottom: 4 }
+  const note: React.CSSProperties = { fontSize: DS.font.size.caption, color: DS.color.text.muted, lineHeight: 1.6, marginTop: 12 }
   const receiptRow = (label: string, value: string, sub?: string, opts: { highlight?: boolean; large?: boolean; dividerTop?: boolean } = {}) => (
     <ResultRow key={label} label={label} value={value} sub={sub} {...opts} />
   )
 
   return (
     <div>
-      <div style={{ marginBottom: 20, padding: '14px 16px', background: DS.color.bg.tertiary, borderRadius: JELLY.radiusLg, fontSize: 13, color: DS.color.text.secondary, lineHeight: 1.7 }}>
+      <div style={{ marginBottom: 20, padding: '14px 16px', background: DS.color.bg.tertiary, borderRadius: JELLY.radiusLg, fontSize: DS.font.size.body, color: DS.color.text.secondary, lineHeight: 1.7 }}>
         현재 집을 팔고 새 집으로 갈아탈 때 예상되는 양도소득세를 계산합니다.
         {plan && acquirePriceWon > 0 && (
           <> · <strong style={{ color: DS.color.text.body }}>{plan.name}</strong>의 취득가가 자동 반영됩니다.</>
@@ -1229,25 +1229,25 @@ function TradeTab({ narrow }: { narrow: boolean }) {
         <div style={sectionTitle}>📈 양도소득세 계산</div>
         <div style={{ display: 'flex', flexDirection: narrow ? 'column' : 'row', ...jellyCardStyle, borderRadius: JELLY.radiusLg, boxShadow: JELLY.shadowFloat, overflow: 'hidden' }}>
           <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary, marginBottom: 20 }}>📝 매도 조건 입력</div>
+            <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary, marginBottom: 20 }}>📝 매도 조건 입력</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
               <div>
                 <div style={labelStyle}>취득가</div>
                 {acquirePriceWon > 0 ? (
                   <>
-                    <div style={{ padding: '10px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: 12, color: DS.color.text.body }}>
+                    <div style={{ padding: '10px 14px', background: PRIMARY_LIGHT, borderRadius: 10, fontSize: DS.font.size.caption, color: DS.color.text.body }}>
                       {plan!.name} 기준 · <strong style={{ color: PRIMARY }}>{fmtUnit(acquirePriceWon)}</strong>
                     </div>
-                    {acquireCost > 0 && <div style={{ fontSize: 11, color: DS.color.text.muted, marginTop: 4 }}>취득비용 포함 {fmtUnit(acquirePriceWon + acquireCost)}</div>}
+                    {acquireCost > 0 && <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginTop: 4 }}>취득비용 포함 {fmtUnit(acquirePriceWon + acquireCost)}</div>}
                   </>
                 ) : (
-                  <div style={{ fontSize: 12, color: DS.color.text.muted }}>매매 전 탭에서 계획을 선택하면 자동 반영됩니다.</div>
+                  <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>매매 전 탭에서 계획을 선택하면 자동 반영됩니다.</div>
                 )}
               </div>
               <div>
                 <div style={labelStyle}>예상 매도가</div>
                 <EokInput value={sSalePrice} onChange={setSSalePrice} placeholder="예) 10 (10억)" />
-                {salePriceWon > 0 && <div style={{ fontSize: 11, color: PRIMARY, marginTop: 5 }}>= {fmtUnit(salePriceWon)}</div>}
+                {salePriceWon > 0 && <div style={{ fontSize: DS.font.size.caption, color: PRIMARY, marginTop: 5 }}>= {fmtUnit(salePriceWon)}</div>}
               </div>
               <div>
                 <div style={labelStyle}>보유 기간</div>
@@ -1256,7 +1256,7 @@ function TradeTab({ narrow }: { narrow: boolean }) {
                     onBlur={(e) => setSHoldYears(e.target.value.replace(/[^0-9]/g, ''))}
                     onChange={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '') }}
                     placeholder="예) 5" style={inputStyle} />
-                  <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: DS.color.text.muted, pointerEvents: 'none' }}>년</span>
+                  <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: DS.font.size.caption, color: DS.color.text.muted, pointerEvents: 'none' }}>년</span>
                 </div>
               </div>
               <div>
@@ -1267,9 +1267,9 @@ function TradeTab({ narrow }: { narrow: boolean }) {
           </div>
           {narrow ? <ReceiptDividerH /> : <ReceiptDividerV />}
           <div style={{ padding: '24px 20px', flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>🧮 세금 & 수익 분석</div>
+            <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary, marginBottom: 4 }}>🧮 세금 & 수익 분석</div>
             {!saleResult ? (
-              <div style={{ marginTop: 24, textAlign: 'center', color: DS.color.text.muted, fontSize: 14, padding: '32px 0' }}>매도가를 입력하면 결과가 표시됩니다.</div>
+              <div style={{ marginTop: 24, textAlign: 'center', color: DS.color.text.muted, fontSize: DS.font.size.body, padding: '32px 0' }}>매도가를 입력하면 결과가 표시됩니다.</div>
             ) : (
               <>
                 {acquirePriceWon > 0 && (
@@ -1284,7 +1284,7 @@ function TradeTab({ narrow }: { narrow: boolean }) {
                 <div style={secLabel}>양도소득세</div>
                 {saleResult.exempt ? (
                   <>
-                    <div style={{ fontSize: 12, color: DS.color.positive.main, padding: '8px 0' }}>1주택 비과세 요건 충족 (보유 2년+, 매도가 12억 이하)</div>
+                    <div style={{ fontSize: DS.font.size.caption, color: DS.color.positive.main, padding: '8px 0' }}>1주택 비과세 요건 충족 (보유 2년+, 매도가 12억 이하)</div>
                     {receiptRow('양도소득세', '0원', '비과세', { highlight: true, large: true, dividerTop: true })}
                     {receiptRow('실 수익', fmtWon(saleResult.gain), fmtUnit(saleResult.gain), { dividerTop: true })}
                   </>

@@ -85,11 +85,11 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
 
   return (
     <div style={{ marginBottom: 16, ...jellyCardStyle, padding: 0, overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px', fontWeight: 700, fontSize: 13, color: DS.color.text.primary, borderBottom: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary }}>
+      <div style={{ padding: '10px 14px', fontWeight: 700, fontSize: DS.font.size.body, color: DS.color.text.primary, borderBottom: `1px solid ${DS.color.border.subtle}`, background: DS.color.bg.secondary }}>
         월별 자산 현황
       </div>
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: DS.font.size.caption }}>
           <thead>
             <tr style={{ background: DS.color.bg.muted }}>
               <th style={{ ...thS, textAlign: 'left', minWidth: narrow ? 52 : 80, ...stickyMonth(DS.color.bg.muted) }}>월</th>
@@ -112,7 +112,7 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
                   style={{ borderTop: `1px solid ${DS.color.border.subtle}`, background: yr === currentYear ? 'rgba(79, 140, 255, 0.10)' : DS.color.bg.subtle, cursor: 'pointer', userSelect: 'none' }}
                 >
                   <td colSpan={isOpen ? 6 : 1} style={{ padding: narrow ? '9px 8px' : '7px 12px', fontWeight: 700, color: yr === currentYear ? PRIMARY : DS.color.text.body, whiteSpace: 'nowrap', ...stickyMonth(yr === currentYear ? DS.color.primarySoft : DS.color.bg.subtle) }}>
-                    <span style={{ fontSize: DS.font.size.micro, marginRight: 6 }}>{isOpen ? '▼' : '▶'}</span>
+                    <span style={{ fontSize: DS.font.size.caption, marginRight: 6 }}>{isOpen ? '▼' : '▶'}</span>
                     {yr}년
                   </td>
                   {/* 접힌 연도: 연말(또는 최근 달) 총 자산과 연간 증감을 한 줄로 요약 */}
@@ -148,7 +148,7 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
           </tbody>
         </table>
       </div>
-      <div style={{ padding: '6px 14px 8px', fontSize: DS.font.size.micro, color: DS.color.text.muted, borderTop: `1px solid ${DS.color.border.subtle}` }}>
+      <div style={{ padding: '6px 14px 8px', fontSize: DS.font.size.caption, color: DS.color.text.muted, borderTop: `1px solid ${DS.color.border.subtle}` }}>
         연도를 누르면 접고 펼 수 있어요. 접힌 연도의 증감은 연초 대비 연말(현재 연도는 최근 달) 변화예요.
       </div>
     </div>
