@@ -1,12 +1,29 @@
 import { useState, useEffect } from 'react'
 import { jellyCardStyle, jellyPrimaryButton } from '@/styles/jellyGlass'
 import { DS } from '@/design-system/tokens'
+import { hasRegisteredBiometric, isBiometricSupported, verifyBiometric } from '@/lib/passkey'
 
 export function PasswordProtection({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+
+  const [canBiometric, setCanBiometric] = useState(false)
+
+  useEffect(() => {
+    if (hasRegisteredBiometric()) void isBiometricSupported().then(setCanBiometric)
+  }, [])
+
+  const handleBiometric = async () => {
+    setError('')
+    if (await verifyBiometric()) {
+      setIsAuthenticated(true)
+      sessionStorage.setItem('couple-budget:authenticated', 'true')
+    } else {
+      setError('Face ID 인증에 실패했어요. 비밀번호로 입장해 주세요.')
+    }
+  }
 
   const appPassword = import.meta.env.VITE_APP_PASSWORD || '260517'
 
@@ -138,6 +155,15 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
           >
             입장
           </button>
+          {canBiometric && (
+            <button
+              type="button"
+              onClick={handleBiometric}
+              style={{ width: '100%', marginTop: 10, height: 44, borderRadius: DS.radius.control, border: `1px solid ${DS.color.border.default}`, background: DS.color.bg.secondary, color: DS.color.text.body, fontSize: DS.font.size.body, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}
+            >
+              Face ID로 열기
+            </button>
+          )}
         </form>
       </div>
     </div>

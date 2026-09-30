@@ -18,6 +18,7 @@ import { GroupHeaderChip } from '@/components/GroupHeaderChip'
 import { Modal } from '@/components/Modal'
 import { MobileSnackbar } from '@/components/MobileSnackbar'
 import { GitHubSyncPanel } from '@/features/sync/GitHubSyncPanel'
+import { BiometricSettings } from '@/features/auth/BiometricSettings'
 import {
   inputBaseStyle,
   CATEGORY_SELECT_TRIGGER_WIDTH,
@@ -1911,6 +1912,7 @@ export function SettingsPage() {
       <h1 style={{ ...pageTitleH1Style, marginBottom: 12 }}>설정</h1>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <UserSettings />
+        <BiometricSettings />
         <AssetGoalSettings />
         <SharedLivingCostSettings />
         <FixedTemplateSettings />
