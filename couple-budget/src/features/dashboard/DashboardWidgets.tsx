@@ -278,16 +278,21 @@ export function AssetOverviewWidget({ period }: WidgetProps) {
         <StatCard
           onClick={go('/assets')}
           label={`${monthWord(period)} · 투자 손익`}
-          value={a.investPnlEntered ? signed(a.investPnl) : '입력 없음'}
-          valueColor={a.investPnlEntered ? deltaColor(a.investPnl) : DS.color.text.muted}
+          value={a.investPnlEntered || a.investRealized !== 0 ? signed(a.investPnl + a.investRealized) : '입력 없음'}
+          valueColor={a.investPnlEntered || a.investRealized !== 0 ? deltaColor(a.investPnl + a.investRealized) : DS.color.text.muted}
           sub={
             a.investBalance <= 0
               ? '투자 자산이 없어요'
-              : !a.investPnlEntered
+              : !a.investPnlEntered && a.investRealized === 0
                 ? '자산 탭에서 평가손익을 입력해 주세요'
-                : a.investBasis > 0
-                  ? <>원금 {won(a.investBasis)} · 수익률 <DeltaText value={a.investPnl}>{pctText((a.investPnl / a.investBasis) * 100)}</DeltaText></>
-                  : undefined
+                : (
+                    <>
+                      평가 <DeltaText value={a.investPnl}>{signed(a.investPnl)}</DeltaText>
+                      {a.investRealized !== 0 && <> · 실현 <DeltaText value={a.investRealized}>{signed(a.investRealized)}</DeltaText></>}
+                      {a.investBasis > 0 && <> · 수익률 <DeltaText value={a.investPnl}>{pctText((a.investPnl / a.investBasis) * 100)}</DeltaText></>}
+                      {a.investCash > 0 && <> · 예수금 {won(a.investCash)}</>}
+                    </>
+                  )
           }
         />
       </div>

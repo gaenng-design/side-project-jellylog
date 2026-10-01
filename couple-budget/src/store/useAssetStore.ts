@@ -12,6 +12,14 @@ interface AssetState {
   entries: AssetEntry[]
   /** 투자 항목 납입원금 월별 기록 (key: itemId::yearMonth) */
   costBasisEntries: Record<string, number>
+  /** 투자 항목 예수금(계좌 안 현금) 월별 기록 (key: itemId::yearMonth). 총 잔고 = 주식 평가금 + 예수금 */
+  cashEntries: Record<string, number>
+  /** 투자 항목 월별 실현손익(매도로 확정된 손익, 음수 가능) (key: itemId::yearMonth). 누적해서 쓴다 */
+  realizedEntries: Record<string, number>
+  setCashEntry: (itemId: string, yearMonth: string, amount: number) => void
+  getCashEntry: (itemId: string, yearMonth: string) => number
+  setRealizedEntry: (itemId: string, yearMonth: string, amount: number) => void
+  getRealizedEntry: (itemId: string, yearMonth: string) => number
   /** 이자를 세후(이자소득세 15.4% 차감)로 표시할지 — 이 기기 표시 설정 */
   interestAfterTax: boolean
   setInterestAfterTax: (v: boolean) => void
@@ -34,6 +42,8 @@ export const useAssetStore = create<AssetState>()(
       items: [],
       entries: [],
       costBasisEntries: {},
+      cashEntries: {},
+      realizedEntries: {},
       interestAfterTax: false,
 
       setInterestAfterTax: (v) => set({ interestAfterTax: v }),
@@ -59,6 +69,8 @@ export const useAssetStore = create<AssetState>()(
           costBasisEntries: Object.fromEntries(
             Object.entries(s.costBasisEntries).filter(([k]) => !k.startsWith(id + '::'))
           ),
+          cashEntries: Object.fromEntries(Object.entries(s.cashEntries).filter(([k]) => !k.startsWith(id + '::'))),
+          realizedEntries: Object.fromEntries(Object.entries(s.realizedEntries).filter(([k]) => !k.startsWith(id + '::'))),
         }))
       },
 
@@ -101,6 +113,26 @@ export const useAssetStore = create<AssetState>()(
         return get().costBasisEntries[`${itemId}::${yearMonth}`] ?? 0
       },
 
+      setCashEntry: (itemId, yearMonth, amount) => {
+        const key = `${itemId}::${yearMonth}`
+        set((s) => ({
+          cashEntries: amount === 0
+            ? Object.fromEntries(Object.entries(s.cashEntries).filter(([k]) => k !== key))
+            : { ...s.cashEntries, [key]: amount },
+        }))
+      },
+      getCashEntry: (itemId, yearMonth) => get().cashEntries[`${itemId}::${yearMonth}`] ?? 0,
+
+      setRealizedEntry: (itemId, yearMonth, amount) => {
+        const key = `${itemId}::${yearMonth}`
+        set((s) => ({
+          realizedEntries: amount === 0
+            ? Object.fromEntries(Object.entries(s.realizedEntries).filter(([k]) => k !== key))
+            : { ...s.realizedEntries, [key]: amount },
+        }))
+      },
+      getRealizedEntry: (itemId, yearMonth) => get().realizedEntries[`${itemId}::${yearMonth}`] ?? 0,
+
       getYearData: (year) => {
         const result: Record<string, Record<string, number>> = {}
         for (const e of get().entries) {
@@ -113,7 +145,7 @@ export const useAssetStore = create<AssetState>()(
     }),
     {
       name: 'couple-budget:assets',
-      partialize: (s) => ({ items: s.items, entries: s.entries, costBasisEntries: s.costBasisEntries, interestAfterTax: s.interestAfterTax }),
+      partialize: (s) => ({ items: s.items, entries: s.entries, costBasisEntries: s.costBasisEntries, cashEntries: s.cashEntries, realizedEntries: s.realizedEntries, interestAfterTax: s.interestAfterTax }),
     },
   ),
 )

@@ -9,7 +9,7 @@ import { InfoRow } from '@/design-system/components'
 
 /** 카테고리 탭 인사이트 카드 — 명의별 (저축: 만기 수령액, 투자: 수익률) */
 export function CategoryInsightCards({ model, categoryFilter, filteredItems }: { model: AssetModel; categoryFilter: string; filteredItems: AssetItem[] }) {
-  const { currentYear, currentMonth, personAName, personBName, getPersonColor, getProjectedValue, getMaturity, getPnl, interestAfterTax } = model
+  const { currentYear, currentMonth, personAName, personBName, getPersonColor, getProjectedValue, getMaturity, getPnl, getInvestMetrics, interestAfterTax } = model
   const isInsightCategory = categoryFilter === '저축' || categoryFilter === '투자'
   if (!isInsightCategory) return null
 
@@ -88,10 +88,14 @@ export function CategoryInsightCards({ model, categoryFilter, filteredItems }: {
               </div>
             )
           } else {
-            const totalPnl = groupItems.reduce((s, item) => s + getPnl(item, currentYear, currentMonth), 0)
-            const totalBalance = groupItems.reduce((s, item) => s + getProjectedValue(currentYear, item, currentMonth), 0)
-            const totalBasis = totalBalance - totalPnl
-            const pnlPct = totalBasis !== 0 ? Math.round((totalPnl / totalBasis) * 1000) / 10 : 0
+            const ms = groupItems.map((item) => getInvestMetrics(item, currentYear, currentMonth))
+            const totalPnl = ms.reduce((s, m) => s + m.unrealized, 0)
+            const totalRealized = ms.reduce((s, m) => s + m.realized, 0)
+            const totalCash = ms.reduce((s, m) => s + m.cash, 0)
+            const totalBalance = ms.reduce((s, m) => s + m.balance, 0)
+            const totalBasis = ms.reduce((s, m) => s + m.basis, 0)
+            const pnlPct = totalBasis > 0 ? Math.round((totalPnl / totalBasis) * 1000) / 10 : 0
+            const realizedColor = totalRealized === 0 ? DS.color.text.secondary : totalRealized > 0 ? DS.color.positive.main : DS.color.negative.main
             const pnlColor = totalPnl === 0 ? DS.color.text.secondary : totalPnl > 0 ? DS.color.positive.main : DS.color.negative.main
             return (
               <div
@@ -103,12 +107,14 @@ export function CategoryInsightCards({ model, categoryFilter, filteredItems }: {
                   <span style={{ fontSize: DS.font.size.caption, fontWeight: 700, color: groupColor }}>{groupLabel}</span>
                   <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted, marginLeft: 'auto' }}>{groupItems.length}개 항목</span>
                 </div>
-                <InfoRow label="원금" value={fmtWonAsMan(totalBasis)} />
+                <InfoRow label="보유 원금" value={fmtWonAsMan(totalBasis)} />
                 <InfoRow
                   label="평가 손익"
                   valueColor={pnlColor}
                   value={`${fmtSignedMan(totalPnl)}${pnlPct !== 0 ? ` (${pnlPct > 0 ? '+' : ''}${pnlPct}%)` : ''}`}
                 />
+                {totalRealized !== 0 && <InfoRow label="누적 실현손익" value={fmtSignedMan(totalRealized)} valueColor={realizedColor} />}
+                {totalCash > 0 && <InfoRow label="예수금" value={fmtWonAsMan(totalCash)} />}
                 <InfoRow strong label="총 잔고" value={fmtWonAsMan(totalBalance)} valueColor={DS.color.text.body} />
               </div>
             )

@@ -6,6 +6,10 @@ import {
   calcMaturity,
   getProjectedValue as projectValue,
   getEffectivePnl,
+  getEffectiveCash,
+  getCumulativeRealized,
+  getYtdRealized,
+  calcInvestMetrics,
   getSavingsCumulativeInterest as cumulativeInterest,
   buildFirstEntryMap,
   INTEREST_TAX_RATE,
@@ -73,7 +77,14 @@ export function useAssetModel() {
   const getEntry = useAssetStore((s) => s.getEntry)
   const getCostBasisEntry = useAssetStore((s) => s.getCostBasisEntry)
   const setCostBasisEntry = useAssetStore((s) => s.setCostBasisEntry)
+  const cashEntries = useAssetStore((s) => s.cashEntries)
+  const realizedEntries = useAssetStore((s) => s.realizedEntries)
+  const getCashEntry = useAssetStore((s) => s.getCashEntry)
+  const setCashEntry = useAssetStore((s) => s.setCashEntry)
+  const getRealizedEntry = useAssetStore((s) => s.getRealizedEntry)
+  const setRealizedEntry = useAssetStore((s) => s.setRealizedEntry)
   void costBasisEntries
+  void cashEntries
   const interestAfterTax = useAssetStore((s) => s.interestAfterTax)
   const setInterestAfterTax = useAssetStore((s) => s.setInterestAfterTax)
   /** 이자에 적용할 세율 — 세후 표시가 켜져 있으면 15.4% */
@@ -98,6 +109,20 @@ export function useAssetModel() {
   /** 투자 평가손익 (입력 없는 달은 최근 입력값 사용) */
   const getPnl = (item: AssetItem, yr: number, mi: number): number =>
     getEffectivePnl(item, yr, mi, getCostBasisEntry)
+
+  /** 투자 예수금 (입력 없는 달은 최근 입력값 사용) */
+  const getCash = (item: AssetItem, yr: number, mi: number): number => getEffectiveCash(item, yr, mi, getCashEntry)
+
+  /** 투자 지표 한 번에 — 총 잔고·예수금·원금·평가손익·누적 실현손익·총 수익 */
+  const getInvestMetrics = (item: AssetItem, yr: number, mi: number) =>
+    calcInvestMetrics({
+      balance: getProjectedValue(yr, item, mi),
+      cash: getCash(item, yr, mi),
+      unrealized: getPnl(item, yr, mi),
+      realized: getCumulativeRealized(item.id, yr, mi, realizedEntries),
+    })
+
+  const getYtdRealizedFor = (item: AssetItem, yr: number, mi: number): number => getYtdRealized(item.id, yr, mi, realizedEntries)
 
   const getSavingsCumulativeInterest = (item: AssetItem, yr: number, mi: number): number =>
     cumulativeInterest(item, yr, mi, getEntry, firstEntryYM[item.id], taxRate)
@@ -160,6 +185,13 @@ export function useAssetModel() {
     getProjectedValue,
     getMaturity,
     getPnl,
+    getCash,
+    getInvestMetrics,
+    getYtdRealizedFor,
+    getCashEntry,
+    setCashEntry,
+    getRealizedEntry,
+    setRealizedEntry,
     getSavingsCumulativeInterest,
     calcCategoryTotal,
     calcMonthTotal,

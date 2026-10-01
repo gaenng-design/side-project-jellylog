@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { JELLY } from '@/styles/jellyGlass'
 import { PRIMARY } from '@/styles/formControls'
 import { DS } from '@/design-system/tokens'
+import { useAssetStore } from '@/store/useAssetStore'
 
 /** 월별 금액 셀 — 클릭하면 입력 모드 */
 export function AmountCell({
@@ -182,4 +183,25 @@ export function SignedAmountCell({
       {value === 0 ? '—' : (isPos ? '+' : '') + value.toLocaleString('ko-KR')}
     </div>
   )
+}
+
+/** 투자 항목 월 셀의 예수금 행 — 총 잔고 = 주식 평가금 + 예수금 */
+export function CashCell({ itemId, yearMonth, disabled, projected }: { itemId: string; yearMonth: string; disabled?: boolean; projected?: boolean }) {
+  const value = useAssetStore((s) => s.cashEntries[`${itemId}::${yearMonth}`] ?? 0)
+  const setCash = useAssetStore((s) => s.setCashEntry)
+  return (
+    <AmountCell
+      value={value}
+      onChange={(v) => setCash(itemId, yearMonth, v ? parseInt(v.replace(/,/g, ''), 10) || 0 : 0)}
+      disabled={disabled}
+      projected={projected}
+    />
+  )
+}
+
+/** 투자 항목 월 셀의 실현손익 행 — 그 달에 매도로 확정된 손익(+/-) */
+export function RealizedCell({ itemId, yearMonth, disabled, projected }: { itemId: string; yearMonth: string; disabled?: boolean; projected?: boolean }) {
+  const value = useAssetStore((s) => s.realizedEntries[`${itemId}::${yearMonth}`] ?? 0)
+  const setRealized = useAssetStore((s) => s.setRealizedEntry)
+  return <SignedAmountCell value={value} onChange={(v) => setRealized(itemId, yearMonth, v)} disabled={disabled} projected={projected} />
 }

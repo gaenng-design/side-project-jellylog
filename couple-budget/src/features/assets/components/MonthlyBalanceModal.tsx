@@ -31,7 +31,8 @@ const parseAmount = (v: string): number => {
 export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onClose: () => void }) {
   const {
     currentYear, currentMonth, sortedItems, getEntry, setEntry, getCostBasisEntry, setCostBasisEntry,
-    getProjectedValue, getPnl, getPersonColor, getPersonLabel,
+    getProjectedValue, getPnl, getCash, getCashEntry, setCashEntry, getRealizedEntry, setRealizedEntry,
+    getPersonColor, getPersonLabel,
   } = model
   const currentYM = ym(currentYear, currentMonth)
 
@@ -57,6 +58,23 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
       })),
   )
 
+  const [cashes, setCashes] = useState<Record<string, string>>(() =>
+    Object.fromEntries(activeItems
+      .filter((item) => item.category === '투자')
+      .map((item) => {
+        const v = getCash(item, currentYear, currentMonth)
+        return [item.id, v ? String(v) : '']
+      })),
+  )
+  const [realizeds, setRealizeds] = useState<Record<string, string>>(() =>
+    Object.fromEntries(activeItems
+      .filter((item) => item.category === '투자')
+      .map((item) => {
+        const v = getRealizedEntry(item.id, currentYM)
+        return [item.id, v ? formatSigned(String(v)) : '']
+      })),
+  )
+
   const total = activeItems.reduce((s, item) => s + parseAmount(balances[item.id] ?? ''), 0)
 
   const save = () => {
@@ -66,6 +84,10 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
       if (item.category === '투자') {
         const nextPnl = parseAmount(pnls[item.id] ?? '')
         if (nextPnl !== getCostBasisEntry(item.id, currentYM)) setCostBasisEntry(item.id, currentYM, nextPnl)
+        const nextCash = parseAmount(cashes[item.id] ?? '')
+        if (nextCash !== getCashEntry(item.id, currentYM)) setCashEntry(item.id, currentYM, nextCash)
+        const nextRealized = parseAmount(realizeds[item.id] ?? '')
+        if (nextRealized !== getRealizedEntry(item.id, currentYM)) setRealizedEntry(item.id, currentYM, nextRealized)
       }
     }
     onClose()
@@ -135,6 +157,44 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
             </div>
           </div>
         )}
+        {item.category === '투자' && (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ flex: '1 1 0', fontSize: DS.font.size.caption, color: DS.color.text.secondary, paddingLeft: 14 }}>예수금 (계좌 안 현금)</span>
+              <div style={{ flex: '0 0 52%' }}>
+                <AmountInput
+                  value={cashes[item.id] ?? ''}
+                  onChange={(v) => setCashes((prev) => ({ ...prev, [item.id]: v }))}
+                  height={36}
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ flex: '1 1 0', fontSize: DS.font.size.caption, color: DS.color.text.secondary, paddingLeft: 14 }}>이번 달 실현손익 (+/−)</span>
+              <div style={{ flex: '0 0 52%' }}>
+                <input
+                  value={formatSigned(realizeds[item.id] ?? '')}
+                  onChange={(e) => setRealizeds((prev) => ({ ...prev, [item.id]: e.target.value }))}
+                  inputMode="text"
+                  placeholder="매도로 확정된 손익"
+                  style={{
+                    width: '100%',
+                    height: 36,
+                    padding: '0 12px',
+                    borderRadius: INPUT_BORDER_RADIUS,
+                    fontSize: DS.font.size.body,
+                    textAlign: 'right',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    ...jellyInputSurface,
+                    color: JELLY.text,
+                  }}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     )
   }
@@ -142,7 +202,7 @@ export function MonthlyBalanceModal({ model, onClose }: { model: AssetModel; onC
   return (
     <Modal open title={`${currentYear}년 ${MONTHS[currentMonth]} 잔액 입력`} onClose={onClose}>
       <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 8 }}>
-        통장·증권 앱에 보이는 이번 달 잔액을 입력하세요. 비어 있던 칸은 추정값으로 채워져 있어요.
+        통장·증권 앱에 보이는 이번 달 잔액을 입력하세요. 비어 있던 칸은 추정값으로 채워져 있어요. 투자 항목의 총 잔고는 주식 평가금 + 예수금이에요.
       </div>
       {activeItems.length === 0 ? (
         <div style={{ padding: '24px 0', textAlign: 'center', fontSize: DS.font.size.body, color: DS.color.text.muted }}>

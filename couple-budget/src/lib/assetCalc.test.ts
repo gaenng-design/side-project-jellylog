@@ -13,6 +13,9 @@ import {
   INTEREST_TAX_RATE,
   getAssetFocusMonth,
   getHouseholdFocusMonth,
+  getCumulativeRealized,
+  getYtdRealized,
+  calcInvestMetrics,
 } from './assetCalc'
 
 const item = (patch: Partial<AssetItem>): AssetItem => ({
@@ -170,5 +173,27 @@ describe('getHouseholdFocusMonth', () => {
   it('시작일이 다르면 그에 맞춰 3일 앞당김', () => {
     expect(getHouseholdFocusMonth(new Date(2026, 8, 7), 10)).toMatchObject({ monthIdx: 9 })
     expect(getHouseholdFocusMonth(new Date(2026, 8, 6), 10)).toMatchObject({ monthIdx: 8 })
+  })
+})
+
+describe('투자 실현손익·예수금', () => {
+  const realized = { 'a::2026-01': 100_000, 'a::2026-03': -30_000, 'a::2025-12': 50_000, 'b::2026-02': 999 }
+  it('누적 실현손익은 해당 월까지, 항목별로 합산', () => {
+    expect(getCumulativeRealized('a', 2026, 1, realized)).toBe(150_000)
+    expect(getCumulativeRealized('a', 2026, 2, realized)).toBe(120_000)
+  })
+  it('올해 실현손익은 1월부터', () => {
+    expect(getYtdRealized('a', 2026, 2, realized)).toBe(70_000)
+  })
+  it('예수금은 수익률 계산에서 제외', () => {
+    const m = calcInvestMetrics({ balance: 12_000_000, cash: 2_000_000, unrealized: 500_000, realized: 300_000 })
+    expect(m.holdings).toBe(10_000_000)
+    expect(m.basis).toBe(9_500_000)
+    expect(m.unrealizedPct).toBeCloseTo(5.263, 2)
+    expect(m.totalProfit).toBe(800_000)
+    expect(m.cashPct).toBeCloseTo(16.667, 2)
+  })
+  it('원금 0이면 수익률 null', () => {
+    expect(calcInvestMetrics({ balance: 1000, cash: 1000, unrealized: 0, realized: 0 }).unrealizedPct).toBeNull()
   })
 })

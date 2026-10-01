@@ -8,7 +8,7 @@ import { StatCard, InfoRow } from '@/design-system/components'
 
 /** 전체 탭: 수익 현황 (투자 손익 · 저축 만기 예상 이자) */
 export function ProfitCards({ model }: { model: AssetModel }) {
-  const { currentYear, currentMonth, sortedItems, getProjectedValue, getMaturity, getPnl, interestAfterTax } = model
+  const { currentYear, currentMonth, sortedItems, getMaturity, getInvestMetrics, interestAfterTax } = model
   // 투자 항목 손익
   const investItems = sortedItems.filter((i) => i.category === '투자')
   // 저축 만기 예상 이자 (만기일 + 이율 있는 적금·예금) — 공용 calcMaturity 사용
@@ -20,14 +20,18 @@ export function ProfitCards({ model }: { model: AssetModel }) {
   const savingsWithMaturity = savingsMaturityItems.map((x) => x.item)
   const totalMaturityInterest = savingsMaturityItems.reduce((sum, x) => sum + x.result.interest, 0)
   if (investItems.length === 0 && savingsWithMaturity.length === 0) return null
-  // 투자 전체 합산
-  const totalInvestPnl = investItems.reduce((s, item) => s + getPnl(item, currentYear, currentMonth), 0)
-  const totalInvestBasis = investItems.reduce((s, item) => {
-    const bal = getProjectedValue(currentYear, item, currentMonth)
-    return s + (bal - getPnl(item, currentYear, currentMonth))
-  }, 0)
-  const totalInvestPnlPct = totalInvestBasis !== 0 ? Math.round((totalInvestPnl / totalInvestBasis) * 1000) / 10 : 0
-  const investPnlColor = totalInvestPnl === 0 ? DS.color.text.secondary : totalInvestPnl > 0 ? DS.color.positive.main : DS.color.negative.main
+  // 투자 전체 합산 — 예수금은 수익률에서 뺀다 (평가손익 = 미실현, 실현손익은 누적)
+  const invest = investItems.map((item) => getInvestMetrics(item, currentYear, currentMonth))
+  const sum = (k: 'unrealized' | 'realized' | 'basis' | 'cash' | 'balance' | 'totalProfit') => invest.reduce((s, m) => s + m[k], 0)
+  const totalInvestPnl = sum('unrealized')
+  const totalRealized = sum('realized')
+  const totalProfit = sum('totalProfit')
+  const totalInvestBasis = sum('basis')
+  const totalCash = sum('cash')
+  const totalBalance = sum('balance')
+  const totalInvestPnlPct = totalInvestBasis > 0 ? Math.round((totalInvestPnl / totalInvestBasis) * 1000) / 10 : 0
+  const colorOf = (v: number) => (v === 0 ? DS.color.text.secondary : v > 0 ? DS.color.positive.main : DS.color.negative.main)
+  const investPnlColor = colorOf(totalProfit)
   const savingsMaturityColor = totalMaturityInterest > 0 ? DS.color.positive.main : DS.color.text.secondary
   return (
     <div style={{ marginBottom: 16 }}>
@@ -40,15 +44,20 @@ export function ProfitCards({ model }: { model: AssetModel }) {
         {investItems.length > 0 && (
           <StatCard
             label="총 투자 수익"
-            value={fmtSignedMan(totalInvestPnl)}
+            value={fmtSignedMan(totalProfit)}
             valueColor={investPnlColor}
-            tone={totalInvestPnl > 0 ? 'positive' : totalInvestPnl < 0 ? 'negative' : 'neutral'}
+            tone={totalProfit > 0 ? 'positive' : totalProfit < 0 ? 'negative' : 'neutral'}
             style={{ flex: '1 1 180px', minWidth: 160 }}
           >
             <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${DS.color.border.subtle}` }}>
-              <InfoRow label="원금" value={fmtWonAsMan(totalInvestBasis)} />
+              <InfoRow label="보유 원금" value={fmtWonAsMan(totalInvestBasis)} />
+              <InfoRow label="평가손익 (미실현)" value={fmtSignedMan(totalInvestPnl)} valueColor={colorOf(totalInvestPnl)} />
+              <InfoRow label="누적 실현손익" value={fmtSignedMan(totalRealized)} valueColor={colorOf(totalRealized)} />
               {totalInvestPnlPct !== 0 && (
-                <InfoRow label="수익률" value={`${totalInvestPnlPct > 0 ? '+' : ''}${totalInvestPnlPct}%`} valueColor={investPnlColor} />
+                <InfoRow label="평가 수익률" value={`${totalInvestPnlPct > 0 ? '+' : ''}${totalInvestPnlPct}%`} valueColor={colorOf(totalInvestPnl)} />
+              )}
+              {totalCash > 0 && (
+                <InfoRow label="예수금" value={`${fmtWonAsMan(totalCash)}${totalBalance > 0 ? ` (${Math.round((totalCash / totalBalance) * 100)}%)` : ''}`} />
               )}
             </div>
           </StatCard>

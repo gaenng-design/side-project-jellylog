@@ -4,7 +4,7 @@ import { PRIMARY } from '@/styles/formControls'
 import { ym } from '@/lib/assetCalc'
 import type { AssetItem } from '@/types'
 import { MONTHS } from '../assetFormat'
-import { AmountCell, SignedAmountCell } from './AmountCells'
+import { AmountCell, SignedAmountCell, CashCell, RealizedCell } from './AmountCells'
 import { DS } from '@/design-system/tokens'
 
 /** 자산 테이블 — 여러 연·월을 하나의 표로 표시 */
@@ -199,8 +199,8 @@ export function MonthsTable({
                               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</span>
                             </div>
                             {item.category === '투자' && (
-                              <div style={{ display: 'flex', gap: 4, fontSize: DS.font.size.caption, color: DS.color.text.muted, fontWeight: 400 }}>
-                                <span>총 잔고</span><span>·</span><span>평가 손익</span>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0 4px', fontSize: DS.font.size.caption, color: DS.color.text.muted, fontWeight: 400, lineHeight: 1.3 }}>
+                                <span>총 잔고</span><span>·</span><span>예수금</span><span>·</span><span>평가손익</span><span>·</span><span>실현</span>
                               </div>
                             )}
                           </div>
@@ -423,13 +423,21 @@ export function MonthsTable({
                                   projected={isFuture}
                                 />
                               </div>
+                              {/* 예수금 행 (계좌 안 현금) */}
+                              <div style={{ borderBottom: `1px solid ${DS.color.border.subtle}` }}>
+                                <CashCell itemId={item.id} yearMonth={ym(yr, mi)} disabled={!editable} projected={isFuture} />
+                              </div>
                               {/* 평가 손익 행 (signed) */}
-                              <SignedAmountCell
-                                value={getCostBasisEntry(item.id, ym(yr, mi))}
-                                onChange={(v) => setCostBasisEntry(item.id, ym(yr, mi), v)}
-                                disabled={!editable}
-                                projected={isFuture}
-                              />
+                              <div style={{ borderBottom: `1px solid ${DS.color.border.subtle}` }}>
+                                <SignedAmountCell
+                                  value={getCostBasisEntry(item.id, ym(yr, mi))}
+                                  onChange={(v) => setCostBasisEntry(item.id, ym(yr, mi), v)}
+                                  disabled={!editable}
+                                  projected={isFuture}
+                                />
+                              </div>
+                              {/* 실현 손익 행 (그 달 매도로 확정된 손익) */}
+                              <RealizedCell itemId={item.id} yearMonth={ym(yr, mi)} disabled={!editable} projected={isFuture} />
                             </div>
                           ) : (
                             <AmountCell

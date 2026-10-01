@@ -328,7 +328,7 @@ function addGitHubDataSheets(wb: XLSX.WorkBook): void {
   const appStore = useAppStore.getState()
 
   // Assets 시트
-  const assetsData = JSON.stringify({ items: assetStore.items, entries: assetStore.entries, costBasisEntries: assetStore.costBasisEntries }, null, 2)
+  const assetsData = JSON.stringify({ items: assetStore.items, entries: assetStore.entries, costBasisEntries: assetStore.costBasisEntries, cashEntries: assetStore.cashEntries, realizedEntries: assetStore.realizedEntries }, null, 2)
   const assetsAoA = [['자산 (JSON)'], [assetsData]]
   const wsAssets = XLSX.utils.aoa_to_sheet(assetsAoA)
   wsAssets['!cols'] = [{ wch: 80 }]

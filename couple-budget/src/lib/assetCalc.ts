@@ -242,6 +242,69 @@ export function getEffectivePnl(item: AssetItem, yr: number, mi: number, getPnl:
   return 0
 }
 
+/** 예수금 — 저장값이 없으면 최근(최대 24개월 전) 저장된 값을 이어서 사용 (평가손익과 같은 규칙) */
+export function getEffectiveCash(item: AssetItem, yr: number, mi: number, getCash: GetEntry): number {
+  return getEffectivePnl(item, yr, mi, getCash)
+}
+
+/** 해당 월까지 누적 실현손익 (해지된 항목은 해지 월까지만 쌓이고 이후에도 값은 유지) */
+export function getCumulativeRealized(itemId: string, yr: number, mi: number, realized: Record<string, number>): number {
+  const upTo = ym(yr, mi)
+  const prefix = `${itemId}::`
+  let sum = 0
+  for (const [key, v] of Object.entries(realized)) {
+    if (key.startsWith(prefix) && key.slice(prefix.length) <= upTo) sum += v
+  }
+  return sum
+}
+
+/** 해당 연도 1월~해당 월 실현손익 (올해 실현손익) */
+export function getYtdRealized(itemId: string, yr: number, mi: number, realized: Record<string, number>): number {
+  const prefix = `${itemId}::`
+  let sum = 0
+  for (let m = 0; m <= mi; m++) sum += realized[`${prefix}${ym(yr, m)}`] ?? 0
+  return sum
+}
+
+export interface InvestMetrics {
+  /** 계좌 총 잔고 (주식 평가금 + 예수금) */
+  balance: number
+  /** 예수금 */
+  cash: number
+  /** 주식 평가금 = 총 잔고 − 예수금 */
+  holdings: number
+  /** 보유 주식 원금 = 평가금 − 평가손익 */
+  basis: number
+  /** 평가손익 (미실현) */
+  unrealized: number
+  /** 평가손익률 % (원금 대비, 원금 0이면 null) */
+  unrealizedPct: number | null
+  /** 누적 실현손익 */
+  realized: number
+  /** 총 수익 = 평가손익 + 누적 실현손익 */
+  totalProfit: number
+  /** 예수금 비중 % (잔고 0이면 null) */
+  cashPct: number | null
+}
+
+/** 투자 지표 — 예수금은 수익률 계산에서 빼서 수익률이 희석되지 않게 한다 */
+export function calcInvestMetrics(input: { balance: number; cash: number; unrealized: number; realized: number }): InvestMetrics {
+  const { balance, cash, unrealized, realized } = input
+  const holdings = balance - cash
+  const basis = holdings - unrealized
+  return {
+    balance,
+    cash,
+    holdings,
+    basis,
+    unrealized,
+    unrealizedPct: basis > 0 ? (unrealized / basis) * 100 : null,
+    realized,
+    totalProfit: unrealized + realized,
+    cashPct: balance > 0 ? (cash / balance) * 100 : null,
+  }
+}
+
 /**
  * 저축 항목의 누적 이자 (첫 입력 월부터 해당 월까지, 만기 월에서 멈춤).
  * calcMaturity와 같은 단리 공식을 사용한다.

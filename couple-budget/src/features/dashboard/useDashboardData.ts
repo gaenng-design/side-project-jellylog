@@ -17,7 +17,7 @@ import {
   monthlySeparateTotal,
   padYearMonth,
 } from '@/lib/dashboardYearStats'
-import { getEffectiveEntry, getEffectivePnl, ym as toYM, parseYM, addMonths } from '@/lib/assetCalc'
+import { getEffectiveEntry, getEffectivePnl, getEffectiveCash, getCumulativeRealized, ym as toYM, parseYM, addMonths } from '@/lib/assetCalc'
 
 /** 대시보드가 고르는 기간 — 연도·월 하나로 모든 카드·차트가 움직인다 */
 export interface DashboardPeriod {
@@ -134,6 +134,9 @@ export function useDashboardAssetStats(period: DashboardPeriod) {
   const entries = useAssetStore((s) => s.entries)
   const getEntry = useAssetStore((s) => s.getEntry)
   const getCostBasisEntry = useAssetStore((s) => s.getCostBasisEntry)
+  const getCashEntry = useAssetStore((s) => s.getCashEntry)
+  const cashEntries = useAssetStore((s) => s.cashEntries)
+  const realizedEntries = useAssetStore((s) => s.realizedEntries)
 
   return useMemo(() => {
     const assetYM = period.ym
@@ -158,7 +161,10 @@ export function useDashboardAssetStats(period: DashboardPeriod) {
     // 평가손익을 입력한 투자 항목이 하나라도 있어야 손익을 보여준다 (없으면 0원 대신 "입력 없음")
     const investPnlEntered = investItems.some((item) => getEffectivePnl(item, curY, curM, getCostBasisEntry) !== 0)
     const investPnl = investItems.reduce((s, item) => s + getEffectivePnl(item, curY, curM, getCostBasisEntry), 0)
-    const investBasis = investBalance - investPnl
+    const investCash = investItems.reduce((s, item) => s + getEffectiveCash(item, curY, curM, getCashEntry), 0)
+    const investRealized = investItems.reduce((s, item) => s + getCumulativeRealized(item.id, curY, curM, realizedEntries), 0)
+    // 원금은 예수금을 뺀 보유 주식 기준 (예수금이 수익률을 희석하지 않게)
+    const investBasis = investBalance - investCash - investPnl
 
     // 연초(1월) 총 자산 — 데이터가 없으면 그해 가장 이른 입력 월
     let baselineYM = toYM(period.year, 0)
@@ -181,11 +187,11 @@ export function useDashboardAssetStats(period: DashboardPeriod) {
     return {
       totalAsset, prevTotalAsset, assetDelta: totalAsset - prevTotalAsset, availableAsset, savingsAsset,
       lockedAsset: totalAsset - availableAsset, categoryTotals,
-      investPnl, investPnlEntered, investBalance, investBasis,
+      investPnl, investPnlEntered, investBalance, investBasis, investCash, investRealized,
       baselineAsset, baselineMonthIdx, ytdDelta, ytdPct,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, entries, getEntry, getCostBasisEntry, period.ym, period.year, period.monthIdx])
+  }, [items, entries, getEntry, getCostBasisEntry, cashEntries, realizedEntries, getCashEntry, period.ym, period.year, period.monthIdx])
 }
 
 /** 선택한 달 공동 생활비 사용액·목표 */
