@@ -46,8 +46,6 @@ export function OverviewCards({ model }: { model: AssetModel }) {
     const unrealizedChange = prev === 0 ? 0 : cur - prev
     return s + unrealizedChange + getRealizedEntry(item.id, curYM)
   }, 0)
-  // 위 항목으로 설명되지 않는 나머지 (입출금·부동산 변동·매매 차이 등) — 합이 실제 증감과 맞도록 따로 보여준다
-  const otherD = actualDelta - plannedDeposits - savingsInterestD - investPnlD
   const deltaColor = actualDelta === 0 ? DS.color.text.secondary : actualDelta > 0 ? DS.color.positive.main : DS.color.negative.main
   const prevLabel = currentMonth > 0 ? `${MONTHS[currentMonth - 1]}` : `${currentYear - 1}년 12월`
 
@@ -139,18 +137,6 @@ export function OverviewCards({ model }: { model: AssetModel }) {
               </div>
               <span style={{ fontSize: DS.font.size.body, fontWeight: 600, color: investPnlD > 0 ? DS.color.positive.main : DS.color.negative.main }}>
                 {`${investPnlD > 0 ? '+' : ''}${fmtMan(Math.round(investPnlD / 10000))}원`}
-              </span>
-            </div>
-          )}
-          {Math.abs(otherD) >= 5000 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: DS.color.text.muted, flexShrink: 0 }} />
-                <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.body }}>기타</span>
-                <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>(입출금·부동산 변동 등)</span>
-              </div>
-              <span style={{ fontSize: DS.font.size.body, fontWeight: 600, color: DS.color.text.secondary }}>
-                {`${otherD > 0 ? '+' : ''}${fmtMan(Math.round(otherD / 10000))}원`}
               </span>
             </div>
           )}
