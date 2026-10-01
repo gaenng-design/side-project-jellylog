@@ -7,7 +7,7 @@ import { DS } from '@/design-system/tokens'
 
 /** 전체 탭: 카테고리별 자산 구성 + 이달 증감 분석 */
 export function OverviewCards({ model }: { model: AssetModel }) {
-  const { currentYear, currentMonth, sortedItems, getProjectedValue, getPnl, calcMonthTotals, currentYearMonthTotals } = model
+  const { currentYear, currentMonth, sortedItems, getProjectedValue, getPnl, getRealizedEntry, calcMonthTotals, currentYearMonthTotals } = model
   // ── 카테고리별 바 그래프 데이터 ──
   const catTotals = ASSET_CATEGORIES.map((cat) => ({
     cat,
@@ -36,10 +36,18 @@ export function OverviewCards({ model }: { model: AssetModel }) {
   const savingsPrevD = savingsItemsD.reduce((s, item) => s + getProjectedValue(prevYr, item, prevMi), 0)
   const savingsDepD = savingsItemsD.reduce((s, item) => s + monthlyContribution(item, currentYear, currentMonth), 0)
   const savingsInterestD = savingsCurD - savingsPrevD - savingsDepD
-  // 투자 손익 = 이번 달 평가손익 − 전월 평가손익 (잔액 변동에는 입금·출금이 섞여 있어 손익 기록을 기준으로 함)
-  const investCurPnl = investItemsD.reduce((s, item) => s + getPnl(item, currentYear, currentMonth), 0)
-  const investPrevPnl = investItemsD.reduce((s, item) => s + getPnl(item, prevYr, prevMi), 0)
-  const investPnlD = investCurPnl - investPrevPnl
+  // 투자 손익 = (이번 달 평가손익 − 전월 평가손익) + 이번 달 실현손익.
+  // 매도로 확정된 수익은 평가손익에서 빠지고 계좌에 남으므로 실현손익을 더해야 잔액 변동과 맞는다.
+  // 전월 평가손익 기록이 없으면(처음 입력) 누적 손익 전체를 이번 달 손익으로 볼 수 없어 평가손익 변화는 제외한다.
+  const curYM = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`
+  const investPnlD = investItemsD.reduce((s, item) => {
+    const cur = getPnl(item, currentYear, currentMonth)
+    const prev = getPnl(item, prevYr, prevMi)
+    const unrealizedChange = prev === 0 ? 0 : cur - prev
+    return s + unrealizedChange + getRealizedEntry(item.id, curYM)
+  }, 0)
+  // 위 항목으로 설명되지 않는 나머지 (입출금·부동산 변동·매매 차이 등) — 합이 실제 증감과 맞도록 따로 보여준다
+  const otherD = actualDelta - plannedDeposits - savingsInterestD - investPnlD
   const deltaColor = actualDelta === 0 ? DS.color.text.secondary : actualDelta > 0 ? DS.color.positive.main : DS.color.negative.main
   const prevLabel = currentMonth > 0 ? `${MONTHS[currentMonth - 1]}` : `${currentYear - 1}년 12월`
 
@@ -131,6 +139,18 @@ export function OverviewCards({ model }: { model: AssetModel }) {
               </div>
               <span style={{ fontSize: DS.font.size.body, fontWeight: 600, color: investPnlD > 0 ? DS.color.positive.main : DS.color.negative.main }}>
                 {`${investPnlD > 0 ? '+' : ''}${fmtMan(Math.round(investPnlD / 10000))}원`}
+              </span>
+            </div>
+          )}
+          {Math.abs(otherD) >= 5000 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: DS.color.text.muted, flexShrink: 0 }} />
+                <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.body }}>기타</span>
+                <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>(입출금·부동산 변동 등)</span>
+              </div>
+              <span style={{ fontSize: DS.font.size.body, fontWeight: 600, color: DS.color.text.secondary }}>
+                {`${otherD > 0 ? '+' : ''}${fmtMan(Math.round(otherD / 10000))}원`}
               </span>
             </div>
           )}
