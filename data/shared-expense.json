@@ -1073,6 +1073,12 @@
       "name": "10/8 글램핑",
       "category": "여행",
       "order": 178
+    },
+    {
+      "id": "shared-expense-1790845726094",
+      "name": "글램핑 (8일)",
+      "category": "여행",
+      "order": 179
     }
   ],
   "entries": [
@@ -2349,11 +2355,11 @@
       "amount": 10800
     },
     {
-      "id": "shared-expense-1790754536952",
-      "itemId": "shared-expense-1790754536951",
+      "id": "shared-expense-1790845726095",
+      "itemId": "shared-expense-1790845726094",
       "yearMonth": "2026-10",
-      "day": 29,
-      "amount": 149000
+      "day": 2,
+      "amount": 209000
     }
   ],
   "categories": [
