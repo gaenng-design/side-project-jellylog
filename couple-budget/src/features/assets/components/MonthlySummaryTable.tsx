@@ -12,6 +12,8 @@ import { DeltaText } from '@/design-system/components'
 /** 표시할 최대 개월 수 (가장 이른 입력 월부터 현재까지, 최소 12개월) */
 const MAX_MONTHS = 60
 const MIN_MONTHS = 12
+/** 앞으로 보여줄 예상 개월 수 (매달 정기 납입액만큼 늘어난다고 가정) */
+const FUTURE_MONTHS = 12
 
 const th: React.CSSProperties = { padding: '6px 12px', textAlign: 'right', color: DS.color.text.secondary, fontWeight: 500, whiteSpace: 'nowrap' }
 const td: React.CSSProperties = { padding: '6px 12px', textAlign: 'right', whiteSpace: 'nowrap' }
@@ -51,7 +53,7 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
       .reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
 
   // 첫 행의 전월 대비 계산을 위해 한 달 앞(offset = count)까지 계산
-  const rows = Array.from({ length: count + 1 }, (_, k) => {
+  const rows = Array.from({ length: count + 1 + FUTURE_MONTHS }, (_, k) => {
     const { year, monthIdx } = addMonths(currentYear, currentMonth, -(count - k))
     const gain =
       sortedItems.filter((i) => i.category === '투자').reduce((s, i) => s + getPnl(i, year, monthIdx), 0) +
@@ -59,6 +61,7 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
     return {
       year,
       monthIdx,
+      future: k > count,
       total: catTotal(null, year, monthIdx),
       savings: catTotal('저축', year, monthIdx),
       invest: catTotal('투자', year, monthIdx),
@@ -74,7 +77,9 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
 
   // 연도별 그룹 (오래된 → 최신). 기본: 현재 연도만 펼침
   const years = [...new Set(months.map((m) => m.year))]
-  const [expanded, setExpanded] = useState<Set<number>>(new Set([currentYear]))
+  const [expanded, setExpanded] = useState<Set<number>>(
+    () => new Set([currentYear, ...months.filter((m) => m.future).map((m) => m.year)]),
+  )
   const toggle = (yr: number) =>
     setExpanded((prev) => {
       const next = new Set(prev)
@@ -114,6 +119,7 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
                   <td colSpan={isOpen ? 6 : 1} style={{ padding: narrow ? '9px 8px' : '7px 12px', fontWeight: 700, color: yr === currentYear ? PRIMARY : DS.color.text.body, whiteSpace: 'nowrap', ...stickyMonth(yr === currentYear ? DS.color.primarySoft : DS.color.bg.subtle) }}>
                     <span style={{ fontSize: DS.font.size.caption, marginRight: 6 }}>{isOpen ? '▼' : '▶'}</span>
                     {yr}년
+                    {yearMonths.some((m) => m.future) && <span style={{ marginLeft: 6, fontSize: DS.font.size.caption, fontWeight: 500, color: DS.color.text.muted }}>(예상 포함)</span>}
                   </td>
                   {/* 접힌 연도: 연말(또는 최근 달) 총 자산과 연간 증감을 한 줄로 요약 */}
                   {!isOpen && (
@@ -122,7 +128,7 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
                       <td style={tdS}><Delta value={diff(last.total, yearMonths[0].prev?.total)} /></td>
                       <td style={tdS}><Delta value={diff(last.savings, yearMonths[0].prev?.savings)} /></td>
                       <td style={tdS}><Delta value={diff(last.invest, yearMonths[0].prev?.invest)} /></td>
-                      <td style={tdS}><Delta value={last.gain} bold /></td>
+                      <td style={tdS}>{last.future ? <DeltaText value={0}>—</DeltaText> : <Delta value={last.gain} bold />}</td>
                     </>
                   )}
                 </tr>,
@@ -130,15 +136,15 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
                   ? yearMonths.map((m) => {
                       const isCurrent = m.year === currentYear && m.monthIdx === currentMonth
                       return (
-                        <tr key={`${m.year}-${m.monthIdx}`} style={{ borderTop: `1px solid ${DS.color.border.subtle}`, background: isCurrent ? DS.color.primarySoft : undefined }}>
+                        <tr key={`${m.year}-${m.monthIdx}`} style={{ borderTop: `1px solid ${DS.color.border.subtle}`, background: isCurrent ? DS.color.primarySoft : undefined, ...(m.future ? { fontStyle: 'italic', opacity: 0.8 } : null) }}>
                           <td style={{ ...tdS, textAlign: 'left', color: isCurrent ? DS.color.primaryDark : DS.color.text.body, fontWeight: isCurrent ? 600 : 400, ...stickyMonth(isCurrent ? DS.color.primarySoft : DS.color.bg.secondary) }}>
-                            {narrow ? `${m.monthIdx + 1}월` : `${m.year}년 ${m.monthIdx + 1}월`}
+                            {narrow ? `${m.monthIdx + 1}월` : `${m.year}년 ${m.monthIdx + 1}월`}{m.future && <span style={{ marginLeft: 4, fontSize: DS.font.size.caption, color: DS.color.text.muted }}>예상</span>}
                           </td>
                           <td style={{ ...tdS, fontWeight: 600, color: DS.color.text.primary }}>{fmtMan(Math.round(m.total / 10000))}원</td>
                           <td style={tdS}><Delta value={diff(m.total, m.prev?.total)} /></td>
                           <td style={tdS}><Delta value={diff(m.savings, m.prev?.savings)} /></td>
                           <td style={tdS}><Delta value={diff(m.invest, m.prev?.invest)} /></td>
-                          <td style={tdS}><Delta value={m.gain} bold /></td>
+                          <td style={tdS}>{m.future ? <DeltaText value={0}>—</DeltaText> : <Delta value={m.gain} bold />}</td>
                         </tr>
                       )
                     })
@@ -149,7 +155,7 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
         </table>
       </div>
       <div style={{ padding: '6px 14px 8px', fontSize: DS.font.size.caption, color: DS.color.text.muted, borderTop: `1px solid ${DS.color.border.subtle}` }}>
-        연도를 누르면 접고 펼 수 있어요. 접힌 연도의 증감은 연초 대비 연말(현재 연도는 최근 달) 변화예요.
+        연도를 누르면 접고 펼 수 있어요. 접힌 연도의 증감은 연초 대비 연말(현재 연도는 최근 달) 변화예요. 기울임·'예상' 표시는 앞으로 12개월을 매달 정기 납입액만큼만 늘어난다고 가정한 값이에요(이자·투자 손익 미반영, 적금·예금은 만기 이자 반영).
       </div>
     </div>
   )
