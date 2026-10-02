@@ -26,9 +26,11 @@ export function OverviewCards({ model }: { model: AssetModel }) {
     ? currentYearMonthTotals[currentMonth - 1]
     : calcMonthTotals(currentYear - 1)[11]
   const actualDelta = curTotal - prevTotal
-  const plannedDeposits = sortedItems
-    .filter((item) => ASSET_CATEGORIES.includes(item.category))
-    .reduce((s, item) => s + monthlyContribution(item, currentYear, currentMonth), 0)
+  // 정기 납입은 저축 / 투자로 나눠서 본다 (부동산 등 나머지는 합계에만 포함)
+  const depositOf = (cat: string) =>
+    sortedItems.filter((item) => item.category === cat).reduce((s, item) => s + monthlyContribution(item, currentYear, currentMonth), 0)
+  const savingsDeposits = depositOf('저축')
+  const investDeposits = depositOf('투자')
   // 카테고리별 손익 계산
   const savingsItemsD = sortedItems.filter((i) => i.category === '저축')
   const investItemsD = sortedItems.filter((i) => i.category === '투자')
@@ -97,16 +99,21 @@ export function OverviewCards({ model }: { model: AssetModel }) {
             이달 증감 분석
             <span style={{ fontSize: DS.font.size.caption, fontWeight: 400, color: DS.color.text.muted, marginLeft: 6 }}>({prevLabel} 대비)</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: DS.color.info, flexShrink: 0 }} />
-              <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.body }}>정기 납입</span>
-              <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>(적금·투자 등 자동)</span>
+          {[
+            { label: '저축 정기 납입', hint: '(적금 등)', amount: savingsDeposits, color: DS.color.category.savings },
+            { label: '투자 정기 납입', hint: '(적립식 투자)', amount: investDeposits, color: DS.color.category.invest },
+          ].map((r) => (
+            <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: r.color, flexShrink: 0 }} />
+                <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.body }}>{r.label}</span>
+                <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>{r.hint}</span>
+              </div>
+              <span style={{ fontSize: DS.font.size.body, fontWeight: 600, color: r.amount > 0 ? r.color : DS.color.text.muted }}>
+                {r.amount === 0 ? '—' : `+${fmtMan(Math.round(r.amount / 10000))}원`}
+              </span>
             </div>
-            <span style={{ fontSize: DS.font.size.body, fontWeight: 600, color: plannedDeposits > 0 ? DS.color.info : DS.color.text.muted }}>
-              {plannedDeposits === 0 ? '—' : `+${fmtMan(Math.round(plannedDeposits / 10000))}원`}
-            </span>
-          </div>
+          ))}
           {savingsInterestD > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
