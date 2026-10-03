@@ -48,7 +48,6 @@ export function OverviewCards({ model }: { model: AssetModel }) {
     const unrealizedChange = prev === 0 ? 0 : cur - prev
     return s + unrealizedChange + getRealizedEntry(item.id, curYM)
   }, 0)
-  const deltaColor = actualDelta === 0 ? DS.color.text.secondary : actualDelta > 0 ? DS.color.positive.main : DS.color.negative.main
   const prevLabel = currentMonth > 0 ? `${MONTHS[currentMonth - 1]}` : `${currentYear - 1}년 12월`
 
   const showBarChart = catTotals.length > 0 && grandTotal > 0
@@ -147,10 +146,10 @@ export function OverviewCards({ model }: { model: AssetModel }) {
               </span>
             </div>
           )}
-          <div style={{ height: 4 }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: `1px solid ${DS.color.border.subtle}` }}>
-            <span style={{ fontSize: DS.font.size.caption, fontWeight: 600, color: DS.color.text.body }}>= 실제 증감</span>
-            <span style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: deltaColor }}>
+          {/* 위 항목의 합계가 아니라, 입력한 잔액으로 본 전월 대비 변화 (참고용) */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, paddingTop: 10, borderTop: `1px dashed ${DS.color.border.default}` }}>
+            <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}>참고 · 잔액 변화 ({prevLabel} 대비)</span>
+            <span style={{ fontSize: DS.font.size.caption, fontWeight: 500, color: DS.color.text.secondary }}>
               {actualDelta === 0 ? '—' : `${actualDelta > 0 ? '+' : ''}${fmtMan(Math.round(actualDelta / 10000))}원`}
             </span>
           </div>
