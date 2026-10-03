@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ASSET_CATEGORIES } from '@/store/useAssetStore'
 import { jellyCardStyle } from '@/styles/jellyGlass'
 import { PRIMARY } from '@/styles/formControls'
-import { addMonths, monthDiff, parseYM, ym } from '@/lib/assetCalc'
+import { addMonths, monthDiff, parseYM } from '@/lib/assetCalc'
 import { fmtMan } from '../assetFormat'
 import type { AssetModel } from '../useAssetModel'
 import { useNarrowLayout } from '@/context/NarrowLayoutContext'
@@ -47,23 +47,10 @@ export function MonthlySummaryTable({ model }: { model: AssetModel }) {
     : MIN_MONTHS
   const count = Math.min(MAX_MONTHS, Math.max(MIN_MONTHS, spanned))
 
-  /**
-   * 항목 값 — 과거·현재는 입력(추정)값, 미래는 "현재 잔액 + 현재 정기 납입액 × 경과 개월"
-   * (만기·이자·평가손익 변동은 반영하지 않고, 예금처럼 정기 납입이 없는 항목은 그대로)
-   */
-  const itemValue = (item: (typeof sortedItems)[number], yr: number, mi: number): number => {
-    const gap = monthDiff(currentYear, currentMonth, yr, mi)
-    if (gap <= 0) return getProjectedValue(yr, item, mi)
-    const base = getProjectedValue(currentYear, item, currentMonth)
-    if (base === 0 && !item.defaultAmount) return 0
-    if (item.closedYM && ym(currentYear, currentMonth) > item.closedYM) return 0
-    const monthly = item.category === '저축' && item.savingsType === 'deposit' ? 0 : (item.defaultAmount ?? 0)
-    return base + monthly * gap
-  }
   const catTotal = (cat: string | null, yr: number, mi: number) =>
     sortedItems
       .filter((item) => (cat ? item.category === cat : ASSET_CATEGORIES.includes(item.category)))
-      .reduce((sum, item) => sum + itemValue(item, yr, mi), 0)
+      .reduce((sum, item) => sum + getProjectedValue(yr, item, mi), 0)
 
   // 첫 행의 전월 대비 계산을 위해 한 달 앞(offset = count)까지 계산
   const rows = Array.from({ length: count + 1 + FUTURE_MONTHS }, (_, k) => {

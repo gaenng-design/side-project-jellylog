@@ -115,20 +115,23 @@ describe('getProjectedValue', () => {
   const ctx = (data: Record<string, number>) => ({
     getEntry: store(data), currentYear: 2026, currentMonth: 0, editableBoundary: 2026 * 100 + 0,
   })
-  it('만기 월에 calcMaturity 수령액과 동일', () => {
+  it('만기 이후에도 현재 정기 납입액을 계속 더함 (이자·만기 중단 없음)', () => {
     const it1 = item({ savingsType: 'installment', interestRate: 12, defaultAmount: 100_000, maturityDate: '2026-04-01' })
     const c = ctx({ '2026-01': 500_000 })
-    const expected = Math.round(calcMaturity(it1, 500_000, 2026, 0)!.amount)
-    expect(getProjectedValue(it1, 2026, 3, c)).toBe(expected)
-    expect(getProjectedValue(it1, 2026, 8, c)).toBe(expected)
+    expect(getProjectedValue(it1, 2026, 3, c)).toBe(800_000)
+    expect(getProjectedValue(it1, 2026, 8, c)).toBe(1_300_000)
   })
   it('만기 전에는 원금만 증가', () => {
     const it1 = item({ savingsType: 'installment', interestRate: 12, defaultAmount: 100_000, maturityDate: '2026-04-01' })
     expect(getProjectedValue(it1, 2026, 2, ctx({ '2026-01': 500_000 }))).toBe(700_000)
   })
-  it('이미 만기 지난 적금은 더 이상 늘지 않음', () => {
+  it('이미 만기 지난 적금도 정기 납입액만큼 계속 늘어남', () => {
     const it1 = item({ savingsType: 'installment', interestRate: 3, defaultAmount: 100, maturityDate: '2025-06-01' })
-    expect(getProjectedValue(it1, 2026, 6, ctx({ '2026-01': 1000 }))).toBe(1000)
+    expect(getProjectedValue(it1, 2026, 6, ctx({ '2026-01': 1000 }))).toBe(1600)
+  })
+  it('예금(정기 납입 없음)은 그대로', () => {
+    const it1 = item({ savingsType: 'deposit', interestRate: 3, defaultAmount: 100, maturityDate: '2026-04-01' })
+    expect(getProjectedValue(it1, 2026, 8, ctx({ '2026-01': 1000 }))).toBe(1000)
   })
   it('해지된 항목은 미래에도 0', () => {
     const it1 = item({ category: '투자', defaultAmount: 100, closedYM: '2025-12' })

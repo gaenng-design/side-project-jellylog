@@ -195,7 +195,7 @@ export interface ProjectionContext {
   firstEntryYM?: Record<string, string>
 }
 
-/** 과거·현재·미래 월의 표시값 */
+/** 과거·현재·미래 월의 표시값 (미래는 현재 정기 납입액을 매달 넣는 단순 예상) */
 export function getProjectedValue(item: AssetItem, yr: number, mi: number, ctx: ProjectionContext): number {
   if (isClosedAt(item, yr, mi)) return 0
   if (yr * 100 + mi <= ctx.editableBoundary) {
@@ -205,28 +205,10 @@ export function getProjectedValue(item: AssetItem, yr: number, mi: number, ctx: 
   const base = getEffectiveEntry(item, currentYear, currentMonth, ctx.getEntry)
   const gap = monthDiff(currentYear, currentMonth, yr, mi)
 
-  if (hasMaturityDate(item)) {
-    const mat = parseYM(item.maturityDate!)
-    const matGap = monthDiff(currentYear, currentMonth, mat.year, mat.monthIdx)
-    // 이미 만기가 지난 상품: 추가 납입·이자 없이 현재 값 유지
-    if (matGap <= 0) return base
-    if (gap >= matGap) {
-      const result = calcMaturity(item, base, currentYear, currentMonth, {
-        startYM: ctx.firstEntryYM?.[item.id],
-        taxRate: ctx.taxRate,
-      })
-      if (result) return Math.round(result.amount)
-      const monthly = item.savingsType === 'deposit' ? 0 : (item.defaultAmount ?? 0)
-      return base + monthly * matGap
-    }
-  }
-
-  let added = 0
-  for (let k = 1; k <= gap; k++) {
-    const m = addMonths(currentYear, currentMonth, k)
-    added += monthlyContribution(item, m.year, m.monthIdx)
-  }
-  return base + added
+  // 미래 = 현재 잔액 + 현재 정기 납입액 × 경과 개월. 만기 이자·만기 후 납입 중단은 반영하지 않는다
+  // (만기가 지나도 같은 금액을 계속 넣는다고 본다 — 예상 자산 표·차트가 같은 기준을 쓰도록 한 곳에서만 계산)
+  const monthly = item.category === '저축' && item.savingsType === 'deposit' ? 0 : (item.defaultAmount ?? 0)
+  return base + monthly * gap
 }
 
 /**
