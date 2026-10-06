@@ -1103,6 +1103,30 @@
       "name": "쿠팡 - 닭다리살, 샤워볼, 식세기 세제",
       "category": "생활 용품",
       "order": 183
+    },
+    {
+      "id": "shared-expense-1791278598668",
+      "name": "쿠팡 - 책 배송비",
+      "category": "쇼핑",
+      "order": 184
+    },
+    {
+      "id": "shared-expense-1791278598670",
+      "name": "쿠팡 - 잠옷바지",
+      "category": "생활 용품",
+      "order": 185
+    },
+    {
+      "id": "shared-expense-1791278598672",
+      "name": "쿠팡 - 나이키양말, 건전지, 물병",
+      "category": "생활 용품",
+      "order": 186
+    },
+    {
+      "id": "shared-expense-1791278598674",
+      "name": "쿠팡 - 깔라만시 스틱",
+      "category": "식료품",
+      "order": 187
     }
   ],
   "entries": [
@@ -2398,7 +2422,7 @@
       "itemId": "shared-expense-1790157068092",
       "yearMonth": "2026-10",
       "day": 5,
-      "amount": 21600,
+      "amount": 18185,
       "creditCard": true
     },
     {
@@ -2415,6 +2439,38 @@
       "yearMonth": "2026-10",
       "day": 2,
       "amount": 60300,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1791278598669",
+      "itemId": "shared-expense-1791278598668",
+      "yearMonth": "2026-10",
+      "day": 2,
+      "amount": 3000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1791278598671",
+      "itemId": "shared-expense-1791278598670",
+      "yearMonth": "2026-10",
+      "day": 3,
+      "amount": 7600,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1791278598673",
+      "itemId": "shared-expense-1791278598672",
+      "yearMonth": "2026-10",
+      "day": 4,
+      "amount": 28500,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1791278598675",
+      "itemId": "shared-expense-1791278598674",
+      "yearMonth": "2026-10",
+      "day": 1,
+      "amount": 5480,
       "creditCard": true
     }
   ],
