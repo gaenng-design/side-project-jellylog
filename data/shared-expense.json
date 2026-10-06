@@ -1133,6 +1133,12 @@
       "name": "글램핑 (8일) - 차량",
       "category": "여행",
       "order": 188
+    },
+    {
+      "id": "shared-expense-1791305086181",
+      "name": "쿠팡 - 토닉워터",
+      "category": "식료품",
+      "order": 189
     }
   ],
   "entries": [
@@ -2492,6 +2498,14 @@
       "yearMonth": "2026-10",
       "day": 4,
       "amount": 38000
+    },
+    {
+      "id": "shared-expense-1791305086182",
+      "itemId": "shared-expense-1791305086181",
+      "yearMonth": "2026-10",
+      "day": 7,
+      "amount": 13480,
+      "creditCard": true
     }
   ],
   "categories": [
