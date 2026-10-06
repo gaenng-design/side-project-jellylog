@@ -1127,6 +1127,12 @@
       "name": "쿠팡 - 깔라만시 스틱",
       "category": "식료품",
       "order": 187
+    },
+    {
+      "id": "shared-expense-1791278598676",
+      "name": "글램핑 (8일) - 차량",
+      "category": "여행",
+      "order": 188
     }
   ],
   "entries": [
@@ -2472,6 +2478,20 @@
       "day": 1,
       "amount": 5480,
       "creditCard": true
+    },
+    {
+      "id": "shared-expense-1791278598677",
+      "itemId": "shared-expense-1791278598676",
+      "yearMonth": "2026-10",
+      "day": 2,
+      "amount": 95600
+    },
+    {
+      "id": "shared-expense-1791278598678",
+      "itemId": "shared-expense-1783867090269",
+      "yearMonth": "2026-10",
+      "day": 4,
+      "amount": 38000
     }
   ],
   "categories": [
