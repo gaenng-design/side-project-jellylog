@@ -1079,6 +1079,30 @@
       "name": "글램핑 (8일)",
       "category": "여행",
       "order": 179
+    },
+    {
+      "id": "shared-expense-1791278598660",
+      "name": "쿠팡이츠 - 해물 도시락",
+      "category": "외식비",
+      "order": 180
+    },
+    {
+      "id": "shared-expense-1791278598663",
+      "name": "쿠팡 - 잠옷 바지",
+      "category": "생활 용품",
+      "order": 181
+    },
+    {
+      "id": "shared-expense-1791278598665",
+      "name": "쿠팡 - 닭다리살, 샤워볼, 식세기 세제",
+      "category": "외식비",
+      "order": 182
+    },
+    {
+      "id": "shared-expense-1791278598667",
+      "name": "쿠팡 - 닭다리살, 샤워볼, 식세기 세제",
+      "category": "생활 용품",
+      "order": 183
     }
   ],
   "entries": [
@@ -2326,14 +2350,6 @@
       "creditCard": true
     },
     {
-      "id": "shared-expense-1790754536944",
-      "itemId": "shared-expense-1790754536943",
-      "yearMonth": "2026-10",
-      "day": 28,
-      "amount": 34000,
-      "creditCard": true
-    },
-    {
       "id": "shared-expense-1790754536946",
       "itemId": "shared-expense-1790754536945",
       "yearMonth": "2026-10",
@@ -2360,6 +2376,46 @@
       "yearMonth": "2026-10",
       "day": 2,
       "amount": 209000
+    },
+    {
+      "id": "shared-expense-1791278598659",
+      "itemId": "shared-expense-1790157068092",
+      "yearMonth": "2026-10",
+      "day": 1,
+      "amount": 21600,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1791278598661",
+      "itemId": "shared-expense-1791278598660",
+      "yearMonth": "2026-10",
+      "day": 1,
+      "amount": 35000,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1791278598662",
+      "itemId": "shared-expense-1790157068092",
+      "yearMonth": "2026-10",
+      "day": 5,
+      "amount": 21600,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1791278598664",
+      "itemId": "shared-expense-1791278598663",
+      "yearMonth": "2026-10",
+      "day": 2,
+      "amount": 7600,
+      "creditCard": true
+    },
+    {
+      "id": "shared-expense-1791278598666",
+      "itemId": "shared-expense-1791278598667",
+      "yearMonth": "2026-10",
+      "day": 2,
+      "amount": 60300,
+      "creditCard": true
     }
   ],
   "categories": [
