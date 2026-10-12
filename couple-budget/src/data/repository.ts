@@ -4,7 +4,7 @@ import type { Income, FixedExpense, Investment, SeparateItem } from '@/types'
 
 /**
  * 일상 CRUD는 MemoryAdapter → localStorage가 즉시 소스.
- * Supabase는 debouncedCloudSync가 saveAllToSupabase로 비동기 반영(설정「전체 저장하기」도 동일 경로).
+ * 클라우드 반영은 GitHub 동기화(설정「동기화」「저장하기」)가 담당한다.
  */
 function createRepository<T extends { id: string }>(tableName: string): IRepository<T> {
   return new MemoryAdapter<T>(tableName)

@@ -38,7 +38,6 @@ couple-budget/
 ├── QUICKSTART.md                  ← This file
 ├── ARCHITECTURE.md                ← Technical architecture
 ├── DEPLOYMENT.md                  ← GitHub Pages setup
-├── MIGRATION.md                   ← Migrating from Supabase
 ├── TESTING.md                     ← Test checklist
 ├── .env                           ← Local GitHub config (don't commit!)
 ├── data/                          ← JSON data files
@@ -202,7 +201,6 @@ Web app appears at: https://yourusername.github.io/couple-budget
    - Enter your token and repo
 
 3. **[Optional] Migrate existing data**
-   - See MIGRATION.md if you have Supabase data
    - Otherwise just start fresh!
 
 4. **[Optional] Deploy web app**
@@ -218,7 +216,6 @@ Web app appears at: https://yourusername.github.io/couple-budget
 For detailed information, see:
 
 - **How to set up GitHub Pages?** → `DEPLOYMENT.md`
-- **How to migrate data from Supabase?** → `MIGRATION.md`
 - **How to test the system?** → `TESTING.md`
 - **Technical details?** → `ARCHITECTURE.md`
 - **How to build the app?** → Check `package.json` scripts
@@ -239,6 +236,5 @@ Your couple-budget app now:
 
 Questions? Check the detailed guides:
 - DEPLOYMENT.md
-- MIGRATION.md
 - TESTING.md
 - ARCHITECTURE.md

@@ -148,7 +148,6 @@ GitHub commit created
 
 ### Documentation
 - `DEPLOYMENT.md` - GitHub Pages setup
-- `MIGRATION.md` - Data migration from Supabase
 - `TESTING.md` - Comprehensive test plan
 - `ARCHITECTURE.md` - This file
 
@@ -291,7 +290,6 @@ All data is in standard JSON format, making it portable.
 
 See these documents for detailed information:
 - `DEPLOYMENT.md` - GitHub Pages setup issues
-- `MIGRATION.md` - Data migration problems
 - `TESTING.md` - Test plan and common issues
 
 For GitHub API issues, consult:

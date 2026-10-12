@@ -2,7 +2,7 @@ import type { Income } from '@/types'
 
 const KEY_REPO_INCOMES = 'couple-budget:repo:incomes'
 
-/** 설정의 유저 표시 이름과 급여 행 description 을 맞춤 (로컬 repo + 이후 Supabase upsert 일치) */
+/** 설정의 유저 표시 이름과 급여 행 description 을 맞춤 (로컬 repo 와 일치) */
 export function syncIncomeRepoSalaryDescriptions(personAName: string, personBName: string): void {
   const aLabel = personAName || '유저 1'
   const bLabel = personBName || '유저 2'

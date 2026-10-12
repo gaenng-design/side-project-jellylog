@@ -63,7 +63,7 @@ export function resetAllStoresInMemory(): void {
     yearPickerMaxYear: defaultYearPickerMaxYear(),
   })
 
-  // useFixedTemplateStore 초기값으로 리셋 (빈 배열, Supabase에서 로드됨)
+  // useFixedTemplateStore 초기값으로 리셋 (빈 배열, 동기화로 복원됨)
   useFixedTemplateStore.setState({
     templates: [],
     exclusions: [],
@@ -71,7 +71,7 @@ export function resetAllStoresInMemory(): void {
     monthlySeparations: {},
   })
 
-  // useInvestTemplateStore 초기값으로 리셋 (빈 배열, Supabase에서 로드됨)
+  // useInvestTemplateStore 초기값으로 리셋 (빈 배열, 동기화로 복원됨)
   useInvestTemplateStore.setState({
     templates: [],
     exclusions: [],
