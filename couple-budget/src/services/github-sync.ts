@@ -19,6 +19,8 @@ export interface AppData {
   metadata: unknown
   /** 부동산 계획 (매매 전·후 시나리오) */
   realEstate?: unknown
+  /** 결혼식 정산·정리 (비용·축의금·설정) */
+  wedding?: unknown
 }
 
 export interface GitHubSyncResult {

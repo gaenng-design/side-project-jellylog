@@ -6,6 +6,7 @@ interface AppData {
   settlements: unknown
   metadata: unknown
   realEstate: unknown
+  wedding: unknown
 }
 
 /**
@@ -41,6 +42,7 @@ export default async function handler(req: any, res: any) {
       { name: 'settlements.json', key: 'settlements' },
       { name: 'metadata.json', key: 'metadata' },
       { name: 'real-estate.json', key: 'realEstate' },
+      { name: 'wedding.json', key: 'wedding' },
     ]
 
     for (const file of files) {

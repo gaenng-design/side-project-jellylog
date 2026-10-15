@@ -24,6 +24,8 @@ import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { useSettlementStore } from '@/store/useSettlementStore'
 import { useAssetStore } from '@/store/useAssetStore'
 import { useRealEstatePlanStore } from '@/store/useRealEstatePlanStore'
+import { useWeddingStore } from '@/store/useWeddingStore'
+import WeddingPage from '@/features/wedding/WeddingPage'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
 import { GitHubDataSync } from '@/services/github-sync'
 import { DS } from '@/design-system/tokens'
@@ -38,6 +40,7 @@ const NAV_ITEMS = [
   { to: '/expense-plan', label: '지출 계획', icon: '📋' },
   { to: '/shared-expense', label: '공동 생활비', icon: '🏠' },
   { to: '/real-estate', label: '부동산', icon: '🏡' },
+  { to: '/wedding', label: '결혼식', icon: '💍' },
   { to: '/settings', label: '설정', icon: '⚙️' },
 ]
 
@@ -75,6 +78,7 @@ function AppShell() {
       const assetState = useAssetStore.getState()
       const sharedExpenseState = useSharedExpenseStore.getState()
       const realEstateState = useRealEstatePlanStore.getState()
+      const weddingState = useWeddingStore.getState()
 
       // localStorage repository 데이터 (월별 실제 수입/지출 항목들)
       const readRepo = (key: string): unknown[] => {
@@ -140,6 +144,11 @@ function AppShell() {
           plans: realEstateState.plans,
           activePlanId: realEstateState.activePlanId,
           purchasedPlanId: realEstateState.purchasedPlanId,
+        },
+        wedding: {
+          settings: weddingState.settings,
+          expenses: weddingState.expenses,
+          gifts: weddingState.gifts,
         },
         metadata: {
           app: appState,
@@ -259,6 +268,16 @@ function AppShell() {
             plans: realEstate.plans as ReturnType<typeof useRealEstatePlanStore.getState>['plans'],
             activePlanId: realEstate.activePlanId ?? null,
             purchasedPlanId: realEstate.purchasedPlanId ?? null,
+          })
+        }
+
+        // 결혼식 정산·정리 복원 — 이전 버전으로 저장된 데이터에는 없으므로 있을 때만
+        const wedding = (result.data as { wedding?: { settings?: unknown; expenses?: unknown; gifts?: unknown } }).wedding
+        if (wedding && Array.isArray(wedding.expenses)) {
+          useWeddingStore.setState({
+            ...(wedding.settings ? { settings: wedding.settings as ReturnType<typeof useWeddingStore.getState>['settings'] } : null),
+            expenses: wedding.expenses as ReturnType<typeof useWeddingStore.getState>['expenses'],
+            gifts: (Array.isArray(wedding.gifts) ? wedding.gifts : []) as ReturnType<typeof useWeddingStore.getState>['gifts'],
           })
         }
 
@@ -806,6 +825,7 @@ function AppShell() {
             <Route path="/assets" element={<AssetPage />} />
             <Route path="/shared-expense" element={<SharedExpensePage />} />
             <Route path="/real-estate" element={<RealEstatePage />} />
+            <Route path="/wedding" element={<WeddingPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </div>
