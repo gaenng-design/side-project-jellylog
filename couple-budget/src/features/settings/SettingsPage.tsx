@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { NAV_ITEMS, ALWAYS_ON_MENU } from '@/navItems'
+import { Switch } from '@/design-system/components/Switch'
 import { useAppStore, YEAR_PICKER_MIN, DEFAULT_FIXED_CATEGORIES } from '@/store/useAppStore'
 import { useFixedTemplateStore } from '@/store/useFixedTemplateStore'
 import { useInvestTemplateStore } from '@/store/useInvestTemplateStore'
@@ -574,6 +576,39 @@ function AssetGoalSettings() {
         </div>
       ) : null}
     </>
+  )
+}
+
+/** 메뉴 표시 — 쓰지 않는 메뉴는 내비게이션에서 숨긴다 (데이터는 그대로 유지) */
+function MenuVisibilitySettings() {
+  const narrow = useNarrowLayout()
+  const menuVisibility = useAppStore((s) => s.settings.menuVisibility) ?? {}
+  const updateSettings = useAppStore((s) => s.updateSettings)
+  return (
+    <div style={settingsSectionCardWithBleedTitleStyle}>
+      <div style={settingsSectionTitleWrapForViewport(narrow)}>
+        <div style={{ fontSize: DS.font.size.subtitle, fontWeight: 700, color: DS.color.text.primary }}>메뉴 표시</div>
+      </div>
+      <div style={{ fontSize: DS.font.size.caption, color: DS.color.text.secondary, marginBottom: 8 }}>
+        쓰지 않는 메뉴는 꺼 두세요. 꺼도 입력한 데이터는 그대로 남아 있어요.
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {NAV_ITEMS.map((it) => {
+          const locked = it.to === ALWAYS_ON_MENU
+          return (
+            <div key={it.to} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 0', borderTop: `1px solid ${DS.color.border.subtle}` }}>
+              <span style={{ fontSize: DS.font.size.body, color: DS.color.text.primary }}>{it.icon} {it.label}{locked && <span style={{ fontSize: DS.font.size.caption, color: DS.color.text.muted }}> · 항상 표시</span>}</span>
+              <Switch
+                compact
+                checked={locked || menuVisibility[it.to] !== false}
+                onChange={(v) => !locked && updateSettings({ menuVisibility: { ...menuVisibility, [it.to]: v } })}
+                ariaLabel={`${it.label} 메뉴 표시`}
+              />
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 
@@ -1913,6 +1948,7 @@ export function SettingsPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <UserSettings />
         <BiometricSettings />
+        <MenuVisibilitySettings />
         <AssetGoalSettings />
         <SharedLivingCostSettings />
         <FixedTemplateSettings />

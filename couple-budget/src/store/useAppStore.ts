@@ -78,6 +78,8 @@ export interface AppSettings {
   dashboardWidgets?: Record<string, boolean>
   /** 대시보드 위젯 표시 순서 (위젯 key 배열, 탭 안에서 이 순서대로 배치) */
   dashboardWidgetOrder?: string[]
+  /** 메뉴 표시 설정 — 값이 false 인 메뉴(경로)는 내비게이션에서 숨긴다. 설정은 항상 표시 */
+  menuVisibility?: Record<string, boolean>
 }
 
 interface AppState {

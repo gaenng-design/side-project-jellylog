@@ -24,6 +24,7 @@ import { usePlanExtraStore } from '@/store/usePlanExtraStore'
 import { useSettlementStore } from '@/store/useSettlementStore'
 import { useAssetStore } from '@/store/useAssetStore'
 import { useRealEstatePlanStore } from '@/store/useRealEstatePlanStore'
+import { NAV_ITEMS } from '@/navItems'
 import { useWeddingStore } from '@/store/useWeddingStore'
 import WeddingPage from '@/features/wedding/WeddingPage'
 import { useSharedExpenseStore } from '@/store/useSharedExpenseStore'
@@ -34,17 +35,9 @@ const saveIcon = '💾'
 const syncIcon = '🔄'
 const syncDoneIcon = '✅'
 
-const NAV_ITEMS = [
-  { to: '/', label: '대시보드', icon: '📊' },
-  { to: '/assets', label: '자산', icon: '💰' },
-  { to: '/expense-plan', label: '지출 계획', icon: '📋' },
-  { to: '/shared-expense', label: '공동 생활비', icon: '🏠' },
-  { to: '/real-estate', label: '부동산', icon: '🏡' },
-  { to: '/wedding', label: '결혼식', icon: '💍' },
-  { to: '/settings', label: '설정', icon: '⚙️' },
-]
-
 function AppShell() {
+  const menuVisibility = useAppStore((st) => st.settings.menuVisibility)
+  const visibleNav = NAV_ITEMS.filter((it) => it.to === '/settings' || menuVisibility?.[it.to] !== false)
   const narrow = useNarrowLayout()
   const location = useLocation()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -564,7 +557,7 @@ function AppShell() {
                 overflowX: 'visible',
               }}
             >
-              {NAV_ITEMS.map(({ to, label, icon }) => (
+              {visibleNav.map(({ to, label, icon }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -768,7 +761,7 @@ function AppShell() {
               </button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, overflow: 'auto' }}>
-              {NAV_ITEMS.map(({ to, label, icon }) => (
+              {visibleNav.map(({ to, label, icon }) => (
                 <NavLink
                   key={to}
                   to={to}
