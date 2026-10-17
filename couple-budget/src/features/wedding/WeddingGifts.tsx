@@ -10,6 +10,7 @@ import { CustomSelect } from '@/components/CustomSelect'
 import { useAppStore } from '@/store/useAppStore'
 import { useWeddingStore, GIFT_RELATIONS, type WeddingGift } from '@/store/useWeddingStore'
 import type { Side } from '@/lib/weddingSettlement'
+import { GiftImportModal } from './GiftImportModal'
 import { Chip, EmptyNote, Field, numStyle, parseAmount, textInput, won } from './weddingUi'
 import { fmtWonShort } from '@/features/dashboard/chartKit'
 
@@ -25,6 +26,7 @@ export function WeddingGifts() {
 
   const [filter, setFilter] = useState<'all' | Side>('all')
   const [query, setQuery] = useState('')
+  const [importOpen, setImportOpen] = useState(false)
   const [editing, setEditing] = useState<{ id: string | null; draft: Draft } | null>(null)
 
   const stat = useMemo(() => {
@@ -68,6 +70,7 @@ export function WeddingGifts() {
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
         {tab('all', '전체')}{tab('A', `${aName}측`)}{tab('B', `${bName}측`)}
         <input style={{ ...textInput, flex: '1 1 140px', width: 'auto', height: 36 }} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="이름 검색" />
+        <Button onClick={() => setImportOpen(true)}>엑셀로 가져오기</Button>
         <Button variant="primary" onClick={() => setEditing({ id: null, draft: blank(filter === 'B' ? 'B' : 'A') })}>+ 추가</Button>
       </div>
 
@@ -104,6 +107,8 @@ export function WeddingGifts() {
           ))
         )}
       </Card>
+
+      <GiftImportModal open={importOpen} onClose={() => setImportOpen(false)} names={{ A: aName, B: bName }} />
 
       <Modal open={!!editing} title={editing?.id ? '축의금 수정' : '축의금 추가'} onClose={() => setEditing(null)}>
         {editing && (
