@@ -6,14 +6,12 @@ import { daysUntil } from '@/lib/assetCalc'
 import { WeddingOverview } from './WeddingOverview'
 import { WeddingExpenses } from './WeddingExpenses'
 import { WeddingGifts } from './WeddingGifts'
-import { WeddingSettlementTab } from './WeddingSettlementTab'
 
-type TabKey = 'overview' | 'expenses' | 'gifts' | 'settle'
+type TabKey = 'overview' | 'expenses' | 'gifts'
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'overview', label: '개요' },
-  { key: 'expenses', label: '비용' },
+  { key: 'expenses', label: '비용·정산' },
   { key: 'gifts', label: '축의금' },
-  { key: 'settle', label: '정산' },
 ]
 
 /** 결혼식 정산·정리: 준비 비용 · 축의금 · 양가 정산 */
@@ -55,7 +53,6 @@ export default function WeddingPage() {
       {tab === 'overview' && <WeddingOverview goTo={(k) => setTab(k)} />}
       {tab === 'expenses' && <WeddingExpenses />}
       {tab === 'gifts' && <WeddingGifts />}
-      {tab === 'settle' && <WeddingSettlementTab />}
     </div>
   )
 }

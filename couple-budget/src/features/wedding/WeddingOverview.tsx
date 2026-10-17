@@ -11,7 +11,7 @@ import { EmptyNote, Field, numStyle, parseAmount, ProgressBar, textInput, won } 
 import { fmtWonShort } from '@/features/dashboard/chartKit'
 
 /** 개요 탭: 예산 대비 비용, 분류별 현황, 기본 설정(예식일·총 예산) */
-export function WeddingOverview({ goTo }: { goTo: (tab: 'expenses' | 'gifts' | 'settle') => void }) {
+export function WeddingOverview({ goTo }: { goTo: (tab: 'expenses' | 'gifts') => void }) {
   const { expenses, gifts, settings, updateSettings } = useWeddingStore()
   const aName = useAppStore((s) => s.settings.personAName) || '유저 1'
   const bName = useAppStore((s) => s.settings.personBName) || '유저 2'
@@ -54,8 +54,8 @@ export function WeddingOverview({ goTo }: { goTo: (tab: 'expenses' | 'gifts' | '
         <StatCard valueSize={DS.font.size.title}
           label="정산"
           value={settings.splitMode === 'recordOnly' ? '기록만' : r.transfer ? fmtWonShort(r.transfer.amount) : r.paidTotal > 0 ? '없음' : '—'}
-          sub={r.transfer && settings.splitMode !== 'recordOnly' ? `${r.transfer.from === 'A' ? aName : bName}측 → ${r.transfer.to === 'A' ? aName : bName}측` : '정산 탭에서 확인'}
-          onClick={() => goTo('settle')}
+          sub={r.transfer && settings.splitMode !== 'recordOnly' ? `${r.transfer.from === 'A' ? aName : bName}측 → ${r.transfer.to === 'A' ? aName : bName}측` : '비용·정산 탭에서 확인'}
+          onClick={() => goTo('expenses')}
         />
       </div>
 

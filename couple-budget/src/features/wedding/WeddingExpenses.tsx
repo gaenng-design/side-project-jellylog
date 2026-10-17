@@ -9,6 +9,7 @@ import { CustomSelect } from '@/components/CustomSelect'
 import { useAppStore } from '@/store/useAppStore'
 import { useWeddingStore, WEDDING_CATEGORIES, type WeddingExpense } from '@/store/useWeddingStore'
 import type { Side } from '@/lib/weddingSettlement'
+import { WeddingSettlementTab } from './WeddingSettlementTab'
 import { Chip, EmptyNote, Field, numStyle, parseAmount, textInput, won } from './weddingUi'
 
 type Draft = Omit<WeddingExpense, 'id'>
@@ -88,6 +89,9 @@ export function WeddingExpenses() {
           )
         })
       )}
+
+      {/* 비용 입력과 정산을 한 화면에서: 위에서 기록하고 아래에서 바로 결과 확인 */}
+      <WeddingSettlementTab />
 
       <Modal open={!!editing} title={editing?.id ? '비용 수정' : '비용 추가'} onClose={() => setEditing(null)}>
         {editing && (

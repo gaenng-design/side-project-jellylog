@@ -40,7 +40,7 @@ function Choice<T extends string>({ options, value, onChange }: { options: { val
   )
 }
 
-/** 정산 탭: 정산 방식 선택 + 결과 */
+/** 비용 탭 하단: 정산 결과 + 정산 방식 선택 */
 export function WeddingSettlementTab() {
   const { expenses, gifts, settings, updateSettings } = useWeddingStore()
   const aName = useAppStore((s) => s.settings.personAName) || '유저 1'
